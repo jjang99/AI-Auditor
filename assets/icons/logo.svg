@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="64"
+     height="64"
+     viewBox="0 0 64 64"
+     fill="none">
+
+    <!-- 방패 -->
+    <path
+        d="M32 8
+           L51 15
+           V29
+           C51 41
+           44 51
+           32 57
+           C20 51
+           13 41
+           13 29
+           V15
+           Z"
+        stroke="#3B82F6"
+        stroke-width="4"
+        stroke-linejoin="round"/>
+
+    <!-- 체크 -->
+    <path
+        d="M22 31
+           L29 38
+           L43 24"
+        stroke="#60A5FA"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>

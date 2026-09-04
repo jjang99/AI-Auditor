@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="760"
+     height="180"
+     viewBox="0 0 760 180"
+     fill="none">
+
+    <!-- 가장 은은한 바깥 곡선 -->
+    <path
+        d="M-40 145
+           C120 55 250 45 385 100
+           C510 150 620 145 800 55"
+        stroke="#2563EB"
+        stroke-width="2"
+        stroke-opacity="0.12"
+        fill="none"/>
+
+    <!-- 중간 곡선 -->
+    <path
+        d="M-30 158
+           C135 72 265 62 390 110
+           C520 160 640 150 790 72"
+        stroke="#3B82F6"
+        stroke-width="2"
+        stroke-opacity="0.18"
+        fill="none"/>
+
+    <!-- 안쪽 곡선 -->
+    <path
+        d="M-20 170
+           C150 90 280 80 400 120
+           C525 162 650 158 780 92"
+        stroke="#60A5FA"
+        stroke-width="1.5"
+        stroke-opacity="0.14"
+        fill="none"/>
+
+    <!-- 은은한 파란 영역 -->
+    <path
+        d="M-40 145
+           C120 55 250 45 385 100
+           C510 150 620 145 800 55
+           L800 180
+           L-40 180
+           Z"
+        fill="#2563EB"
+        fill-opacity="0.025"/>
+</svg>

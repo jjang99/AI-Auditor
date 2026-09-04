@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="64"
+     height="64"
+     viewBox="0 0 64 64"
+     fill="none">
+
+    <!-- 은은한 원형 배경 -->
+    <circle
+        cx="32"
+        cy="32"
+        r="24"
+        fill="#2563EB"
+        fill-opacity="0.16"/>
+
+    <!-- 체크 원 -->
+    <circle
+        cx="32"
+        cy="32"
+        r="14"
+        stroke="#3B82F6"
+        stroke-width="4"/>
+
+    <!-- 체크 -->
+    <path
+        d="M25 32
+           L30 37
+           L40 26"
+        stroke="#60A5FA"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>
