@@ -531,9 +531,17 @@ class ProjectDetailPage(QWidget):
             ("Low", "PERF-008", "비효율적 쿼리 사용", "조치완료"),
             ("Low", "LOG-002", "로그 레벨 부적절", "조치완료"),
             ("Low", "DOC-001", "주석/문서화 부족", "미조치"),
+            ("Medium", "REQ-034", "요구사항 추적성 부족", "미조치"),
+            ("High", "SEC-018", "접근권한 검증 누락", "조치완료"),
+            ("Medium", "DATA-022", "참조 데이터 불일치", "미조치"),
+            ("Low", "UI-011", "화면 메시지 기준 불일치", "조치완료"),
+            ("Low", "DOC-014", "설계 근거 문서 누락", "미조치"),
+            ("Medium", "TEST-009", "테스트 케이스 누락", "조치완료"),
         ]
 
-        for level, code, text, status in issues:
+        hidden_rows = []
+
+        for index, (level, code, text, status) in enumerate(issues):
             row = QFrame()
             row.setObjectName("detailIssueListRow")
             row.setFixedHeight(62)
@@ -579,8 +587,25 @@ class ProjectDetailPage(QWidget):
             row_layout.addWidget(status_label)
 
             items_layout.addWidget(row)
+            if index >= 10:
+                row.hide()
+                hidden_rows.append(row)
 
         items_layout.addStretch()
+
+        more_button = QPushButton("더 보기")
+        more_button.setObjectName("detailHistoryButton")
+        more_button.setFixedHeight(32)
+
+        def show_more():
+            for row in hidden_rows:
+                row.show()
+
+            more_button.hide()
+
+        more_button.clicked.connect(show_more)
+
+        items_layout.addWidget(more_button)
 
         scroll.setWidget(container)
         layout.addWidget(scroll, 1)
