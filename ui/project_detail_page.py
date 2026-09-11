@@ -545,6 +545,15 @@ class ProjectDetailPage(QWidget):
             row = QFrame()
             row.setObjectName("detailIssueListRow")
             row.setFixedHeight(62)
+            row.setCursor(Qt.PointingHandCursor)
+
+            row.mousePressEvent = (
+                lambda event,
+                level=level,
+                code=code,
+                status=status:
+                self.update_issue_header(level, code, status)
+            )
 
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(
@@ -630,21 +639,21 @@ class ProjectDetailPage(QWidget):
 
         issue_header = QHBoxLayout()
 
-        badge = QLabel("Critical")
-        badge.setObjectName("detailBadge_critical")
-        badge.setAlignment(Qt.AlignCenter)
-        badge.setFixedWidth(52)
+        self.detail_badge = QLabel("Critical")
+        self.detail_badge.setObjectName("detailBadge_critical")
+        self.detail_badge.setAlignment(Qt.AlignCenter)
+        self.detail_badge.setFixedWidth(52)
 
-        code = QLabel("REQ-021")
-        code.setObjectName("detailIssueDetailCode")
+        self.detail_code = QLabel("REQ-021")
+        self.detail_code.setObjectName("detailIssueDetailCode")
 
-        status = QLabel("미조치")
-        status.setObjectName("detailStatusOpen")
+        self.detail_status = QLabel("미조치")
+        self.detail_status.setObjectName("detailStatusOpen")
 
-        issue_header.addWidget(badge)
-        issue_header.addWidget(code)
+        issue_header.addWidget(self.detail_badge)
+        issue_header.addWidget(self.detail_code)
         issue_header.addStretch()
-        issue_header.addWidget(status)
+        issue_header.addWidget(self.detail_status)
 
         layout.addLayout(issue_header)
 
@@ -732,6 +741,28 @@ class ProjectDetailPage(QWidget):
 
         layout.addWidget(label)
         layout.addWidget(body)
+
+    def update_issue_header(self, level, code, status):
+        self.detail_badge.setText(level)
+        self.detail_badge.setObjectName(
+            f"detailBadge_{level.lower()}"
+        )
+
+        self.detail_code.setText(code)
+
+        self.detail_status.setText(status)
+        self.detail_status.setObjectName(
+            "detailStatusResolved"
+            if status == "조치완료"
+            else "detailStatusOpen"
+        )
+
+        # 변경된 ObjectName의 스타일 다시 적용
+        self.detail_badge.style().unpolish(self.detail_badge)
+        self.detail_badge.style().polish(self.detail_badge)
+
+        self.detail_status.style().unpolish(self.detail_status)
+        self.detail_status.style().polish(self.detail_status)
 
     def open_reinspect_dialog(self):
         dialog = ReInspectDialog(self)
