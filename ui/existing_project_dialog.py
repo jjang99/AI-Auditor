@@ -59,9 +59,11 @@ class ExistingProjectDialog(QDialog):
         layout.addWidget(description)
         layout.addSpacing(5)
 
+        # Keep all four columns centered, but group them more tightly so the
+        # table reads as one unit instead of four widely separated blocks.
         table_header = QHBoxLayout()
         table_header.setContentsMargins(12, 0, 12, 0)
-        table_header.setSpacing(8)
+        table_header.setSpacing(6)
         project_header = QLabel("프로젝트명")
         department_header = QLabel("부서명(기관명)")
         type_header = QLabel("프로젝트 구분")
@@ -69,13 +71,16 @@ class ExistingProjectDialog(QDialog):
         for label in (project_header, department_header, type_header, date_header):
             label.setObjectName("existingProjectHeader")
             label.setAlignment(Qt.AlignCenter)
-        project_header.setFixedWidth(220)
-        department_header.setFixedWidth(150)
-        type_header.setFixedWidth(122)
+        project_header.setFixedWidth(200)
+        department_header.setFixedWidth(140)
+        type_header.setFixedWidth(115)
+        date_header.setFixedWidth(110)
+        table_header.addStretch()
         table_header.addWidget(project_header)
         table_header.addWidget(department_header)
         table_header.addWidget(type_header)
-        table_header.addWidget(date_header, 1)
+        table_header.addWidget(date_header)
+        table_header.addStretch()
         layout.addLayout(table_header)
 
         scroll = QScrollArea()
@@ -134,7 +139,7 @@ class ExistingProjectDialog(QDialog):
         row.setFixedHeight(54)
         row_layout = QHBoxLayout(row)
         row_layout.setContentsMargins(14, 5, 14, 5)
-        row_layout.setSpacing(0)
+        row_layout.setSpacing(6)
 
         radio = QRadioButton()
         radio.setCursor(Qt.PointingHandCursor)
@@ -149,8 +154,6 @@ class ExistingProjectDialog(QDialog):
             label.setObjectName("existingProjectText")
             label.setAlignment(Qt.AlignCenter)
 
-        # Keep the selector visually attached to the project name while
-        # preserving the centered data columns.
         selector_cell = QWidget()
         selector_cell.setObjectName("existingProjectSelectorCell")
         selector_layout = QHBoxLayout(selector_cell)
@@ -160,18 +163,18 @@ class ExistingProjectDialog(QDialog):
         selector_layout.addWidget(radio)
         selector_layout.addWidget(name)
         selector_layout.addStretch()
-        selector_cell.setFixedWidth(220)
+        selector_cell.setFixedWidth(200)
 
-        department.setFixedWidth(150)
-        project_type.setFixedWidth(122)
+        department.setFixedWidth(140)
+        project_type.setFixedWidth(115)
+        date.setFixedWidth(110)
 
+        row_layout.addStretch()
         row_layout.addWidget(selector_cell)
-        row_layout.addSpacing(8)
         row_layout.addWidget(department)
-        row_layout.addSpacing(8)
         row_layout.addWidget(project_type)
-        row_layout.addSpacing(8)
-        row_layout.addWidget(date, 1)
+        row_layout.addWidget(date)
+        row_layout.addStretch()
         return row
 
     def apply_theme(self):
