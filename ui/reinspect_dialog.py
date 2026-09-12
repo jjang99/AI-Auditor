@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPoint
 from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -17,9 +17,12 @@ class ReInspectDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self._drag_position = QPoint()
+        self._dragging = False
+
         self.setWindowTitle("Re-Inspect")
         self.setModal(True)
-        self.setFixedSize(700, 660)
+        self.setFixedSize(700, 680)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
@@ -35,9 +38,12 @@ class ReInspectDialog(QDialog):
         panel_layout.setSpacing(0)
 
         # =====================================================
-        # Header
+        # Header - 드래그 가능한 영역
         # =====================================================
-        header = QHBoxLayout()
+        self.header_frame = QFrame()
+        self.header_frame.setObjectName("reinspectHeader")
+        header = QHBoxLayout(self.header_frame)
+        header.setContentsMargins(0, 0, 0, 0)
         header.setSpacing(12)
 
         title_area = QVBoxLayout()
@@ -63,12 +69,11 @@ class ReInspectDialog(QDialog):
 
         header.addLayout(title_area, 1)
         header.addWidget(close_button, 0, Qt.AlignTop)
-        panel_layout.addLayout(header)
-        panel_layout.addSpacing(18)
+        panel_layout.addWidget(self.header_frame)
+        panel_layout.addSpacing(22)
 
         # =====================================================
         # Scrollable content
-        # - 파일/안내문이 늘어나도 모달 밖으로 잘리지 않도록 함
         # =====================================================
         scroll = QScrollArea()
         scroll.setObjectName("reinspectScroll")
@@ -89,23 +94,24 @@ class ReInspectDialog(QDialog):
         section1_title = QLabel("1. 수정 산출물 등록")
         section1_title.setObjectName("reinspectSectionTitle")
         main_layout.addWidget(section1_title)
-        main_layout.addSpacing(10)
+        main_layout.addSpacing(12)
 
         upload_box = QFrame()
         upload_box.setObjectName("reinspectUploadBox")
-        upload_box.setMinimumHeight(96)
+        upload_box.setMinimumHeight(92)
 
         upload_layout = QHBoxLayout(upload_box)
-        upload_layout.setContentsMargins(22, 16, 22, 16)
-        upload_layout.setSpacing(20)
+        upload_layout.setContentsMargins(24, 15, 24, 15)
+        upload_layout.setSpacing(22)
 
         upload_text = QLabel("파일을 드래그 앤 드롭하거나")
         upload_text.setObjectName("reinspectMutedText")
-        upload_text.setWordWrap(True)
+        upload_text.setWordWrap(False)
+        upload_text.setMinimumWidth(210)
 
         select_button = QPushButton("파일 선택")
         select_button.setObjectName("reinspectFileButton")
-        select_button.setFixedSize(150, 50)
+        select_button.setFixedSize(150, 44)
         select_button.setCursor(Qt.PointingHandCursor)
         select_button.clicked.connect(self.select_files)
 
@@ -115,7 +121,7 @@ class ReInspectDialog(QDialog):
         upload_layout.addStretch()
 
         main_layout.addWidget(upload_box)
-        main_layout.addSpacing(22)
+        main_layout.addSpacing(28)
 
         # =====================================================
         # 2. 업로드 상태
@@ -123,16 +129,29 @@ class ReInspectDialog(QDialog):
         section2_title = QLabel("2. 업로드 상태")
         section2_title.setObjectName("reinspectSectionTitle")
         main_layout.addWidget(section2_title)
-        main_layout.addSpacing(10)
+        main_layout.addSpacing(12)
 
-        self.upload_status_layout = QVBoxLayout()
+        upload_scroll = QScrollArea()
+        upload_scroll.setObjectName("reinspectUploadScroll")
+        upload_scroll.setWidgetResizable(True)
+        upload_scroll.setFrameShape(QFrame.NoFrame)
+        upload_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        upload_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        upload_scroll.setFixedHeight(88)
+
+        upload_container = QWidget()
+        upload_container.setObjectName("reinspectUploadContainer")
+        self.upload_status_layout = QVBoxLayout(upload_container)
+        self.upload_status_layout.setContentsMargins(0, 0, 4, 0)
         self.upload_status_layout.setSpacing(10)
 
         self.add_uploaded_file("요구사항기술서.xlsx", "12.4 MB")
         self.add_uploaded_file("요구사항추적표.xlsx", "4.8 MB")
+        self.upload_status_layout.addStretch()
 
-        main_layout.addLayout(self.upload_status_layout)
-        main_layout.addSpacing(22)
+        upload_scroll.setWidget(upload_container)
+        main_layout.addWidget(upload_scroll)
+        main_layout.addSpacing(28)
 
         # =====================================================
         # 3. 검사 기준
@@ -140,7 +159,7 @@ class ReInspectDialog(QDialog):
         section3_title = QLabel("3. 검사 기준")
         section3_title.setObjectName("reinspectSectionTitle")
         main_layout.addWidget(section3_title)
-        main_layout.addSpacing(10)
+        main_layout.addSpacing(12)
 
         rule_box = QFrame()
         rule_box.setObjectName("reinspectRuleBox")
@@ -175,7 +194,7 @@ class ReInspectDialog(QDialog):
         rule_layout.addWidget(rule_note)
 
         main_layout.addWidget(rule_box)
-        main_layout.addSpacing(22)
+        main_layout.addSpacing(28)
 
         # =====================================================
         # 4. 검사 준비 요약
@@ -183,22 +202,21 @@ class ReInspectDialog(QDialog):
         section4_title = QLabel("4. 검사 준비 요약")
         section4_title.setObjectName("reinspectSectionTitle")
         main_layout.addWidget(section4_title)
-        main_layout.addSpacing(12)
+        main_layout.addSpacing(14)
 
         summary_layout = QHBoxLayout()
         summary_layout.setContentsMargins(14, 0, 14, 0)
         summary_layout.setSpacing(24)
-
         summary_layout.addLayout(self.create_summary_item("등록 파일", "18개"), 1)
         summary_layout.addLayout(self.create_summary_item("적용 규칙", "100개"), 1)
         summary_layout.addLayout(self.create_summary_item("예상 검사 시간", "약 2분 20초"), 1)
 
         main_layout.addLayout(summary_layout)
-        main_layout.addSpacing(8)
+        main_layout.addSpacing(10)
 
         scroll.setWidget(content)
         panel_layout.addWidget(scroll, 1)
-        panel_layout.addSpacing(16)
+        panel_layout.addSpacing(18)
 
         # =====================================================
         # 하단 버튼
@@ -226,14 +244,34 @@ class ReInspectDialog(QDialog):
         self.apply_theme()
 
     # =========================================================
+    # Frameless modal dragging
+    # =========================================================
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            header_rect = self.header_frame.geometry()
+            if header_rect.contains(event.position().toPoint()):
+                self._dragging = True
+                self._drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._dragging and event.buttons() & Qt.LeftButton:
+            self.move(event.globalPosition().toPoint() - self._drag_position)
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._dragging = False
+        super().mouseReleaseEvent(event)
+
+    # =========================================================
     # Theme
     # =========================================================
     def apply_theme(self):
-        is_dark = self._is_dark_mode()
-        if is_dark:
-            self.setStyleSheet(self._dark_style())
-        else:
-            self.setStyleSheet(self._light_style())
+        self.setStyleSheet(self._dark_style() if self._is_dark_mode() else self._light_style())
 
     def _is_dark_mode(self):
         current = self.parent()
@@ -246,7 +284,7 @@ class ReInspectDialog(QDialog):
     def _dark_style(self):
         return """
         #reinspectPanel { background-color:#101f2c; border:1px solid #64748b; border-radius:14px; }
-        #reinspectContent, #reinspectScroll { background:transparent; border:none; }
+        #reinspectHeader, #reinspectContent, #reinspectScroll, #reinspectUploadContainer, #reinspectUploadScroll { background:transparent; border:none; }
         #reinspectTitle { color:#f8fafc; font-size:25px; font-weight:700; }
         #reinspectDescription { color:#c2ccd8; font-size:13px; font-weight:500; }
         #reinspectSectionTitle { color:#f8fafc; font-size:16px; font-weight:700; }
@@ -275,7 +313,7 @@ class ReInspectDialog(QDialog):
     def _light_style(self):
         return """
         #reinspectPanel { background-color:#ffffff; border:1px solid #94a3b8; border-radius:14px; }
-        #reinspectContent, #reinspectScroll { background:transparent; border:none; }
+        #reinspectHeader, #reinspectContent, #reinspectScroll, #reinspectUploadContainer, #reinspectUploadScroll { background:transparent; border:none; }
         #reinspectTitle { color:#0f172a; font-size:25px; font-weight:700; }
         #reinspectDescription { color:#475569; font-size:13px; font-weight:500; }
         #reinspectSectionTitle { color:#0f172a; font-size:16px; font-weight:700; }
@@ -301,9 +339,6 @@ class ReInspectDialog(QDialog):
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
         """
 
-    # =========================================================
-    # 업로드 파일 한 줄
-    # =========================================================
     def add_uploaded_file(self, file_name, file_size):
         row = QHBoxLayout()
         row.setSpacing(10)
@@ -319,29 +354,20 @@ class ReInspectDialog(QDialog):
 
         row.addWidget(file_label, 1)
         row.addWidget(size_label)
-        self.upload_status_layout.addLayout(row)
+        self.upload_status_layout.insertLayout(max(0, self.upload_status_layout.count() - 1), row)
 
-    # =========================================================
-    # 검사 준비 요약 항목
-    # =========================================================
     def create_summary_item(self, title, value):
         layout = QVBoxLayout()
         layout.setSpacing(7)
-
         title_label = QLabel(title)
         title_label.setObjectName("reinspectSummaryLabel")
-
         value_label = QLabel(value)
         value_label.setObjectName("reinspectSummaryValue")
         value_label.setWordWrap(True)
-
         layout.addWidget(title_label)
         layout.addWidget(value_label)
         return layout
 
-    # =========================================================
-    # 파일 선택
-    # =========================================================
     def select_files(self):
         files, _ = QFileDialog.getOpenFileNames(
             self,
