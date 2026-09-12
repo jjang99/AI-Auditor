@@ -8,6 +8,7 @@ from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
 from ui.project_detail_page import ProjectDetailPage
 from ui.project_detail_refinements import apply_project_detail_refinements
+from ui.project_detail_theme import DETAIL_DARK_REFINEMENTS, DETAIL_LIGHT_REFINEMENTS
 from ui.inspection_page import InspectionPage
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
@@ -132,11 +133,11 @@ class MainWindow(QMainWindow):
 
     def apply_theme(self):
         if self.is_dark_mode:
-            self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES)
+            self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES + DETAIL_DARK_REFINEMENTS)
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
         else:
-            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES)
+            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
 
