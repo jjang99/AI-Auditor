@@ -25,6 +25,10 @@ from ui.inspection_final_refinements import (
     DARK_INSPECTION_FINAL,
     LIGHT_INSPECTION_FINAL,
 )
+from ui.inspection_start_button_theme import (
+    DARK_INSPECTION_START_BUTTON,
+    LIGHT_INSPECTION_START_BUTTON,
+)
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
@@ -165,6 +169,7 @@ class MainWindow(QMainWindow):
                 + DARK_INSPECTION_REFINEMENTS
                 + DARK_INSPECTION_READABILITY_V2
                 + DARK_INSPECTION_FINAL
+                + DARK_INSPECTION_START_BUTTON
             )
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
@@ -176,6 +181,7 @@ class MainWindow(QMainWindow):
                 + LIGHT_INSPECTION_REFINEMENTS
                 + LIGHT_INSPECTION_READABILITY_V2
                 + LIGHT_INSPECTION_FINAL
+                + LIGHT_INSPECTION_START_BUTTON
             )
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
