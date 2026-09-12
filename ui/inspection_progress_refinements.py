@@ -132,10 +132,10 @@ def _build_progress_card(self):
 
 def _complete_result_box(parent, title, value):
     box = parent.create_complete_info_box(title, value)
-    box.setFixedSize(120, 50)
+    box.setFixedSize(110, 54)
     box_layout = box.layout()
     if box_layout is not None:
-        box_layout.setContentsMargins(10, 2, 10, 2)
+        box_layout.setContentsMargins(10, 3, 10, 3)
         box_layout.setSpacing(0)
     title_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoTitle')), None)
     value_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoValue')), None)
@@ -191,10 +191,12 @@ def _build_complete_card(self):
     description_row.addWidget(description)
     description_row.addStretch(1)
     layout.addWidget(description_row_widget)
-    layout.addSpacing(8)
+
+    # 결과값 카드 라인을 현재보다 살짝 아래로 내린다.
+    layout.addSpacing(12)
 
     result_row_widget = QWidget(card)
-    result_row_widget.setFixedHeight(50)
+    result_row_widget.setFixedHeight(54)
     result_row = QHBoxLayout(result_row_widget)
     result_row.setContentsMargins(0, 0, 0, 0)
     result_row.setSpacing(0)
@@ -210,7 +212,7 @@ def _build_complete_card(self):
 
     result_button = QPushButton('검사 결과 보기 →')
     result_button.setObjectName('inspectionResultButton')
-    result_button.setFixedSize(130, 50)
+    result_button.setFixedSize(120, 54)
     result_button.setCursor(Qt.PointingHandCursor)
     result_button.clicked.connect(self.inspection_result_requested.emit)
     result_widgets.append(result_button)
