@@ -137,7 +137,7 @@ class ExistingProjectDialog(QDialog):
 
         radio = QRadioButton()
         radio.setCursor(Qt.PointingHandCursor)
-        radio.setFixedSize(20, 20)
+        radio.setFixedSize(18, 18)
         self.radio_group.addButton(radio, index)
         name = QLabel(project["name"])
         department = QLabel(project["department"])
@@ -146,7 +146,7 @@ class ExistingProjectDialog(QDialog):
         for label in (name, department, project_type, date):
             label.setObjectName("existingProjectText")
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        name.setFixedWidth(178)
+        name.setFixedWidth(180)
         department.setFixedWidth(150)
         project_type.setFixedWidth(122)
         row_layout.addWidget(radio)
@@ -183,10 +183,10 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar::handle:vertical { background:#60758a; min-height:28px; border-radius:4px; }
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
                 QRadioButton { background:transparent; spacing:0px; }
-                QRadioButton::indicator { width:14px; height:14px; }
-                QRadioButton::indicator:unchecked { background:transparent; border:1px solid #9eb4c7; border-radius:7px; }
+                QRadioButton::indicator { width:12px; height:12px; }
+                QRadioButton::indicator:unchecked { background:transparent; border:1px solid #9eb4c7; border-radius:6px; }
                 QRadioButton::indicator:unchecked:hover { border:2px solid #60a5fa; }
-                QRadioButton::indicator:checked { background:#3b82f6; border:3px solid #b8d8ff; border-radius:7px; }
+                QRadioButton::indicator:checked { background:#3b82f6; border:2px solid #b8d8ff; border-radius:6px; }
             """)
         else:
             self.setStyleSheet("""
@@ -212,10 +212,10 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar::handle:vertical { background:#8998aa; min-height:28px; border-radius:4px; }
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
                 QRadioButton { background:transparent; spacing:0px; }
-                QRadioButton::indicator { width:14px; height:14px; }
-                QRadioButton::indicator:unchecked { background:#ffffff; border:1px solid #8296aa; border-radius:7px; }
+                QRadioButton::indicator { width:12px; height:12px; }
+                QRadioButton::indicator:unchecked { background:#ffffff; border:1px solid #8296aa; border-radius:6px; }
                 QRadioButton::indicator:unchecked:hover { border:2px solid #3b82f6; }
-                QRadioButton::indicator:checked { background:#2563eb; border:3px solid #bfdbfe; border-radius:7px; }
+                QRadioButton::indicator:checked { background:#2563eb; border:2px solid #bfdbfe; border-radius:6px; }
             """)
 
     def eventFilter(self, watched, event):
