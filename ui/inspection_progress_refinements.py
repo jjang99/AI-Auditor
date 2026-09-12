@@ -12,15 +12,15 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionProgressInfoBox { background:#0d1721; border:1px solid #465669; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#d1d9e3; font-size:11px; font-weight:700; }
 #inspectionProgressInfoValue { color:#ffffff; font-size:14px; font-weight:850; }
-#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:16px; font-size:20px; font-weight:800; }
-#inspectionCompleteMessage { color:#ffffff; font-size:16px; font-weight:850; }
-#inspectionCompleteDescription { color:#e2e8f0; font-size:12px; font-weight:700; }
-#inspectionCompleteInfoBox { background:#0d1721; border:1px solid #526477; border-radius:7px; }
-#inspectionCompleteInfoTitle { color:#d5dde7; font-size:11px; font-weight:750; }
-#inspectionCompleteInfoValue { color:#ffffff; font-size:16px; font-weight:900; }
-#inspectionResultButton { color:#ffffff; background:#2563eb; border:none; border-radius:7px; font-size:13px; font-weight:900; text-align:center; padding:0px; }
-#inspectionResultButton:hover { background:#3475f5; }
-#inspectionCompleteNote { color:#d0d8e2; font-size:10px; font-weight:650; }
+#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:17px; font-size:21px; font-weight:900; }
+#inspectionCompleteMessage { color:#ffffff; font-size:17px; font-weight:900; }
+#inspectionCompleteDescription { color:#f1f5f9; font-size:13px; font-weight:750; }
+#inspectionCompleteInfoBox { background:#0d1721; border:1px solid #63758a; border-radius:7px; }
+#inspectionCompleteInfoTitle { color:#e2e8f0; font-size:12px; font-weight:800; }
+#inspectionCompleteInfoValue { color:#ffffff; font-size:17px; font-weight:900; }
+#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #60a5fa; border-radius:7px; font-size:14px; font-weight:900; text-align:center; padding:0px; }
+#inspectionResultButton:hover { background:#3475f5; border-color:#93c5fd; }
+#inspectionCompleteNote { color:#f1f5f9; font-size:11px; font-weight:750; }
 #inspectionSummaryIcon { color:#3b82f6; }
 '''
 
@@ -34,15 +34,15 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionProgressInfoBox { background:#f8fafc; border:1px solid #aebccc; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#334155; font-size:11px; font-weight:700; }
 #inspectionProgressInfoValue { color:#0b1220; font-size:14px; font-weight:850; }
-#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:16px; font-size:20px; font-weight:800; }
-#inspectionCompleteMessage { color:#050b16; font-size:16px; font-weight:850; }
-#inspectionCompleteDescription { color:#263548; font-size:12px; font-weight:700; }
-#inspectionCompleteInfoBox { background:#f8fafc; border:1px solid #9fadc0; border-radius:7px; }
-#inspectionCompleteInfoTitle { color:#334155; font-size:11px; font-weight:750; }
-#inspectionCompleteInfoValue { color:#050b16; font-size:16px; font-weight:900; }
-#inspectionResultButton { color:#ffffff; background:#2563eb; border:none; border-radius:7px; font-size:13px; font-weight:900; text-align:center; padding:0px; }
-#inspectionResultButton:hover { background:#1d4ed8; }
-#inspectionCompleteNote { color:#334155; font-size:10px; font-weight:650; }
+#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:17px; font-size:21px; font-weight:900; }
+#inspectionCompleteMessage { color:#020617; font-size:17px; font-weight:900; }
+#inspectionCompleteDescription { color:#1e293b; font-size:13px; font-weight:750; }
+#inspectionCompleteInfoBox { background:#ffffff; border:1px solid #91a2b7; border-radius:7px; }
+#inspectionCompleteInfoTitle { color:#334155; font-size:12px; font-weight:800; }
+#inspectionCompleteInfoValue { color:#020617; font-size:17px; font-weight:900; }
+#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #1d4ed8; border-radius:7px; font-size:14px; font-weight:900; text-align:center; padding:0px; }
+#inspectionResultButton:hover { background:#1d4ed8; border-color:#1e40af; }
+#inspectionCompleteNote { color:#1e293b; font-size:11px; font-weight:750; }
 #inspectionSummaryIcon { color:#2563eb; }
 '''
 
@@ -84,18 +84,27 @@ def apply_inspection_progress_refinements(inspection_cls):
                 if value is not None: value.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
         if complete_card is not None:
             lay=complete_card.layout()
-            if lay is not None: lay.setContentsMargins(14,8,14,7); lay.setSpacing(5)
+            if lay is not None:
+                lay.setContentsMargins(14,6,14,6)
+                lay.setSpacing(4)
+                lay.setAlignment(Qt.AlignTop)
             check=next(iter(complete_card.findChildren(QLabel,'inspectionCompleteCheck')),None)
-            if check is not None: check.setFixedSize(32,32)
+            if check is not None: check.setFixedSize(34,34)
+            message=next(iter(complete_card.findChildren(QLabel,'inspectionCompleteMessage')),None)
+            if message is not None: message.setFixedHeight(22); message.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
             description=next(iter(complete_card.findChildren(QLabel,'inspectionCompleteDescription')),None)
             if description is not None:
-                description.setWordWrap(False); description.setMinimumWidth(390); description.setFixedHeight(18)
+                description.setWordWrap(False); description.setMinimumWidth(430); description.setFixedHeight(19); description.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
             for box in complete_card.findChildren(QFrame,'inspectionCompleteInfoBox'):
-                box.setFixedHeight(54); bl=box.layout()
-                if bl is not None: bl.setContentsMargins(10,4,10,4); bl.setSpacing(0)
+                box.setFixedHeight(52); bl=box.layout()
+                if bl is not None: bl.setContentsMargins(10,3,10,3); bl.setSpacing(0)
+                title=next(iter(box.findChildren(QLabel,'inspectionCompleteInfoTitle')),None)
+                value=next(iter(box.findChildren(QLabel,'inspectionCompleteInfoValue')),None)
+                if title is not None: title.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
+                if value is not None: value.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
             result_button=next(iter(complete_card.findChildren(QPushButton,'inspectionResultButton')),None)
             if result_button is not None:
-                result_button.setText('검사 결과 보기 →'); result_button.setFixedSize(126,54)
+                result_button.setText('검사 결과 보기 →'); result_button.setFixedSize(126,52)
             note=next(iter(complete_card.findChildren(QLabel,'inspectionCompleteNote')),None)
-            if note is not None: note.setFixedHeight(16); note.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
+            if note is not None: note.setFixedHeight(18); note.setAlignment(Qt.AlignLeft|Qt.AlignVCenter)
     inspection_cls.__init__=refined_init; inspection_cls._progress_refined=True
