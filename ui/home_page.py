@@ -21,7 +21,7 @@ class HomePage(QWidget):
         # 전체 Home 레이아웃
         # ==================================================
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(24, 28, 24, 18)
+        main_layout.setContentsMargins(16, 28, 16, 14)
         main_layout.setSpacing(0)
 
         # ==================================================
@@ -71,21 +71,21 @@ class HomePage(QWidget):
         )
 
         main_layout.addLayout(hero_layout)
-        main_layout.addSpacing(14)
+        main_layout.addSpacing(12)
 
         # ==================================================
         # 중앙 물결 배경
         # ==================================================
         wave_label = QLabel()
         wave_label.setAlignment(Qt.AlignCenter)
-        wave_label.setFixedHeight(112)
+        wave_label.setFixedHeight(125)
 
         wave_path = self.asset_path("icons", "home_wave.svg")
         wave_pixmap = QPixmap(wave_path)
         wave_label.setPixmap(
             wave_pixmap.scaled(
-                790,
-                112,
+                808,
+                125,
                 Qt.IgnoreAspectRatio,
                 Qt.SmoothTransformation,
             )
@@ -100,7 +100,7 @@ class HomePage(QWidget):
         cards_layout = QGridLayout()
         cards_layout.setHorizontalSpacing(14)
         cards_layout.setVerticalSpacing(0)
-        cards_layout.setContentsMargins(0, 0, 0, 0)
+        cards_layout.setContentsMargins(8, 0, 8, 0)
 
         # 4개 카드 폭을 항상 동일하게 유지
         for column in range(4):
@@ -118,29 +118,28 @@ class HomePage(QWidget):
             cards_layout.addWidget(card, 0, index)
 
         main_layout.addLayout(cards_layout)
-        main_layout.addSpacing(28)
+        main_layout.addSpacing(22)
 
         # ==================================================
         # Why AI Auditor
         # ==================================================
         why_frame = QFrame()
         why_frame.setObjectName("whyFrame")
-        why_frame.setFixedHeight(128)
+        why_frame.setFixedHeight(140)
 
         why_layout = QVBoxLayout(why_frame)
-        why_layout.setContentsMargins(16, 10, 16, 10)
+        why_layout.setContentsMargins(16, 12, 16, 12)
         why_layout.setSpacing(0)
 
         why_title = QLabel("Why AI Auditor?")
         why_title.setObjectName("whyTitle")
-        # 확정 시안의 포인트 블루 유지
         why_title.setStyleSheet(
             'color: #3b82f6; font-size: 16px; font-weight: 600; '
             'font-family: "Segoe UI Variable", "Malgun Gothic";'
         )
 
         why_layout.addWidget(why_title)
-        why_layout.addSpacing(6)
+        why_layout.addSpacing(8)
 
         why_items_layout = QHBoxLayout()
         why_items_layout.setContentsMargins(0, 0, 0, 0)
@@ -172,7 +171,7 @@ class HomePage(QWidget):
         for index, (title_text, body_text, icon_file) in enumerate(why_data):
             item_layout = QVBoxLayout()
             item_layout.setContentsMargins(0, 0, 0, 0)
-            item_layout.setSpacing(3)
+            item_layout.setSpacing(5)
 
             item_header = QHBoxLayout()
             item_header.setContentsMargins(0, 0, 0, 0)
@@ -228,9 +227,8 @@ class HomePage(QWidget):
                 divider.setFrameShape(QFrame.VLine)
                 divider.setFixedWidth(1)
                 divider.setFixedHeight(54)
-                # 기존보다 훨씬 은은한 구분선
                 divider.setStyleSheet(
-                    "background-color: rgba(148, 163, 184, 45); border: none;"
+                    "background-color: rgba(148, 163, 184, 32); border: none;"
                 )
                 why_items_layout.addWidget(
                     divider,
@@ -240,22 +238,30 @@ class HomePage(QWidget):
         why_layout.addLayout(why_items_layout)
 
         main_layout.addWidget(why_frame)
-        main_layout.addSpacing(22)
+        main_layout.addSpacing(10)
 
         # ==================================================
         # Footer
         # ==================================================
         footer_layout = QHBoxLayout()
-        footer_layout.setContentsMargins(4, 0, 4, 0)
+        footer_layout.setContentsMargins(12, 0, 12, 0)
         footer_layout.setSpacing(0)
 
         version_label = QLabel("Version 1.0.0")
         version_label.setObjectName("footerText")
+        version_label.setStyleSheet(
+            'color: #9ca3af; font-size: 11px; '
+            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+        )
 
         copyright_label = QLabel(
             "© 2026 AI Auditor. All Rights Reserved."
         )
         copyright_label.setObjectName("footerText")
+        copyright_label.setStyleSheet(
+            'color: #9ca3af; font-size: 11px; '
+            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+        )
 
         footer_layout.addWidget(version_label)
         footer_layout.addStretch()
@@ -269,10 +275,10 @@ class HomePage(QWidget):
     def create_menu_card(self, title_text, description_text):
         card = QFrame()
         card.setObjectName("homeCard")
-        card.setFixedHeight(205)
+        card.setFixedHeight(220)
 
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(16, 16, 16, 14)
+        layout.setContentsMargins(16, 18, 16, 16)
         layout.setSpacing(0)
 
         icon_label = QLabel()
@@ -326,11 +332,12 @@ class HomePage(QWidget):
         arrow.setAlignment(Qt.AlignRight)
 
         layout.addWidget(icon_label, alignment=Qt.AlignHCenter)
-        layout.addSpacing(7)
+        layout.addSpacing(10)
         layout.addWidget(title)
-        layout.addSpacing(7)
+        layout.addSpacing(9)
         layout.addWidget(description)
         layout.addStretch()
+        layout.addSpacing(4)
         layout.addWidget(arrow)
 
         return card
