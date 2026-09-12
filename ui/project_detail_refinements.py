@@ -37,24 +37,22 @@ def apply_project_detail_refinements(ProjectDetailPage):
         issues = _card_by_prefix(body_cards, "Issues (")
         detail = _card_by_title(body_cards, "Issue Detail")
 
-        # 실제 폭을 강제로 계층화: 좌측 < 가운데 < 우측
-        # 단순 stretch 비율만으로는 각 카드의 minimumWidth 영향 때문에
-        # 가운데가 더 커 보일 수 있어 픽셀 제약을 함께 적용한다.
+        # Fixed 840px window에서 본문 가용 폭에 맞춘 최종 계층
+        # 좌측 145 < 가운데 230 < 우측 248
         if distribution:
-            distribution.setFixedWidth(150)
+            distribution.setFixedWidth(145)
             _refine_distribution(distribution)
         if history:
-            history.setFixedWidth(150)
+            history.setFixedWidth(145)
         if issues:
-            issues.setFixedWidth(210)
+            issues.setFixedWidth(230)
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
             if scroll:
                 scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
                 scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                 scroll.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         if detail:
-            detail.setMinimumWidth(245)
-            detail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            detail.setFixedWidth(248)
 
         issue_rows = self.findChildren(QFrame, "detailIssueListRow")
         for index, row in enumerate(issue_rows):
@@ -143,21 +141,28 @@ def _refine_distribution(card):
 
 
 def _refine_issue_row(row):
+    row.setFixedHeight(64)
+
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
-        badge.setFixedWidth(40)
+        badge.setFixedWidth(38)
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
 
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
-        status.setFixedWidth(44)
+        status.setFixedWidth(38)
         status.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
     for label in row.findChildren(QLabel):
-        if label.objectName() in ("detailIssueCode", "detailIssueDescription"):
+        if label.objectName() == "detailIssueCode":
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             label.setMinimumWidth(0)
+        elif label.objectName() == "detailIssueDescription":
+            label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            label.setMinimumWidth(0)
+            label.setWordWrap(True)
+            label.setMinimumHeight(22)
 
 
 def _refine_detail_header(detail_card):
