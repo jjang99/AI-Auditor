@@ -50,6 +50,56 @@ QProgressBar#inspectionProgressBar::chunk {
     font-size:14px;
     font-weight:850;
 }
+#inspectionCompleteCheck {
+    color:#ffffff;
+    background:#168653;
+    border-radius:16px;
+    font-size:20px;
+    font-weight:800;
+}
+#inspectionCompleteMessage {
+    color:#ffffff;
+    font-size:15px;
+    font-weight:800;
+}
+#inspectionCompleteDescription {
+    color:#d6dee8;
+    font-size:11px;
+    font-weight:600;
+}
+#inspectionCompleteInfoBox {
+    background:#0d1721;
+    border:1px solid #465669;
+    border-radius:7px;
+}
+#inspectionCompleteInfoTitle {
+    color:#cbd5e1;
+    font-size:11px;
+    font-weight:700;
+}
+#inspectionCompleteInfoValue {
+    color:#ffffff;
+    font-size:14px;
+    font-weight:850;
+}
+#inspectionResultButton {
+    color:#ffffff;
+    background:#2563eb;
+    border:none;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:850;
+    text-align:center;
+    padding:0px;
+}
+#inspectionResultButton:hover {
+    background:#3475f5;
+}
+#inspectionCompleteNote {
+    color:#c0cad6;
+    font-size:10px;
+    font-weight:600;
+}
 #inspectionSummaryIcon {
     color:#3b82f6;
 }
@@ -103,6 +153,56 @@ QProgressBar#inspectionProgressBar::chunk {
     font-size:14px;
     font-weight:850;
 }
+#inspectionCompleteCheck {
+    color:#ffffff;
+    background:#168653;
+    border-radius:16px;
+    font-size:20px;
+    font-weight:800;
+}
+#inspectionCompleteMessage {
+    color:#0b1220;
+    font-size:15px;
+    font-weight:800;
+}
+#inspectionCompleteDescription {
+    color:#334155;
+    font-size:11px;
+    font-weight:650;
+}
+#inspectionCompleteInfoBox {
+    background:#f8fafc;
+    border:1px solid #aebccc;
+    border-radius:7px;
+}
+#inspectionCompleteInfoTitle {
+    color:#475569;
+    font-size:11px;
+    font-weight:700;
+}
+#inspectionCompleteInfoValue {
+    color:#0b1220;
+    font-size:14px;
+    font-weight:850;
+}
+#inspectionResultButton {
+    color:#ffffff;
+    background:#2563eb;
+    border:none;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:850;
+    text-align:center;
+    padding:0px;
+}
+#inspectionResultButton:hover {
+    background:#1d4ed8;
+}
+#inspectionCompleteNote {
+    color:#475569;
+    font-size:10px;
+    font-weight:600;
+}
 #inspectionSummaryIcon {
     color:#2563eb;
 }
@@ -150,46 +250,70 @@ def apply_inspection_progress_refinements(inspection_cls):
             time_icon.setAlignment(Qt.AlignCenter)
             time_icon.setStyleSheet('font-size:22px; font-weight:700;')
 
-        if progress_card is None:
-            return
+        if progress_card is not None:
+            progress_layout = progress_card.layout()
+            if progress_layout is not None:
+                progress_layout.setContentsMargins(14, 10, 14, 8)
+                progress_layout.setSpacing(6)
 
-        progress_layout = progress_card.layout()
-        if progress_layout is not None:
-            progress_layout.setContentsMargins(14, 10, 14, 8)
-            progress_layout.setSpacing(6)
+            percent = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressPercent')), None)
+            if percent is not None:
+                percent.setFixedWidth(72)
+                percent.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-        percent = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressPercent')), None)
-        if percent is not None:
-            percent.setFixedWidth(72)
-            percent.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            bar = next(iter(progress_card.findChildren(QProgressBar, 'inspectionProgressBar')), None)
+            if bar is not None:
+                bar.setFixedHeight(18)
 
-        bar = next(iter(progress_card.findChildren(QProgressBar, 'inspectionProgressBar')), None)
-        if bar is not None:
-            bar.setFixedHeight(18)
+            cancel = next(iter(progress_card.findChildren(QPushButton, 'inspectionCancelButton')), None)
+            if cancel is not None:
+                cancel.setFixedSize(115, 46)
 
-        cancel = next(iter(progress_card.findChildren(QPushButton, 'inspectionCancelButton')), None)
-        if cancel is not None:
-            cancel.setFixedSize(115, 46)
+            info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
+            for box in info_boxes:
+                box.setFixedHeight(46)
+                box_layout = box.layout()
+                if box_layout is not None:
+                    box_layout.setContentsMargins(10, 3, 10, 3)
+                    box_layout.setSpacing(0)
 
-        info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
-        for box in info_boxes:
-            box.setFixedHeight(46)
-            box_layout = box.layout()
-            if box_layout is not None:
-                box_layout.setContentsMargins(10, 3, 10, 3)
-                box_layout.setSpacing(0)
+                title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
+                if title is not None:
+                    title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                    if title.text() == '현재 검사 항목':
+                        box.setFixedWidth(250)
+                    else:
+                        box.setFixedWidth(108)
 
-            title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
-            if title is not None:
-                title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                if title.text() == '현재 검사 항목':
-                    box.setFixedWidth(250)
-                else:
-                    box.setFixedWidth(108)
+                value = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoValue')), None)
+                if value is not None:
+                    value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-            value = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoValue')), None)
-            if value is not None:
-                value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        if complete_card is not None:
+            complete_layout = complete_card.layout()
+            if complete_layout is not None:
+                complete_layout.setContentsMargins(14, 9, 14, 8)
+                complete_layout.setSpacing(6)
+
+            check = next(iter(complete_card.findChildren(QLabel, 'inspectionCompleteCheck')), None)
+            if check is not None:
+                check.setFixedSize(32, 32)
+
+            for box in complete_card.findChildren(QFrame, 'inspectionCompleteInfoBox'):
+                box.setFixedHeight(56)
+                lay = box.layout()
+                if lay is not None:
+                    lay.setContentsMargins(10, 5, 10, 5)
+                    lay.setSpacing(1)
+
+            result_button = next(iter(complete_card.findChildren(QPushButton, 'inspectionResultButton')), None)
+            if result_button is not None:
+                result_button.setFixedSize(116, 56)
+
+            note = next(iter(complete_card.findChildren(QLabel, 'inspectionCompleteNote')), None)
+            if note is not None:
+                note.setFixedHeight(16)
+                note.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._progress_refined = True
