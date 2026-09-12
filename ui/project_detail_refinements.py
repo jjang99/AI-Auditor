@@ -37,21 +37,23 @@ def apply_project_detail_refinements(ProjectDetailPage):
         issues = _card_by_prefix(body_cards, "Issues (")
         detail = _card_by_title(body_cards, "Issue Detail")
 
+        # 실제 폭을 강제로 계층화: 좌측 < 가운데 < 우측
+        # 단순 stretch 비율만으로는 각 카드의 minimumWidth 영향 때문에
+        # 가운데가 더 커 보일 수 있어 픽셀 제약을 함께 적용한다.
         if distribution:
-            distribution.setMaximumWidth(160)
+            distribution.setFixedWidth(150)
             _refine_distribution(distribution)
         if history:
-            history.setMaximumWidth(160)
+            history.setFixedWidth(150)
         if issues:
-            issues.setMinimumWidth(252)
-            issues.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            issues.setFixedWidth(210)
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
             if scroll:
                 scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
                 scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                 scroll.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         if detail:
-            detail.setMinimumWidth(198)
+            detail.setMinimumWidth(245)
             detail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         issue_rows = self.findChildren(QFrame, "detailIssueListRow")
@@ -176,7 +178,6 @@ def _refine_detail_header(detail_card):
 
 
 def _refine_detail_sections(detail_card):
-    # 제목/설명/근거/영향/AI 권고 각 섹션의 위아래 숨통을 확보.
     section_titles = {"제목", "설명", "근거", "영향", "AI 권고"}
     for label in detail_card.findChildren(QLabel, "detailTextLabel"):
         if label.text() in section_titles:
