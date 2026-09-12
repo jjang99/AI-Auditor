@@ -21,7 +21,7 @@ class HomePage(QWidget):
         # 전체 Home 레이아웃
         # ==================================================
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(24, 18, 24, 14)
+        main_layout.setContentsMargins(24, 28, 24, 18)
         main_layout.setSpacing(0)
 
         # ==================================================
@@ -46,17 +46,16 @@ class HomePage(QWidget):
         )
         description.setObjectName("homeDescription")
         description.setAlignment(Qt.AlignCenter)
+        description.setStyleSheet(
+            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+        )
 
         self.inspection_button = QPushButton("Inspection 시작    →")
         self.inspection_button.setObjectName("inspectionStartButton")
         self.inspection_button.setCursor(Qt.PointingHandCursor)
         self.inspection_button.setFixedSize(205, 46)
 
-        play_icon_path = self.asset_path(
-            "icons",
-            "play.svg",
-        )
-
+        play_icon_path = self.asset_path("icons", "play.svg")
         self.inspection_button.setIcon(QIcon(play_icon_path))
         self.inspection_button.setIconSize(QSize(24, 24))
 
@@ -79,18 +78,14 @@ class HomePage(QWidget):
         # ==================================================
         wave_label = QLabel()
         wave_label.setAlignment(Qt.AlignCenter)
-        wave_label.setFixedHeight(100)
+        wave_label.setFixedHeight(112)
 
-        wave_path = self.asset_path(
-            "icons",
-            "home_wave.svg",
-        )
-
+        wave_path = self.asset_path("icons", "home_wave.svg")
         wave_pixmap = QPixmap(wave_path)
         wave_label.setPixmap(
             wave_pixmap.scaled(
                 790,
-                100,
+                112,
                 Qt.IgnoreAspectRatio,
                 Qt.SmoothTransformation,
             )
@@ -105,24 +100,17 @@ class HomePage(QWidget):
         cards_layout = QGridLayout()
         cards_layout.setHorizontalSpacing(14)
         cards_layout.setVerticalSpacing(0)
+        cards_layout.setContentsMargins(0, 0, 0, 0)
+
+        # 4개 카드 폭을 항상 동일하게 유지
+        for column in range(4):
+            cards_layout.setColumnStretch(column, 1)
 
         card_data = [
-            (
-                "Projects",
-                "프로젝트를 생성하고\n이력 및 결과를 관리합니다.",
-            ),
-            (
-                "Inspection",
-                "산출물을 업로드하고\nAI 검사를 수행합니다.",
-            ),
-            (
-                "Reports",
-                "검사 결과를 확인하고\n보고서를 생성합니다.",
-            ),
-            (
-                "Administration",
-                "검사 기준 및 시스템\n설정을 관리합니다.",
-            ),
+            ("Projects", "프로젝트를 생성하고\n이력 및 결과를 관리합니다."),
+            ("Inspection", "산출물을 업로드하고\nAI 검사를 수행합니다."),
+            ("Reports", "검사 결과를 확인하고\n보고서를 생성합니다."),
+            ("Administration", "검사 기준 및 시스템\n설정을 관리합니다."),
         ]
 
         for index, (name, text) in enumerate(card_data):
@@ -130,9 +118,7 @@ class HomePage(QWidget):
             cards_layout.addWidget(card, 0, index)
 
         main_layout.addLayout(cards_layout)
-
-        # 카드 아래 여백은 남는 높이에 따라 자연스럽게 확보
-        main_layout.addStretch(1)
+        main_layout.addSpacing(28)
 
         # ==================================================
         # Why AI Auditor
@@ -147,6 +133,11 @@ class HomePage(QWidget):
 
         why_title = QLabel("Why AI Auditor?")
         why_title.setObjectName("whyTitle")
+        # 확정 시안의 포인트 블루 유지
+        why_title.setStyleSheet(
+            'color: #3b82f6; font-size: 16px; font-weight: 600; '
+            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+        )
 
         why_layout.addWidget(why_title)
         why_layout.addSpacing(6)
@@ -178,17 +169,11 @@ class HomePage(QWidget):
             ),
         ]
 
-        for index, (
-            title_text,
-            body_text,
-            icon_file,
-        ) in enumerate(why_data):
-
+        for index, (title_text, body_text, icon_file) in enumerate(why_data):
             item_layout = QVBoxLayout()
             item_layout.setContentsMargins(0, 0, 0, 0)
             item_layout.setSpacing(3)
 
-            # 아이콘 + 제목을 같은 라인에 배치
             item_header = QHBoxLayout()
             item_header.setContentsMargins(0, 0, 0, 0)
             item_header.setSpacing(7)
@@ -197,11 +182,7 @@ class HomePage(QWidget):
             icon_label.setFixedSize(28, 28)
             icon_label.setAlignment(Qt.AlignCenter)
 
-            icon_path = self.asset_path(
-                "icons",
-                icon_file,
-            )
-
+            icon_path = self.asset_path("icons", icon_file)
             icon_pixmap = QPixmap(icon_path)
             icon_label.setPixmap(
                 icon_pixmap.scaled(
@@ -214,12 +195,14 @@ class HomePage(QWidget):
 
             item_title = QLabel(title_text)
             item_title.setObjectName("whyItemTitle")
+            item_title.setStyleSheet(
+                'font-family: "Segoe UI Variable", "Malgun Gothic";'
+            )
 
             item_header.addWidget(icon_label)
             item_header.addWidget(item_title)
             item_header.addStretch()
 
-            # 설명은 제목 시작 위치에 맞춰 좌측 정렬
             body_row = QHBoxLayout()
             body_row.setContentsMargins(35, 0, 0, 0)
             body_row.setSpacing(0)
@@ -227,6 +210,10 @@ class HomePage(QWidget):
             item_body = QLabel(body_text)
             item_body.setObjectName("whyItemBody")
             item_body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            item_body.setStyleSheet(
+                'color: #94a3b8; font-size: 11px; '
+                'font-family: "Segoe UI Variable", "Malgun Gothic";'
+            )
             body_row.addWidget(item_body)
             body_row.addStretch()
 
@@ -239,8 +226,12 @@ class HomePage(QWidget):
             if index < len(why_data) - 1:
                 divider = QFrame()
                 divider.setFrameShape(QFrame.VLine)
-                divider.setObjectName("whyDivider")
-                divider.setFixedHeight(64)
+                divider.setFixedWidth(1)
+                divider.setFixedHeight(54)
+                # 기존보다 훨씬 은은한 구분선
+                divider.setStyleSheet(
+                    "background-color: rgba(148, 163, 184, 45); border: none;"
+                )
                 why_items_layout.addWidget(
                     divider,
                     alignment=Qt.AlignVCenter,
@@ -249,7 +240,7 @@ class HomePage(QWidget):
         why_layout.addLayout(why_items_layout)
 
         main_layout.addWidget(why_frame)
-        main_layout.addSpacing(10)
+        main_layout.addSpacing(22)
 
         # ==================================================
         # Footer
@@ -284,7 +275,6 @@ class HomePage(QWidget):
         layout.setContentsMargins(16, 16, 16, 14)
         layout.setSpacing(0)
 
-        # 아이콘 영역 - 확정 시안의 원형 배경 적용
         icon_label = QLabel()
         icon_label.setFixedSize(58, 58)
         icon_label.setAlignment(Qt.AlignCenter)
@@ -308,11 +298,7 @@ class HomePage(QWidget):
             "Administration": "administration.svg",
         }
 
-        icon_path = self.asset_path(
-            "icons",
-            icon_files[title_text],
-        )
-
+        icon_path = self.asset_path("icons", icon_files[title_text])
         pixmap = QPixmap(icon_path)
         icon_label.setPixmap(
             pixmap.scaled(
@@ -323,25 +309,23 @@ class HomePage(QWidget):
             )
         )
 
-        # 카드 제목
         title = QLabel(title_text)
         title.setObjectName("homeCardTitle")
         title.setAlignment(Qt.AlignCenter)
 
-        # 카드 설명
         description = QLabel(description_text)
         description.setObjectName("homeCardDescription")
         description.setAlignment(Qt.AlignCenter)
+        description.setStyleSheet(
+            'color: #94a3b8; font-size: 13px; '
+            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+        )
 
-        # 화살표
         arrow = QLabel("→")
         arrow.setObjectName("homeCardArrow")
         arrow.setAlignment(Qt.AlignRight)
 
-        layout.addWidget(
-            icon_label,
-            alignment=Qt.AlignHCenter,
-        )
+        layout.addWidget(icon_label, alignment=Qt.AlignHCenter)
         layout.addSpacing(7)
         layout.addWidget(title)
         layout.addSpacing(7)
