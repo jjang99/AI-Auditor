@@ -5,22 +5,30 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QScrollArea
 
 DARK_INSPECTION_FINAL = r'''
-#inspectionSectionTitle { color:#ffffff; font-size:16px; font-weight:700; }
-#inspectionFieldLabel { color:#f8fafc; font-size:12px; font-weight:600; }
-#inspectionInput, #inspectionCombo { color:#ffffff; font-size:12px; }
-#inspectionFileCount { color:#ffffff; font-size:13px; font-weight:700; }
-#inspectionTableText { color:#f8fafc; font-size:12px; font-weight:600; }
-#inspectionTableMuted { color:#dbe4ee; font-size:11px; font-weight:500; }
+#inspectionTitle { color:#ffffff; font-size:27px; font-weight:800; }
+#inspectionDescription { color:#e2e8f0; font-size:13px; font-weight:500; }
+#inspectionSectionTitle { color:#ffffff; font-size:17px; font-weight:800; }
+#inspectionFieldLabel { color:#f8fafc; font-size:13px; font-weight:650; }
+#inspectionInput, #inspectionCombo { color:#ffffff; font-size:13px; font-weight:500; }
+#inspectionDuplicate { color:#fbbf24; font-size:12px; font-weight:700; }
+#inspectionDuplicateButton { color:#fbbf24; font-size:12px; font-weight:700; }
+#inspectionUploadText { color:#f8fafc; font-size:13px; font-weight:600; }
+#inspectionFileButton { color:#ffffff; font-size:12px; font-weight:700; }
+#inspectionFileCount { color:#ffffff; font-size:13px; font-weight:800; }
+#inspectionTableText { color:#ffffff; font-size:12px; font-weight:650; }
+#inspectionTableMuted { color:#e2e8f0; font-size:11px; font-weight:550; }
 #inspectionFileIcon { color:#60a5fa; }
-#inspectionDeleteIcon { color:#cbd5e1; }
-#inspectionBlueNote { color:#93c5fd; font-size:11px; font-weight:500; }
-#inspectionRuleName { color:#ffffff; font-size:13px; font-weight:700; }
-#inspectionRuleCount, #inspectionRuleDescription { color:#e8eef6; font-size:11px; font-weight:500; }
-#inspectionSummaryTitle { color:#e8eef6; font-size:12px; font-weight:600; }
-#inspectionSummaryValue { color:#ffffff; font-size:17px; font-weight:700; }
-#inspectionSummaryDetail { color:#d1d9e4; font-size:11px; }
-#inspectionInfoTitle { color:#93c5fd; font-size:11px; font-weight:700; }
-#inspectionInfoText { color:#dbe4ee; font-size:11px; }
+#inspectionDeleteIcon { color:#e2e8f0; }
+#inspectionBlueNote { color:#93c5fd; font-size:11px; font-weight:600; }
+#inspectionRuleName { color:#ffffff; font-size:13px; font-weight:750; }
+#inspectionRuleCount, #inspectionRuleDescription { color:#f1f5f9; font-size:12px; font-weight:550; }
+#inspectionSummaryTitle { color:#f1f5f9; font-size:12px; font-weight:650; }
+#inspectionSummaryValue { color:#ffffff; font-size:18px; font-weight:800; }
+#inspectionSummaryDetail { color:#e2e8f0; font-size:11px; font-weight:500; }
+#inspectionInfoTitle { color:#93c5fd; font-size:12px; font-weight:750; }
+#inspectionInfoText { color:#e2e8f0; font-size:11px; font-weight:500; }
+#inspectionSmallButton, #inspectionViewButton { color:#ffffff; font-size:11px; font-weight:650; }
+#inspectionStartButton { color:#ffffff; font-size:16px; font-weight:750; }
 #inspectionFileScroll { background:transparent; border:none; }
 #inspectionFileScroll QWidget { background:transparent; }
 #inspectionFileScroll QScrollBar:vertical { background:#0b1219; width:10px; margin:2px; }
@@ -29,20 +37,28 @@ DARK_INSPECTION_FINAL = r'''
 '''
 
 LIGHT_INSPECTION_FINAL = r'''
-#inspectionSectionTitle { color:#0f172a; font-size:16px; font-weight:700; }
-#inspectionFieldLabel { color:#1e293b; font-size:12px; font-weight:600; }
-#inspectionInput, #inspectionCombo { color:#0f172a; font-size:12px; }
-#inspectionFileCount { color:#0f172a; font-size:13px; font-weight:700; }
-#inspectionTableText { color:#0f172a; font-size:12px; font-weight:600; }
-#inspectionTableMuted { color:#334155; font-size:11px; font-weight:500; }
-#inspectionBlueNote { color:#1d4ed8; font-size:11px; font-weight:500; }
-#inspectionRuleName { color:#0f172a; font-size:13px; font-weight:700; }
-#inspectionRuleCount, #inspectionRuleDescription { color:#334155; font-size:11px; font-weight:500; }
-#inspectionSummaryTitle { color:#334155; font-size:12px; font-weight:600; }
-#inspectionSummaryValue { color:#0f172a; font-size:17px; font-weight:700; }
-#inspectionSummaryDetail { color:#475569; font-size:11px; }
-#inspectionInfoTitle { color:#1d4ed8; font-size:11px; font-weight:700; }
-#inspectionInfoText { color:#334155; font-size:11px; }
+#inspectionTitle { color:#0f172a; font-size:27px; font-weight:800; }
+#inspectionDescription { color:#334155; font-size:13px; font-weight:500; }
+#inspectionSectionTitle { color:#0f172a; font-size:17px; font-weight:800; }
+#inspectionFieldLabel { color:#172033; font-size:13px; font-weight:650; }
+#inspectionInput, #inspectionCombo { color:#0f172a; font-size:13px; font-weight:500; }
+#inspectionDuplicate { color:#b45309; font-size:12px; font-weight:700; }
+#inspectionDuplicateButton { color:#b45309; font-size:12px; font-weight:700; }
+#inspectionUploadText { color:#172033; font-size:13px; font-weight:600; }
+#inspectionFileButton { color:#ffffff; font-size:12px; font-weight:700; }
+#inspectionFileCount { color:#0f172a; font-size:13px; font-weight:800; }
+#inspectionTableText { color:#0f172a; font-size:12px; font-weight:650; }
+#inspectionTableMuted { color:#334155; font-size:11px; font-weight:550; }
+#inspectionBlueNote { color:#1d4ed8; font-size:11px; font-weight:600; }
+#inspectionRuleName { color:#0f172a; font-size:13px; font-weight:750; }
+#inspectionRuleCount, #inspectionRuleDescription { color:#1e293b; font-size:12px; font-weight:550; }
+#inspectionSummaryTitle { color:#1e293b; font-size:12px; font-weight:650; }
+#inspectionSummaryValue { color:#0f172a; font-size:18px; font-weight:800; }
+#inspectionSummaryDetail { color:#334155; font-size:11px; font-weight:500; }
+#inspectionInfoTitle { color:#1d4ed8; font-size:12px; font-weight:750; }
+#inspectionInfoText { color:#334155; font-size:11px; font-weight:500; }
+#inspectionSmallButton, #inspectionViewButton { color:#0f172a; font-size:11px; font-weight:650; }
+#inspectionStartButton { color:#ffffff; font-size:16px; font-weight:750; }
 #inspectionFileScroll { background:transparent; border:none; }
 #inspectionFileScroll QWidget { background:transparent; }
 #inspectionFileScroll QScrollBar:vertical { background:#eef2f7; width:10px; margin:2px; }
@@ -62,7 +78,6 @@ def apply_inspection_final_refinements(inspection_cls):
         for button in self.findChildren(QPushButton, 'inspectionHelpButton'):
             button.hide()
 
-        # 번호 섹션 제목은 아이콘 없이 텍스트만 사용: 더 단정하고 현대적인 화면 구성.
         titles = self.findChildren(QLabel, 'inspectionSectionTitle')
         clean_titles = ['1. 프로젝트 정보', '2. 검사 대상 파일', '3. 검사 기준 선택', '4. 검사 준비 요약']
         for i, title in enumerate(titles[:4]):
@@ -77,7 +92,6 @@ def apply_inspection_final_refinements(inspection_cls):
         file_icon = QIcon(os.path.join(icon_dir, 'file.svg'))
         trash_icon = QIcon(os.path.join(icon_dir, 'trash.svg'))
 
-        # 파일 행: 실제 파일/삭제 SVG 아이콘으로 교체하고 텍스트 가독성 강화.
         file_rows = self.findChildren(QFrame, 'inspectionFileRow')
         for row in file_rows:
             row.setFixedHeight(34)
@@ -89,8 +103,6 @@ def apply_inspection_final_refinements(inspection_cls):
                     raw_name = raw_name.split('  ', 1)[1]
                 name_label.setText(raw_name)
                 name_label.setFixedWidth(175)
-
-                # 기존 이름 라벨 앞에 별도 파일 아이콘 라벨을 삽입한다.
                 layout = row.layout()
                 if layout is not None:
                     file_label = QLabel()
@@ -99,13 +111,11 @@ def apply_inspection_final_refinements(inspection_cls):
                     file_label.setAlignment(Qt.AlignCenter)
                     file_label.setFixedWidth(22)
                     layout.insertWidget(0, file_label)
-
                 delete_label.setText('')
                 delete_label.setPixmap(trash_icon.pixmap(QSize(17, 17)))
                 delete_label.setAlignment(Qt.AlignCenter)
                 delete_label.setFixedWidth(26)
 
-        # 파일 수가 표시영역을 넘는 경우에만 파일 목록 자체에 세로 스크롤 자동 생성.
         table = next(iter(self.findChildren(QFrame, 'inspectionFileTable')), None)
         if table is not None and table.parentWidget() is not None:
             parent_layout = table.parentWidget().layout()
@@ -125,33 +135,33 @@ def apply_inspection_final_refinements(inspection_cls):
                 scroll.setWidget(table)
                 parent_layout.insertWidget(idx, scroll)
 
-        # 검사기준의 의미 있는 기능 아이콘은 유지한다. 섹션 제목 장식 아이콘만 제거한다.
         rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
             label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(19, 19)))
+            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(20, 20)))
             label.setAlignment(Qt.AlignCenter)
-            label.setFixedWidth(30)
+            label.setFixedWidth(31)
 
+        # 요약 아이콘은 제목+값 두 줄 높이와 시각적으로 맞도록 크게 표시.
         summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         for label, filename in zip(summary_icons, summary_icon_files):
             label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(21, 21)))
+            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(36, 36)))
             label.setAlignment(Qt.AlignCenter)
-            label.setFixedWidth(32)
+            label.setFixedSize(46, 46)
 
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
             start.setFixedSize(145, 72)
 
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(46)
+            row.setFixedHeight(48)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
-            button.setFixedSize(74, 30)
+            button.setFixedSize(74, 31)
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
-            button.setMinimumHeight(30)
+            button.setMinimumHeight(31)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
