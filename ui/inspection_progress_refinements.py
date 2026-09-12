@@ -24,15 +24,15 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionCancelButton {
     color:#ffffff;
-    background:#7f1d1d;
-    border:1px solid #b91c1c;
+    background:#b4232c;
+    border:1px solid #ef5961;
     border-radius:7px;
-    font-size:11px;
-    font-weight:800;
+    font-size:12px;
+    font-weight:850;
 }
 #inspectionCancelButton:hover {
-    background:#991b1b;
-    border-color:#dc2626;
+    background:#c92b35;
+    border-color:#ff7379;
 }
 #inspectionProgressInfoBox {
     background:#0d1721;
@@ -74,15 +74,15 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionCancelButton {
     color:#ffffff;
-    background:#b91c1c;
-    border:1px solid #991b1b;
+    background:#c62832;
+    border:1px solid #a91520;
     border-radius:7px;
-    font-size:11px;
-    font-weight:800;
+    font-size:12px;
+    font-weight:850;
 }
 #inspectionCancelButton:hover {
-    background:#991b1b;
-    border-color:#7f1d1d;
+    background:#ae1f28;
+    border-color:#8f1620;
 }
 #inspectionProgressInfoBox {
     background:#f8fafc;
@@ -118,23 +118,22 @@ def apply_inspection_progress_refinements(inspection_cls):
             page_scroll.verticalScrollBar().setEnabled(False)
             page_scroll.verticalScrollBar().setValue(0)
 
+        # Use the fixed viewport more evenly: smaller inter-section gaps and
+        # less bottom padding, without changing the frozen content itself.
         if hasattr(self, 'main_layout'):
-            self.main_layout.setContentsMargins(14, 8, 10, 8)
-            self.main_layout.setSpacing(8)
+            self.main_layout.setContentsMargins(14, 7, 10, 3)
+            self.main_layout.setSpacing(6)
 
-        # Keep sections 1~3 slightly compact so the fixed 840x900 layout
-        # remains stable, but use the original finalized Summary height as the
-        # single baseline for Summary / Progress / Complete.
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 3:
             for card, height in zip(cards[:3], [171, 215, 198]):
                 card.setFixedHeight(height)
 
+        # Summary / Progress / Complete always share this exact outer size.
         common_action_card_height = 190
         summary_card = getattr(self, 'summary_card', None)
         progress_card = getattr(self, 'progress_card', None)
         complete_card = getattr(self, 'complete_card', None)
-
         for card in (summary_card, progress_card, complete_card):
             if card is not None:
                 card.setFixedHeight(common_action_card_height)
@@ -144,8 +143,8 @@ def apply_inspection_progress_refinements(inspection_cls):
 
         progress_layout = progress_card.layout()
         if progress_layout is not None:
-            progress_layout.setContentsMargins(14, 10, 14, 10)
-            progress_layout.setSpacing(8)
+            progress_layout.setContentsMargins(14, 10, 14, 8)
+            progress_layout.setSpacing(7)
 
         percent = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressPercent')), None)
         if percent is not None:
@@ -162,11 +161,11 @@ def apply_inspection_progress_refinements(inspection_cls):
 
         info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
         for box in info_boxes:
-            box.setFixedHeight(64)
+            box.setFixedHeight(54)
             box_layout = box.layout()
             if box_layout is not None:
-                box_layout.setContentsMargins(10, 7, 10, 7)
-                box_layout.setSpacing(3)
+                box_layout.setContentsMargins(10, 5, 10, 5)
+                box_layout.setSpacing(1)
 
             title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
             if title is not None:
