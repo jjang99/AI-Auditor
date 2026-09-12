@@ -115,25 +115,26 @@ def _build_progress_card(self):
     title = self.section_title('4. 검사 진행')
     title.setFixedHeight(20)
     layout.addWidget(title)
-    layout.addSpacing(8)
+    layout.addSpacing(10)
 
     description = QLabel('AI Auditor가 등록된 산출물을 검사하고 있습니다.')
     description.setObjectName('inspectionProgressDescription')
     description.setFixedHeight(17)
     description.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     layout.addWidget(description)
-    layout.addSpacing(8)
+    layout.addSpacing(10)
 
     layout.addWidget(_progress_row_widget(self))
-    layout.addSpacing(8)
-    layout.addWidget(_progress_status_widget(self))
+
+    # '완료 규칙' 카드 라인은 기준 위치로 두고, 남는 높이는 그 위에서만 흡수한다.
     layout.addStretch(1)
+    layout.addWidget(_progress_status_widget(self))
     return card
 
 
 def _complete_result_box(parent, title, value):
     box = parent.create_complete_info_box(title, value)
-    box.setFixedSize(105, 50)
+    box.setFixedSize(100, 50)
     box_layout = box.layout()
     if box_layout is not None:
         box_layout.setContentsMargins(10, 2, 10, 2)
@@ -157,7 +158,7 @@ def _build_complete_card(self):
     title = self.section_title('4. 검사 완료')
     title.setFixedHeight(20)
     layout.addWidget(title)
-    layout.addSpacing(6)
+    layout.addSpacing(8)
 
     success_row_widget = QWidget(card)
     success_row_widget.setFixedHeight(34)
@@ -176,7 +177,7 @@ def _build_complete_card(self):
     success_row.addWidget(message)
     success_row.addStretch(1)
     layout.addWidget(success_row_widget)
-    layout.addSpacing(6)
+    layout.addSpacing(8)
 
     description_row_widget = QWidget(card)
     description_row_widget.setFixedHeight(18)
@@ -186,12 +187,13 @@ def _build_complete_card(self):
     description = QLabel('검사 결과를 확인하거나 Project Detail로 이동할 수 있습니다.')
     description.setObjectName('inspectionCompleteDescription')
     description.setWordWrap(False)
+    description.setMinimumWidth(500)
     description.setFixedHeight(18)
     description.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     description_row.addWidget(description)
     description_row.addStretch(1)
     layout.addWidget(description_row_widget)
-    layout.addSpacing(6)
+    layout.addSpacing(8)
 
     result_row_widget = QWidget(card)
     result_row_widget.setFixedHeight(50)
@@ -208,19 +210,19 @@ def _build_complete_card(self):
 
     result_button = QPushButton('검사 결과 보기 →')
     result_button.setObjectName('inspectionResultButton')
-    result_button.setFixedSize(126, 50)
+    result_button.setFixedSize(130, 50)
     result_button.setCursor(Qt.PointingHandCursor)
     result_button.clicked.connect(self.inspection_result_requested.emit)
     result_row.addWidget(result_button)
     layout.addWidget(result_row_widget)
-    layout.addSpacing(6)
 
+    # '완료된 결과는...' 라인을 기준으로 고정하고, 남는 높이는 그 위에서만 흡수한다.
+    layout.addStretch(1)
     note = QLabel('※ 완료된 결과는 해당 Project의 Inspection History에 자동으로 저장됩니다.')
     note.setObjectName('inspectionCompleteNote')
     note.setFixedHeight(17)
     note.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     layout.addWidget(note)
-    layout.addStretch(1)
     return card
 
 
@@ -228,8 +230,6 @@ def apply_inspection_progress_refinements(inspection_cls):
     if getattr(inspection_cls, '_progress_refined', False):
         return
 
-    # Keep the approved Inspection screen and only replace the two 4th-area
-    # state cards so the requested vertical gaps are explicit and stable.
     inspection_cls.create_progress_card = _build_progress_card
     inspection_cls.create_complete_card = _build_complete_card
 
