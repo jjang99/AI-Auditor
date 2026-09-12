@@ -94,7 +94,6 @@ def apply_inspection_final_refinements(inspection_cls):
 
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 10, 10, 10)
-            # 카드 사이 간격을 조금 더 넓혀 각 섹션을 명확히 구분한다.
             self.main_layout.setSpacing(11)
 
         for button in self.findChildren(QPushButton, 'inspectionHelpButton'):
@@ -112,7 +111,6 @@ def apply_inspection_final_refinements(inspection_cls):
             cards[2].setFixedHeight(204)
             cards[3].setFixedHeight(190)
 
-        # 1. 프로젝트 정보: 좌/우 필드 기준선을 정확히 맞춘다.
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -144,10 +142,17 @@ def apply_inspection_final_refinements(inspection_cls):
                     right_col.setContentsMargins(0, 0, 0, 0)
                     right_col.setSpacing(4)
                     right_col.setAlignment(Qt.AlignTop)
-                    # 왼쪽 중복 안내 행(22px)과 동일한 높이를 우측에 확보한다.
-                    if right_col.count() > 2 and right_col.itemAt(2).spacerItem() is not None:
-                        right_col.itemAt(2).spacerItem().changeSize(0, 22)
+                    # 왼쪽의 중복 프로젝트 안내 행과 정확히 같은 높이를 확보해
+                    # Description 입력칸과 프로젝트 구분 콤보의 Y축을 일치시킨다.
+                    spacer_height = 22
+                    if right_col.count() > 2:
+                        spacer_item = right_col.itemAt(2)
+                        if spacer_item.spacerItem() is not None:
+                            spacer_item.spacerItem().changeSize(0, spacer_height)
+                        elif spacer_item.widget() is not None:
+                            spacer_item.widget().setFixedHeight(spacer_height)
                     right_col.invalidate()
+                    right_col.activate()
 
         for label in self.findChildren(QLabel, 'inspectionDuplicate'):
             label.setFixedHeight(22)
@@ -156,9 +161,15 @@ def apply_inspection_final_refinements(inspection_cls):
         for button in self.findChildren(QPushButton, 'inspectionDuplicateButton'):
             button.setFixedHeight(22)
 
-        # 2. 검사 대상 파일: 업로드 안내 + 파일선택 그룹을 박스의 정중앙에 둔다.
+        # 2. 검사 대상 파일: 내부 묶음을 위쪽으로 소폭 이동해 하단 겹침을 방지한다.
+        if len(cards) >= 2 and cards[1].layout() is not None:
+            file_card_layout = cards[1].layout()
+            file_card_layout.setContentsMargins(14, 7, 14, 11)
+            file_card_layout.setSpacing(5)
+            file_card_layout.setAlignment(Qt.AlignTop)
+
         for box in self.findChildren(QFrame, 'inspectionUploadBox'):
-            box.setFixedHeight(46)
+            box.setFixedHeight(44)
             if box.layout() is not None:
                 box.layout().setContentsMargins(0, 0, 0, 0)
                 box.layout().setSpacing(16)
@@ -240,7 +251,6 @@ def apply_inspection_final_refinements(inspection_cls):
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
             button.setFixedHeight(27)
 
-        # 4. 검사 준비 요약
         summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         for label, filename in zip(summary_icons, summary_icon_files):
