@@ -17,18 +17,11 @@ class HomePage(QWidget):
     def __init__(self):
         super().__init__()
 
-        # ==================================================
-        # 전체 Home 레이아웃
-        # - 물결은 창 전체 폭 사용
-        # - 카드/Why/Footer는 별도 좌우 여백으로 정렬
-        # ==================================================
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 28, 0, 14)
         main_layout.setSpacing(0)
 
-        # ==================================================
-        # Hero 영역
-        # ==================================================
+        # Hero
         hero_layout = QVBoxLayout()
         hero_layout.setContentsMargins(24, 0, 24, 0)
         hero_layout.setAlignment(Qt.AlignCenter)
@@ -53,8 +46,7 @@ class HomePage(QWidget):
         description.setTextFormat(Qt.RichText)
         description.setAlignment(Qt.AlignCenter)
         description.setStyleSheet(
-            'color: #e2e8f0; font-size: 15px; font-weight: 500; '
-            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+            'font-weight: 500; font-family: "Segoe UI Variable", "Malgun Gothic";'
         )
 
         self.inspection_button = QPushButton("Inspection 시작    →")
@@ -72,17 +64,12 @@ class HomePage(QWidget):
         hero_layout.addSpacing(12)
         hero_layout.addWidget(description)
         hero_layout.addSpacing(22)
-        hero_layout.addWidget(
-            self.inspection_button,
-            alignment=Qt.AlignCenter,
-        )
+        hero_layout.addWidget(self.inspection_button, alignment=Qt.AlignCenter)
 
         main_layout.addLayout(hero_layout)
         main_layout.addSpacing(10)
 
-        # ==================================================
-        # 중앙 물결 배경 - 창 끝에서 끝까지
-        # ==================================================
+        # 중앙 물결
         wave_label = QLabel()
         wave_label.setAlignment(Qt.AlignCenter)
         wave_label.setFixedHeight(125)
@@ -101,9 +88,7 @@ class HomePage(QWidget):
         main_layout.addWidget(wave_label)
         main_layout.addSpacing(8)
 
-        # ==================================================
         # 주요 메뉴 카드
-        # ==================================================
         cards_layout = QGridLayout()
         cards_layout.setHorizontalSpacing(14)
         cards_layout.setVerticalSpacing(0)
@@ -120,25 +105,22 @@ class HomePage(QWidget):
         ]
 
         for index, (name, text) in enumerate(card_data):
-            card = self.create_menu_card(name, text)
-            cards_layout.addWidget(card, 0, index)
+            cards_layout.addWidget(self.create_menu_card(name, text), 0, index)
 
         main_layout.addLayout(cards_layout)
         main_layout.addSpacing(22)
 
-        # ==================================================
-        # Why AI Auditor - 상단 4개 카드의 좌/우 라인과 일치
-        # ==================================================
+        # Why AI Auditor
         why_outer_layout = QHBoxLayout()
         why_outer_layout.setContentsMargins(24, 0, 24, 0)
         why_outer_layout.setSpacing(0)
 
         why_frame = QFrame()
         why_frame.setObjectName("whyFrame")
-        why_frame.setFixedHeight(140)
+        why_frame.setFixedHeight(128)
 
         why_layout = QVBoxLayout(why_frame)
-        why_layout.setContentsMargins(16, 12, 16, 12)
+        why_layout.setContentsMargins(16, 10, 16, 10)
         why_layout.setSpacing(0)
 
         why_title = QLabel("Why AI Auditor?")
@@ -149,39 +131,23 @@ class HomePage(QWidget):
         )
 
         why_layout.addWidget(why_title)
-        why_layout.addSpacing(8)
+        why_layout.addSpacing(6)
 
         why_items_layout = QHBoxLayout()
         why_items_layout.setContentsMargins(0, 0, 0, 0)
         why_items_layout.setSpacing(10)
 
         why_data = [
-            (
-                "AI 기반 품질 검사",
-                "산출물을 분석하여\n품질 문제를 자동 탐지합니다.",
-                "why_quality.svg",
-            ),
-            (
-                "요구사항 정합성 검증",
-                "요구사항과 산출물 간의\n정합성을 확인합니다.",
-                "why_consistency.svg",
-            ),
-            (
-                "변경 영향도 분석",
-                "변경사항이 관련 산출물에\n미치는 영향을 분석합니다.",
-                "why_impact.svg",
-            ),
-            (
-                "FP 검증 지원",
-                "기능점수 산정 및 검증을\n지원합니다.",
-                "why_fp.svg",
-            ),
+            ("AI 기반 품질 검사", "산출물을 분석하여\n품질 문제를 자동 탐지합니다.", "why_quality.svg"),
+            ("요구사항 정합성 검증", "요구사항과 산출물 간의\n정합성을 확인합니다.", "why_consistency.svg"),
+            ("변경 영향도 분석", "변경사항이 관련 산출물에\n미치는 영향을 분석합니다.", "why_impact.svg"),
+            ("FP 검증 지원", "기능점수 산정 및 검증을\n지원합니다.", "why_fp.svg"),
         ]
 
         for index, (title_text, body_text, icon_file) in enumerate(why_data):
             item_layout = QVBoxLayout()
             item_layout.setContentsMargins(0, 0, 0, 0)
-            item_layout.setSpacing(5)
+            item_layout.setSpacing(4)
 
             item_header = QHBoxLayout()
             item_header.setContentsMargins(0, 0, 0, 0)
@@ -190,16 +156,9 @@ class HomePage(QWidget):
             icon_label = QLabel()
             icon_label.setFixedSize(28, 28)
             icon_label.setAlignment(Qt.AlignCenter)
-
-            icon_path = self.asset_path("icons", icon_file)
-            icon_pixmap = QPixmap(icon_path)
+            icon_pixmap = QPixmap(self.asset_path("icons", icon_file))
             icon_label.setPixmap(
-                icon_pixmap.scaled(
-                    25,
-                    25,
-                    Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation,
-                )
+                icon_pixmap.scaled(25, 25, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             )
 
             item_title = QLabel(title_text)
@@ -226,7 +185,6 @@ class HomePage(QWidget):
             item_body.setTextFormat(Qt.RichText)
             item_body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
             item_body.setStyleSheet(
-                'color: #94a3b8; font-size: 11px; '
                 'font-family: "Segoe UI Variable", "Malgun Gothic";'
             )
             body_row.addWidget(item_body)
@@ -235,30 +193,22 @@ class HomePage(QWidget):
             item_layout.addLayout(item_header)
             item_layout.addLayout(body_row)
             item_layout.addStretch()
-
             why_items_layout.addLayout(item_layout, 1)
 
             if index < len(why_data) - 1:
                 divider = QFrame()
+                divider.setObjectName("whyDivider")
                 divider.setFrameShape(QFrame.VLine)
                 divider.setFixedWidth(1)
-                divider.setFixedHeight(54)
-                divider.setStyleSheet(
-                    "background-color: rgba(148, 163, 184, 32); border: none;"
-                )
-                why_items_layout.addWidget(
-                    divider,
-                    alignment=Qt.AlignVCenter,
-                )
+                divider.setFixedHeight(50)
+                why_items_layout.addWidget(divider, alignment=Qt.AlignVCenter)
 
         why_layout.addLayout(why_items_layout)
         why_outer_layout.addWidget(why_frame)
         main_layout.addLayout(why_outer_layout)
         main_layout.addSpacing(10)
 
-        # ==================================================
         # Footer
-        # ==================================================
         footer_layout = QHBoxLayout()
         footer_layout.setContentsMargins(28, 0, 28, 0)
         footer_layout.setSpacing(0)
@@ -266,28 +216,20 @@ class HomePage(QWidget):
         version_label = QLabel("Version 1.0.0")
         version_label.setObjectName("footerText")
         version_label.setStyleSheet(
-            'color: #9ca3af; font-size: 11px; '
-            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+            'font-size: 11px; font-family: "Segoe UI Variable", "Malgun Gothic";'
         )
 
-        copyright_label = QLabel(
-            "© 2026 AI Auditor. All Rights Reserved."
-        )
+        copyright_label = QLabel("© 2026 AI Auditor. All Rights Reserved.")
         copyright_label.setObjectName("footerText")
         copyright_label.setStyleSheet(
-            'color: #9ca3af; font-size: 11px; '
-            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+            'font-size: 11px; font-family: "Segoe UI Variable", "Malgun Gothic";'
         )
 
         footer_layout.addWidget(version_label)
         footer_layout.addStretch()
         footer_layout.addWidget(copyright_label)
-
         main_layout.addLayout(footer_layout)
 
-    # ======================================================
-    # 메뉴 카드 생성
-    # ======================================================
     def create_menu_card(self, title_text, description_text):
         card = QFrame()
         card.setObjectName("homeCard")
@@ -307,10 +249,8 @@ class HomePage(QWidget):
             "Reports": "rgba(168, 85, 247, 35)",
             "Administration": "rgba(245, 158, 11, 28)",
         }
-
         icon_label.setStyleSheet(
-            f"background-color: {icon_backgrounds[title_text]}; "
-            "border-radius: 29px;"
+            f"background-color: {icon_backgrounds[title_text]}; border-radius: 29px;"
         )
 
         icon_files = {
@@ -320,15 +260,9 @@ class HomePage(QWidget):
             "Administration": "administration.svg",
         }
 
-        icon_path = self.asset_path("icons", icon_files[title_text])
-        pixmap = QPixmap(icon_path)
+        pixmap = QPixmap(self.asset_path("icons", icon_files[title_text]))
         icon_label.setPixmap(
-            pixmap.scaled(
-                40,
-                40,
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation,
-            )
+            pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         )
 
         title = QLabel(title_text)
@@ -345,7 +279,6 @@ class HomePage(QWidget):
         description.setTextFormat(Qt.RichText)
         description.setAlignment(Qt.AlignCenter)
         description.setStyleSheet(
-            'color: #94a3b8; font-size: 13px; '
             'font-family: "Segoe UI Variable", "Malgun Gothic";'
         )
 
@@ -364,9 +297,6 @@ class HomePage(QWidget):
 
         return card
 
-    # ======================================================
-    # assets 경로 생성
-    # ==================================================
     def asset_path(self, folder_name, file_name):
         return os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
