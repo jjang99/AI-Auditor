@@ -19,15 +19,18 @@ class HomePage(QWidget):
 
         # ==================================================
         # 전체 Home 레이아웃
+        # - 물결은 창 전체 폭 사용
+        # - 카드/Why/Footer는 별도 좌우 여백으로 정렬
         # ==================================================
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(16, 28, 16, 14)
+        main_layout.setContentsMargins(0, 28, 0, 14)
         main_layout.setSpacing(0)
 
         # ==================================================
         # Hero 영역
         # ==================================================
         hero_layout = QVBoxLayout()
+        hero_layout.setContentsMargins(24, 0, 24, 0)
         hero_layout.setAlignment(Qt.AlignCenter)
         hero_layout.setSpacing(0)
 
@@ -41,12 +44,16 @@ class HomePage(QWidget):
         subtitle.setAlignment(Qt.AlignCenter)
 
         description = QLabel(
-            "프로젝트 산출물을 AI가 자동 분석하여\n"
+            "<div style='line-height:145%;'>"
+            "프로젝트 산출물을 AI가 자동 분석하여<br>"
             "품질을 진단하고 개선 방향을 제공합니다."
+            "</div>"
         )
         description.setObjectName("homeDescription")
+        description.setTextFormat(Qt.RichText)
         description.setAlignment(Qt.AlignCenter)
         description.setStyleSheet(
+            'color: #e2e8f0; font-size: 15px; font-weight: 500; '
             'font-family: "Segoe UI Variable", "Malgun Gothic";'
         )
 
@@ -62,19 +69,19 @@ class HomePage(QWidget):
         hero_layout.addWidget(title)
         hero_layout.addSpacing(10)
         hero_layout.addWidget(subtitle)
-        hero_layout.addSpacing(10)
+        hero_layout.addSpacing(12)
         hero_layout.addWidget(description)
-        hero_layout.addSpacing(16)
+        hero_layout.addSpacing(22)
         hero_layout.addWidget(
             self.inspection_button,
             alignment=Qt.AlignCenter,
         )
 
         main_layout.addLayout(hero_layout)
-        main_layout.addSpacing(12)
+        main_layout.addSpacing(10)
 
         # ==================================================
-        # 중앙 물결 배경
+        # 중앙 물결 배경 - 창 끝에서 끝까지
         # ==================================================
         wave_label = QLabel()
         wave_label.setAlignment(Qt.AlignCenter)
@@ -84,7 +91,7 @@ class HomePage(QWidget):
         wave_pixmap = QPixmap(wave_path)
         wave_label.setPixmap(
             wave_pixmap.scaled(
-                808,
+                840,
                 125,
                 Qt.IgnoreAspectRatio,
                 Qt.SmoothTransformation,
@@ -100,9 +107,8 @@ class HomePage(QWidget):
         cards_layout = QGridLayout()
         cards_layout.setHorizontalSpacing(14)
         cards_layout.setVerticalSpacing(0)
-        cards_layout.setContentsMargins(8, 0, 8, 0)
+        cards_layout.setContentsMargins(24, 0, 24, 0)
 
-        # 4개 카드 폭을 항상 동일하게 유지
         for column in range(4):
             cards_layout.setColumnStretch(column, 1)
 
@@ -121,8 +127,12 @@ class HomePage(QWidget):
         main_layout.addSpacing(22)
 
         # ==================================================
-        # Why AI Auditor
+        # Why AI Auditor - 상단 4개 카드의 좌/우 라인과 일치
         # ==================================================
+        why_outer_layout = QHBoxLayout()
+        why_outer_layout.setContentsMargins(24, 0, 24, 0)
+        why_outer_layout.setSpacing(0)
+
         why_frame = QFrame()
         why_frame.setObjectName("whyFrame")
         why_frame.setFixedHeight(140)
@@ -206,8 +216,14 @@ class HomePage(QWidget):
             body_row.setContentsMargins(35, 0, 0, 0)
             body_row.setSpacing(0)
 
-            item_body = QLabel(body_text)
+            body_html = body_text.replace("\n", "<br>")
+            item_body = QLabel(
+                "<div style='line-height:140%;'>"
+                f"{body_html}"
+                "</div>"
+            )
             item_body.setObjectName("whyItemBody")
+            item_body.setTextFormat(Qt.RichText)
             item_body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
             item_body.setStyleSheet(
                 'color: #94a3b8; font-size: 11px; '
@@ -236,15 +252,15 @@ class HomePage(QWidget):
                 )
 
         why_layout.addLayout(why_items_layout)
-
-        main_layout.addWidget(why_frame)
+        why_outer_layout.addWidget(why_frame)
+        main_layout.addLayout(why_outer_layout)
         main_layout.addSpacing(10)
 
         # ==================================================
         # Footer
         # ==================================================
         footer_layout = QHBoxLayout()
-        footer_layout.setContentsMargins(12, 0, 12, 0)
+        footer_layout.setContentsMargins(28, 0, 28, 0)
         footer_layout.setSpacing(0)
 
         version_label = QLabel("Version 1.0.0")
@@ -319,8 +335,14 @@ class HomePage(QWidget):
         title.setObjectName("homeCardTitle")
         title.setAlignment(Qt.AlignCenter)
 
-        description = QLabel(description_text)
+        description_html = description_text.replace("\n", "<br>")
+        description = QLabel(
+            "<div style='line-height:145%;'>"
+            f"{description_html}"
+            "</div>"
+        )
         description.setObjectName("homeCardDescription")
+        description.setTextFormat(Qt.RichText)
         description.setAlignment(Qt.AlignCenter)
         description.setStyleSheet(
             'color: #94a3b8; font-size: 13px; '
@@ -332,9 +354,9 @@ class HomePage(QWidget):
         arrow.setAlignment(Qt.AlignRight)
 
         layout.addWidget(icon_label, alignment=Qt.AlignHCenter)
-        layout.addSpacing(10)
+        layout.addSpacing(14)
         layout.addWidget(title)
-        layout.addSpacing(9)
+        layout.addSpacing(10)
         layout.addWidget(description)
         layout.addStretch()
         layout.addSpacing(4)
@@ -344,7 +366,7 @@ class HomePage(QWidget):
 
     # ======================================================
     # assets 경로 생성
-    # ======================================================
+    # ==================================================
     def asset_path(self, folder_name, file_name):
         return os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
