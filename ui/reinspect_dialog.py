@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -38,7 +38,7 @@ class ReInspectDialog(QDialog):
         panel_layout.setSpacing(0)
 
         # =====================================================
-        # Header - 드래그 가능한 영역
+        # Header - 다크/라이트 공통 드래그 영역
         # =====================================================
         self.header_frame = QFrame()
         self.header_frame.setObjectName("reinspectHeader")
@@ -49,17 +49,17 @@ class ReInspectDialog(QDialog):
         title_area = QVBoxLayout()
         title_area.setSpacing(6)
 
-        title = QLabel("Re-Inspect")
-        title.setObjectName("reinspectTitle")
+        self.title_label = QLabel("Re-Inspect")
+        self.title_label.setObjectName("reinspectTitle")
 
-        description = QLabel(
+        self.description_label = QLabel(
             "수정된 산출물을 등록하고 기존 검사 기준으로 재검사를 수행합니다."
         )
-        description.setObjectName("reinspectDescription")
-        description.setWordWrap(True)
+        self.description_label.setObjectName("reinspectDescription")
+        self.description_label.setWordWrap(True)
 
-        title_area.addWidget(title)
-        title_area.addWidget(description)
+        title_area.addWidget(self.title_label)
+        title_area.addWidget(self.description_label)
 
         close_button = QPushButton("×")
         close_button.setObjectName("reinspectCloseButton")
@@ -72,20 +72,21 @@ class ReInspectDialog(QDialog):
         panel_layout.addWidget(self.header_frame)
         panel_layout.addSpacing(22)
 
-        # =====================================================
-        # Scrollable content
-        # =====================================================
-        scroll = QScrollArea()
-        scroll.setObjectName("reinspectScroll")
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        # Frameless 창은 자식 위젯이 마우스 이벤트를 가져갈 수 있으므로
+        # 헤더와 헤더의 텍스트에 동일한 eventFilter를 설치한다.
+        self.header_frame.installEventFilter(self)
+        self.title_label.installEventFilter(self)
+        self.description_label.installEventFilter(self)
 
+        # =====================================================
+        # 본문
+        # 전체 모달에는 스크롤을 두지 않는다.
+        # 스크롤은 2. 업로드 상태 영역에서만 발생한다.
+        # =====================================================
         content = QWidget()
         content.setObjectName("reinspectContent")
         main_layout = QVBoxLayout(content)
-        main_layout.setContentsMargins(0, 0, 4, 0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
         # =====================================================
@@ -98,7 +99,7 @@ class ReInspectDialog(QDialog):
 
         upload_box = QFrame()
         upload_box.setObjectName("reinspectUploadBox")
-        upload_box.setMinimumHeight(92)
+        upload_box.setFixedHeight(92)
 
         upload_layout = QHBoxLayout(upload_box)
         upload_layout.setContentsMargins(24, 15, 24, 15)
@@ -131,13 +132,13 @@ class ReInspectDialog(QDialog):
         main_layout.addWidget(section2_title)
         main_layout.addSpacing(12)
 
-        upload_scroll = QScrollArea()
-        upload_scroll.setObjectName("reinspectUploadScroll")
-        upload_scroll.setWidgetResizable(True)
-        upload_scroll.setFrameShape(QFrame.NoFrame)
-        upload_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        upload_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        upload_scroll.setFixedHeight(88)
+        self.upload_scroll = QScrollArea()
+        self.upload_scroll.setObjectName("reinspectUploadScroll")
+        self.upload_scroll.setWidgetResizable(True)
+        self.upload_scroll.setFrameShape(QFrame.NoFrame)
+        self.upload_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.upload_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.upload_scroll.setFixedHeight(88)
 
         upload_container = QWidget()
         upload_container.setObjectName("reinspectUploadContainer")
@@ -149,8 +150,8 @@ class ReInspectDialog(QDialog):
         self.add_uploaded_file("요구사항추적표.xlsx", "4.8 MB")
         self.upload_status_layout.addStretch()
 
-        upload_scroll.setWidget(upload_container)
-        main_layout.addWidget(upload_scroll)
+        self.upload_scroll.setWidget(upload_container)
+        main_layout.addWidget(self.upload_scroll)
         main_layout.addSpacing(28)
 
         # =====================================================
@@ -163,7 +164,7 @@ class ReInspectDialog(QDialog):
 
         rule_box = QFrame()
         rule_box.setObjectName("reinspectRuleBox")
-        rule_box.setMinimumHeight(84)
+        rule_box.setFixedHeight(84)
 
         rule_layout = QVBoxLayout(rule_box)
         rule_layout.setContentsMargins(16, 12, 16, 12)
@@ -212,10 +213,7 @@ class ReInspectDialog(QDialog):
         summary_layout.addLayout(self.create_summary_item("예상 검사 시간", "약 2분 20초"), 1)
 
         main_layout.addLayout(summary_layout)
-        main_layout.addSpacing(10)
-
-        scroll.setWidget(content)
-        panel_layout.addWidget(scroll, 1)
+        panel_layout.addWidget(content, 1)
         panel_layout.addSpacing(18)
 
         # =====================================================
@@ -246,12 +244,37 @@ class ReInspectDialog(QDialog):
     # =========================================================
     # Frameless modal dragging
     # =========================================================
+    def eventFilter(self, watched, event):
+        if watched in (self.header_frame, self.title_label, self.description_label):
+            if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                self._dragging = True
+                self._drag_position = (
+                    event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                )
+                event.accept()
+                return True
+
+            if event.type() == QEvent.MouseMove and self._dragging:
+                if event.buttons() & Qt.LeftButton:
+                    self.move(event.globalPosition().toPoint() - self._drag_position)
+                    event.accept()
+                    return True
+
+            if event.type() == QEvent.MouseButtonRelease:
+                self._dragging = False
+                event.accept()
+                return True
+
+        return super().eventFilter(watched, event)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            header_rect = self.header_frame.geometry()
-            if header_rect.contains(event.position().toPoint()):
+            local_point = event.position().toPoint()
+            if self.header_frame.geometry().contains(local_point):
                 self._dragging = True
-                self._drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                self._drag_position = (
+                    event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                )
                 event.accept()
                 return
         super().mousePressEvent(event)
@@ -284,7 +307,7 @@ class ReInspectDialog(QDialog):
     def _dark_style(self):
         return """
         #reinspectPanel { background-color:#101f2c; border:1px solid #64748b; border-radius:14px; }
-        #reinspectHeader, #reinspectContent, #reinspectScroll, #reinspectUploadContainer, #reinspectUploadScroll { background:transparent; border:none; }
+        #reinspectHeader, #reinspectContent, #reinspectUploadContainer, #reinspectUploadScroll { background:transparent; border:none; }
         #reinspectTitle { color:#f8fafc; font-size:25px; font-weight:700; }
         #reinspectDescription { color:#c2ccd8; font-size:13px; font-weight:500; }
         #reinspectSectionTitle { color:#f8fafc; font-size:16px; font-weight:700; }
@@ -305,15 +328,15 @@ class ReInspectDialog(QDialog):
         #reinspectCancelButton:hover { background-color:#30485d; }
         #reinspectStartButton { color:#fff; background-color:#642fc2; border:none; border-radius:8px; font-size:13px; font-weight:700; }
         #reinspectStartButton:hover { background-color:#7540d4; }
-        QScrollBar:vertical { background:transparent; width:8px; margin:0; }
-        QScrollBar::handle:vertical { background:#475569; min-height:28px; border-radius:4px; }
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
+        #reinspectUploadScroll QScrollBar:vertical { background:transparent; width:8px; margin:0; }
+        #reinspectUploadScroll QScrollBar::handle:vertical { background:#475569; min-height:28px; border-radius:4px; }
+        #reinspectUploadScroll QScrollBar::add-line:vertical, #reinspectUploadScroll QScrollBar::sub-line:vertical { height:0; }
         """
 
     def _light_style(self):
         return """
         #reinspectPanel { background-color:#ffffff; border:1px solid #94a3b8; border-radius:14px; }
-        #reinspectHeader, #reinspectContent, #reinspectScroll, #reinspectUploadContainer, #reinspectUploadScroll { background:transparent; border:none; }
+        #reinspectHeader, #reinspectContent, #reinspectUploadContainer, #reinspectUploadScroll { background:transparent; border:none; }
         #reinspectTitle { color:#0f172a; font-size:25px; font-weight:700; }
         #reinspectDescription { color:#475569; font-size:13px; font-weight:500; }
         #reinspectSectionTitle { color:#0f172a; font-size:16px; font-weight:700; }
@@ -334,9 +357,9 @@ class ReInspectDialog(QDialog):
         #reinspectCancelButton:hover { background-color:#cbd5e1; }
         #reinspectStartButton { color:#fff; background-color:#6d28d9; border:none; border-radius:8px; font-size:13px; font-weight:700; }
         #reinspectStartButton:hover { background-color:#5b21b6; }
-        QScrollBar:vertical { background:transparent; width:8px; margin:0; }
-        QScrollBar::handle:vertical { background:#cbd5e1; min-height:28px; border-radius:4px; }
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
+        #reinspectUploadScroll QScrollBar:vertical { background:transparent; width:8px; margin:0; }
+        #reinspectUploadScroll QScrollBar::handle:vertical { background:#cbd5e1; min-height:28px; border-radius:4px; }
+        #reinspectUploadScroll QScrollBar::add-line:vertical, #reinspectUploadScroll QScrollBar::sub-line:vertical { height:0; }
         """
 
     def add_uploaded_file(self, file_name, file_size):
@@ -354,16 +377,21 @@ class ReInspectDialog(QDialog):
 
         row.addWidget(file_label, 1)
         row.addWidget(size_label)
-        self.upload_status_layout.insertLayout(max(0, self.upload_status_layout.count() - 1), row)
+        self.upload_status_layout.insertLayout(
+            max(0, self.upload_status_layout.count() - 1), row
+        )
 
     def create_summary_item(self, title, value):
         layout = QVBoxLayout()
         layout.setSpacing(7)
+
         title_label = QLabel(title)
         title_label.setObjectName("reinspectSummaryLabel")
+
         value_label = QLabel(value)
         value_label.setObjectName("reinspectSummaryValue")
         value_label.setWordWrap(True)
+
         layout.addWidget(title_label)
         layout.addWidget(value_label)
         return layout
