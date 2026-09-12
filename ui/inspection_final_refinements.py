@@ -21,6 +21,7 @@ DARK_INSPECTION_FINAL = r'''
 #inspectionFileRow { border-bottom:1px solid #2f3c4c; }
 #inspectionTableText { color:#ffffff; font-size:11px; font-weight:650; }
 #inspectionTableMuted { color:#cbd5e1; font-size:10px; font-weight:500; }
+#inspectionFileFooter { color:#e2e8f0; font-size:10px; font-weight:650; }
 #inspectionBlueNote { color:#7db7ff; font-size:10px; font-weight:600; }
 #inspectionRuleRow { border-color:#3a4758; }
 #inspectionRuleName { color:#ffffff; font-size:12px; font-weight:750; }
@@ -31,7 +32,7 @@ DARK_INSPECTION_FINAL = r'''
 #inspectionSummaryDetail { color:#cbd5e1; font-size:9px; font-weight:500; }
 #inspectionInfoBox { border-color:#3a4758; }
 #inspectionInfoTitle { color:#7db7ff; font-size:10px; font-weight:700; }
-#inspectionInfoText { color:#cbd5e1; font-size:9px; font-weight:500; }
+#inspectionInfoText { color:#e2e8f0; font-size:10px; font-weight:500; }
 #inspectionSmallButton, #inspectionViewButton { color:#f8fafc; font-size:10px; font-weight:650; border-color:#475569; }
 #inspectionStartButton { color:#ffffff; font-size:14px; font-weight:750; }
 #inspectionFileScroll { background:transparent; border:none; }
@@ -58,6 +59,7 @@ LIGHT_INSPECTION_FINAL = r'''
 #inspectionFileRow { border-bottom:1px solid #e2e8f0; }
 #inspectionTableText { color:#0f172a; font-size:11px; font-weight:650; }
 #inspectionTableMuted { color:#475569; font-size:10px; font-weight:500; }
+#inspectionFileFooter { color:#334155; font-size:10px; font-weight:650; }
 #inspectionBlueNote { color:#1d4ed8; font-size:10px; font-weight:600; }
 #inspectionRuleRow { border-color:#cbd5e1; }
 #inspectionRuleName { color:#0f172a; font-size:12px; font-weight:750; }
@@ -68,7 +70,7 @@ LIGHT_INSPECTION_FINAL = r'''
 #inspectionSummaryDetail { color:#475569; font-size:9px; font-weight:500; }
 #inspectionInfoBox { border-color:#cbd5e1; }
 #inspectionInfoTitle { color:#1d4ed8; font-size:10px; font-weight:700; }
-#inspectionInfoText { color:#475569; font-size:9px; font-weight:500; }
+#inspectionInfoText { color:#334155; font-size:10px; font-weight:500; }
 #inspectionSmallButton, #inspectionViewButton { color:#0f172a; font-size:10px; font-weight:650; border-color:#b8c4d3; }
 #inspectionStartButton { color:#ffffff; font-size:14px; font-weight:750; }
 #inspectionFileScroll { background:transparent; border:none; }
@@ -87,8 +89,7 @@ def apply_inspection_final_refinements(inspection_cls):
     def refined_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
 
-        # Freeze principle: Inspection is a one-screen page.
-        # Only the registered-file list may scroll.
+        # Freeze: Inspection stays on one page. Only registered files scroll.
         page_scroll = self.findChild(QScrollArea, 'inspectionScroll')
         if page_scroll is not None:
             page_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -107,19 +108,37 @@ def apply_inspection_final_refinements(inspection_cls):
             title.setText(clean_titles[i])
 
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
+            label.setMinimumHeight(16)
             if label.text().startswith('Project Name'):
                 label.setText('Project Name <span style="color:#ef4444;font-weight:700;">*</span>')
                 label.setTextFormat(Qt.RichText)
 
-        # Balanced card heights inside the fixed 840x900 application window.
+        # Give project information enough vertical room so warning and fields never collide.
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            cards[0].setFixedHeight(145)
-            cards[1].setFixedHeight(240)
-            cards[2].setFixedHeight(214)
-            cards[3].setFixedHeight(174)
+            cards[0].setFixedHeight(155)
+            cards[1].setFixedHeight(250)
+            cards[2].setFixedHeight(210)
+            cards[3].setFixedHeight(178)
 
-        # Make inner containers visually consistent and compact.
+        duplicate_labels = self.findChildren(QLabel, 'inspectionDuplicate')
+        for label in duplicate_labels:
+            label.setMinimumHeight(16)
+            label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        for button in self.findChildren(QPushButton, 'inspectionDuplicateButton'):
+            button.setMinimumHeight(18)
+
+        for widget_name in ('inspectionInput', 'inspectionCombo'):
+            for widget in self.findChildren((QLabel if widget_name == 'none' else type(self.findChild(QPushButton))), widget_name):
+                pass
+        # QLineEdit/QComboBox were created at 31px; 30px keeps readability and gives spacing room.
+        for widget in self.findChildren(QFrame):
+            pass
+        for child in self.findChildren(object):
+            if hasattr(child, 'objectName') and child.objectName() in ('inspectionInput', 'inspectionCombo'):
+                if hasattr(child, 'setFixedHeight'):
+                    child.setFixedHeight(30)
+
         upload_boxes = self.findChildren(QFrame, 'inspectionUploadBox')
         for box in upload_boxes:
             box.setFixedHeight(48)
@@ -128,11 +147,9 @@ def apply_inspection_final_refinements(inspection_cls):
         file_icon = QIcon(os.path.join(icon_dir, 'file.svg'))
         trash_icon = QIcon(os.path.join(icon_dir, 'trash.svg'))
 
-        # Registered files: dedicated scroll only here.
-        # Show 3 rows cleanly; extra files scroll without overlapping footer text.
         file_rows = self.findChildren(QFrame, 'inspectionFileRow')
         for row in file_rows:
-            row.setFixedHeight(30)
+            row.setFixedHeight(29)
             labels = row.findChildren(QLabel)
             if len(labels) >= 4:
                 name_label, path_label, size_label, delete_label = labels[:4]
@@ -165,7 +182,7 @@ def apply_inspection_final_refinements(inspection_cls):
                 if idx >= 0:
                     parent_layout.removeWidget(table)
                     visible_rows = 3
-                    row_height = 30
+                    row_height = 29
                     viewport_height = visible_rows * row_height + 2
                     table.setMinimumHeight(max(viewport_height, len(file_rows) * row_height))
                     scroll = QScrollArea()
@@ -177,7 +194,14 @@ def apply_inspection_final_refinements(inspection_cls):
                     scroll.setWidget(table)
                     parent_layout.insertWidget(idx, scroll)
 
-        # Rule rows: preserve readability while locking the right edge.
+        # Footer text is outside the scroll viewport and gets its own readable style/height.
+        for label in self.findChildren(QLabel):
+            if label.text() in ('외 14개 파일', '총 12.3 MB'):
+                label.setObjectName('inspectionFileFooter')
+                label.setMinimumHeight(18)
+                label.setAlignment(Qt.AlignVCenter | (Qt.AlignRight if label.text().startswith('총') else Qt.AlignLeft))
+
+        # Rules: smaller row height + larger inter-row spacing for cleaner separation.
         rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
@@ -191,13 +215,15 @@ def apply_inspection_final_refinements(inspection_cls):
         for label in self.findChildren(QLabel, 'inspectionRuleCount'):
             label.setFixedWidth(70)
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(40)
+            row.setFixedHeight(36)
+        if len(cards) >= 3 and cards[2].layout() is not None:
+            cards[2].layout().setSpacing(6)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
-            button.setFixedSize(66, 28)
+            button.setFixedSize(66, 27)
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
-            button.setFixedHeight(28)
+            button.setFixedHeight(27)
 
-        # Summary row: keep all four boxes completely inside the viewport.
+        # Summary: visible gap between top summary row and lower information box.
         summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         for label, filename in zip(summary_icons, summary_icon_files):
@@ -207,15 +233,21 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setFixedSize(30, 30)
 
         for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
-            box.setFixedHeight(68)
+            box.setFixedHeight(64)
 
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
-            start.setFixedSize(118, 68)
+            start.setFixedSize(118, 64)
 
-        info_boxes = self.findChildren(QFrame, 'inspectionInfoBox')
-        for box in info_boxes:
-            box.setFixedHeight(52)
+        if len(cards) >= 4 and cards[3].layout() is not None:
+            cards[3].layout().setSpacing(10)
+
+        for box in self.findChildren(QFrame, 'inspectionInfoBox'):
+            box.setFixedHeight(50)
+        for label in self.findChildren(QLabel, 'inspectionInfoText'):
+            label.setWordWrap(True)
+            label.setMinimumHeight(28)
+            label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
