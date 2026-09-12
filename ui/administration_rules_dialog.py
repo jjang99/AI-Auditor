@@ -41,7 +41,7 @@ class AdministrationRulesDialog(QDialog):
         layout.addLayout(header)
 
         summary_row = QHBoxLayout()
-        summary_row.setSpacing(10)
+        summary_row.setSpacing(12)
         total_label = QLabel(f"총 {total}개 규칙")
         total_label.setObjectName("adminSummaryTotal")
         active_label = QLabel(f"활성 {active}개")
@@ -60,7 +60,7 @@ class AdministrationRulesDialog(QDialog):
         self.search = QLineEdit()
         self.search.setPlaceholderText("규칙 코드 또는 제목 검색")
         self.search.setObjectName("adminRuleSearch")
-        self.search.setFixedHeight(36)
+        self.search.setFixedHeight(38)
         self.search.textChanged.connect(self.filter_rows)
         layout.addWidget(self.search)
 
@@ -72,22 +72,22 @@ class AdministrationRulesDialog(QDialog):
 
         table_header = QFrame()
         table_header.setObjectName("adminRuleHeader")
-        table_header.setFixedHeight(38)
+        table_header.setFixedHeight(40)
         header_layout = QHBoxLayout(table_header)
         header_layout.setContentsMargins(12, 0, 10, 0)
-        header_layout.setSpacing(10)
+        header_layout.setSpacing(8)
 
         headers = [
-            ("코드", 72),
-            ("규칙 제목", 130),
+            ("코드", 82),
+            ("규칙 제목", 126),
             ("설명", 1),
-            ("심각도", 72),
+            ("심각도", 78),
             ("상태", 58),
         ]
         for text, width in headers:
             label = QLabel(text)
             label.setObjectName("adminRuleHeaderText")
-            label.setAlignment(Qt.AlignCenter if text in {"코드", "심각도", "상태"} else Qt.AlignLeft | Qt.AlignVCenter)
+            label.setAlignment(Qt.AlignCenter)
             if width == 1:
                 header_layout.addWidget(label, 1)
             else:
@@ -131,28 +131,30 @@ class AdministrationRulesDialog(QDialog):
         for code, name, description, severity, checked in sample_rules:
             row = QFrame()
             row.setObjectName("adminRuleRow")
-            row.setFixedHeight(62)
+            row.setFixedHeight(66)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(12, 6, 10, 6)
-            row_layout.setSpacing(10)
+            row_layout.setSpacing(8)
 
             code_text = f"{prefix}-{code}"
             code_label = QLabel(code_text)
             code_label.setObjectName("adminRuleCode")
-            code_label.setFixedWidth(72)
+            code_label.setFixedWidth(82)
             code_label.setAlignment(Qt.AlignCenter)
 
             name_label = QLabel(name)
             name_label.setObjectName("adminRuleName")
-            name_label.setFixedWidth(130)
+            name_label.setFixedWidth(126)
+            name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
             desc_label = QLabel(description)
             desc_label.setObjectName("adminRuleDescription")
             desc_label.setWordWrap(True)
+            desc_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
             severity_label = QLabel(severity)
             severity_label.setObjectName(f"severity{severity}")
-            severity_label.setFixedSize(72, 26)
+            severity_label.setFixedSize(78, 28)
             severity_label.setAlignment(Qt.AlignCenter)
 
             toggle = QPushButton("ON" if checked else "OFF")
@@ -206,31 +208,31 @@ class AdministrationRulesDialog(QDialog):
                 QDialog { background:#101820; color:#f8fafc; }
                 #adminDialogHeaderIcon { background:transparent; border:none; }
                 #adminDialogTitle { font-size:20px; font-weight:850; color:#ffffff; }
-                #adminSummaryTotal { color:#f8fafc; font-size:12px; font-weight:800; }
-                #adminSummaryActive { color:#22c55e; font-size:12px; font-weight:850; }
-                #adminSummaryInactive { color:#ff613e; font-size:12px; font-weight:850; }
-                #adminSummarySeparator { color:#64748b; font-size:12px; font-weight:700; }
-                #adminRuleSearch { background:#111c26; color:#ffffff; border:1px solid #42576b; border-radius:7px; padding:0 10px; font-size:12px; }
-                #adminRuleTable { background:#0d1721; border:1px solid #31475a; border-radius:7px; }
-                #adminRuleHeader { background:#172838; border-bottom:1px solid #40586c; }
-                #adminRuleHeaderText { color:#ffffff; font-size:12px; font-weight:850; }
+                #adminSummaryTotal { color:#f8fafc; font-size:13px; font-weight:850; }
+                #adminSummaryActive { color:#22d36b; font-size:13px; font-weight:900; }
+                #adminSummaryInactive { color:#ff6445; font-size:13px; font-weight:900; }
+                #adminSummarySeparator { color:#7c8b9a; font-size:13px; font-weight:750; }
+                #adminRuleSearch { background:#111f2c; color:#ffffff; border:1px solid #4a6276; border-radius:7px; padding:0 11px; font-size:12px; font-weight:650; }
+                #adminRuleTable { background:#0d1721; border:1px solid #3b5368; border-radius:7px; }
+                #adminRuleHeader { background:#1a3145; border-bottom:1px solid #526b80; }
+                #adminRuleHeaderText { color:#ffffff; font-size:12px; font-weight:900; }
                 #adminRuleScroll, #adminRuleContent { background:transparent; border:none; }
-                #adminRuleRow { background:#0d1721; border-bottom:1px solid #293d50; }
-                #adminRuleRow:hover { background:#132536; }
-                #adminRuleCode { color:#dbeafe; font-size:11px; font-weight:850; }
-                #adminRuleName { color:#ffffff; font-size:11px; font-weight:850; }
-                #adminRuleDescription { color:#e2e8f0; font-size:11px; font-weight:650; }
-                #severityCritical { color:#ff6b6b; background:#341a20; border:1px solid #ef4444; border-radius:7px; font-size:10px; font-weight:850; }
-                #severityHigh { color:#ffb35c; background:#342718; border:1px solid #f59e0b; border-radius:7px; font-size:10px; font-weight:850; }
-                #severityMedium { color:#60a5fa; background:#132c45; border:1px solid #3b82f6; border-radius:7px; font-size:10px; font-weight:850; }
-                #severityLow { color:#4ade80; background:#143423; border:1px solid #22c55e; border-radius:7px; font-size:10px; font-weight:850; }
-                #adminRuleToggle { background:#475569; color:#e2e8f0; border:none; border-radius:12px; font-size:9px; font-weight:850; }
-                #adminRuleToggle:checked { background:#22c55e; color:#ffffff; }
-                #adminDialogNotice { color:#e2e8f0; font-size:11px; font-weight:700; }
-                #adminDialogPrimaryButton { background:#2563eb; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:850; }
+                #adminRuleRow { background:#0d1721; border-bottom:1px solid #31475a; }
+                #adminRuleRow:hover { background:#15293a; }
+                #adminRuleCode { color:#e6f0ff; font-size:12px; font-weight:900; }
+                #adminRuleName { color:#ffffff; font-size:12px; font-weight:900; }
+                #adminRuleDescription { color:#edf2f7; font-size:12px; font-weight:700; }
+                #severityCritical { color:#ff7a7a; background:#381b22; border:1px solid #ef4444; border-radius:7px; font-size:10px; font-weight:900; }
+                #severityHigh { color:#ffc06a; background:#392817; border:1px solid #f59e0b; border-radius:7px; font-size:10px; font-weight:900; }
+                #severityMedium { color:#75b4ff; background:#14314d; border:1px solid #3b82f6; border-radius:7px; font-size:10px; font-weight:900; }
+                #severityLow { color:#62e58d; background:#153a25; border:1px solid #22c55e; border-radius:7px; font-size:10px; font-weight:900; }
+                #adminRuleToggle { background:#526274; color:#f1f5f9; border:none; border-radius:12px; font-size:9px; font-weight:900; }
+                #adminRuleToggle:checked { background:#21c96a; color:#ffffff; }
+                #adminDialogNotice { color:#f1f5f9; font-size:11px; font-weight:750; }
+                #adminDialogPrimaryButton { background:#2563eb; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:900; }
                 #adminDialogPrimaryButton:hover { background:#3475f5; }
                 QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
-                QScrollBar::handle:vertical { background:#60758a; min-height:28px; border-radius:4px; }
+                QScrollBar::handle:vertical { background:#6f8396; min-height:28px; border-radius:4px; }
                 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0px; }
             """)
         else:
@@ -238,28 +240,28 @@ class AdministrationRulesDialog(QDialog):
                 QDialog { background:#f7f9fc; color:#172a3c; }
                 #adminDialogHeaderIcon { background:transparent; border:none; }
                 #adminDialogTitle { font-size:20px; font-weight:850; color:#142435; }
-                #adminSummaryTotal { color:#26384a; font-size:12px; font-weight:800; }
-                #adminSummaryActive { color:#149447; font-size:12px; font-weight:850; }
-                #adminSummaryInactive { color:#e2492d; font-size:12px; font-weight:850; }
-                #adminSummarySeparator { color:#94a3b8; font-size:12px; font-weight:700; }
-                #adminRuleSearch { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:7px; padding:0 10px; font-size:12px; }
-                #adminRuleTable { background:#ffffff; border:1px solid #b7c5d2; border-radius:7px; }
-                #adminRuleHeader { background:#e7eef5; border-bottom:1px solid #aebdcb; }
-                #adminRuleHeaderText { color:#243648; font-size:12px; font-weight:850; }
+                #adminSummaryTotal { color:#26384a; font-size:13px; font-weight:850; }
+                #adminSummaryActive { color:#13994a; font-size:13px; font-weight:900; }
+                #adminSummaryInactive { color:#e04b30; font-size:13px; font-weight:900; }
+                #adminSummarySeparator { color:#8ea0b1; font-size:13px; font-weight:750; }
+                #adminRuleSearch { background:#ffffff; color:#172a3c; border:1px solid #9fb2c3; border-radius:7px; padding:0 11px; font-size:12px; font-weight:650; }
+                #adminRuleTable { background:#ffffff; border:1px solid #aebfce; border-radius:7px; }
+                #adminRuleHeader { background:#e2ebf3; border-bottom:1px solid #9eb0bf; }
+                #adminRuleHeaderText { color:#203346; font-size:12px; font-weight:900; }
                 #adminRuleScroll, #adminRuleContent { background:transparent; border:none; }
-                #adminRuleRow { background:#ffffff; border-bottom:1px solid #d3dde6; }
-                #adminRuleRow:hover { background:#f2f6fa; }
-                #adminRuleCode { color:#1d4ed8; font-size:11px; font-weight:850; }
-                #adminRuleName { color:#142435; font-size:11px; font-weight:850; }
-                #adminRuleDescription { color:#334155; font-size:11px; font-weight:650; }
-                #severityCritical { color:#b42318; background:#fff0f0; border:1px solid #e45858; border-radius:7px; font-size:10px; font-weight:850; }
-                #severityHigh { color:#a15c00; background:#fff7e8; border:1px solid #e7a22b; border-radius:7px; font-size:10px; font-weight:850; }
-                #severityMedium { color:#1d5fbf; background:#eef5ff; border:1px solid #5b93dd; border-radius:7px; font-size:10px; font-weight:850; }
-                #severityLow { color:#18733a; background:#edf9f1; border:1px solid #4dae6c; border-radius:7px; font-size:10px; font-weight:850; }
-                #adminRuleToggle { background:#aab6c3; color:#ffffff; border:none; border-radius:12px; font-size:9px; font-weight:850; }
+                #adminRuleRow { background:#ffffff; border-bottom:1px solid #cfd9e2; }
+                #adminRuleRow:hover { background:#eef4f8; }
+                #adminRuleCode { color:#1749b5; font-size:12px; font-weight:900; }
+                #adminRuleName { color:#142435; font-size:12px; font-weight:900; }
+                #adminRuleDescription { color:#2f4356; font-size:12px; font-weight:700; }
+                #severityCritical { color:#b42318; background:#fff0f0; border:1px solid #e45858; border-radius:7px; font-size:10px; font-weight:900; }
+                #severityHigh { color:#985600; background:#fff6e6; border:1px solid #d89523; border-radius:7px; font-size:10px; font-weight:900; }
+                #severityMedium { color:#1859b4; background:#eaf3ff; border:1px solid #5b93dd; border-radius:7px; font-size:10px; font-weight:900; }
+                #severityLow { color:#176f38; background:#edf9f1; border:1px solid #4dae6c; border-radius:7px; font-size:10px; font-weight:900; }
+                #adminRuleToggle { background:#9eabb8; color:#ffffff; border:none; border-radius:12px; font-size:9px; font-weight:900; }
                 #adminRuleToggle:checked { background:#20b85f; color:#ffffff; }
-                #adminDialogNotice { color:#425466; font-size:11px; font-weight:700; }
-                #adminDialogPrimaryButton { background:#2563eb; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:850; }
+                #adminDialogNotice { color:#354a5f; font-size:11px; font-weight:750; }
+                #adminDialogPrimaryButton { background:#2563eb; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:900; }
                 #adminDialogPrimaryButton:hover { background:#1d4ed8; }
                 QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
                 QScrollBar::handle:vertical { background:#8998aa; min-height:28px; border-radius:4px; }
