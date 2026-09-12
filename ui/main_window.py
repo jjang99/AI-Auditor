@@ -189,5 +189,6 @@ class MainWindow(QMainWindow):
             self.theme_button.setToolTip("Dark Mode")
 
         self.home_page.set_wave_theme(self.is_dark_mode)
+        self.administration_page.apply_theme(self.is_dark_mode)
         for sidebar in self.sidebars:
             sidebar.set_theme(self.is_dark_mode)
