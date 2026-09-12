@@ -42,39 +42,39 @@ DARK_INSPECTION_FINAL = r'''
 '''
 
 LIGHT_INSPECTION_FINAL = r'''
-#inspectionTitle { color:#0f172a; font-size:26px; font-weight:800; }
-#inspectionDescription { color:#334155; font-size:12px; font-weight:500; }
-#inspectionCard { border:1px solid #cbd5e1; border-radius:9px; }
-#inspectionSectionTitle { color:#0f172a; font-size:16px; font-weight:750; }
-#inspectionFieldLabel { color:#1e293b; font-size:12px; font-weight:650; }
-#inspectionInput, #inspectionCombo { color:#0f172a; font-size:12px; font-weight:500; border-color:#b8c4d3; }
-#inspectionDuplicate { color:#b45309; font-size:10px; font-weight:700; }
-#inspectionDuplicateButton { color:#b45309; font-size:10px; font-weight:700; }
-#inspectionUploadBox { border-color:#94a3b8; }
-#inspectionUploadText { color:#172033; font-size:12px; font-weight:600; }
+#inspectionTitle { color:#0b1220; font-size:26px; font-weight:800; }
+#inspectionDescription { color:#263548; font-size:12px; font-weight:600; }
+#inspectionCard { background:#ffffff; border:1px solid #b6c3d2; border-radius:9px; }
+#inspectionSectionTitle { color:#0b1220; font-size:16px; font-weight:800; }
+#inspectionFieldLabel { color:#162033; font-size:12px; font-weight:700; }
+#inspectionInput, #inspectionCombo { color:#0b1220; background:#ffffff; font-size:12px; font-weight:550; border:1px solid #9eacbd; }
+#inspectionDuplicate { color:#9a3412; font-size:10px; font-weight:750; }
+#inspectionDuplicateButton { color:#9a3412; font-size:10px; font-weight:750; }
+#inspectionUploadBox { background:#f8fafc; border-color:#8fa0b4; }
+#inspectionUploadText { color:#162033; font-size:12px; font-weight:650; }
 #inspectionFileButton { color:#ffffff; font-size:11px; font-weight:700; }
-#inspectionFileCount { color:#0f172a; font-size:12px; font-weight:750; }
-#inspectionFileTable { border-color:#cbd5e1; }
-#inspectionFileRow { border-bottom:1px solid #e2e8f0; }
-#inspectionTableText { color:#0f172a; font-size:11px; font-weight:650; }
-#inspectionTableMuted { color:#475569; font-size:10px; font-weight:500; }
-#inspectionBlueNote { color:#1d4ed8; font-size:10px; font-weight:600; }
-#inspectionRuleRow { border-color:#cbd5e1; }
-#inspectionRuleName { color:#0f172a; font-size:12px; font-weight:750; }
-#inspectionRuleCount, #inspectionRuleDescription { color:#334155; font-size:10px; font-weight:550; }
-#inspectionSummaryBox { border-color:#cbd5e1; }
-#inspectionSummaryTitle { color:#334155; font-size:11px; font-weight:650; }
-#inspectionSummaryValue { color:#0f172a; font-size:16px; font-weight:750; }
-#inspectionSummaryDetail { color:#475569; font-size:9px; font-weight:500; }
-#inspectionInfoBox { border-color:#cbd5e1; }
-#inspectionInfoTitle { color:#1d4ed8; font-size:11px; font-weight:700; }
-#inspectionInfoText { color:#334155; font-size:10px; font-weight:550; }
-#inspectionSmallButton, #inspectionViewButton { color:#0f172a; font-size:10px; font-weight:650; border-color:#b8c4d3; }
+#inspectionFileCount { color:#0b1220; font-size:12px; font-weight:800; }
+#inspectionFileTable { background:#ffffff; border-color:#b7c4d3; }
+#inspectionFileRow { border-bottom:1px solid #d6dee8; }
+#inspectionTableText { color:#0b1220; font-size:11px; font-weight:700; }
+#inspectionTableMuted { color:#334155; font-size:10px; font-weight:600; }
+#inspectionBlueNote { color:#1e40af; font-size:10px; font-weight:650; }
+#inspectionRuleRow { background:#ffffff; border-color:#b8c4d2; }
+#inspectionRuleName { color:#0b1220; font-size:12px; font-weight:800; }
+#inspectionRuleCount, #inspectionRuleDescription { color:#243247; font-size:10px; font-weight:600; }
+#inspectionSummaryBox { background:#f8fafc; border-color:#b8c4d2; }
+#inspectionSummaryTitle { color:#253247; font-size:11px; font-weight:700; }
+#inspectionSummaryValue { color:#0b1220; font-size:16px; font-weight:800; }
+#inspectionSummaryDetail { color:#334155; font-size:9px; font-weight:600; }
+#inspectionInfoBox { background:#f8fafc; border-color:#b8c4d2; }
+#inspectionInfoTitle { color:#1e40af; font-size:11px; font-weight:750; }
+#inspectionInfoText { color:#263548; font-size:10px; font-weight:600; }
+#inspectionSmallButton, #inspectionViewButton { color:#111827; background:#ffffff; font-size:10px; font-weight:700; border:1px solid #9eacbd; }
 #inspectionStartButton { color:#ffffff; font-size:14px; font-weight:750; }
 #inspectionFileScroll { background:transparent; border:none; }
 #inspectionFileScroll QWidget { background:transparent; }
-#inspectionFileScroll QScrollBar:vertical { background:#eef2f7; width:9px; margin:2px; }
-#inspectionFileScroll QScrollBar::handle:vertical { background:#94a3b8; min-height:28px; border-radius:4px; }
+#inspectionFileScroll QScrollBar:vertical { background:#edf1f6; width:9px; margin:2px; }
+#inspectionFileScroll QScrollBar::handle:vertical { background:#7f8da0; min-height:28px; border-radius:4px; }
 #inspectionFileScroll QScrollBar::add-line:vertical, #inspectionFileScroll QScrollBar::sub-line:vertical { height:0px; }
 '''
 
@@ -94,7 +94,8 @@ def apply_inspection_final_refinements(inspection_cls):
 
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 10, 10, 10)
-            self.main_layout.setSpacing(7)
+            # 카드 사이가 붙어 보이지 않도록 전체 간격을 조금 늘린다.
+            self.main_layout.setSpacing(9)
 
         for button in self.findChildren(QPushButton, 'inspectionHelpButton'):
             button.hide()
@@ -107,11 +108,11 @@ def apply_inspection_final_refinements(inspection_cls):
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
             cards[0].setFixedHeight(165)
-            cards[1].setFixedHeight(225)
-            cards[2].setFixedHeight(208)
+            cards[1].setFixedHeight(223)
+            cards[2].setFixedHeight(206)
             cards[3].setFixedHeight(190)
 
-        # 1. 프로젝트 정보: 좌/우 필드의 라벨과 입력칸 높이를 정확히 맞춘다.
+        # 1. 프로젝트 정보: 전체 폼을 카드 상단 쪽으로 올리고 좌/우 기준선을 유지한다.
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -124,10 +125,12 @@ def apply_inspection_final_refinements(inspection_cls):
         for combo in self.findChildren(QComboBox, 'inspectionCombo'):
             combo.setFixedHeight(29)
 
-        # project card: title + form_row. form_row 안의 좌/우 컬럼을 직접 정렬한다.
         if len(cards) >= 1 and cards[0].layout() is not None:
             project_layout = cards[0].layout()
-            project_layout.setSpacing(8)
+            # 위쪽 여백을 줄이고 아래쪽 여백을 더 두어 내용 묶음을 위로 이동.
+            project_layout.setContentsMargins(14, 7, 14, 13)
+            project_layout.setSpacing(6)
+            project_layout.setAlignment(Qt.AlignTop)
             if project_layout.count() > 1 and project_layout.itemAt(1).layout() is not None:
                 form_row = project_layout.itemAt(1).layout()
                 form_row.setSpacing(16)
@@ -137,13 +140,10 @@ def apply_inspection_final_refinements(inspection_cls):
                     left_col.setSpacing(4)
                 if right_col is not None:
                     right_col.setSpacing(4)
-                    # 왼쪽의 중복 안내 행 높이만큼 우측에도 동일한 빈 공간을 둬서
-                    # Description ↔ 프로젝트 구분 라인이 정확히 맞도록 한다.
                     if right_col.count() > 2 and right_col.itemAt(2).spacerItem() is not None:
                         right_col.itemAt(2).spacerItem().changeSize(0, 26)
                     right_col.invalidate()
 
-        # 동일 이름 경고는 위 입력칸에서 한 템포 떨어져 보이도록 내부 상단 여백 확보.
         for label in self.findChildren(QLabel, 'inspectionDuplicate'):
             label.setFixedHeight(22)
             label.setContentsMargins(0, 4, 0, 0)
@@ -250,7 +250,6 @@ def apply_inspection_final_refinements(inspection_cls):
         if len(cards) >= 4 and cards[3].layout() is not None:
             cards[3].layout().setSpacing(11)
 
-        # 안내 박스의 제목+두 줄 문구 묶음을 박스 세로 중앙에 배치한다.
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
             box.setFixedHeight(60)
             if box.layout() is not None:
