@@ -38,20 +38,20 @@ def apply_project_detail_refinements(ProjectDetailPage):
         detail = _card_by_title(body_cards, "Issue Detail")
 
         if distribution:
-            distribution.setMaximumWidth(166)
+            distribution.setMaximumWidth(160)
             _refine_distribution(distribution)
         if history:
-            history.setMaximumWidth(166)
+            history.setMaximumWidth(160)
         if issues:
-            issues.setMinimumWidth(242)
+            issues.setMinimumWidth(252)
             issues.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            # Scrollbar가 더 보기 이후 나타나도 본문 폭이 갑자기 줄지 않게 공간을 항상 확보.
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
             if scroll:
                 scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+                scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                 scroll.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         if detail:
-            detail.setMinimumWidth(204)
+            detail.setMinimumWidth(198)
             detail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         issue_rows = self.findChildren(QFrame, "detailIssueListRow")
@@ -69,10 +69,14 @@ def apply_project_detail_refinements(ProjectDetailPage):
             except (RuntimeError, TypeError):
                 pass
 
-            def show_remaining(_checked=False, rows=issue_rows, more_button=button):
+            def show_remaining(_checked=False, rows=issue_rows, more_button=button, issue_card=issues):
                 for row in rows:
                     row.show()
                 more_button.hide()
+                if issue_card:
+                    scroll_area = issue_card.findChild(QScrollArea, "detailIssueScroll")
+                    if scroll_area:
+                        scroll_area.verticalScrollBar().setValue(0)
 
             button.clicked.connect(show_remaining)
             button.show()
@@ -103,6 +107,7 @@ def apply_project_detail_refinements(ProjectDetailPage):
         if detail:
             _replace_detail_metadata_rows(detail)
             _refine_detail_header(detail)
+            _refine_detail_sections(detail)
 
         if history:
             for label in history.findChildren(QLabel, "detailHistoryDate"):
@@ -138,13 +143,13 @@ def _refine_distribution(card):
 def _refine_issue_row(row):
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
-        badge.setFixedWidth(42)
+        badge.setFixedWidth(40)
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
 
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
-        status.setFixedWidth(40)
+        status.setFixedWidth(44)
         status.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
     for label in row.findChildren(QLabel):
@@ -168,6 +173,19 @@ def _refine_detail_header(detail_card):
     if code:
         code.setMinimumHeight(24)
         code.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+
+
+def _refine_detail_sections(detail_card):
+    # 제목/설명/근거/영향/AI 권고 각 섹션의 위아래 숨통을 확보.
+    section_titles = {"제목", "설명", "근거", "영향", "AI 권고"}
+    for label in detail_card.findChildren(QLabel, "detailTextLabel"):
+        if label.text() in section_titles:
+            label.setMinimumHeight(22)
+            label.setContentsMargins(0, 4, 0, 3)
+
+    for label in detail_card.findChildren(QLabel, "detailTextBody"):
+        label.setContentsMargins(0, 1, 0, 4)
+        label.setMinimumHeight(20)
 
 
 def _replace_detail_metadata_rows(detail_card):
