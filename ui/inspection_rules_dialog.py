@@ -358,22 +358,17 @@ class InspectionRulesDialog(QDialog):
             checkbox.setChecked(checked)
 
     def update_selected_count(self):
-        self.selected_count.setText(
-            "선택됨 30 / 32 항목"
+        selected = sum(
+            1 for checkbox in self.rule_checkboxes
+            if checkbox.isChecked()
         )
 
-
-        # 원본 화면의 전체 규칙 수를 기준으로 표시
-        if selected == len(self.rule_checkboxes):
-            display_count = 32
-        else:
-            display_count = max(
-                0,
-                32 - (
-                    len(self.rule_checkboxes) - selected
-                )
-            )
-
+        # 현재 샘플 화면에는 8개 규칙만 표시하지만,
+        # 원본 카테고리의 전체 규칙 수(32개)를 기준으로 표시한다.
+        display_count = max(
+            0,
+            32 - (len(self.rule_checkboxes) - selected)
+        )
         self.selected_count.setText(
             f"선택됨 {display_count} / 32 항목"
         )
