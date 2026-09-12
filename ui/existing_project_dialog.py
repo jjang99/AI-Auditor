@@ -134,12 +134,13 @@ class ExistingProjectDialog(QDialog):
         row.setFixedHeight(54)
         row_layout = QHBoxLayout(row)
         row_layout.setContentsMargins(14, 5, 14, 5)
-        row_layout.setSpacing(10)
+        row_layout.setSpacing(0)
 
         radio = QRadioButton()
         radio.setCursor(Qt.PointingHandCursor)
         radio.setFixedSize(18, 18)
         self.radio_group.addButton(radio, index)
+
         name = QLabel(project["name"])
         department = QLabel(project["department"])
         project_type = QLabel(project["type"])
@@ -147,13 +148,29 @@ class ExistingProjectDialog(QDialog):
         for label in (name, department, project_type, date):
             label.setObjectName("existingProjectText")
             label.setAlignment(Qt.AlignCenter)
-        name.setFixedWidth(180)
+
+        # Keep the selector visually attached to the project name while
+        # preserving the centered data columns.
+        selector_cell = QWidget()
+        selector_cell.setObjectName("existingProjectSelectorCell")
+        selector_layout = QHBoxLayout(selector_cell)
+        selector_layout.setContentsMargins(0, 0, 0, 0)
+        selector_layout.setSpacing(5)
+        selector_layout.addStretch()
+        selector_layout.addWidget(radio)
+        selector_layout.addWidget(name)
+        selector_layout.addStretch()
+        selector_cell.setFixedWidth(220)
+
         department.setFixedWidth(150)
         project_type.setFixedWidth(122)
-        row_layout.addWidget(radio)
-        row_layout.addWidget(name)
+
+        row_layout.addWidget(selector_cell)
+        row_layout.addSpacing(8)
         row_layout.addWidget(department)
+        row_layout.addSpacing(8)
         row_layout.addWidget(project_type)
+        row_layout.addSpacing(8)
         row_layout.addWidget(date, 1)
         return row
 
@@ -163,7 +180,7 @@ class ExistingProjectDialog(QDialog):
         if is_dark:
             self.setStyleSheet("""
                 #existingProjectPanel { background:#101f2c; border:1px solid #64748b; border-radius:12px; }
-                #existingProjectHeaderArea, #existingProjectListContent { background:transparent; }
+                #existingProjectHeaderArea, #existingProjectListContent, #existingProjectSelectorCell { background:transparent; }
                 #existingProjectTitle { color:#ffffff; font-size:22px; font-weight:800; }
                 #existingProjectClose { color:#ffffff; background:transparent; border:none; font-size:24px; font-weight:650; }
                 #existingProjectClose:hover { background:#1d3142; border-radius:6px; }
@@ -192,7 +209,7 @@ class ExistingProjectDialog(QDialog):
         else:
             self.setStyleSheet("""
                 #existingProjectPanel { background:#ffffff; border:1px solid #a8b6c7; border-radius:12px; }
-                #existingProjectHeaderArea, #existingProjectListContent { background:transparent; }
+                #existingProjectHeaderArea, #existingProjectListContent, #existingProjectSelectorCell { background:transparent; }
                 #existingProjectTitle { color:#050b16; font-size:22px; font-weight:800; }
                 #existingProjectClose { color:#0f172a; background:transparent; border:none; font-size:24px; font-weight:650; }
                 #existingProjectClose:hover { background:#eef2f6; border-radius:6px; }
