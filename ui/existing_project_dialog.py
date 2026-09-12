@@ -59,11 +59,11 @@ class ExistingProjectDialog(QDialog):
         layout.addWidget(description)
         layout.addSpacing(5)
 
-        # Keep all four columns centered, but group them more tightly so the
-        # table reads as one unit instead of four widely separated blocks.
+        # Balanced column grid: slightly wider gaps than the previous pass,
+        # while shifting the whole grid left to remove excess empty space.
         table_header = QHBoxLayout()
-        table_header.setContentsMargins(12, 0, 12, 0)
-        table_header.setSpacing(6)
+        table_header.setContentsMargins(4, 0, 12, 0)
+        table_header.setSpacing(12)
         project_header = QLabel("프로젝트명")
         department_header = QLabel("부서명(기관명)")
         type_header = QLabel("프로젝트 구분")
@@ -71,11 +71,10 @@ class ExistingProjectDialog(QDialog):
         for label in (project_header, department_header, type_header, date_header):
             label.setObjectName("existingProjectHeader")
             label.setAlignment(Qt.AlignCenter)
-        project_header.setFixedWidth(200)
+        project_header.setFixedWidth(210)
         department_header.setFixedWidth(140)
         type_header.setFixedWidth(115)
         date_header.setFixedWidth(110)
-        table_header.addStretch()
         table_header.addWidget(project_header)
         table_header.addWidget(department_header)
         table_header.addWidget(type_header)
@@ -138,8 +137,8 @@ class ExistingProjectDialog(QDialog):
         row.setObjectName("existingProjectRow")
         row.setFixedHeight(54)
         row_layout = QHBoxLayout(row)
-        row_layout.setContentsMargins(14, 5, 14, 5)
-        row_layout.setSpacing(6)
+        row_layout.setContentsMargins(6, 5, 14, 5)
+        row_layout.setSpacing(12)
 
         radio = QRadioButton()
         radio.setCursor(Qt.PointingHandCursor)
@@ -163,13 +162,12 @@ class ExistingProjectDialog(QDialog):
         selector_layout.addWidget(radio)
         selector_layout.addWidget(name)
         selector_layout.addStretch()
-        selector_cell.setFixedWidth(200)
+        selector_cell.setFixedWidth(210)
 
         department.setFixedWidth(140)
         project_type.setFixedWidth(115)
         date.setFixedWidth(110)
 
-        row_layout.addStretch()
         row_layout.addWidget(selector_cell)
         row_layout.addWidget(department)
         row_layout.addWidget(project_type)
