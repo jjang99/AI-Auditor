@@ -34,7 +34,7 @@ class AdministrationPage(QWidget):
         main_layout.addWidget(title)
         main_layout.addSpacing(14)
 
-        summary_label = QLabel("Inspection Rules Summary")
+        summary_label = QLabel("검사 기준 요약")
         summary_label.setObjectName("adminAccentLabel")
         main_layout.addWidget(summary_label)
         main_layout.addSpacing(7)
@@ -46,9 +46,9 @@ class AdministrationPage(QWidget):
         summary_layout.setContentsMargins(22, 10, 22, 10)
         summary_layout.setSpacing(0)
         for value, label, object_name in [
-            ("100", "Total Rules", "adminSummaryValue"),
-            ("92", "Active Rules", "adminSummaryActive"),
-            ("8", "Inactive Rules", "adminSummaryInactive"),
+            ("100", "전체 규칙", "adminSummaryValue"),
+            ("92", "활성 규칙", "adminSummaryActive"),
+            ("8", "비활성 규칙", "adminSummaryInactive"),
         ]:
             cell = QWidget()
             cell_layout = QVBoxLayout(cell)
@@ -72,7 +72,7 @@ class AdministrationPage(QWidget):
         rules_layout.setContentsMargins(16, 14, 16, 12)
         rules_layout.setSpacing(0)
 
-        section_title = QLabel("1. 검사 기준 관리 (Inspection Rules Management)")
+        section_title = QLabel("1. 검사 기준 관리")
         section_title.setObjectName("adminSectionTitle")
         rules_layout.addWidget(section_title)
         rules_layout.addSpacing(12)
@@ -85,7 +85,7 @@ class AdministrationPage(QWidget):
 
         header = QFrame()
         header.setObjectName("adminRulesHeader")
-        header.setFixedHeight(38)
+        header.setFixedHeight(40)
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(14, 0, 12, 0)
         header_layout.setSpacing(8)
@@ -99,13 +99,13 @@ class AdministrationPage(QWidget):
 
         icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons")
         categories = [
-            ("요구사항 정합성", "Requirement Consistency", 24, 22, 2, "detail_grade.svg"),
-            ("설계 품질", "Design Quality", 18, 18, 0, "detail_score.svg"),
-            ("보안 취약점", "Security Vulnerability", 32, 30, 2, "detail_issues.svg"),
-            ("코드 품질", "Code Quality", 16, 14, 2, "detail_resolved.svg"),
-            ("AI 특화 검증", "AI-Specific Validation", 10, 8, 2, "administration.svg"),
+            ("요구사항 정합성", 24, 22, 2, "detail_grade.svg"),
+            ("설계 품질", 18, 18, 0, "detail_score.svg"),
+            ("보안 취약점", 32, 30, 2, "detail_issues.svg"),
+            ("코드 품질", 16, 14, 2, "detail_resolved.svg"),
+            ("AI 특화 검증", 10, 8, 2, "administration.svg"),
         ]
-        for name, english, total, active, inactive, icon_file in categories:
+        for name, total, active, inactive, icon_file in categories:
             row = QFrame()
             row.setObjectName("adminCategoryRow")
             row.setFixedHeight(66)
@@ -124,19 +124,12 @@ class AdministrationPage(QWidget):
             icon.setFixedSize(28, 28)
             icon.setAlignment(Qt.AlignCenter)
 
-            text_box = QWidget()
-            text_layout = QVBoxLayout(text_box)
-            text_layout.setContentsMargins(0, 6, 0, 5)
-            text_layout.setSpacing(1)
             name_label = QLabel(name)
             name_label.setObjectName("adminCategoryName")
-            english_label = QLabel(english)
-            english_label.setObjectName("adminCategoryEnglish")
-            text_layout.addWidget(name_label)
-            text_layout.addWidget(english_label)
+            name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
             category_layout.addWidget(icon)
-            category_layout.addWidget(text_box, 1)
+            category_layout.addWidget(name_label, 1)
             row_layout.addWidget(category)
 
             for value, object_name in [(total, "adminCount"), (active, "adminActiveCount"), (inactive, "adminInactiveCount")]:
@@ -168,7 +161,7 @@ class AdministrationPage(QWidget):
         settings_layout.setContentsMargins(16, 13, 16, 12)
         settings_layout.setSpacing(0)
 
-        settings_title = QLabel("2. 환경 설정 (Environment Settings)")
+        settings_title = QLabel("2. 환경 설정")
         settings_title.setObjectName("adminSectionTitle")
         settings_layout.addWidget(settings_title)
         settings_layout.addSpacing(10)
@@ -176,13 +169,13 @@ class AdministrationPage(QWidget):
         settings_body = QFrame()
         settings_body.setObjectName("adminSettingsBody")
         body_layout = QVBoxLayout(settings_body)
-        body_layout.setContentsMargins(12, 0, 12, 0)
+        body_layout.setContentsMargins(12, 2, 12, 2)
         body_layout.setSpacing(0)
 
         theme_combo = QComboBox()
-        theme_combo.addItems(["Dark", "Light"])
-        theme_combo.setFixedSize(240, 32)
-        body_layout.addLayout(self.setting_row("Theme", theme_combo, 44))
+        theme_combo.addItems(["다크", "라이트"])
+        theme_combo.setFixedSize(240, 34)
+        body_layout.addLayout(self.setting_row("테마", theme_combo, 44))
 
         path_controls = QWidget()
         path_controls.setFixedWidth(240)
@@ -191,48 +184,47 @@ class AdministrationPage(QWidget):
         path_layout.setSpacing(7)
         path = QLineEdit(r"C:\AI_Auditor\Results")
         path.setObjectName("adminPath")
-        path.setFixedHeight(32)
+        path.setFixedHeight(34)
         browse = QPushButton("찾아보기")
         browse.setObjectName("adminBrowseButton")
-        browse.setFixedSize(74, 32)
+        browse.setFixedSize(74, 34)
         path_layout.addWidget(path, 1)
         path_layout.addWidget(browse)
-        body_layout.addLayout(self.setting_row("결과 저장 경로 (Result Save Path)", path_controls, 44))
+        body_layout.addLayout(self.setting_row("결과 저장 경로", path_controls, 44))
 
         save_logs = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("로그 저장 (Save Logs)", save_logs, 44))
+        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 44))
 
         auto_save = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("검사 결과 자동 저장 (Auto Save Results)", auto_save, 44))
+        body_layout.addLayout(self.setting_row("검사 결과 자동 저장", auto_save, 44))
 
         settings_layout.addWidget(settings_body)
         main_layout.addWidget(settings_card)
         main_layout.addStretch(1)
 
         self.setStyleSheet("""
-            #adminAccentLabel { color:#3b9cff; font-size:12px; font-weight:700; }
+            #adminAccentLabel { color:#46a3ff; font-size:13px; font-weight:800; }
             #adminSummaryFrame { background:transparent; border:1px solid #40576b; border-radius:9px; }
-            #adminSummaryValue, #adminSummaryActive, #adminSummaryInactive { color:#ffffff; font-size:23px; font-weight:800; }
+            #adminSummaryValue, #adminSummaryActive, #adminSummaryInactive { color:#ffffff; font-size:24px; font-weight:850; }
             #adminSummaryActive { color:#22c55e; }
             #adminSummaryInactive { color:#ff5a36; }
-            #adminSummaryText { color:#d5dee8; font-size:12px; }
+            #adminSummaryText { color:#f1f5f9; font-size:13px; font-weight:700; }
             #adminSectionCard { background:#172636; border-radius:8px; }
-            #adminSectionTitle { color:#ffffff; font-size:15px; font-weight:800; }
+            #adminSectionTitle { color:#ffffff; font-size:16px; font-weight:850; }
             #adminRulesTable, #adminSettingsBody { background:#0e1b27; border-radius:7px; }
             #adminRulesHeader { background:#132332; border-bottom:1px solid #2b4052; }
-            #adminHeaderText { color:#cbd5e1; font-size:10px; font-weight:700; }
+            #adminHeaderText { color:#f1f5f9; font-size:12px; font-weight:800; }
             #adminCategoryRow { background:#0e1b27; border-bottom:1px solid #263a4b; }
-            #adminCategoryName { color:#ffffff; font-size:12px; font-weight:800; }
-            #adminCategoryEnglish { color:#aebdcc; font-size:10px; }
-            #adminCount { color:#ffffff; font-size:13px; font-weight:700; }
-            #adminActiveCount { color:#22c55e; font-size:13px; font-weight:800; }
-            #adminInactiveCount { color:#ff5a36; font-size:13px; font-weight:800; }
-            #adminViewButton, #adminBrowseButton { background:#182b3d; color:#ffffff; border:1px solid #30485c; border-radius:6px; font-weight:700; }
+            #adminCategoryName { color:#ffffff; font-size:13px; font-weight:800; }
+            #adminCount { color:#ffffff; font-size:14px; font-weight:800; }
+            #adminActiveCount { color:#22c55e; font-size:14px; font-weight:850; }
+            #adminInactiveCount { color:#ff5a36; font-size:14px; font-weight:850; }
+            #adminViewButton, #adminBrowseButton { background:#182b3d; color:#ffffff; border:1px solid #36536a; border-radius:6px; font-size:12px; font-weight:800; }
             #adminViewButton:hover, #adminBrowseButton:hover { background:#22394d; }
-            #adminNote { color:#b8c5d2; font-size:10px; }
-            #adminSettingLabel { color:#e2e8f0; font-size:11px; }
-            #adminPath, QComboBox { background:#10202e; color:#ffffff; border:1px solid #31485b; border-radius:6px; padding:0 9px; }
-            QPushButton#adminToggle { background:#31465a; color:#dbe4ed; border:none; border-radius:11px; font-size:9px; font-weight:800; padding:0; }
+            #adminNote { color:#cbd5e1; font-size:11px; font-weight:650; }
+            #adminSettingLabel { color:#f1f5f9; font-size:12px; font-weight:750; }
+            #adminPath, QComboBox { background:#10202e; color:#ffffff; border:1px solid #3a5368; border-radius:6px; padding:0 9px; font-size:12px; }
+            QPushButton#adminToggle { background:#31465a; color:#dbe4ed; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
             QPushButton#adminToggle:checked { background:#22c55e; color:#ffffff; }
         """)
 
