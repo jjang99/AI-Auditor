@@ -15,10 +15,7 @@ class AdministrationRulesDialog(QDialog):
         self.setModal(True)
         self.setFixedSize(700, 500)
 
-        icon_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),
-            "assets", "icons", "logo.svg"
-        )
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons", "logo.svg")
         self.setWindowIcon(QIcon(icon_path))
 
         layout = QVBoxLayout(self)
@@ -32,7 +29,6 @@ class AdministrationRulesDialog(QDialog):
         header_icon.setPixmap(QIcon(icon_path).pixmap(QSize(24, 24)))
         header_icon.setFixedSize(28, 28)
         header_icon.setAlignment(Qt.AlignCenter)
-
         title = QLabel(f"{category_name} - 규칙 목록")
         title.setObjectName("adminDialogTitle")
         header.addWidget(header_icon)
@@ -70,19 +66,26 @@ class AdministrationRulesDialog(QDialog):
         table_layout.setContentsMargins(0, 0, 0, 0)
         table_layout.setSpacing(0)
 
+        # Header and result rows use the exact same widths/spacing so columns line up.
+        code_width = 86
+        name_width = 142
+        severity_width = 82
+        status_width = 58
+        column_spacing = 12
+
         table_header = QFrame()
         table_header.setObjectName("adminRuleHeader")
         table_header.setFixedHeight(40)
         header_layout = QHBoxLayout(table_header)
         header_layout.setContentsMargins(12, 0, 10, 0)
-        header_layout.setSpacing(8)
+        header_layout.setSpacing(column_spacing)
 
         headers = [
-            ("코드", 82),
-            ("규칙 제목", 126),
+            ("코드", code_width),
+            ("규칙 제목", name_width),
             ("설명", 1),
-            ("심각도", 78),
-            ("상태", 58),
+            ("심각도", severity_width),
+            ("상태", status_width),
         ]
         for text, width in headers:
             label = QLabel(text)
@@ -134,18 +137,18 @@ class AdministrationRulesDialog(QDialog):
             row.setFixedHeight(66)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(12, 6, 10, 6)
-            row_layout.setSpacing(8)
+            row_layout.setSpacing(column_spacing)
 
             code_text = f"{prefix}-{code}"
             code_label = QLabel(code_text)
             code_label.setObjectName("adminRuleCode")
-            code_label.setFixedWidth(82)
+            code_label.setFixedWidth(code_width)
             code_label.setAlignment(Qt.AlignCenter)
 
             name_label = QLabel(name)
             name_label.setObjectName("adminRuleName")
-            name_label.setFixedWidth(126)
-            name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            name_label.setFixedWidth(name_width)
+            name_label.setAlignment(Qt.AlignCenter)
 
             desc_label = QLabel(description)
             desc_label.setObjectName("adminRuleDescription")
@@ -154,7 +157,7 @@ class AdministrationRulesDialog(QDialog):
 
             severity_label = QLabel(severity)
             severity_label.setObjectName(f"severity{severity}")
-            severity_label.setFixedSize(78, 28)
+            severity_label.setFixedSize(severity_width, 28)
             severity_label.setAlignment(Qt.AlignCenter)
 
             toggle = QPushButton("ON" if checked else "OFF")
@@ -171,7 +174,6 @@ class AdministrationRulesDialog(QDialog):
             row_layout.addWidget(severity_label, 0, Qt.AlignCenter)
             row_layout.addWidget(toggle, 0, Qt.AlignCenter)
             rows.addWidget(row)
-
             self.rule_rows.append((row, code_text.lower(), name.lower()))
 
         rows.addStretch()
@@ -202,7 +204,6 @@ class AdministrationRulesDialog(QDialog):
     def apply_theme(self):
         host = self.parentWidget().window() if self.parentWidget() is not None else None
         is_dark = getattr(host, "is_dark_mode", True)
-
         if is_dark:
             self.setStyleSheet("""
                 QDialog { background:#101820; color:#f8fafc; }
