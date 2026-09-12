@@ -12,12 +12,10 @@ def apply_project_detail_refinements(ProjectDetailPage):
     def refined_init(self):
         original_init(self)
 
-        # Breadcrumb: stronger hierarchy while keeping it secondary to the project title.
         breadcrumb = self.findChild(QLabel, "detailBreadcrumb")
         if breadcrumb:
             breadcrumb.setMinimumHeight(24)
 
-        # Summary: center Grade and give the inspection date its own readable style hooks.
         grade_value = self.findChild(QLabel, "detailSummaryGrade")
         if grade_value:
             grade_value.setAlignment(Qt.AlignCenter)
@@ -33,26 +31,24 @@ def apply_project_detail_refinements(ProjectDetailPage):
             elif "2026.07.25 14:32" in label.text() and label.objectName() == "detailDate":
                 label.setObjectName("detailLastInspectionDate")
 
-        # Identify body cards.
         body_cards = self.findChildren(QFrame, "detailBodyCard")
         distribution = _card_by_title(body_cards, "Issue Distribution")
         history = _card_by_title(body_cards, "Inspection History")
         issues = _card_by_prefix(body_cards, "Issues (")
         detail = _card_by_title(body_cards, "Issue Detail")
 
-        # Keep analytics compact, but don't starve Issues. Let Issue Detail stay readable too.
+        # Issues를 조금 더 넓히기 위해 좌측 분석열과 우측 상세열을 소폭 축소.
         if distribution:
-            distribution.setMaximumWidth(178)
+            distribution.setMaximumWidth(166)
         if history:
-            history.setMaximumWidth(178)
+            history.setMaximumWidth(166)
         if issues:
-            issues.setMinimumWidth(218)
+            issues.setMinimumWidth(236)
             issues.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         if detail:
-            detail.setMinimumWidth(220)
+            detail.setMinimumWidth(210)
             detail.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # Default view shows exactly 8 issues; remaining items are exposed by More.
         issue_rows = self.findChildren(QFrame, "detailIssueListRow")
         for index, row in enumerate(issue_rows):
             row.setVisible(index < 8)
@@ -76,7 +72,6 @@ def apply_project_detail_refinements(ProjectDetailPage):
             button.clicked.connect(show_remaining)
             button.show()
 
-        # Replace glyph-like stat icons with simple outline SVG icons.
         icon_map = {
             "detailStatIcon_purple": "detail_score.svg",
             "detailStatIcon_green": "detail_grade.svg",
@@ -93,11 +88,17 @@ def apply_project_detail_refinements(ProjectDetailPage):
             if label:
                 _set_svg_icon(label, filename, 23)
 
-        # Issue Detail: preserve original structure but make metadata rows match the final mock-up.
         if detail:
             _replace_detail_metadata_rows(detail)
+            _refine_detail_header(detail)
 
-        # Re-Inspect: modern refresh icon and stronger action presence.
+        # Inspection History 텍스트 공간 확보
+        if history:
+            for label in history.findChildren(QLabel, "detailHistoryDate"):
+                label.setMinimumHeight(16)
+            for label in history.findChildren(QLabel, "detailHistoryType"):
+                label.setMinimumHeight(15)
+
         reinspect = self.findChild(QPushButton, "detailReInspectButton")
         if reinspect:
             reinspect.setText("Re-Inspect")
@@ -127,10 +128,10 @@ def _card_by_prefix(cards, prefix):
 
 
 def _refine_issue_row(row):
-    """Give the issue title/description more usable width without changing the data."""
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
-        badge.setFixedWidth(46)
+        badge.setFixedWidth(44)
+        badge.setMinimumHeight(24)
 
     status = next(
         (x for x in row.findChildren(QLabel)
@@ -138,14 +139,31 @@ def _refine_issue_row(row):
         None,
     )
     if status:
-        status.setFixedWidth(36)
+        status.setFixedWidth(42)
         status.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-    # Prevent code/description labels from reserving unnecessary width.
     for label in row.findChildren(QLabel):
         if label.objectName() in ("detailIssueCode", "detailIssueDescription"):
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             label.setMinimumWidth(0)
+
+
+def _refine_detail_header(detail_card):
+    badge = detail_card.findChild(QLabel, "detailBadge_critical")
+    status = detail_card.findChild(QLabel, "detailStatusOpen")
+    code = detail_card.findChild(QLabel, "detailIssueDetailCode")
+
+    if badge:
+        badge.setFixedWidth(58)
+        badge.setMinimumHeight(26)
+        badge.setAlignment(Qt.AlignCenter)
+    if status:
+        status.setFixedWidth(46)
+        status.setMinimumHeight(26)
+        status.setAlignment(Qt.AlignCenter)
+    if code:
+        code.setMinimumHeight(26)
+        code.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
 
 
 def _replace_detail_metadata_rows(detail_card):
@@ -153,15 +171,8 @@ def _replace_detail_metadata_rows(detail_card):
     if layout is None:
         return
 
-    category = next(
-        (x for x in detail_card.findChildren(QLabel) if x.text().startswith("카테고리")),
-        None,
-    )
-    rule = next(
-        (x for x in detail_card.findChildren(QLabel) if x.text().startswith("발견 기준")),
-        None,
-    )
-
+    category = next((x for x in detail_card.findChildren(QLabel) if x.text().startswith("카테고리")), None)
+    rule = next((x for x in detail_card.findChildren(QLabel) if x.text().startswith("발견 기준")), None)
     if not category or not rule:
         return
 
@@ -201,12 +212,7 @@ def _metadata_row(label_text, value_text):
 
 
 def _icon_path(filename):
-    return os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "assets",
-        "icons",
-        filename,
-    )
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons", filename)
 
 
 def _set_svg_icon(label, filename, size):
