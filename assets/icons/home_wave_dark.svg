@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="180" viewBox="0 0 840 180" fill="none">
+  <defs>
+    <linearGradient id="waveFill1" x1="0" y1="28" x2="0" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563EB" stop-opacity="0.18"/>
+      <stop offset="0.48" stop-color="#2563EB" stop-opacity="0.085"/>
+      <stop offset="1" stop-color="#2563EB" stop-opacity="0.01"/>
+    </linearGradient>
+    <linearGradient id="waveFill2" x1="0" y1="55" x2="0" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.095"/>
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M-30 112 C125 50 260 48 410 98 C565 150 690 145 870 70 L870 180 L-30 180 Z" fill="url(#waveFill1)"/>
+  <path d="M-25 132 C145 70 285 68 425 112 C570 158 705 154 865 96 L865 180 L-25 180 Z" fill="url(#waveFill2)"/>
+  <path d="M-30 112 C125 50 260 48 410 98 C565 150 690 145 870 70" stroke="#3B82F6" stroke-width="1.45" stroke-opacity="0.24"/>
+  <path d="M-25 124 C138 62 275 61 418 106 C568 154 700 150 868 84" stroke="#60A5FA" stroke-width="1.1" stroke-opacity="0.16"/>
+  <path d="M-20 137 C150 78 290 75 430 118 C575 162 710 158 862 104" stroke="#93C5FD" stroke-width="0.9" stroke-opacity="0.10"/>
+</svg>
