@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from ui.sidebar import Sidebar
-
+from app.database.repositories.project_repository import get_all_projects
 
 # =========================================================
 # Score 원형 표시
@@ -247,58 +247,24 @@ class ProjectsPage(QWidget):
         # 3. 프로젝트 데이터
         # 확정 시안 기준
         # =================================================
-        sample_projects = [
-            {
-                "name": "국방 건축행정시스템 재구축",
-                "department": "국방부",
-                "date": "2026.07.25  14:32",
-                "score": 82,
-                "grade": "B",
-                "issues": 14,
-                "resolved": 9,
-                "status": "AI 검사 완료",
-            },
-            {
-                "name": "차세대 업무시스템",
-                "department": "정보화기획실",
-                "date": "2026.07.18  10:15",
-                "score": 91,
-                "grade": "A",
-                "issues": 6,
-                "resolved": 6,
-                "status": "AI 검사 완료",
-            },
-            {
-                "name": "통합관리시스템",
-                "department": "사업관리본부",
-                "date": "",
-                "score": None,
-                "grade": "-",
-                "issues": None,
-                "resolved": None,
-                "status": "검사 실패",
-            },
-            {
-                "name": "데이터 분석 플랫폼",
-                "department": "데이터전략팀",
-                "date": "2026.07.10  16:05",
-                "score": 73,
-                "grade": "C",
-                "issues": 21,
-                "resolved": 10,
-                "status": "AI 검사 완료",
-            },
-            {
-                "name": "모바일 서비스 플랫폼",
-                "department": "모바일개발팀",
-                "date": "2026.06.28  09:40",
-                "score": 88,
-                "grade": "B",
-                "issues": 9,
-                "resolved": 7,
-                "status": "AI 검사 완료",
-            },
-        ]
+        db_projects = get_all_projects()
+
+        sample_projects = []
+
+        for project in db_projects:
+            sample_projects.append(
+                {
+                    "id": project["id"],
+                    "name": project["name"],
+                    "department": project["department"] or "-",
+                    "date": "",
+                    "score": None,
+                    "grade": "-",
+                    "issues": 0,
+                    "resolved": 0,
+                    "status": "검사 전",
+                }
+            )
 
         # =================================================
         # 4. 프로젝트 카드
@@ -459,6 +425,14 @@ class ProjectsPage(QWidget):
             )
             status.setObjectName(
                 "projectFailedStatus"
+            )
+
+        elif project["status"] == "검사 전":
+            status.setText(
+                "●  검사 전"
+            )
+            status.setObjectName(
+                "projectPendingStatus"
             )
 
         else:
@@ -622,7 +596,7 @@ class ProjectsPage(QWidget):
         issues_row = QHBoxLayout()
         issues_row.setSpacing(4)
 
-        if project["status"] == "검사 실패":
+        if project["status"] in ("검사 실패", "검사 전"):
             issues_value = QLabel("-")
             issues_value.setObjectName("projectIssueNone")
 
@@ -649,7 +623,10 @@ class ProjectsPage(QWidget):
         # -------------------------------------------------
         # Resolved
         # -------------------------------------------------
-        if project["status"] == "검사 실패":
+        if (
+            project["status"] in ("검사 실패", "검사 전")
+            or not project["issues"]
+        ):
             resolved_text = "- / -"
             progress_value = 0
             percent_text = "-"
