@@ -15,8 +15,8 @@ DARK_UI_OVERRIDES = """
 #detailProjectName { color: #ffffff; font-size: 25px; font-weight: 700; }
 #detailMuted { color: #aeb9c7; font-size: 10px; }
 #detailDate { color: #e2e8f0; font-size: 11px; }
-#detailLastInspectionLabel { color: #b8c4d2; font-size: 11px; font-weight: 600; }
-#detailLastInspectionDate { color: #f1f5f9; font-size: 12px; font-weight: 600; }
+#detailLastInspectionLabel { color: #cbd5e1; font-size: 11px; font-weight: 600; }
+#detailLastInspectionDate { color: #ffffff; font-size: 12px; font-weight: 700; }
 #detailSummaryLabel { color: #cbd5e1; font-size: 11px; font-weight: 600; }
 #detailSummaryScore { color: #ffffff; font-size: 34px; font-weight: 700; }
 #detailSummaryGrade { color: #22c55e; font-size: 35px; font-weight: 700; }
@@ -25,14 +25,16 @@ DARK_UI_OVERRIDES = """
 #detailStatValue, #detailResolvedValue { color: #ffffff; font-size: 22px; font-weight: 700; }
 #detailBodyTitle { color: #ffffff; font-size: 13px; font-weight: 700; }
 #detailSmallText { color: #d4dde8; font-size: 10px; }
-#detailHistoryDate { color: #f8fafc; font-size: 10px; font-weight: 600; }
-#detailHistoryType { color: #60a5fa; font-size: 9px; }
+#detailHistoryDate { color: #ffffff; font-size: 11px; font-weight: 700; }
+#detailHistoryType { color: #7db7ff; font-size: 10px; font-weight: 500; }
+#detailHistoryActive { color: #a855f7; font-size: 12px; }
+#detailHistoryInactive { color: #64748b; font-size: 12px; }
 #detailIssuesHeader { background-color: transparent; border-bottom: 1px solid #2b3949; }
 #detailIssueScroll, #detailIssueContainer { background-color: transparent; border: none; }
 #detailIssueListRow { background-color: transparent; border-bottom: 1px solid #2a3542; }
 #detailIssueCode { color: #ffffff; font-size: 12px; font-weight: 700; }
 #detailIssueDescription { color: #e3eaf2; font-size: 11px; font-weight: 500; }
-#detailIssueDetailCode { color: #ffffff; font-size: 14px; font-weight: 700; }
+#detailIssueDetailCode { color: #ffffff; font-size: 15px; font-weight: 700; }
 #detailTextLabel { color: #f1f5f9; font-size: 11px; font-weight: 700; }
 #detailTextBody { color: #e6edf5; font-size: 11px; }
 #detailAIText { color: #f0e5ff; font-size: 11px; }
@@ -40,15 +42,14 @@ DARK_UI_OVERRIDES = """
 #detailMetaRow { background-color: #17202a; border-radius: 5px; }
 #detailMetaLabel { color: #aebccc; font-size: 10px; font-weight: 600; }
 #detailMetaValue { color: #f1f5f9; font-size: 10px; font-weight: 500; }
-#detailBadge_critical { color: #fecaca; background-color: #48181c; border: 1px solid #7f1d1d; border-radius: 5px; font-size: 9px; font-weight: 700; }
+#detailBadge_critical { color: #ffe4e6; background-color: #5f171d; border: 1px solid #ef4444; border-radius: 6px; font-size: 10px; font-weight: 700; }
 #detailBadge_high { color: #fed7aa; background-color: #4a2412; border: 1px solid #7c2d12; border-radius: 5px; font-size: 9px; font-weight: 700; }
 #detailBadge_medium { color: #fde68a; background-color: #453712; border: 1px solid #713f12; border-radius: 5px; font-size: 9px; font-weight: 700; }
 #detailBadge_low { color: #bfdbfe; background-color: #172f55; border: 1px solid #1d4ed8; border-radius: 5px; font-size: 9px; font-weight: 700; }
 #detailStatusResolved { color: #4ade80; font-size: 9px; font-weight: 700; }
-#detailStatusOpen { color: #ff6b6b; font-size: 9px; font-weight: 700; }
+#detailStatusOpen { color: #ff6b6b; font-size: 10px; font-weight: 700; }
 #detailActionButton, #detailReInspectButton { font-size: 12px; font-weight: 600; }
 """
-
 
 LIGHT_UI_OVERRIDES = """
 /* Projects */
@@ -110,7 +111,7 @@ LIGHT_UI_OVERRIDES = """
 #detailMuted { color: #64748b; font-size: 10px; }
 #detailDate { color: #334155; font-size: 11px; }
 #detailLastInspectionLabel { color: #475569; font-size: 11px; font-weight: 600; }
-#detailLastInspectionDate { color: #0f172a; font-size: 12px; font-weight: 600; }
+#detailLastInspectionDate { color: #0f172a; font-size: 12px; font-weight: 700; }
 #detailSummaryLabel { color: #475569; font-size: 11px; font-weight: 600; }
 #detailSummaryScore { color: #0f172a; font-size: 34px; font-weight: 700; }
 #detailSummaryGrade { color: #16a34a; font-size: 35px; font-weight: 700; }
@@ -129,23 +130,23 @@ QProgressBar#detailDistribution_medium::chunk { background-color: #eab308; borde
 QProgressBar#detailDistribution_low::chunk { background-color: #3b82f6; border-radius: 3px; }
 #detailBodyTitle { color: #0f172a; font-size: 13px; font-weight: 700; }
 #detailLevel_critical { color: #dc2626; } #detailLevel_high { color: #ea580c; } #detailLevel_medium { color: #ca8a04; } #detailLevel_low { color: #2563eb; }
-#detailHistoryActive { color: #7c3aed; font-size: 11px; }
-#detailHistoryInactive { color: #94a3b8; font-size: 11px; }
-#detailHistoryDate { color: #0f172a; font-size: 10px; font-weight: 600; }
-#detailHistoryType { color: #2563eb; font-size: 9px; }
+#detailHistoryActive { color: #7c3aed; font-size: 12px; }
+#detailHistoryInactive { color: #94a3b8; font-size: 12px; }
+#detailHistoryDate { color: #0f172a; font-size: 11px; font-weight: 700; }
+#detailHistoryType { color: #2563eb; font-size: 10px; font-weight: 500; }
 #detailHistoryButton, #detailSortButton { color: #334155; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 9px; }
 #detailIssuesHeader { background-color: transparent; border-bottom: 1px solid #dbe3ee; }
 #detailIssueScroll, #detailIssueContainer { background-color: transparent; border: none; }
 #detailIssueListRow { background-color: transparent; border-bottom: 1px solid #e2e8f0; }
 #detailIssueCode { color: #0f172a; font-size: 12px; font-weight: 700; }
 #detailIssueDescription { color: #334155; font-size: 11px; font-weight: 500; }
-#detailBadge_critical { color: #b91c1c; background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 5px; font-size: 9px; font-weight: 700; }
+#detailBadge_critical { color: #991b1b; background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 6px; font-size: 10px; font-weight: 700; }
 #detailBadge_high { color: #c2410c; background-color: #ffedd5; border: 1px solid #fed7aa; border-radius: 5px; font-size: 9px; font-weight: 700; }
 #detailBadge_medium { color: #a16207; background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 5px; font-size: 9px; font-weight: 700; }
 #detailBadge_low { color: #1d4ed8; background-color: #dbeafe; border: 1px solid #bfdbfe; border-radius: 5px; font-size: 9px; font-weight: 700; }
 #detailStatusResolved { color: #15803d; font-size: 9px; font-weight: 700; }
-#detailStatusOpen { color: #dc2626; font-size: 9px; font-weight: 700; }
-#detailIssueDetailCode { color: #0f172a; font-size: 14px; font-weight: 700; }
+#detailStatusOpen { color: #b91c1c; font-size: 10px; font-weight: 700; }
+#detailIssueDetailCode { color: #0f172a; font-size: 15px; font-weight: 700; }
 #detailTextLabel { color: #1e293b; font-size: 11px; font-weight: 700; }
 #detailTextBody { color: #334155; font-size: 11px; }
 #detailAIBox { background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; }
