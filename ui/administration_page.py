@@ -1,6 +1,9 @@
-from PySide6.QtCore import Qt
+import os
+
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QVBoxLayout, QWidget,
 )
 
@@ -94,14 +97,15 @@ class AdministrationPage(QWidget):
             header_layout.addWidget(label)
         table_layout.addWidget(header)
 
+        icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons")
         categories = [
-            ("요구사항 정합성", "Requirement Consistency", 24, 22, 2),
-            ("설계 품질", "Design Quality", 18, 18, 0),
-            ("보안 취약점", "Security Vulnerability", 32, 30, 2),
-            ("코드 품질", "Code Quality", 16, 14, 2),
-            ("AI 특화 검증", "AI-Specific Validation", 10, 8, 2),
+            ("요구사항 정합성", "Requirement Consistency", 24, 22, 2, "detail_grade.svg"),
+            ("설계 품질", "Design Quality", 18, 18, 0, "detail_score.svg"),
+            ("보안 취약점", "Security Vulnerability", 32, 30, 2, "detail_issues.svg"),
+            ("코드 품질", "Code Quality", 16, 14, 2, "detail_resolved.svg"),
+            ("AI 특화 검증", "AI-Specific Validation", 10, 8, 2, "administration.svg"),
         ]
-        for index, (name, english, total, active, inactive) in enumerate(categories):
+        for name, english, total, active, inactive, icon_file in categories:
             row = QFrame()
             row.setObjectName("adminCategoryRow")
             row.setFixedHeight(66)
@@ -111,15 +115,28 @@ class AdministrationPage(QWidget):
 
             category = QWidget()
             category.setFixedWidth(225)
-            category_layout = QVBoxLayout(category)
-            category_layout.setContentsMargins(0, 8, 0, 7)
-            category_layout.setSpacing(1)
+            category_layout = QHBoxLayout(category)
+            category_layout.setContentsMargins(0, 0, 0, 0)
+            category_layout.setSpacing(10)
+
+            icon = QLabel()
+            icon.setPixmap(QIcon(os.path.join(icon_dir, icon_file)).pixmap(QSize(24, 24)))
+            icon.setFixedSize(28, 28)
+            icon.setAlignment(Qt.AlignCenter)
+
+            text_box = QWidget()
+            text_layout = QVBoxLayout(text_box)
+            text_layout.setContentsMargins(0, 6, 0, 5)
+            text_layout.setSpacing(1)
             name_label = QLabel(name)
             name_label.setObjectName("adminCategoryName")
             english_label = QLabel(english)
             english_label.setObjectName("adminCategoryEnglish")
-            category_layout.addWidget(name_label)
-            category_layout.addWidget(english_label)
+            text_layout.addWidget(name_label)
+            text_layout.addWidget(english_label)
+
+            category_layout.addWidget(icon)
+            category_layout.addWidget(text_box, 1)
             row_layout.addWidget(category)
 
             for value, object_name in [(total, "adminCount"), (active, "adminActiveCount"), (inactive, "adminInactiveCount")]:
@@ -164,15 +181,17 @@ class AdministrationPage(QWidget):
 
         theme_combo = QComboBox()
         theme_combo.addItems(["Dark", "Light"])
-        theme_combo.setFixedWidth(240)
+        theme_combo.setFixedSize(240, 32)
         body_layout.addLayout(self.setting_row("Theme", theme_combo, 44))
 
         path_controls = QWidget()
+        path_controls.setFixedWidth(240)
         path_layout = QHBoxLayout(path_controls)
         path_layout.setContentsMargins(0, 0, 0, 0)
         path_layout.setSpacing(7)
         path = QLineEdit(r"C:\AI_Auditor\Results")
         path.setObjectName("adminPath")
+        path.setFixedHeight(32)
         browse = QPushButton("찾아보기")
         browse.setObjectName("adminBrowseButton")
         browse.setFixedSize(74, 32)
@@ -180,14 +199,10 @@ class AdministrationPage(QWidget):
         path_layout.addWidget(browse)
         body_layout.addLayout(self.setting_row("결과 저장 경로 (Result Save Path)", path_controls, 44))
 
-        save_logs = QCheckBox()
-        save_logs.setChecked(True)
-        save_logs.setObjectName("adminToggle")
+        save_logs = self.create_toggle(True)
         body_layout.addLayout(self.setting_row("로그 저장 (Save Logs)", save_logs, 44))
 
-        auto_save = QCheckBox()
-        auto_save.setChecked(True)
-        auto_save.setObjectName("adminToggle")
+        auto_save = self.create_toggle(True)
         body_layout.addLayout(self.setting_row("검사 결과 자동 저장 (Auto Save Results)", auto_save, 44))
 
         settings_layout.addWidget(settings_body)
@@ -216,10 +231,20 @@ class AdministrationPage(QWidget):
             #adminViewButton:hover, #adminBrowseButton:hover { background:#22394d; }
             #adminNote { color:#b8c5d2; font-size:10px; }
             #adminSettingLabel { color:#e2e8f0; font-size:11px; }
-            #adminPath, QComboBox { background:#10202e; color:#ffffff; border:1px solid #31485b; border-radius:6px; padding:0 9px; min-height:30px; }
-            QCheckBox#adminToggle { spacing:0px; }
-            QCheckBox#adminToggle::indicator { width:36px; height:20px; }
+            #adminPath, QComboBox { background:#10202e; color:#ffffff; border:1px solid #31485b; border-radius:6px; padding:0 9px; }
+            QPushButton#adminToggle { background:#31465a; color:#dbe4ed; border:none; border-radius:11px; font-size:9px; font-weight:800; padding:0; }
+            QPushButton#adminToggle:checked { background:#22c55e; color:#ffffff; }
         """)
+
+    def create_toggle(self, checked):
+        toggle = QPushButton("ON" if checked else "OFF")
+        toggle.setObjectName("adminToggle")
+        toggle.setCheckable(True)
+        toggle.setChecked(checked)
+        toggle.setCursor(Qt.PointingHandCursor)
+        toggle.setFixedSize(44, 22)
+        toggle.toggled.connect(lambda state, button=toggle: button.setText("ON" if state else "OFF"))
+        return toggle
 
     def setting_row(self, text, control, height):
         row = QHBoxLayout()
@@ -230,7 +255,7 @@ class AdministrationPage(QWidget):
         label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         row.addWidget(label)
         row.addStretch()
-        row.addWidget(control)
+        row.addWidget(control, 0, Qt.AlignVCenter)
         return row
 
     def open_rules(self, name, total, active, inactive):
