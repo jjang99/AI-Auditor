@@ -4,44 +4,59 @@
      viewBox="0 0 760 180"
      fill="none">
 
-    <!-- 가장 은은한 바깥 곡선 -->
-    <path
-        d="M-40 145
-           C120 55 250 45 385 100
-           C510 150 620 145 800 55"
-        stroke="#2563EB"
-        stroke-width="2"
-        stroke-opacity="0.12"
-        fill="none"/>
+    <defs>
+        <linearGradient id="waveFill1" x1="0" y1="45" x2="0" y2="180" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#2563EB" stop-opacity="0.16"/>
+            <stop offset="0.55" stop-color="#2563EB" stop-opacity="0.07"/>
+            <stop offset="1" stop-color="#2563EB" stop-opacity="0.01"/>
+        </linearGradient>
+        <linearGradient id="waveFill2" x1="0" y1="80" x2="0" y2="180" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#3B82F6" stop-opacity="0.09"/>
+            <stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
+        </linearGradient>
+    </defs>
 
-    <!-- 중간 곡선 -->
+    <!-- 확정 시안처럼 면이 느껴지는 넓은 물결 -->
     <path
-        d="M-30 158
-           C135 72 265 62 390 110
-           C520 160 640 150 790 72"
-        stroke="#3B82F6"
-        stroke-width="2"
-        stroke-opacity="0.18"
-        fill="none"/>
-
-    <!-- 안쪽 곡선 -->
-    <path
-        d="M-20 170
-           C150 90 280 80 400 120
-           C525 162 650 158 780 92"
-        stroke="#60A5FA"
-        stroke-width="1.5"
-        stroke-opacity="0.14"
-        fill="none"/>
-
-    <!-- 은은한 파란 영역 -->
-    <path
-        d="M-40 145
-           C120 55 250 45 385 100
-           C510 150 620 145 800 55
+        d="M-40 105
+           C105 32 245 38 380 90
+           C520 145 635 135 800 52
            L800 180
            L-40 180
            Z"
-        fill="#2563EB"
-        fill-opacity="0.025"/>
+        fill="url(#waveFill1)"/>
+
+    <path
+        d="M-30 128
+           C125 58 260 62 390 108
+           C520 154 648 150 795 88
+           L795 180
+           L-30 180
+           Z"
+        fill="url(#waveFill2)"/>
+
+    <!-- 은은한 곡선 라인 -->
+    <path
+        d="M-40 105
+           C105 32 245 38 380 90
+           C520 145 635 135 800 52"
+        stroke="#2563EB"
+        stroke-width="2"
+        stroke-opacity="0.18"/>
+
+    <path
+        d="M-30 118
+           C120 50 255 54 388 102
+           C520 150 642 144 795 74"
+        stroke="#3B82F6"
+        stroke-width="1.6"
+        stroke-opacity="0.15"/>
+
+    <path
+        d="M-20 132
+           C135 68 270 72 398 114
+           C530 158 650 154 790 96"
+        stroke="#60A5FA"
+        stroke-width="1.2"
+        stroke-opacity="0.11"/>
 </svg>
