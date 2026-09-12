@@ -219,67 +219,72 @@ class InspectionRulesDialog(QDialog):
     def apply_theme(self):
         host = self.parentWidget().window() if self.parentWidget() is not None else None
         is_dark = getattr(host, "is_dark_mode", True)
+        check_icon = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons", "check_white.svg").replace("\\", "/")
         if is_dark:
-            self.setStyleSheet("""
-                #rulesDialogPanel { background:#101f2c; border:1px solid #64748b; border-radius:12px; }
-                #rulesDialogHeaderArea, #rulesListContent { background:transparent; }
-                #rulesDialogShieldIcon { background:transparent; border:none; }
-                #rulesDialogTitle { color:#ffffff; font-size:20px; font-weight:800; }
-                #rulesDialogCount { color:#b8c5d4; font-size:12px; font-weight:700; }
-                #rulesDialogClose { color:#ffffff; background:transparent; border:none; font-size:24px; font-weight:650; }
-                #rulesDialogClose:hover { background:#1d3142; border-radius:6px; }
-                #rulesDialogDescription { color:#f1f5f9; font-size:12px; font-weight:650; }
-                #rulesDialogNote { color:#60a5fa; font-size:11px; font-weight:750; }
-                #rulesDialogSmallButton, #rulesCancelButton { color:#ffffff; background:#253b4f; border:1px solid #476079; border-radius:7px; font-size:12px; font-weight:750; }
-                #rulesDialogSmallButton:hover, #rulesCancelButton:hover { background:#30495f; }
-                #rulesConfirmButton { color:#ffffff; background:#2563eb; border:none; border-radius:7px; font-size:12px; font-weight:850; }
-                #rulesConfirmButton:hover { background:#3475f5; }
-                #rulesTable { background:#0d1721; border:1px solid #40586c; border-radius:8px; }
-                #rulesTableHeader { background:#17293a; border-bottom:1px solid #40586c; }
-                #rulesTableHeaderText { color:#d9e3ee; font-size:11px; font-weight:800; }
-                #rulesTableRow { background:#0d1721; border-bottom:1px solid #293d50; }
-                #rulesTableRow:hover { background:#142536; }
-                #rulesRowText { color:#ffffff; font-size:11px; font-weight:750; }
-                #rulesRowDescription { color:#d7e0e9; font-size:11px; font-weight:600; }
-                #rulesRowState { color:#ffffff; font-size:11px; font-weight:750; }
-                #rulesSelectedCount { color:#ffffff; font-size:12px; font-weight:800; }
-                #rulesTableScroll { background:transparent; border:none; }
-                #rulesTableScroll QWidget { background:transparent; }
-                #rulesTableScroll QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
-                #rulesTableScroll QScrollBar::handle:vertical { background:#60758a; min-height:28px; border-radius:4px; }
-                #rulesTableScroll QScrollBar::add-line:vertical, #rulesTableScroll QScrollBar::sub-line:vertical { height:0px; }
-                QCheckBox#rulesCheckbox { background:transparent; spacing:0px; }
-                QCheckBox#rulesCheckbox::indicator { width:18px; height:18px; }
+            self.setStyleSheet(f"""
+                #rulesDialogPanel {{ background:#101f2c; border:1px solid #64748b; border-radius:12px; }}
+                #rulesDialogHeaderArea, #rulesListContent {{ background:transparent; }}
+                #rulesDialogShieldIcon {{ background:transparent; border:none; }}
+                #rulesDialogTitle {{ color:#ffffff; font-size:20px; font-weight:800; }}
+                #rulesDialogCount {{ color:#b8c5d4; font-size:12px; font-weight:700; }}
+                #rulesDialogClose {{ color:#ffffff; background:transparent; border:none; font-size:24px; font-weight:650; }}
+                #rulesDialogClose:hover {{ background:#1d3142; border-radius:6px; }}
+                #rulesDialogDescription {{ color:#f1f5f9; font-size:12px; font-weight:650; }}
+                #rulesDialogNote {{ color:#60a5fa; font-size:11px; font-weight:750; }}
+                #rulesDialogSmallButton, #rulesCancelButton {{ color:#ffffff; background:#253b4f; border:1px solid #476079; border-radius:7px; font-size:12px; font-weight:750; }}
+                #rulesDialogSmallButton:hover, #rulesCancelButton:hover {{ background:#30495f; }}
+                #rulesConfirmButton {{ color:#ffffff; background:#2563eb; border:none; border-radius:7px; font-size:12px; font-weight:850; }}
+                #rulesConfirmButton:hover {{ background:#3475f5; }}
+                #rulesTable {{ background:#0d1721; border:1px solid #40586c; border-radius:8px; }}
+                #rulesTableHeader {{ background:#17293a; border-bottom:1px solid #40586c; }}
+                #rulesTableHeaderText {{ color:#d9e3ee; font-size:11px; font-weight:800; }}
+                #rulesTableRow {{ background:#0d1721; border-bottom:1px solid #293d50; }}
+                #rulesTableRow:hover {{ background:#142536; }}
+                #rulesRowText {{ color:#ffffff; font-size:11px; font-weight:750; }}
+                #rulesRowDescription {{ color:#d7e0e9; font-size:11px; font-weight:600; }}
+                #rulesRowState {{ color:#ffffff; font-size:11px; font-weight:750; }}
+                #rulesSelectedCount {{ color:#ffffff; font-size:12px; font-weight:800; }}
+                #rulesTableScroll {{ background:transparent; border:none; }}
+                #rulesTableScroll QWidget {{ background:transparent; }}
+                #rulesTableScroll QScrollBar:vertical {{ background:transparent; width:8px; margin:2px; }}
+                #rulesTableScroll QScrollBar::handle:vertical {{ background:#60758a; min-height:28px; border-radius:4px; }}
+                #rulesTableScroll QScrollBar::add-line:vertical, #rulesTableScroll QScrollBar::sub-line:vertical {{ height:0px; }}
+                QCheckBox#rulesCheckbox {{ background:transparent; spacing:0px; }}
+                QCheckBox#rulesCheckbox::indicator {{ width:18px; height:18px; }}
+                QCheckBox#rulesCheckbox::indicator:unchecked {{ background:#0d1721; border:1px solid #64748b; border-radius:4px; }}
+                QCheckBox#rulesCheckbox::indicator:checked {{ background:#0878f9; border:1px solid #3194ff; border-radius:4px; image:url({check_icon}); }}
             """)
         else:
-            self.setStyleSheet("""
-                #rulesDialogPanel { background:#ffffff; border:1px solid #a8b6c7; border-radius:12px; }
-                #rulesDialogHeaderArea, #rulesListContent { background:transparent; }
-                #rulesDialogShieldIcon { background:transparent; border:none; }
-                #rulesDialogTitle { color:#050b16; font-size:20px; font-weight:800; }
-                #rulesDialogCount { color:#475569; font-size:12px; font-weight:700; }
-                #rulesDialogClose { color:#0f172a; background:transparent; border:none; font-size:24px; font-weight:650; }
-                #rulesDialogClose:hover { background:#eef2f6; border-radius:6px; }
-                #rulesDialogDescription { color:#111827; font-size:12px; font-weight:650; }
-                #rulesDialogNote { color:#1d4ed8; font-size:11px; font-weight:750; }
-                #rulesDialogSmallButton, #rulesCancelButton { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:12px; font-weight:750; }
-                #rulesDialogSmallButton:hover, #rulesCancelButton:hover { background:#dce5ee; }
-                #rulesConfirmButton { color:#ffffff; background:#2563eb; border:none; border-radius:7px; font-size:12px; font-weight:850; }
-                #rulesConfirmButton:hover { background:#1d4ed8; }
-                #rulesTable { background:#ffffff; border:1px solid #b9c6d5; border-radius:8px; }
-                #rulesTableHeader { background:#eef3f8; border-bottom:1px solid #b9c6d5; }
-                #rulesTableHeaderText { color:#263548; font-size:11px; font-weight:800; }
-                #rulesTableRow { background:#ffffff; border-bottom:1px solid #d9e1ea; }
-                #rulesTableRow:hover { background:#f6f9fc; }
-                #rulesRowText { color:#0b1220; font-size:11px; font-weight:750; }
-                #rulesRowDescription { color:#334155; font-size:11px; font-weight:600; }
-                #rulesRowState { color:#0f172a; font-size:11px; font-weight:750; }
-                #rulesSelectedCount { color:#0f172a; font-size:12px; font-weight:800; }
-                #rulesTableScroll { background:transparent; border:none; }
-                #rulesTableScroll QWidget { background:transparent; }
-                #rulesTableScroll QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
-                #rulesTableScroll QScrollBar::handle:vertical { background:#8998aa; min-height:28px; border-radius:4px; }
-                #rulesTableScroll QScrollBar::add-line:vertical, #rulesTableScroll QScrollBar::sub-line:vertical { height:0px; }
-                QCheckBox#rulesCheckbox { background:transparent; spacing:0px; }
-                QCheckBox#rulesCheckbox::indicator { width:18px; height:18px; }
+            self.setStyleSheet(f"""
+                #rulesDialogPanel {{ background:#ffffff; border:1px solid #a8b6c7; border-radius:12px; }}
+                #rulesDialogHeaderArea, #rulesListContent {{ background:transparent; }}
+                #rulesDialogShieldIcon {{ background:transparent; border:none; }}
+                #rulesDialogTitle {{ color:#050b16; font-size:20px; font-weight:800; }}
+                #rulesDialogCount {{ color:#475569; font-size:12px; font-weight:700; }}
+                #rulesDialogClose {{ color:#0f172a; background:transparent; border:none; font-size:24px; font-weight:650; }}
+                #rulesDialogClose:hover {{ background:#eef2f6; border-radius:6px; }}
+                #rulesDialogDescription {{ color:#111827; font-size:12px; font-weight:650; }}
+                #rulesDialogNote {{ color:#1d4ed8; font-size:11px; font-weight:750; }}
+                #rulesDialogSmallButton, #rulesCancelButton {{ color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:12px; font-weight:750; }}
+                #rulesDialogSmallButton:hover, #rulesCancelButton:hover {{ background:#dce5ee; }}
+                #rulesConfirmButton {{ color:#ffffff; background:#2563eb; border:none; border-radius:7px; font-size:12px; font-weight:850; }}
+                #rulesConfirmButton:hover {{ background:#1d4ed8; }}
+                #rulesTable {{ background:#ffffff; border:1px solid #b9c6d5; border-radius:8px; }}
+                #rulesTableHeader {{ background:#eef3f8; border-bottom:1px solid #b9c6d5; }}
+                #rulesTableHeaderText {{ color:#263548; font-size:11px; font-weight:800; }}
+                #rulesTableRow {{ background:#ffffff; border-bottom:1px solid #d9e1ea; }}
+                #rulesTableRow:hover {{ background:#f6f9fc; }}
+                #rulesRowText {{ color:#0b1220; font-size:11px; font-weight:750; }}
+                #rulesRowDescription {{ color:#334155; font-size:11px; font-weight:600; }}
+                #rulesRowState {{ color:#0f172a; font-size:11px; font-weight:750; }}
+                #rulesSelectedCount {{ color:#0f172a; font-size:12px; font-weight:800; }}
+                #rulesTableScroll {{ background:transparent; border:none; }}
+                #rulesTableScroll QWidget {{ background:transparent; }}
+                #rulesTableScroll QScrollBar:vertical {{ background:transparent; width:8px; margin:2px; }}
+                #rulesTableScroll QScrollBar::handle:vertical {{ background:#8998aa; min-height:28px; border-radius:4px; }}
+                #rulesTableScroll QScrollBar::add-line:vertical, #rulesTableScroll QScrollBar::sub-line:vertical {{ height:0px; }}
+                QCheckBox#rulesCheckbox {{ background:transparent; spacing:0px; }}
+                QCheckBox#rulesCheckbox::indicator {{ width:18px; height:18px; }}
+                QCheckBox#rulesCheckbox::indicator:unchecked {{ background:#ffffff; border:1px solid #8296aa; border-radius:4px; }}
+                QCheckBox#rulesCheckbox::indicator:checked {{ background:#0878f9; border:1px solid #2563eb; border-radius:4px; image:url({check_icon}); }}
             """)
