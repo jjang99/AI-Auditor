@@ -68,6 +68,7 @@ class ExistingProjectDialog(QDialog):
         date_header = QLabel("최근 검사일")
         for label in (project_header, department_header, type_header, date_header):
             label.setObjectName("existingProjectHeader")
+            label.setAlignment(Qt.AlignCenter)
         project_header.setFixedWidth(220)
         department_header.setFixedWidth(150)
         type_header.setFixedWidth(122)
