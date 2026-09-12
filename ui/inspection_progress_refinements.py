@@ -47,8 +47,8 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionProgressInfoValue {
     color:#ffffff;
-    font-size:12px;
-    font-weight:750;
+    font-size:14px;
+    font-weight:850;
 }
 #inspectionSummaryIcon {
     color:#3b82f6;
@@ -100,8 +100,8 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionProgressInfoValue {
     color:#0b1220;
-    font-size:12px;
-    font-weight:750;
+    font-size:14px;
+    font-weight:850;
 }
 #inspectionSummaryIcon {
     color:#2563eb;
@@ -134,7 +134,6 @@ def apply_inspection_progress_refinements(inspection_cls):
             for card, height in zip(cards[:4], [175, 221, 204, 190]):
                 card.setFixedHeight(height)
 
-        # Summary / Progress / Complete remain exactly the same outer size.
         common_action_card_height = 190
         summary_card = getattr(self, 'summary_card', None)
         progress_card = getattr(self, 'progress_card', None)
@@ -174,8 +173,6 @@ def apply_inspection_progress_refinements(inspection_cls):
 
         info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
         for box in info_boxes:
-            # Content is only two short lines, so keep the cards compact rather
-            # than filling unused vertical space.
             box.setFixedHeight(46)
             box_layout = box.layout()
             if box_layout is not None:
