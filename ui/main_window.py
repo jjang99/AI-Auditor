@@ -16,6 +16,8 @@ from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
 from ui.project_detail_page import ProjectDetailPage
 from ui.inspection_page import InspectionPage
+from ui.reports_page import ReportsPage
+from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
 
 
@@ -38,8 +40,6 @@ class MainWindow(QMainWindow):
         )
 
         self.setWindowIcon(QIcon(window_icon_path))
-
-        # 최종 확정 공통 창 크기
         self.setFixedSize(840, 900)
 
         # ==================================================
@@ -54,7 +54,6 @@ class MainWindow(QMainWindow):
 
         # ==================================================
         # 상단 Header
-        # Home에서만 표시
         # ==================================================
         self.header = QFrame()
         self.header.setObjectName("header")
@@ -96,7 +95,7 @@ class MainWindow(QMainWindow):
             menu_row.addWidget(button)
 
         # ==================================================
-        # 테마 전환 버튼
+        # 테마 전환
         # ==================================================
         self.theme_button = QPushButton("☀")
         self.theme_button.setObjectName("themeButton")
@@ -111,7 +110,7 @@ class MainWindow(QMainWindow):
         header_layout.addLayout(menu_row)
 
         # ==================================================
-        # 콘텐츠 영역
+        # 콘텐츠
         # ==================================================
         content = QFrame()
         content.setObjectName("content")
@@ -129,11 +128,15 @@ class MainWindow(QMainWindow):
         self.projects_page = ProjectsPage()
         self.project_detail_page = ProjectDetailPage()
         self.inspection_page = InspectionPage()
+        self.reports_page = ReportsPage()
+        self.administration_page = AdministrationPage()
 
         self.page_stack.addWidget(self.home_page)
         self.page_stack.addWidget(self.projects_page)
         self.page_stack.addWidget(self.project_detail_page)
         self.page_stack.addWidget(self.inspection_page)
+        self.page_stack.addWidget(self.reports_page)
+        self.page_stack.addWidget(self.administration_page)
 
         content_layout.addWidget(self.page_stack)
 
@@ -152,6 +155,17 @@ class MainWindow(QMainWindow):
             self.select_menu
         )
 
+        self.reports_page.sidebar.menu_clicked.connect(
+            self.select_menu
+        )
+
+        self.administration_page.sidebar.menu_clicked.connect(
+            self.select_menu
+        )
+
+        # ==================================================
+        # 프로젝트 관련 신호
+        # ==================================================
         self.projects_page.project_selected.connect(
             self.open_project_detail
         )
@@ -165,7 +179,7 @@ class MainWindow(QMainWindow):
         )
 
         # ==================================================
-        # 전체 화면 배치
+        # 전체 배치
         # ==================================================
         main_layout.addWidget(self.header)
         main_layout.addWidget(content)
@@ -176,12 +190,12 @@ class MainWindow(QMainWindow):
         self.page_stack.setCurrentWidget(self.home_page)
 
         # ==================================================
-        # 기본 Dark Mode 적용
+        # 기본 테마
         # ==================================================
         self.apply_theme()
 
     # ======================================================
-    # Sidebar 선택 상태 동기화
+    # Sidebar 선택 상태
     # ======================================================
     def update_sidebar_selection(self, selected_name):
 
@@ -189,12 +203,12 @@ class MainWindow(QMainWindow):
             self.projects_page.sidebar,
             self.project_detail_page.sidebar,
             self.inspection_page.sidebar,
+            self.reports_page.sidebar,
+            self.administration_page.sidebar,
         ]
 
         for sidebar in sidebars:
-            for menu_name, button in (
-                sidebar.menu_buttons.items()
-            ):
+            for menu_name, button in sidebar.menu_buttons.items():
                 button.setChecked(
                     menu_name == selected_name
                 )
@@ -204,13 +218,13 @@ class MainWindow(QMainWindow):
     # ======================================================
     def select_menu(self, selected_name):
 
-        # 상단 메뉴
+        # 상단 메뉴 상태
         for menu_name, button in self.menu_buttons.items():
             button.setChecked(
                 menu_name == selected_name
             )
 
-        # Sidebar
+        # Sidebar 상태
         self.update_sidebar_selection(
             selected_name
         )
@@ -249,18 +263,27 @@ class MainWindow(QMainWindow):
         # Reports
         # --------------------------------------------------
         elif selected_name == "Reports":
-            pass
+            self.header.hide()
+
+            self.page_stack.setCurrentWidget(
+                self.reports_page
+            )
 
         # --------------------------------------------------
         # Administration
         # --------------------------------------------------
         elif selected_name == "Administration":
-            pass
+            self.header.hide()
+
+            self.page_stack.setCurrentWidget(
+                self.administration_page
+            )
 
     # ======================================================
     # Project Detail
     # ======================================================
     def open_project_detail(self, project):
+
         self.header.hide()
 
         self.update_sidebar_selection(
@@ -275,6 +298,7 @@ class MainWindow(QMainWindow):
     # Dark / Light Mode
     # ======================================================
     def toggle_theme(self):
+
         self.is_dark_mode = not self.is_dark_mode
         self.apply_theme()
 
@@ -282,8 +306,11 @@ class MainWindow(QMainWindow):
     # 테마 적용
     # ======================================================
     def apply_theme(self):
+
         if self.is_dark_mode:
-            self.setStyleSheet(DARK_THEME)
+            self.setStyleSheet(
+                DARK_THEME
+            )
 
             self.theme_button.setText("☀")
             self.theme_button.setToolTip(
@@ -291,7 +318,9 @@ class MainWindow(QMainWindow):
             )
 
         else:
-            self.setStyleSheet(LIGHT_THEME)
+            self.setStyleSheet(
+                LIGHT_THEME
+            )
 
             self.theme_button.setText("☾")
             self.theme_button.setToolTip(
