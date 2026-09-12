@@ -25,15 +25,15 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionCancelButton {
     color:#ffffff;
-    background:#b4232c;
-    border:1px solid #ef5961;
+    background:#dc2626;
+    border:1px solid #f87171;
     border-radius:7px;
-    font-size:12px;
-    font-weight:850;
+    font-size:13px;
+    font-weight:900;
 }
 #inspectionCancelButton:hover {
-    background:#c92b35;
-    border-color:#ff7379;
+    background:#ef4444;
+    border-color:#fca5a5;
 }
 #inspectionProgressInfoBox {
     background:#0d1721;
@@ -78,15 +78,15 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionCancelButton {
     color:#ffffff;
-    background:#c62832;
-    border:1px solid #a91520;
+    background:#dc2626;
+    border:1px solid #b91c1c;
     border-radius:7px;
-    font-size:12px;
-    font-weight:850;
+    font-size:13px;
+    font-weight:900;
 }
 #inspectionCancelButton:hover {
-    background:#ae1f28;
-    border-color:#8f1620;
+    background:#b91c1c;
+    border-color:#991b1b;
 }
 #inspectionProgressInfoBox {
     background:#f8fafc;
@@ -125,9 +125,6 @@ def apply_inspection_progress_refinements(inspection_cls):
             page_scroll.verticalScrollBar().setEnabled(False)
             page_scroll.verticalScrollBar().setValue(0)
 
-        # Restore the already-approved Inspection geometry.  Previous progress
-        # tuning made sections 1~3 smaller, which reduced readability and left
-        # unused space at the bottom of the fixed window.
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 9, 10, 10)
             self.main_layout.setSpacing(10)
@@ -137,8 +134,7 @@ def apply_inspection_progress_refinements(inspection_cls):
             for card, height in zip(cards[:4], [175, 221, 204, 190]):
                 card.setFixedHeight(height)
 
-        # Summary / Progress / Complete are one fixed 4th-area container whose
-        # contents change by state, so all three must keep the same size.
+        # Summary / Progress / Complete remain exactly the same outer size.
         common_action_card_height = 190
         summary_card = getattr(self, 'summary_card', None)
         progress_card = getattr(self, 'progress_card', None)
@@ -147,8 +143,6 @@ def apply_inspection_progress_refinements(inspection_cls):
             if card is not None:
                 card.setFixedHeight(common_action_card_height)
 
-        # The SVG used for the time summary can disappear on the light theme.
-        # Replace only that third summary icon with a theme-safe text clock.
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         if len(summary_icons) >= 3:
             time_icon = summary_icons[2]
@@ -163,7 +157,7 @@ def apply_inspection_progress_refinements(inspection_cls):
         progress_layout = progress_card.layout()
         if progress_layout is not None:
             progress_layout.setContentsMargins(14, 10, 14, 8)
-            progress_layout.setSpacing(7)
+            progress_layout.setSpacing(6)
 
         percent = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressPercent')), None)
         if percent is not None:
@@ -176,15 +170,17 @@ def apply_inspection_progress_refinements(inspection_cls):
 
         cancel = next(iter(progress_card.findChildren(QPushButton, 'inspectionCancelButton')), None)
         if cancel is not None:
-            cancel.setFixedSize(115, 44)
+            cancel.setFixedSize(115, 46)
 
         info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
         for box in info_boxes:
-            box.setFixedHeight(54)
+            # Content is only two short lines, so keep the cards compact rather
+            # than filling unused vertical space.
+            box.setFixedHeight(46)
             box_layout = box.layout()
             if box_layout is not None:
-                box_layout.setContentsMargins(10, 5, 10, 5)
-                box_layout.setSpacing(1)
+                box_layout.setContentsMargins(10, 3, 10, 3)
+                box_layout.setSpacing(0)
 
             title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
             if title is not None:
