@@ -15,7 +15,7 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionProgressInfoBox { background:#0d1721; border:1px solid #465669; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#d1d9e3; font-size:11px; font-weight:700; }
 #inspectionProgressInfoValue { color:#ffffff; font-size:14px; font-weight:850; }
-#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:17px; font-size:21px; font-weight:900; }
+#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:14px; font-size:18px; font-weight:900; }
 #inspectionCompleteMessage { color:#ffffff; font-size:17px; font-weight:900; }
 #inspectionCompleteDescription { color:#f1f5f9; font-size:13px; font-weight:750; }
 #inspectionCompleteInfoBox { background:#0d1721; border:1px solid #63758a; border-radius:7px; }
@@ -37,7 +37,7 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionProgressInfoBox { background:#f8fafc; border:1px solid #aebccc; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#334155; font-size:11px; font-weight:700; }
 #inspectionProgressInfoValue { color:#0b1220; font-size:14px; font-weight:850; }
-#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:17px; font-size:21px; font-weight:900; }
+#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:14px; font-size:18px; font-weight:900; }
 #inspectionCompleteMessage { color:#020617; font-size:17px; font-weight:900; }
 #inspectionCompleteDescription { color:#1e293b; font-size:13px; font-weight:750; }
 #inspectionCompleteInfoBox { background:#ffffff; border:1px solid #91a2b7; border-radius:7px; }
@@ -125,8 +125,6 @@ def _build_progress_card(self):
     layout.addSpacing(10)
 
     layout.addWidget(_progress_row_widget(self))
-
-    # '완료 규칙' 카드 라인은 기준 위치로 두고, 남는 높이는 그 위에서만 흡수한다.
     layout.addStretch(1)
     layout.addWidget(_progress_status_widget(self))
     return card
@@ -134,7 +132,7 @@ def _build_progress_card(self):
 
 def _complete_result_box(parent, title, value):
     box = parent.create_complete_info_box(title, value)
-    box.setFixedSize(100, 50)
+    box.setFixedSize(120, 50)
     box_layout = box.layout()
     if box_layout is not None:
         box_layout.setContentsMargins(10, 2, 10, 2)
@@ -161,28 +159,28 @@ def _build_complete_card(self):
     layout.addSpacing(8)
 
     success_row_widget = QWidget(card)
-    success_row_widget.setFixedHeight(34)
+    success_row_widget.setFixedHeight(30)
     success_row = QHBoxLayout(success_row_widget)
     success_row.setContentsMargins(0, 0, 0, 0)
     success_row.setSpacing(10)
     check = QLabel('✓')
     check.setObjectName('inspectionCompleteCheck')
     check.setAlignment(Qt.AlignCenter)
-    check.setFixedSize(34, 34)
+    check.setFixedSize(28, 28)
     message = QLabel('검사가 성공적으로 완료되었습니다.')
     message.setObjectName('inspectionCompleteMessage')
-    message.setFixedHeight(24)
+    message.setFixedHeight(22)
     message.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     success_row.addWidget(check)
     success_row.addWidget(message)
     success_row.addStretch(1)
     layout.addWidget(success_row_widget)
-    layout.addSpacing(8)
+    layout.addSpacing(3)
 
     description_row_widget = QWidget(card)
     description_row_widget.setFixedHeight(18)
     description_row = QHBoxLayout(description_row_widget)
-    description_row.setContentsMargins(44, 0, 0, 0)
+    description_row.setContentsMargins(38, 0, 0, 0)
     description_row.setSpacing(0)
     description = QLabel('검사 결과를 확인하거나 Project Detail로 이동할 수 있습니다.')
     description.setObjectName('inspectionCompleteDescription')
@@ -199,25 +197,32 @@ def _build_complete_card(self):
     result_row_widget.setFixedHeight(50)
     result_row = QHBoxLayout(result_row_widget)
     result_row.setContentsMargins(0, 0, 0, 0)
-    result_row.setSpacing(8)
+    result_row.setSpacing(0)
+
+    result_widgets = []
     for result_title, result_value in [
         ('적용 규칙', '100 / 100개'),
         ('발견 Issues', '14개'),
         ('소요 시간', '2분 18초'),
         ('검사 파일', '18개'),
     ]:
-        result_row.addWidget(_complete_result_box(self, result_title, result_value))
+        result_widgets.append(_complete_result_box(self, result_title, result_value))
 
     result_button = QPushButton('검사 결과 보기 →')
     result_button.setObjectName('inspectionResultButton')
     result_button.setFixedSize(130, 50)
     result_button.setCursor(Qt.PointingHandCursor)
     result_button.clicked.connect(self.inspection_result_requested.emit)
-    result_row.addWidget(result_button)
-    layout.addWidget(result_row_widget)
+    result_widgets.append(result_button)
 
-    # '완료된 결과는...' 라인을 기준으로 고정하고, 남는 높이는 그 위에서만 흡수한다.
+    for index, widget in enumerate(result_widgets):
+        result_row.addWidget(widget)
+        if index < len(result_widgets) - 1:
+            result_row.addStretch(1)
+
+    layout.addWidget(result_row_widget)
     layout.addStretch(1)
+
     note = QLabel('※ 완료된 결과는 해당 Project의 Inspection History에 자동으로 저장됩니다.')
     note.setObjectName('inspectionCompleteNote')
     note.setFixedHeight(17)
