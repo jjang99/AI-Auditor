@@ -96,7 +96,6 @@ class ExistingProjectDialog(QDialog):
         scroll.setWidget(list_content)
         layout.addWidget(scroll)
 
-        # Three sample rows are the default view, so keep the guidance close.
         layout.addSpacing(3)
         guide1 = QLabel("같은 프로젝트라면 선택 후 기존 프로젝트로 이동하세요.")
         guide1.setObjectName("existingProjectGuide")
@@ -138,7 +137,7 @@ class ExistingProjectDialog(QDialog):
 
         radio = QRadioButton()
         radio.setCursor(Qt.PointingHandCursor)
-        radio.setFixedSize(24, 24)
+        radio.setFixedSize(20, 20)
         self.radio_group.addButton(radio, index)
         name = QLabel(project["name"])
         department = QLabel(project["department"])
@@ -147,7 +146,7 @@ class ExistingProjectDialog(QDialog):
         for label in (name, department, project_type, date):
             label.setObjectName("existingProjectText")
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        name.setFixedWidth(174)
+        name.setFixedWidth(178)
         department.setFixedWidth(150)
         project_type.setFixedWidth(122)
         row_layout.addWidget(radio)
@@ -165,18 +164,18 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectPanel { background:#101f2c; border:1px solid #64748b; border-radius:12px; }
                 #existingProjectHeaderArea, #existingProjectListContent { background:transparent; }
                 #existingProjectTitle { color:#ffffff; font-size:22px; font-weight:800; }
-                #existingProjectClose { color:#dce6f0; background:transparent; border:none; font-size:24px; }
-                #existingProjectClose:hover { color:#ffffff; background:#1d3142; border-radius:6px; }
-                #existingProjectDescription { color:#e1e8f0; font-size:12px; font-weight:550; }
-                #existingProjectHeader { color:#c0ccd9; font-size:11px; font-weight:700; }
+                #existingProjectClose { color:#ffffff; background:transparent; border:none; font-size:24px; font-weight:650; }
+                #existingProjectClose:hover { background:#1d3142; border-radius:6px; }
+                #existingProjectDescription { color:#ffffff; font-size:13px; font-weight:650; }
+                #existingProjectHeader { color:#d6e0ea; font-size:12px; font-weight:800; }
                 #existingProjectRow { background:#142635; border:1px solid #40586c; border-radius:9px; }
                 #existingProjectRow:hover { background:#182d3e; border-color:#638099; }
-                #existingProjectText { color:#ffffff; font-size:11px; font-weight:600; }
-                #existingProjectGuide { color:#d6dee7; font-size:11px; font-weight:600; }
-                #existingProjectGuideBlue { color:#73b7ff; font-size:11px; font-weight:650; }
-                #existingProjectCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:8px; font-size:12px; font-weight:700; }
+                #existingProjectText { color:#ffffff; font-size:12px; font-weight:700; }
+                #existingProjectGuide { color:#ffffff; font-size:12px; font-weight:650; }
+                #existingProjectGuideBlue { color:#7fc0ff; font-size:12px; font-weight:700; }
+                #existingProjectCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:8px; font-size:13px; font-weight:750; }
                 #existingProjectCancel:hover { background:#30495f; }
-                #existingProjectMove { color:#ffffff; background:#2563eb; border:none; border-radius:8px; font-size:12px; font-weight:750; }
+                #existingProjectMove { color:#ffffff; background:#2563eb; border:none; border-radius:8px; font-size:13px; font-weight:800; }
                 #existingProjectMove:hover { background:#3475f5; }
                 #existingProjectScroll { background:transparent; border:none; }
                 #existingProjectScroll QWidget { background:transparent; }
@@ -184,28 +183,28 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar::handle:vertical { background:#60758a; min-height:28px; border-radius:4px; }
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
                 QRadioButton { background:transparent; spacing:0px; }
-                QRadioButton::indicator { width:18px; height:18px; }
-                QRadioButton::indicator:unchecked { background:transparent; border:1px solid #8fa7ba; border-radius:9px; }
+                QRadioButton::indicator { width:14px; height:14px; }
+                QRadioButton::indicator:unchecked { background:transparent; border:1px solid #9eb4c7; border-radius:7px; }
                 QRadioButton::indicator:unchecked:hover { border:2px solid #60a5fa; }
-                QRadioButton::indicator:checked { background:#3b82f6; border:4px solid #b8d8ff; border-radius:9px; }
+                QRadioButton::indicator:checked { background:#3b82f6; border:3px solid #b8d8ff; border-radius:7px; }
             """)
         else:
             self.setStyleSheet("""
                 #existingProjectPanel { background:#ffffff; border:1px solid #a8b6c7; border-radius:12px; }
                 #existingProjectHeaderArea, #existingProjectListContent { background:transparent; }
                 #existingProjectTitle { color:#050b16; font-size:22px; font-weight:800; }
-                #existingProjectClose { color:#334155; background:transparent; border:none; font-size:24px; }
-                #existingProjectClose:hover { color:#0b1220; background:#eef2f6; border-radius:6px; }
-                #existingProjectDescription { color:#263548; font-size:12px; font-weight:600; }
-                #existingProjectHeader { color:#435267; font-size:11px; font-weight:750; }
+                #existingProjectClose { color:#0f172a; background:transparent; border:none; font-size:24px; font-weight:650; }
+                #existingProjectClose:hover { background:#eef2f6; border-radius:6px; }
+                #existingProjectDescription { color:#111827; font-size:13px; font-weight:650; }
+                #existingProjectHeader { color:#263548; font-size:12px; font-weight:800; }
                 #existingProjectRow { background:#ffffff; border:1px solid #bdcad8; border-radius:9px; }
                 #existingProjectRow:hover { background:#f8fafc; border-color:#8197ad; }
-                #existingProjectText { color:#0b1220; font-size:11px; font-weight:650; }
-                #existingProjectGuide { color:#334155; font-size:11px; font-weight:600; }
-                #existingProjectGuideBlue { color:#1d4ed8; font-size:11px; font-weight:650; }
-                #existingProjectCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:8px; font-size:12px; font-weight:700; }
+                #existingProjectText { color:#0b1220; font-size:12px; font-weight:700; }
+                #existingProjectGuide { color:#172033; font-size:12px; font-weight:650; }
+                #existingProjectGuideBlue { color:#1d4ed8; font-size:12px; font-weight:700; }
+                #existingProjectCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:8px; font-size:13px; font-weight:750; }
                 #existingProjectCancel:hover { background:#dce5ee; }
-                #existingProjectMove { color:#ffffff; background:#2563eb; border:none; border-radius:8px; font-size:12px; font-weight:750; }
+                #existingProjectMove { color:#ffffff; background:#2563eb; border:none; border-radius:8px; font-size:13px; font-weight:800; }
                 #existingProjectMove:hover { background:#3475f5; }
                 #existingProjectScroll { background:transparent; border:none; }
                 #existingProjectScroll QWidget { background:transparent; }
@@ -213,10 +212,10 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar::handle:vertical { background:#8998aa; min-height:28px; border-radius:4px; }
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
                 QRadioButton { background:transparent; spacing:0px; }
-                QRadioButton::indicator { width:18px; height:18px; }
-                QRadioButton::indicator:unchecked { background:#ffffff; border:1px solid #8296aa; border-radius:9px; }
+                QRadioButton::indicator { width:14px; height:14px; }
+                QRadioButton::indicator:unchecked { background:#ffffff; border:1px solid #8296aa; border-radius:7px; }
                 QRadioButton::indicator:unchecked:hover { border:2px solid #3b82f6; }
-                QRadioButton::indicator:checked { background:#2563eb; border:4px solid #bfdbfe; border-radius:9px; }
+                QRadioButton::indicator:checked { background:#2563eb; border:3px solid #bfdbfe; border-radius:7px; }
             """)
 
     def eventFilter(self, watched, event):
