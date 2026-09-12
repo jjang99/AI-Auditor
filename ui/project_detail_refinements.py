@@ -2,7 +2,17 @@ import os
 
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QAbstractScrollArea, QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSizePolicy
+from PySide6.QtWidgets import (
+    QAbstractScrollArea,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 def apply_project_detail_refinements(ProjectDetailPage):
@@ -44,6 +54,7 @@ def apply_project_detail_refinements(ProjectDetailPage):
             _refine_distribution(distribution)
         if history:
             history.setFixedWidth(145)
+            _refine_history(history)
         if issues:
             issues.setFixedWidth(230)
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
@@ -108,12 +119,7 @@ def apply_project_detail_refinements(ProjectDetailPage):
             _replace_detail_metadata_rows(detail)
             _refine_detail_header(detail)
             _refine_detail_sections(detail)
-
-        if history:
-            for label in history.findChildren(QLabel, "detailHistoryDate"):
-                label.setMinimumHeight(17)
-            for label in history.findChildren(QLabel, "detailHistoryType"):
-                label.setMinimumHeight(16)
+            _make_issue_detail_scrollable(detail)
 
         reinspect = self.findChild(QPushButton, "detailReInspectButton")
         if reinspect:
@@ -126,11 +132,15 @@ def apply_project_detail_refinements(ProjectDetailPage):
 
 
 def _card_by_title(cards, text):
-    return next((card for card in cards if any(label.text() == text for label in card.findChildren(QLabel, "detailBodyTitle"))), None)
+    return next((card for card in cards if any(
+        label.text() == text for label in card.findChildren(QLabel, "detailBodyTitle")
+    )), None)
 
 
 def _card_by_prefix(cards, prefix):
-    return next((card for card in cards if any(label.text().startswith(prefix) for label in card.findChildren(QLabel, "detailBodyTitle"))), None)
+    return next((card for card in cards if any(
+        label.text().startswith(prefix) for label in card.findChildren(QLabel, "detailBodyTitle")
+    )), None)
 
 
 def _refine_distribution(card):
@@ -138,6 +148,21 @@ def _refine_distribution(card):
         label.setMinimumHeight(17)
         if label.text().isdigit():
             label.setMinimumWidth(12)
+
+
+def _refine_history(card):
+    """Narrow history column: wrap long descriptions instead of clipping them."""
+    for label in card.findChildren(QLabel, "detailHistoryDate"):
+        label.setWordWrap(False)
+        label.setMinimumHeight(17)
+        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+    for label in card.findChildren(QLabel, "detailHistoryType"):
+        label.setWordWrap(True)
+        label.setMinimumWidth(0)
+        label.setMinimumHeight(30)
+        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
 
 def _refine_issue_row(row):
@@ -190,8 +215,48 @@ def _refine_detail_sections(detail_card):
             label.setContentsMargins(0, 4, 0, 3)
 
     for label in detail_card.findChildren(QLabel, "detailTextBody"):
-        label.setContentsMargins(0, 1, 0, 4)
+        label.setWordWrap(True)
+        label.setContentsMargins(0, 1, 0, 5)
         label.setMinimumHeight(20)
+        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+
+def _make_issue_detail_scrollable(detail_card):
+    """Keep Issue Detail title fixed; scroll the long detail content below it."""
+    layout = detail_card.layout()
+    if layout is None or detail_card.findChild(QScrollArea, "detailContentScroll"):
+        return
+
+    # Keep the first widget (Issue Detail title) fixed and move everything else into scroll content.
+    items = []
+    while layout.count() > 1:
+        item = layout.takeAt(1)
+        if item is not None:
+            items.append(item)
+
+    scroll = QScrollArea()
+    scroll.setObjectName("detailContentScroll")
+    scroll.setWidgetResizable(True)
+    scroll.setFrameShape(QFrame.NoFrame)
+    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+    content = QWidget()
+    content.setObjectName("detailContentContainer")
+    content_layout = QVBoxLayout(content)
+    content_layout.setContentsMargins(0, 4, 0, 0)
+    content_layout.setSpacing(6)
+
+    for item in items:
+        if item.widget() is not None:
+            content_layout.addWidget(item.widget())
+        elif item.layout() is not None:
+            content_layout.addLayout(item.layout())
+        elif item.spacerItem() is not None:
+            content_layout.addItem(item.spacerItem())
+
+    scroll.setWidget(content)
+    layout.addWidget(scroll, 1)
 
 
 def _replace_detail_metadata_rows(detail_card):
