@@ -135,7 +135,7 @@ def _complete_result_box(parent, title, value):
     box.setFixedSize(110, 60)
     box_layout = box.layout()
     if box_layout is not None:
-        box_layout.setContentsMargins(10, 5, 10, 5)
+        box_layout.setContentsMargins(10, 8, 10, 3)
         box_layout.setSpacing(5)
     title_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoTitle')), None)
     value_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoValue')), None)
@@ -192,7 +192,7 @@ def _build_complete_card(self):
     description_row.addStretch(1)
     layout.addWidget(description_row_widget)
 
-    layout.addSpacing(9)
+    layout.addSpacing(14)
 
     result_row_widget = QWidget(card)
     result_row_widget.setFixedHeight(60)
