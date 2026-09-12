@@ -1,4 +1,5 @@
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QProgressBar, QScrollArea
 
 
@@ -48,6 +49,9 @@ QProgressBar#inspectionProgressBar::chunk {
     color:#ffffff;
     font-size:12px;
     font-weight:750;
+}
+#inspectionSummaryIcon {
+    color:#3b82f6;
 }
 '''
 
@@ -99,6 +103,9 @@ QProgressBar#inspectionProgressBar::chunk {
     font-size:12px;
     font-weight:750;
 }
+#inspectionSummaryIcon {
+    color:#2563eb;
+}
 '''
 
 
@@ -118,18 +125,20 @@ def apply_inspection_progress_refinements(inspection_cls):
             page_scroll.verticalScrollBar().setEnabled(False)
             page_scroll.verticalScrollBar().setValue(0)
 
-        # Use the fixed viewport more evenly: smaller inter-section gaps and
-        # less bottom padding, without changing the frozen content itself.
+        # Restore the already-approved Inspection geometry.  Previous progress
+        # tuning made sections 1~3 smaller, which reduced readability and left
+        # unused space at the bottom of the fixed window.
         if hasattr(self, 'main_layout'):
-            self.main_layout.setContentsMargins(14, 7, 10, 3)
-            self.main_layout.setSpacing(6)
+            self.main_layout.setContentsMargins(14, 9, 10, 10)
+            self.main_layout.setSpacing(10)
 
         cards = self.findChildren(QFrame, 'inspectionCard')
-        if len(cards) >= 3:
-            for card, height in zip(cards[:3], [171, 215, 198]):
+        if len(cards) >= 4:
+            for card, height in zip(cards[:4], [175, 221, 204, 190]):
                 card.setFixedHeight(height)
 
-        # Summary / Progress / Complete always share this exact outer size.
+        # Summary / Progress / Complete are one fixed 4th-area container whose
+        # contents change by state, so all three must keep the same size.
         common_action_card_height = 190
         summary_card = getattr(self, 'summary_card', None)
         progress_card = getattr(self, 'progress_card', None)
@@ -137,6 +146,16 @@ def apply_inspection_progress_refinements(inspection_cls):
         for card in (summary_card, progress_card, complete_card):
             if card is not None:
                 card.setFixedHeight(common_action_card_height)
+
+        # The SVG used for the time summary can disappear on the light theme.
+        # Replace only that third summary icon with a theme-safe text clock.
+        summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
+        if len(summary_icons) >= 3:
+            time_icon = summary_icons[2]
+            time_icon.setPixmap(QPixmap())
+            time_icon.setText('◷')
+            time_icon.setAlignment(Qt.AlignCenter)
+            time_icon.setStyleSheet('font-size:22px; font-weight:700;')
 
         if progress_card is None:
             return
