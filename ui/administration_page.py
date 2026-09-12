@@ -80,7 +80,7 @@ class AdministrationPage(QWidget):
         table = QFrame()
         table.setObjectName("adminRulesTable")
         table_layout = QVBoxLayout(table)
-        table_layout.setContentsMargins(0, 0, 0, 1)
+        table_layout.setContentsMargins(0, 0, 0, 0)
         table_layout.setSpacing(0)
 
         header = QFrame()
@@ -146,6 +146,11 @@ class AdministrationPage(QWidget):
             view.clicked.connect(lambda checked=False, n=name, t=total, a=active, i=inactive: self.open_rules(n, t, a, i))
             row_layout.addWidget(view)
             table_layout.addWidget(row)
+
+        bottom_separator = QFrame()
+        bottom_separator.setObjectName("adminRulesBottomSeparator")
+        bottom_separator.setFixedHeight(1)
+        table_layout.addWidget(bottom_separator)
 
         rules_layout.addWidget(table)
         rules_layout.addSpacing(9)
@@ -243,6 +248,7 @@ class AdministrationPage(QWidget):
                 #adminHeaderText { color:#ffffff; font-size:12px; font-weight:850; }
                 #adminCategoryRow { background:#0d1b27; border-bottom:1px solid #30485a; }
                 #adminCategoryRow:hover { background:#132536; }
+                #adminRulesBottomSeparator { background:#30485a; border:none; }
                 #adminCategoryName { color:#ffffff; font-size:13px; font-weight:850; }
                 #adminCount { color:#ffffff; font-size:15px; font-weight:850; }
                 #adminActiveCount { color:#28d768; font-size:15px; font-weight:900; }
@@ -270,6 +276,7 @@ class AdministrationPage(QWidget):
                 #adminHeaderText { color:#243648; font-size:12px; font-weight:850; }
                 #adminCategoryRow { background:#ffffff; border-bottom:1px solid #d2dce5; }
                 #adminCategoryRow:hover { background:#f1f6fa; }
+                #adminRulesBottomSeparator { background:#b6c4d1; border:none; }
                 #adminCategoryName { color:#142435; font-size:13px; font-weight:850; }
                 #adminCount { color:#142435; font-size:15px; font-weight:850; }
                 #adminActiveCount { color:#149447; font-size:15px; font-weight:900; }
