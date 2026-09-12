@@ -32,15 +32,51 @@ DETAIL_DARK_REFINEMENTS = """
     font-weight: 700;
 }
 
-/* Issue detail */
-#detailIssueDetailCode { color: #ffffff; font-size: 15px; font-weight: 700; }
-#detailStatusOpen { color: #ff7373; font-size: 10px; font-weight: 700; }
-#detailTextLabel { color: #f1f5f9; font-size: 11px; font-weight: 700; }
-#detailTextBody { color: #e2e8f0; font-size: 11px; }
-#detailAIText { color: #f3e8ff; font-size: 11px; }
-#detailMetaRow { background-color: #17202a; border-radius: 5px; }
-#detailMetaLabel { color: #b8c5d4; font-size: 10px; font-weight: 700; }
-#detailMetaValue { color: #f1f5f9; font-size: 10px; font-weight: 500; }
+/* Issue Detail - readability restored */
+#detailIssueDetailCode {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+}
+#detailStatusOpen {
+    color: #ff6b6b;
+    font-size: 11px;
+    font-weight: 700;
+}
+#detailTextLabel {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+#detailTextBody {
+    color: #f1f5f9;
+    font-size: 12px;
+    font-weight: 500;
+}
+#detailAIText {
+    color: #f5eaff;
+    font-size: 12px;
+    font-weight: 500;
+}
+#detailAIBox {
+    background-color: #241b35;
+    border: 1px solid #6d4aa0;
+    border-radius: 7px;
+}
+#detailMetaRow {
+    background-color: #17202a;
+    border-radius: 5px;
+}
+#detailMetaLabel {
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 700;
+}
+#detailMetaValue {
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 500;
+}
 #detailReInspectButton { font-size: 13px; font-weight: 700; padding: 0 16px; }
 """
 
@@ -78,14 +114,50 @@ DETAIL_LIGHT_REFINEMENTS = """
     font-weight: 700;
 }
 
-/* Issue detail */
-#detailIssueDetailCode { color: #0f172a; font-size: 15px; font-weight: 700; }
-#detailStatusOpen { color: #dc2626; font-size: 10px; font-weight: 700; }
-#detailTextLabel { color: #1e293b; font-size: 11px; font-weight: 700; }
-#detailTextBody { color: #334155; font-size: 11px; }
-#detailAIText { color: #5b21b6; font-size: 11px; }
-#detailMetaRow { background-color: #f1f5f9; border-radius: 5px; }
-#detailMetaLabel { color: #64748b; font-size: 10px; font-weight: 700; }
-#detailMetaValue { color: #0f172a; font-size: 10px; font-weight: 500; }
+/* Issue Detail - readability restored */
+#detailIssueDetailCode {
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 700;
+}
+#detailStatusOpen {
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 700;
+}
+#detailTextLabel {
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 700;
+}
+#detailTextBody {
+    color: #1e293b;
+    font-size: 12px;
+    font-weight: 500;
+}
+#detailAIText {
+    color: #5b21b6;
+    font-size: 12px;
+    font-weight: 500;
+}
+#detailAIBox {
+    background-color: #f5f3ff;
+    border: 1px solid #c4b5fd;
+    border-radius: 7px;
+}
+#detailMetaRow {
+    background-color: #f1f5f9;
+    border-radius: 5px;
+}
+#detailMetaLabel {
+    color: #475569;
+    font-size: 10px;
+    font-weight: 700;
+}
+#detailMetaValue {
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 500;
+}
 #detailReInspectButton { font-size: 13px; font-weight: 700; padding: 0 16px; }
 """
