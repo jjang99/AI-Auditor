@@ -94,7 +94,7 @@ def apply_inspection_final_refinements(inspection_cls):
             page_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 10, 10, 10)
-            self.main_layout.setSpacing(11)
+            self.main_layout.setSpacing(8)
         for button in self.findChildren(QPushButton, 'inspectionHelpButton'):
             button.hide()
         titles = self.findChildren(QLabel, 'inspectionSectionTitle')
@@ -103,7 +103,7 @@ def apply_inspection_final_refinements(inspection_cls):
                 titles[i].setText(text)
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            for card, height in zip(cards[:4], [175, 221, 204, 190]):
+            for card, height in zip(cards[:4], [170, 218, 202, 184]):
                 card.setFixedHeight(height)
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
@@ -122,8 +122,8 @@ def apply_inspection_final_refinements(inspection_cls):
             combo.setContentsMargins(0, 0, 0, 0)
         if cards and cards[0].layout() is not None:
             project_layout = cards[0].layout()
-            project_layout.setContentsMargins(14, 8, 14, 12)
-            project_layout.setSpacing(7)
+            project_layout.setContentsMargins(14, 8, 14, 10)
+            project_layout.setSpacing(6)
             project_layout.setAlignment(Qt.AlignTop)
             if project_layout.count() > 1 and project_layout.itemAt(1).layout() is not None:
                 form_row = project_layout.itemAt(1).layout()
@@ -152,8 +152,8 @@ def apply_inspection_final_refinements(inspection_cls):
             button.setFixedHeight(24)
         if len(cards) >= 2 and cards[1].layout() is not None:
             lay = cards[1].layout()
-            lay.setContentsMargins(14, 7, 14, 11)
-            lay.setSpacing(5)
+            lay.setContentsMargins(14, 7, 14, 9)
+            lay.setSpacing(4)
             lay.setAlignment(Qt.AlignTop)
         for box in self.findChildren(QFrame, 'inspectionUploadBox'):
             box.setFixedHeight(44)
@@ -226,7 +226,7 @@ def apply_inspection_final_refinements(inspection_cls):
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
             row.setFixedHeight(35)
         if len(cards) >= 3 and cards[2].layout() is not None:
-            cards[2].layout().setSpacing(6)
+            cards[2].layout().setSpacing(5)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
             button.setFixedSize(66, 27)
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
@@ -239,17 +239,17 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setAlignment(Qt.AlignCenter)
             label.setFixedSize(30, 30)
         for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
-            box.setFixedHeight(60)
+            box.setFixedHeight(58)
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
-            start.setFixedSize(118, 60)
+            start.setFixedSize(118, 58)
         if len(cards) >= 4 and cards[3].layout() is not None:
-            cards[3].layout().setSpacing(11)
+            cards[3].layout().setSpacing(8)
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
-            box.setFixedHeight(60)
+            box.setFixedHeight(58)
             if box.layout() is not None:
                 lay = box.layout()
-                lay.setContentsMargins(12, 6, 12, 6)
+                lay.setContentsMargins(12, 5, 12, 5)
                 lay.setSpacing(2)
                 lay.setAlignment(Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoTitle'):
