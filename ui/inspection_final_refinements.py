@@ -10,7 +10,7 @@ DARK_INSPECTION_FINAL = r'''
 #inspectionCard { border:1px solid #3a4758; border-radius:9px; }
 #inspectionSectionTitle { color:#ffffff; font-size:16px; font-weight:750; }
 #inspectionFieldLabel { color:#f1f5f9; font-size:12px; font-weight:650; }
-#inspectionInput, #inspectionCombo { color:#ffffff; font-size:12px; font-weight:500; border-color:#475569; }
+#inspectionInput, #inspectionCombo { color:#ffffff; font-size:12px; font-weight:500; border-color:#475569; min-height:30px; max-height:30px; }
 #inspectionDuplicate { color:#fbbf24; font-size:10px; font-weight:700; }
 #inspectionDuplicateButton { color:#fbbf24; font-size:10px; font-weight:700; }
 #inspectionUploadBox { border-color:#526274; }
@@ -47,7 +47,7 @@ LIGHT_INSPECTION_FINAL = r'''
 #inspectionCard { background:#ffffff; border:1px solid #b6c3d2; border-radius:9px; }
 #inspectionSectionTitle { color:#0b1220; font-size:16px; font-weight:800; }
 #inspectionFieldLabel { color:#162033; font-size:12px; font-weight:700; }
-#inspectionInput, #inspectionCombo { color:#0b1220; background:#ffffff; font-size:12px; font-weight:550; border:1px solid #9eacbd; }
+#inspectionInput, #inspectionCombo { color:#0b1220; background:#ffffff; font-size:12px; font-weight:550; border:1px solid #9eacbd; min-height:30px; max-height:30px; }
 #inspectionDuplicate { color:#9a3412; font-size:10px; font-weight:750; }
 #inspectionDuplicateButton { color:#9a3412; font-size:10px; font-weight:750; }
 #inspectionUploadBox { background:#f8fafc; border-color:#8fa0b4; }
@@ -86,202 +86,92 @@ def apply_inspection_final_refinements(inspection_cls):
 
     def refined_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
-
         page_scroll = self.findChild(QScrollArea, 'inspectionScroll')
         if page_scroll is not None:
             page_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             page_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 10, 10, 10)
             self.main_layout.setSpacing(11)
-
         for button in self.findChildren(QPushButton, 'inspectionHelpButton'):
             button.hide()
-
         titles = self.findChildren(QLabel, 'inspectionSectionTitle')
-        clean_titles = ['1. 프로젝트 정보', '2. 검사 대상 파일', '3. 검사 기준 선택', '4. 검사 준비 요약']
-        for i, title in enumerate(titles[:4]):
-            title.setText(clean_titles[i])
-
+        for i, text in enumerate(['1. 프로젝트 정보', '2. 검사 대상 파일', '3. 검사 기준 선택', '4. 검사 준비 요약']):
+            if i < len(titles): titles[i].setText(text)
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            cards[0].setFixedHeight(165)
-            cards[1].setFixedHeight(221)
-            cards[2].setFixedHeight(204)
-            cards[3].setFixedHeight(190)
-
+            for card, height in zip(cards[:4], [165, 221, 204, 190]): card.setFixedHeight(height)
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
-            label.setFixedHeight(17)
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            label.setFixedHeight(17); label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             if label.text().startswith('Project Name'):
-                label.setText('Project Name <span style="color:#ef4444;font-weight:700;">*</span>')
-                label.setTextFormat(Qt.RichText)
-
+                label.setText('Project Name <span style="color:#ef4444;font-weight:700;">*</span>'); label.setTextFormat(Qt.RichText)
+        # 입력칸과 콤보박스의 외곽 높이를 동일한 30px로 강제 고정한다.
         for edit in self.findChildren(QLineEdit, 'inspectionInput'):
-            edit.setFixedHeight(29)
+            edit.setMinimumHeight(30); edit.setMaximumHeight(30); edit.setFixedHeight(30)
         for combo in self.findChildren(QComboBox, 'inspectionCombo'):
-            combo.setFixedHeight(29)
-
-        if len(cards) >= 1 and cards[0].layout() is not None:
-            project_layout = cards[0].layout()
-            project_layout.setContentsMargins(14, 7, 14, 13)
-            project_layout.setSpacing(6)
-            project_layout.setAlignment(Qt.AlignTop)
+            combo.setMinimumHeight(30); combo.setMaximumHeight(30); combo.setFixedHeight(30)
+        if cards and cards[0].layout() is not None:
+            project_layout = cards[0].layout(); project_layout.setContentsMargins(14, 7, 14, 13); project_layout.setSpacing(6); project_layout.setAlignment(Qt.AlignTop)
             if project_layout.count() > 1 and project_layout.itemAt(1).layout() is not None:
-                form_row = project_layout.itemAt(1).layout()
-                form_row.setSpacing(16)
-                form_row.setAlignment(Qt.AlignTop)
+                form_row = project_layout.itemAt(1).layout(); form_row.setSpacing(16); form_row.setAlignment(Qt.AlignTop)
                 left_col = form_row.itemAt(0).layout() if form_row.count() > 0 else None
                 right_col = form_row.itemAt(1).layout() if form_row.count() > 1 else None
-                if left_col is not None:
-                    left_col.setContentsMargins(0, 0, 0, 0)
-                    left_col.setSpacing(4)
-                    left_col.setAlignment(Qt.AlignTop)
-                if right_col is not None:
-                    right_col.setContentsMargins(0, 0, 0, 0)
-                    right_col.setSpacing(4)
-                    right_col.setAlignment(Qt.AlignTop)
-                    # 왼쪽의 중복 프로젝트 안내 행과 정확히 같은 높이를 확보해
-                    # Description 입력칸과 프로젝트 구분 콤보의 Y축을 일치시킨다.
-                    spacer_height = 22
-                    if right_col.count() > 2:
-                        spacer_item = right_col.itemAt(2)
-                        if spacer_item.spacerItem() is not None:
-                            spacer_item.spacerItem().changeSize(0, spacer_height)
-                        elif spacer_item.widget() is not None:
-                            spacer_item.widget().setFixedHeight(spacer_height)
-                    right_col.invalidate()
-                    right_col.activate()
-
+                for col in (left_col, right_col):
+                    if col is not None: col.setContentsMargins(0,0,0,0); col.setSpacing(4); col.setAlignment(Qt.AlignTop)
+                if right_col is not None and right_col.count() > 2:
+                    item = right_col.itemAt(2)
+                    if item.spacerItem() is not None: item.spacerItem().changeSize(0,22)
+                    elif item.widget() is not None: item.widget().setFixedHeight(22)
+                    right_col.invalidate(); right_col.activate()
         for label in self.findChildren(QLabel, 'inspectionDuplicate'):
-            label.setFixedHeight(22)
-            label.setContentsMargins(0, 4, 0, 0)
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        for button in self.findChildren(QPushButton, 'inspectionDuplicateButton'):
-            button.setFixedHeight(22)
-
-        # 2. 검사 대상 파일: 내부 묶음을 위쪽으로 소폭 이동해 하단 겹침을 방지한다.
+            label.setFixedHeight(22); label.setContentsMargins(0,4,0,0); label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        for button in self.findChildren(QPushButton, 'inspectionDuplicateButton'): button.setFixedHeight(22)
         if len(cards) >= 2 and cards[1].layout() is not None:
-            file_card_layout = cards[1].layout()
-            file_card_layout.setContentsMargins(14, 7, 14, 11)
-            file_card_layout.setSpacing(5)
-            file_card_layout.setAlignment(Qt.AlignTop)
-
+            lay = cards[1].layout(); lay.setContentsMargins(14,7,14,11); lay.setSpacing(5); lay.setAlignment(Qt.AlignTop)
         for box in self.findChildren(QFrame, 'inspectionUploadBox'):
             box.setFixedHeight(44)
-            if box.layout() is not None:
-                box.layout().setContentsMargins(0, 0, 0, 0)
-                box.layout().setSpacing(16)
-                box.layout().setAlignment(Qt.AlignCenter)
-
+            if box.layout() is not None: box.layout().setContentsMargins(0,0,0,0); box.layout().setSpacing(16); box.layout().setAlignment(Qt.AlignCenter)
         icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'icons')
-        file_icon = QIcon(os.path.join(icon_dir, 'file.svg'))
-        trash_icon = QIcon(os.path.join(icon_dir, 'trash.svg'))
-
+        file_icon = QIcon(os.path.join(icon_dir, 'file.svg')); trash_icon = QIcon(os.path.join(icon_dir, 'trash.svg'))
         file_rows = self.findChildren(QFrame, 'inspectionFileRow')
         for row in file_rows:
-            row.setFixedHeight(30)
-            labels = row.findChildren(QLabel)
+            row.setFixedHeight(30); labels = row.findChildren(QLabel)
             if len(labels) >= 4:
-                name_label, path_label, size_label, delete_label = labels[:4]
-                raw_name = name_label.text()
-                if '  ' in raw_name:
-                    raw_name = raw_name.split('  ', 1)[1]
-                name_label.setText(raw_name)
-                name_label.setFixedWidth(150)
-                layout = row.layout()
+                name_label, path_label, size_label, delete_label = labels[:4]; raw_name = name_label.text()
+                if '  ' in raw_name: raw_name = raw_name.split('  ',1)[1]
+                name_label.setText(raw_name); name_label.setFixedWidth(150); layout = row.layout()
                 if layout is not None:
-                    file_label = QLabel()
-                    file_label.setObjectName('inspectionFileIcon')
-                    file_label.setPixmap(file_icon.pixmap(QSize(16, 16)))
-                    file_label.setAlignment(Qt.AlignCenter)
-                    file_label.setFixedWidth(20)
-                    layout.insertWidget(0, file_label)
-                path_label.setMinimumHeight(18)
-                path_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                size_label.setFixedWidth(50)
-                delete_label.setText('')
-                delete_label.setPixmap(trash_icon.pixmap(QSize(16, 16)))
-                delete_label.setAlignment(Qt.AlignCenter)
-                delete_label.setFixedWidth(24)
-
+                    file_label = QLabel(); file_label.setObjectName('inspectionFileIcon'); file_label.setPixmap(file_icon.pixmap(QSize(16,16))); file_label.setAlignment(Qt.AlignCenter); file_label.setFixedWidth(20); layout.insertWidget(0,file_label)
+                path_label.setMinimumHeight(18); path_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter); size_label.setFixedWidth(50)
+                delete_label.setText(''); delete_label.setPixmap(trash_icon.pixmap(QSize(16,16))); delete_label.setAlignment(Qt.AlignCenter); delete_label.setFixedWidth(24)
         table = next(iter(self.findChildren(QFrame, 'inspectionFileTable')), None)
         if table is not None and table.parentWidget() is not None:
             parent_layout = table.parentWidget().layout()
             if parent_layout is not None:
                 idx = parent_layout.indexOf(table)
                 if idx >= 0:
-                    parent_layout.removeWidget(table)
-                    visible_rows = 3
-                    row_height = 30
-                    viewport_height = visible_rows * row_height + 2
-                    table.setMinimumHeight(max(viewport_height, len(file_rows) * row_height))
-                    scroll = QScrollArea()
-                    scroll.setObjectName('inspectionFileScroll')
-                    scroll.setWidgetResizable(True)
-                    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-                    scroll.setFixedHeight(viewport_height)
-                    scroll.setWidget(table)
-                    parent_layout.insertWidget(idx, scroll)
-
+                    parent_layout.removeWidget(table); row_height=30; viewport_height=92; table.setMinimumHeight(max(viewport_height, len(file_rows)*row_height))
+                    scroll=QScrollArea(); scroll.setObjectName('inspectionFileScroll'); scroll.setWidgetResizable(True); scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff); scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded); scroll.setFixedHeight(viewport_height); scroll.setWidget(table); parent_layout.insertWidget(idx,scroll)
         for label in self.findChildren(QLabel):
-            if label.text() in ('외 14개 파일', '총 12.3 MB'):
-                label.hide()
-                label.setFixedHeight(0)
-
-        rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
-        rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
-        for label, filename in zip(rule_icons, rule_icon_files):
-            label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(18, 18)))
-            label.setAlignment(Qt.AlignCenter)
-            label.setFixedWidth(26)
-        for label in self.findChildren(QLabel, 'inspectionRuleName'):
-            label.setFixedWidth(120)
-        for label in self.findChildren(QLabel, 'inspectionRuleCount'):
-            label.setFixedWidth(70)
-        for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(35)
-        if len(cards) >= 3 and cards[2].layout() is not None:
-            cards[2].layout().setSpacing(6)
-        for button in self.findChildren(QPushButton, 'inspectionViewButton'):
-            button.setFixedSize(66, 27)
-        for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
-            button.setFixedHeight(27)
-
-        summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
-        summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
-        for label, filename in zip(summary_icons, summary_icon_files):
-            label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(24, 24)))
-            label.setAlignment(Qt.AlignCenter)
-            label.setFixedSize(30, 30)
-
-        for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
+            if label.text() in ('외 14개 파일','총 12.3 MB'): label.hide(); label.setFixedHeight(0)
+        rule_icon_files=['detail_grade.svg','detail_issues.svg','inspection.svg','reports.svg']; rule_icons=self.findChildren(QLabel,'inspectionRuleIcon')
+        for label,filename in zip(rule_icons,rule_icon_files): label.setText(''); label.setPixmap(QIcon(os.path.join(icon_dir,filename)).pixmap(QSize(18,18))); label.setAlignment(Qt.AlignCenter); label.setFixedWidth(26)
+        for label in self.findChildren(QLabel,'inspectionRuleName'): label.setFixedWidth(120)
+        for label in self.findChildren(QLabel,'inspectionRuleCount'): label.setFixedWidth(70)
+        for row in self.findChildren(QFrame,'inspectionRuleRow'): row.setFixedHeight(35)
+        if len(cards)>=3 and cards[2].layout() is not None: cards[2].layout().setSpacing(6)
+        for button in self.findChildren(QPushButton,'inspectionViewButton'): button.setFixedSize(66,27)
+        for button in self.findChildren(QPushButton,'inspectionSmallButton'): button.setFixedHeight(27)
+        summary_icon_files=['project.svg','detail_issues.svg','play.svg']; summary_icons=self.findChildren(QLabel,'inspectionSummaryIcon')
+        for label,filename in zip(summary_icons,summary_icon_files): label.setText(''); label.setPixmap(QIcon(os.path.join(icon_dir,filename)).pixmap(QSize(24,24))); label.setAlignment(Qt.AlignCenter); label.setFixedSize(30,30)
+        for box in self.findChildren(QFrame,'inspectionSummaryBox'): box.setFixedHeight(60)
+        start=next(iter(self.findChildren(QPushButton,'inspectionStartButton')),None)
+        if start is not None: start.setFixedSize(118,60)
+        if len(cards)>=4 and cards[3].layout() is not None: cards[3].layout().setSpacing(11)
+        for box in self.findChildren(QFrame,'inspectionInfoBox'):
             box.setFixedHeight(60)
-        start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
-        if start is not None:
-            start.setFixedSize(118, 60)
-        if len(cards) >= 4 and cards[3].layout() is not None:
-            cards[3].layout().setSpacing(11)
-
-        for box in self.findChildren(QFrame, 'inspectionInfoBox'):
-            box.setFixedHeight(60)
-            if box.layout() is not None:
-                info_layout = box.layout()
-                info_layout.setContentsMargins(12, 6, 12, 6)
-                info_layout.setSpacing(2)
-                info_layout.setAlignment(Qt.AlignVCenter)
-
-        for label in self.findChildren(QLabel, 'inspectionInfoTitle'):
-            label.setFixedHeight(14)
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        for label in self.findChildren(QLabel, 'inspectionInfoText'):
-            label.setWordWrap(True)
-            label.setFixedHeight(32)
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
+            if box.layout() is not None: lay=box.layout(); lay.setContentsMargins(12,6,12,6); lay.setSpacing(2); lay.setAlignment(Qt.AlignVCenter)
+        for label in self.findChildren(QLabel,'inspectionInfoTitle'): label.setFixedHeight(14); label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        for label in self.findChildren(QLabel,'inspectionInfoText'): label.setWordWrap(True); label.setFixedHeight(32); label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
