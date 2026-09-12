@@ -18,7 +18,7 @@ DARK_INSPECTION_FINAL = r'''
 #inspectionUploadText { color:#f8fafc; font-size:12px; font-weight:600; }
 #inspectionFileButton { color:#ffffff; font-size:11px; font-weight:700; }
 #inspectionFileCount { color:#ffffff; font-size:12px; font-weight:750; }
-#inspectionFileTable { border-color:#3a4758; }
+#inspectionFileTable { border:none; border-radius:0px; background:transparent; }
 #inspectionFileRow { border-bottom:1px solid #2f3c4c; }
 #inspectionTableText { color:#ffffff; font-size:11px; font-weight:650; }
 #inspectionTableMuted { color:#d7e0ea; font-size:11px; font-weight:550; }
@@ -34,8 +34,8 @@ DARK_INSPECTION_FINAL = r'''
 #inspectionInfoTitle { color:#7db7ff; font-size:11px; font-weight:700; }
 #inspectionInfoText { color:#e2e8f0; font-size:10px; font-weight:550; }
 #inspectionSmallButton, #inspectionViewButton { color:#f8fafc; font-size:10px; font-weight:650; border-color:#475569; }
-#inspectionStartButton { color:#ffffff; font-size:14px; font-weight:750; }
-#inspectionFileScroll { background:transparent; border:none; }
+#inspectionStartButton { color:#ffffff; font-size:16px; font-weight:800; }
+#inspectionFileScroll { background:#0d1721; border:1px solid #3a4758; border-radius:7px; }
 #inspectionFileScroll QWidget { background:transparent; }
 #inspectionFileScroll QScrollBar:vertical { background:#0b1219; width:9px; margin:2px; }
 #inspectionFileScroll QScrollBar::handle:vertical { background:#64748b; min-height:28px; border-radius:4px; }
@@ -56,7 +56,7 @@ LIGHT_INSPECTION_FINAL = r'''
 #inspectionUploadText { color:#162033; font-size:12px; font-weight:650; }
 #inspectionFileButton { color:#ffffff; font-size:11px; font-weight:700; }
 #inspectionFileCount { color:#0b1220; font-size:12px; font-weight:800; }
-#inspectionFileTable { background:#ffffff; border-color:#b7c4d3; }
+#inspectionFileTable { border:none; border-radius:0px; background:transparent; }
 #inspectionFileRow { border-bottom:1px solid #d6dee8; }
 #inspectionTableText { color:#0b1220; font-size:11px; font-weight:700; }
 #inspectionTableMuted { color:#263548; font-size:11px; font-weight:600; }
@@ -72,8 +72,8 @@ LIGHT_INSPECTION_FINAL = r'''
 #inspectionInfoTitle { color:#1e40af; font-size:11px; font-weight:750; }
 #inspectionInfoText { color:#263548; font-size:10px; font-weight:600; }
 #inspectionSmallButton, #inspectionViewButton { color:#111827; background:#ffffff; font-size:10px; font-weight:700; border:1px solid #9eacbd; }
-#inspectionStartButton { color:#ffffff; font-size:14px; font-weight:750; }
-#inspectionFileScroll { background:transparent; border:none; }
+#inspectionStartButton { color:#ffffff; font-size:16px; font-weight:800; }
+#inspectionFileScroll { background:#ffffff; border:1px solid #b7c4d3; border-radius:7px; }
 #inspectionFileScroll QWidget { background:transparent; }
 #inspectionFileScroll QScrollBar:vertical { background:#edf1f6; width:9px; margin:2px; }
 #inspectionFileScroll QScrollBar::handle:vertical { background:#7f8da0; min-height:28px; border-radius:4px; }
