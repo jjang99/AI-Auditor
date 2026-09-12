@@ -20,6 +20,11 @@ from ui.inspection_readability_v2 import (
     DARK_INSPECTION_READABILITY_V2,
     LIGHT_INSPECTION_READABILITY_V2,
 )
+from ui.inspection_final_refinements import (
+    apply_inspection_final_refinements,
+    DARK_INSPECTION_FINAL,
+    LIGHT_INSPECTION_FINAL,
+)
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
@@ -28,6 +33,7 @@ from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES
 apply_project_detail_refinements(ProjectDetailPage)
 apply_inspection_refinements(InspectionPage)
 apply_inspection_readability_v2(InspectionPage)
+apply_inspection_final_refinements(InspectionPage)
 
 
 class MainWindow(QMainWindow):
@@ -158,6 +164,7 @@ class MainWindow(QMainWindow):
                 + DETAIL_DARK_REFINEMENTS
                 + DARK_INSPECTION_REFINEMENTS
                 + DARK_INSPECTION_READABILITY_V2
+                + DARK_INSPECTION_FINAL
             )
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
@@ -168,6 +175,7 @@ class MainWindow(QMainWindow):
                 + DETAIL_LIGHT_REFINEMENTS
                 + LIGHT_INSPECTION_REFINEMENTS
                 + LIGHT_INSPECTION_READABILITY_V2
+                + LIGHT_INSPECTION_FINAL
             )
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
