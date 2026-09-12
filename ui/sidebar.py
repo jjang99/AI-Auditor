@@ -16,7 +16,7 @@ class Sidebar(QFrame):
     menu_clicked = Signal(str)
     theme_toggle_requested = Signal()
 
-    def __init__(self, selected_menu="Projects"):
+    def __init__(self, selected_menu="Projects", show_grade_help=False):
         super().__init__()
         self.setObjectName("sidebar")
         self.setFixedWidth(165)
@@ -28,7 +28,6 @@ class Sidebar(QFrame):
         main_layout.setContentsMargins(12, 18, 12, 12)
         main_layout.setSpacing(0)
 
-        # Logo
         logo_row = QHBoxLayout()
         logo_row.setContentsMargins(4, 0, 0, 0)
         logo_row.setSpacing(8)
@@ -47,7 +46,6 @@ class Sidebar(QFrame):
         main_layout.addLayout(logo_row)
         main_layout.addSpacing(22)
 
-        # Menu
         self.menu_buttons = {}
         menu_items = [
             ("Home", None),
@@ -73,55 +71,49 @@ class Sidebar(QFrame):
             if menu_name == selected_menu:
                 button.setChecked(True)
 
-            button.clicked.connect(
-                lambda checked, name=menu_name: self.select_menu(name)
-            )
+            button.clicked.connect(lambda checked, name=menu_name: self.select_menu(name))
             self.menu_buttons[menu_name] = button
             main_layout.addWidget(button)
             main_layout.addSpacing(3)
 
         main_layout.addStretch()
 
-        # Grade Help
-        help_frame = QFrame()
-        help_frame.setObjectName("sidebarHelpFrame")
-        help_layout = QVBoxLayout(help_frame)
-        help_layout.setContentsMargins(10, 10, 10, 10)
-        help_layout.setSpacing(5)
+        if show_grade_help:
+            help_frame = QFrame()
+            help_frame.setObjectName("sidebarHelpFrame")
+            help_layout = QVBoxLayout(help_frame)
+            help_layout.setContentsMargins(10, 10, 10, 10)
+            help_layout.setSpacing(5)
 
-        help_title = QLabel("❓  등급 기준 (Help)")
-        help_title.setObjectName("sidebarHelpTitle")
-        help_layout.addWidget(help_title)
-        help_layout.addSpacing(2)
+            help_title = QLabel("❓  등급 기준 (Help)")
+            help_title.setObjectName("sidebarHelpTitle")
+            help_layout.addWidget(help_title)
+            help_layout.addSpacing(2)
 
-        grade_data = [
-            ("A", "우수", "90 ~ 100", "sidebarGradeA"),
-            ("B", "양호", "80 ~ 89", "sidebarGradeB"),
-            ("C", "보통", "70 ~ 79", "sidebarGradeC"),
-            ("D", "미흡", "60 ~ 69", "sidebarGradeD"),
-            ("E", "불량", "0 ~ 59", "sidebarGradeE"),
-        ]
+            grade_data = [
+                ("A", "우수", "90 ~ 100", "sidebarGradeA"),
+                ("B", "양호", "80 ~ 89", "sidebarGradeB"),
+                ("C", "보통", "70 ~ 79", "sidebarGradeC"),
+                ("D", "미흡", "60 ~ 69", "sidebarGradeD"),
+                ("E", "불량", "0 ~ 59", "sidebarGradeE"),
+            ]
 
-        for grade, text, score, object_name in grade_data:
-            row = QHBoxLayout()
-            row.setSpacing(3)
+            for grade, text, score, object_name in grade_data:
+                row = QHBoxLayout()
+                row.setSpacing(3)
+                grade_label = QLabel(grade)
+                grade_label.setObjectName(object_name)
+                grade_label.setFixedWidth(12)
+                description = QLabel(f"({text}) : {score}")
+                description.setObjectName("sidebarGradeText")
+                row.addWidget(grade_label)
+                row.addWidget(description)
+                row.addStretch()
+                help_layout.addLayout(row)
 
-            grade_label = QLabel(grade)
-            grade_label.setObjectName(object_name)
-            grade_label.setFixedWidth(12)
+            main_layout.addWidget(help_frame)
+            main_layout.addSpacing(8)
 
-            description = QLabel(f"({text}) : {score}")
-            description.setObjectName("sidebarGradeText")
-
-            row.addWidget(grade_label)
-            row.addWidget(description)
-            row.addStretch()
-            help_layout.addLayout(row)
-
-        main_layout.addWidget(help_frame)
-        main_layout.addSpacing(8)
-
-        # Theme toggle: available from every sidebar screen.
         self.theme_button = QPushButton("☀  Light Mode")
         self.theme_button.setObjectName("sidebarThemeButton")
         self.theme_button.setCursor(Qt.PointingHandCursor)
@@ -130,7 +122,6 @@ class Sidebar(QFrame):
         main_layout.addWidget(self.theme_button)
         main_layout.addSpacing(8)
 
-        # Version / Copyright
         footer_frame = QFrame()
         footer_frame.setObjectName("sidebarFooterFrame")
         footer_layout = QVBoxLayout(footer_frame)
