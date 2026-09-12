@@ -111,9 +111,6 @@ def apply_inspection_progress_refinements(inspection_cls):
     def refined_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
 
-        # The page is designed as a fixed 840x900 desktop screen.  Keep the
-        # content inside the viewport so hiding the scrollbar does not leave a
-        # wheel-scrollable page underneath.
         page_scroll = next(iter(self.findChildren(QScrollArea, 'inspectionScroll')), None)
         if page_scroll is not None:
             page_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -125,18 +122,26 @@ def apply_inspection_progress_refinements(inspection_cls):
             self.main_layout.setContentsMargins(14, 8, 10, 8)
             self.main_layout.setSpacing(8)
 
-        # Slight height reductions are visually negligible but remove the
-        # few-pixel overflow that allowed the base Inspection page to move.
+        # Keep sections 1~3 slightly compact so the fixed 840x900 layout
+        # remains stable, but use the original finalized Summary height as the
+        # single baseline for Summary / Progress / Complete.
         cards = self.findChildren(QFrame, 'inspectionCard')
-        if len(cards) >= 4:
-            for card, height in zip(cards[:4], [171, 215, 198, 184]):
+        if len(cards) >= 3:
+            for card, height in zip(cards[:3], [171, 215, 198]):
                 card.setFixedHeight(height)
 
+        common_action_card_height = 190
+        summary_card = getattr(self, 'summary_card', None)
         progress_card = getattr(self, 'progress_card', None)
+        complete_card = getattr(self, 'complete_card', None)
+
+        for card in (summary_card, progress_card, complete_card):
+            if card is not None:
+                card.setFixedHeight(common_action_card_height)
+
         if progress_card is None:
             return
 
-        progress_card.setFixedHeight(184)
         progress_layout = progress_card.layout()
         if progress_layout is not None:
             progress_layout.setContentsMargins(14, 10, 14, 10)
