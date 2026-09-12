@@ -146,7 +146,7 @@ class ExistingProjectDialog(QDialog):
         date = QLabel(project["date"])
         for label in (name, department, project_type, date):
             label.setObjectName("existingProjectText")
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            label.setAlignment(Qt.AlignCenter)
         name.setFixedWidth(180)
         department.setFixedWidth(150)
         project_type.setFixedWidth(122)
