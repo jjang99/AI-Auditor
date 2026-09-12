@@ -11,6 +11,7 @@ from ui.inspection_page import InspectionPage
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
+from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES
 
 
 class MainWindow(QMainWindow):
@@ -128,11 +129,11 @@ class MainWindow(QMainWindow):
 
     def apply_theme(self):
         if self.is_dark_mode:
-            self.setStyleSheet(DARK_THEME)
+            self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES)
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
         else:
-            self.setStyleSheet(LIGHT_THEME)
+            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
 
