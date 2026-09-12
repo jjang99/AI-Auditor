@@ -51,10 +51,10 @@ class ReportsPage(QWidget):
         for icon_file, label_text, value_text, suffix, value_object in summary_data:
             card = QFrame()
             card.setObjectName("reportSummaryCard")
-            card.setFixedHeight(112)
+            card.setFixedHeight(96)
             card_layout = QVBoxLayout(card)
-            card_layout.setContentsMargins(12, 12, 12, 12)
-            card_layout.setSpacing(6)
+            card_layout.setContentsMargins(12, 9, 12, 9)
+            card_layout.setSpacing(4)
 
             label_row = QHBoxLayout()
             label_row.setSpacing(8)
@@ -86,7 +86,7 @@ class ReportsPage(QWidget):
             summary_layout.addWidget(card, 1)
 
         main_layout.addLayout(summary_layout)
-        main_layout.addSpacing(11)
+        main_layout.addSpacing(14)
 
         filter_frame = QFrame()
         filter_frame.setObjectName("reportFilterCard")
@@ -127,7 +127,7 @@ class ReportsPage(QWidget):
         filter_layout.addStretch()
         filter_layout.addWidget(search_button)
         main_layout.addWidget(filter_frame)
-        main_layout.addSpacing(11)
+        main_layout.addSpacing(14)
 
         report_card = QFrame()
         report_card.setObjectName("reportListCard")
@@ -186,16 +186,16 @@ class ReportsPage(QWidget):
         self.report_table.itemSelectionChanged.connect(self.update_selected_report)
         report_layout.addWidget(self.report_table)
         main_layout.addWidget(report_card)
-        main_layout.addSpacing(11)
+        main_layout.addSpacing(14)
 
         action_frame = QFrame()
         action_frame.setObjectName("reportActionCard")
-        action_frame.setFixedHeight(110)
+        action_frame.setFixedHeight(118)
         action_layout = QHBoxLayout(action_frame)
-        action_layout.setContentsMargins(16, 12, 14, 12)
+        action_layout.setContentsMargins(16, 14, 14, 14)
 
         selected_area = QVBoxLayout()
-        selected_area.setSpacing(4)
+        selected_area.setSpacing(7)
         selected_caption = QLabel("선택한 검사 결과")
         selected_caption.setObjectName("reportSelectedCaption")
         self.selected_project = QLabel(self.sample_reports[0][0])
