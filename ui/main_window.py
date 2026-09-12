@@ -84,8 +84,16 @@ class MainWindow(QMainWindow):
             self.page_stack.addWidget(page)
         content_layout.addWidget(self.page_stack)
 
-        for sidebar in [self.projects_page.sidebar, self.project_detail_page.sidebar, self.inspection_page.sidebar, self.reports_page.sidebar, self.administration_page.sidebar]:
+        self.sidebars = [
+            self.projects_page.sidebar,
+            self.project_detail_page.sidebar,
+            self.inspection_page.sidebar,
+            self.reports_page.sidebar,
+            self.administration_page.sidebar,
+        ]
+        for sidebar in self.sidebars:
             sidebar.menu_clicked.connect(self.select_menu)
+            sidebar.theme_toggle_requested.connect(self.toggle_theme)
 
         self.projects_page.project_selected.connect(self.open_project_detail)
         self.inspection_page.existing_project_selected.connect(self.open_project_detail)
@@ -97,8 +105,7 @@ class MainWindow(QMainWindow):
         self.apply_theme()
 
     def update_sidebar_selection(self, selected_name):
-        sidebars = [self.projects_page.sidebar, self.project_detail_page.sidebar, self.inspection_page.sidebar, self.reports_page.sidebar, self.administration_page.sidebar]
-        for sidebar in sidebars:
+        for sidebar in self.sidebars:
             for menu_name, button in sidebar.menu_buttons.items():
                 button.setChecked(menu_name == selected_name)
 
@@ -141,5 +148,6 @@ class MainWindow(QMainWindow):
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
 
-        # Home 물결도 현재 테마에 맞춰 교체
         self.home_page.set_wave_theme(self.is_dark_mode)
+        for sidebar in self.sidebars:
+            sidebar.set_theme(self.is_dark_mode)
