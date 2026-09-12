@@ -1,4 +1,7 @@
-from PySide6.QtCore import Qt
+import os
+
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QScrollArea, QVBoxLayout, QWidget,
@@ -12,31 +15,52 @@ class AdministrationRulesDialog(QDialog):
         self.setModal(True)
         self.setFixedSize(700, 500)
 
+        icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "assets", "icons", "logo.svg"
+        )
+        self.setWindowIcon(QIcon(icon_path))
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(18, 16, 18, 16)
         layout.setSpacing(10)
 
         header = QHBoxLayout()
+        header.setSpacing(10)
+        header_icon = QLabel()
+        header_icon.setObjectName("adminDialogHeaderIcon")
+        header_icon.setPixmap(QIcon(icon_path).pixmap(QSize(24, 24)))
+        header_icon.setFixedSize(28, 28)
+        header_icon.setAlignment(Qt.AlignCenter)
+
         title = QLabel(f"{category_name} - 규칙 목록")
         title.setObjectName("adminDialogTitle")
-        close_button = QPushButton("×")
-        close_button.setObjectName("adminDialogClose")
-        close_button.setFixedSize(32, 32)
-        close_button.setCursor(Qt.PointingHandCursor)
-        close_button.clicked.connect(self.reject)
+        header.addWidget(header_icon)
         header.addWidget(title)
         header.addStretch()
-        header.addWidget(close_button)
         layout.addLayout(header)
 
-        summary = QLabel(f"총 {total}개 규칙   |   활성 {active}개   |   비활성 {inactive}개")
-        summary.setObjectName("adminDialogSummary")
-        layout.addWidget(summary)
+        summary_row = QHBoxLayout()
+        summary_row.setSpacing(10)
+        total_label = QLabel(f"총 {total}개 규칙")
+        total_label.setObjectName("adminSummaryTotal")
+        active_label = QLabel(f"활성 {active}개")
+        active_label.setObjectName("adminSummaryActive")
+        inactive_label = QLabel(f"비활성 {inactive}개")
+        inactive_label.setObjectName("adminSummaryInactive")
+        for widget in (total_label, active_label, inactive_label):
+            summary_row.addWidget(widget)
+            if widget is not inactive_label:
+                separator = QLabel("|")
+                separator.setObjectName("adminSummarySeparator")
+                summary_row.addWidget(separator)
+        summary_row.addStretch()
+        layout.addLayout(summary_row)
 
         self.search = QLineEdit()
         self.search.setPlaceholderText("규칙 코드 또는 제목 검색")
         self.search.setObjectName("adminRuleSearch")
-        self.search.setFixedHeight(34)
+        self.search.setFixedHeight(36)
         self.search.textChanged.connect(self.filter_rows)
         layout.addWidget(self.search)
 
@@ -48,7 +72,7 @@ class AdministrationRulesDialog(QDialog):
 
         table_header = QFrame()
         table_header.setObjectName("adminRuleHeader")
-        table_header.setFixedHeight(36)
+        table_header.setFixedHeight(38)
         header_layout = QHBoxLayout(table_header)
         header_layout.setContentsMargins(12, 0, 10, 0)
         header_layout.setSpacing(10)
@@ -180,27 +204,29 @@ class AdministrationRulesDialog(QDialog):
         if is_dark:
             self.setStyleSheet("""
                 QDialog { background:#101820; color:#f8fafc; }
+                #adminDialogHeaderIcon { background:transparent; border:none; }
                 #adminDialogTitle { font-size:20px; font-weight:850; color:#ffffff; }
-                #adminDialogSummary { color:#d4dee8; font-size:12px; font-weight:700; }
-                #adminDialogClose { background:transparent; border:none; color:#ffffff; font-size:22px; }
-                #adminDialogClose:hover { background:#1b2d3d; border-radius:6px; }
+                #adminSummaryTotal { color:#f8fafc; font-size:12px; font-weight:800; }
+                #adminSummaryActive { color:#22c55e; font-size:12px; font-weight:850; }
+                #adminSummaryInactive { color:#ff613e; font-size:12px; font-weight:850; }
+                #adminSummarySeparator { color:#64748b; font-size:12px; font-weight:700; }
                 #adminRuleSearch { background:#111c26; color:#ffffff; border:1px solid #42576b; border-radius:7px; padding:0 10px; font-size:12px; }
                 #adminRuleTable { background:#0d1721; border:1px solid #31475a; border-radius:7px; }
                 #adminRuleHeader { background:#172838; border-bottom:1px solid #40586c; }
-                #adminRuleHeaderText { color:#e8eef5; font-size:11px; font-weight:850; }
+                #adminRuleHeaderText { color:#ffffff; font-size:12px; font-weight:850; }
                 #adminRuleScroll, #adminRuleContent { background:transparent; border:none; }
                 #adminRuleRow { background:#0d1721; border-bottom:1px solid #293d50; }
                 #adminRuleRow:hover { background:#132536; }
-                #adminRuleCode { color:#dbeafe; font-size:11px; font-weight:800; }
-                #adminRuleName { color:#ffffff; font-size:11px; font-weight:800; }
-                #adminRuleDescription { color:#d7e0e9; font-size:11px; font-weight:600; }
+                #adminRuleCode { color:#dbeafe; font-size:11px; font-weight:850; }
+                #adminRuleName { color:#ffffff; font-size:11px; font-weight:850; }
+                #adminRuleDescription { color:#e2e8f0; font-size:11px; font-weight:650; }
                 #severityCritical { color:#ff6b6b; background:#341a20; border:1px solid #ef4444; border-radius:7px; font-size:10px; font-weight:850; }
                 #severityHigh { color:#ffb35c; background:#342718; border:1px solid #f59e0b; border-radius:7px; font-size:10px; font-weight:850; }
                 #severityMedium { color:#60a5fa; background:#132c45; border:1px solid #3b82f6; border-radius:7px; font-size:10px; font-weight:850; }
                 #severityLow { color:#4ade80; background:#143423; border:1px solid #22c55e; border-radius:7px; font-size:10px; font-weight:850; }
                 #adminRuleToggle { background:#475569; color:#e2e8f0; border:none; border-radius:12px; font-size:9px; font-weight:850; }
                 #adminRuleToggle:checked { background:#22c55e; color:#ffffff; }
-                #adminDialogNotice { color:#d4dee8; font-size:11px; font-weight:650; }
+                #adminDialogNotice { color:#e2e8f0; font-size:11px; font-weight:700; }
                 #adminDialogPrimaryButton { background:#2563eb; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:850; }
                 #adminDialogPrimaryButton:hover { background:#3475f5; }
                 QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
@@ -210,27 +236,29 @@ class AdministrationRulesDialog(QDialog):
         else:
             self.setStyleSheet("""
                 QDialog { background:#f7f9fc; color:#172a3c; }
+                #adminDialogHeaderIcon { background:transparent; border:none; }
                 #adminDialogTitle { font-size:20px; font-weight:850; color:#142435; }
-                #adminDialogSummary { color:#4a5e72; font-size:12px; font-weight:700; }
-                #adminDialogClose { background:transparent; border:none; color:#142435; font-size:22px; }
-                #adminDialogClose:hover { background:#e9eff5; border-radius:6px; }
+                #adminSummaryTotal { color:#26384a; font-size:12px; font-weight:800; }
+                #adminSummaryActive { color:#149447; font-size:12px; font-weight:850; }
+                #adminSummaryInactive { color:#e2492d; font-size:12px; font-weight:850; }
+                #adminSummarySeparator { color:#94a3b8; font-size:12px; font-weight:700; }
                 #adminRuleSearch { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:7px; padding:0 10px; font-size:12px; }
                 #adminRuleTable { background:#ffffff; border:1px solid #b7c5d2; border-radius:7px; }
                 #adminRuleHeader { background:#e7eef5; border-bottom:1px solid #aebdcb; }
-                #adminRuleHeaderText { color:#243648; font-size:11px; font-weight:850; }
+                #adminRuleHeaderText { color:#243648; font-size:12px; font-weight:850; }
                 #adminRuleScroll, #adminRuleContent { background:transparent; border:none; }
                 #adminRuleRow { background:#ffffff; border-bottom:1px solid #d3dde6; }
                 #adminRuleRow:hover { background:#f2f6fa; }
-                #adminRuleCode { color:#1d4ed8; font-size:11px; font-weight:800; }
-                #adminRuleName { color:#142435; font-size:11px; font-weight:800; }
-                #adminRuleDescription { color:#425466; font-size:11px; font-weight:600; }
+                #adminRuleCode { color:#1d4ed8; font-size:11px; font-weight:850; }
+                #adminRuleName { color:#142435; font-size:11px; font-weight:850; }
+                #adminRuleDescription { color:#334155; font-size:11px; font-weight:650; }
                 #severityCritical { color:#b42318; background:#fff0f0; border:1px solid #e45858; border-radius:7px; font-size:10px; font-weight:850; }
                 #severityHigh { color:#a15c00; background:#fff7e8; border:1px solid #e7a22b; border-radius:7px; font-size:10px; font-weight:850; }
                 #severityMedium { color:#1d5fbf; background:#eef5ff; border:1px solid #5b93dd; border-radius:7px; font-size:10px; font-weight:850; }
                 #severityLow { color:#18733a; background:#edf9f1; border:1px solid #4dae6c; border-radius:7px; font-size:10px; font-weight:850; }
                 #adminRuleToggle { background:#aab6c3; color:#ffffff; border:none; border-radius:12px; font-size:9px; font-weight:850; }
                 #adminRuleToggle:checked { background:#20b85f; color:#ffffff; }
-                #adminDialogNotice { color:#4a5e72; font-size:11px; font-weight:650; }
+                #adminDialogNotice { color:#425466; font-size:11px; font-weight:700; }
                 #adminDialogPrimaryButton { background:#2563eb; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:850; }
                 #adminDialogPrimaryButton:hover { background:#1d4ed8; }
                 QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
