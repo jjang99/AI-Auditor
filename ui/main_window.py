@@ -2,7 +2,7 @@ import os
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
 
 from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
@@ -130,17 +130,75 @@ class MainWindow(QMainWindow):
         self.is_dark_mode = not self.is_dark_mode
         self.apply_theme()
 
+    def _apply_shared_combo_style(self):
+        if self.is_dark_mode:
+            combo_style = """
+                QComboBox {
+                    background:#0d1822;
+                    color:#f8fbfd;
+                    border:1px solid #557187;
+                    border-radius:7px;
+                    padding:0 10px;
+                    font-size:12px;
+                    font-weight:700;
+                }
+                QComboBox::drop-down {
+                    subcontrol-origin:padding;
+                    subcontrol-position:top right;
+                    width:30px;
+                    border-left:1px solid #405a6e;
+                    border-top-right-radius:7px;
+                    border-bottom-right-radius:7px;
+                    background:#132433;
+                }
+                QComboBox::down-arrow {
+                    width:9px;
+                    height:9px;
+                }
+            """
+        else:
+            combo_style = """
+                QComboBox {
+                    background:#ffffff;
+                    color:#203648;
+                    border:1px solid #97adbd;
+                    border-radius:7px;
+                    padding:0 10px;
+                    font-size:12px;
+                    font-weight:700;
+                }
+                QComboBox::drop-down {
+                    subcontrol-origin:padding;
+                    subcontrol-position:top right;
+                    width:30px;
+                    border-left:1px solid #b3c3cf;
+                    border-top-right-radius:7px;
+                    border-bottom-right-radius:7px;
+                    background:#edf3f7;
+                }
+                QComboBox::down-arrow {
+                    width:9px;
+                    height:9px;
+                }
+            """
+
+        for combo in self.inspection_page.findChildren(QComboBox, "inspectionCombo"):
+            combo.setStyleSheet(combo_style)
+        for combo in self.administration_page.findChildren(QComboBox, "adminThemeCombo"):
+            combo.setStyleSheet(combo_style)
+
     def apply_theme(self):
         if self.is_dark_mode:
             self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES + DETAIL_DARK_REFINEMENTS + DARK_INSPECTION_REFINEMENTS + DARK_INSPECTION_READABILITY_V2 + DARK_INSPECTION_FINAL + DARK_INSPECTION_PROGRESS)
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
         else:
-            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS)
+            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + DARK_INSPECTION_READABILITY_V2.replace("#ffffff", "#0b1220") + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
         self.home_page.set_wave_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
+        self._apply_shared_combo_style()
         for sidebar in self.sidebars:
             sidebar.set_theme(self.is_dark_mode)
