@@ -1,62 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="760"
-     height="180"
-     viewBox="0 0 760 180"
-     fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="180" viewBox="0 0 840 180" fill="none">
+  <defs>
+    <linearGradient id="waveFill1" x1="0" y1="35" x2="0" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563EB" stop-opacity="0.10"/>
+      <stop offset="0.48" stop-color="#2563EB" stop-opacity="0.045"/>
+      <stop offset="1" stop-color="#2563EB" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="waveFill2" x1="0" y1="60" x2="0" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.055"/>
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
 
-    <defs>
-        <linearGradient id="waveFill1" x1="0" y1="45" x2="0" y2="180" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#2563EB" stop-opacity="0.16"/>
-            <stop offset="0.55" stop-color="#2563EB" stop-opacity="0.07"/>
-            <stop offset="1" stop-color="#2563EB" stop-opacity="0.01"/>
-        </linearGradient>
-        <linearGradient id="waveFill2" x1="0" y1="80" x2="0" y2="180" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#3B82F6" stop-opacity="0.09"/>
-            <stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
-        </linearGradient>
-    </defs>
+  <!-- 길고 완만한 주 물결 -->
+  <path d="M-30 112 C125 50 260 48 410 98 C565 150 690 145 870 70 L870 180 L-30 180 Z" fill="url(#waveFill1)"/>
+  <!-- 겹쳐지는 보조 물결 -->
+  <path d="M-25 132 C145 70 285 68 425 112 C570 158 705 154 865 96 L865 180 L-25 180 Z" fill="url(#waveFill2)"/>
 
-    <!-- 확정 시안처럼 면이 느껴지는 넓은 물결 -->
-    <path
-        d="M-40 105
-           C105 32 245 38 380 90
-           C520 145 635 135 800 52
-           L800 180
-           L-40 180
-           Z"
-        fill="url(#waveFill1)"/>
-
-    <path
-        d="M-30 128
-           C125 58 260 62 390 108
-           C520 154 648 150 795 88
-           L795 180
-           L-30 180
-           Z"
-        fill="url(#waveFill2)"/>
-
-    <!-- 은은한 곡선 라인 -->
-    <path
-        d="M-40 105
-           C105 32 245 38 380 90
-           C520 145 635 135 800 52"
-        stroke="#2563EB"
-        stroke-width="2"
-        stroke-opacity="0.18"/>
-
-    <path
-        d="M-30 118
-           C120 50 255 54 388 102
-           C520 150 642 144 795 74"
-        stroke="#3B82F6"
-        stroke-width="1.6"
-        stroke-opacity="0.15"/>
-
-    <path
-        d="M-20 132
-           C135 68 270 72 398 114
-           C530 158 650 154 790 96"
-        stroke="#60A5FA"
-        stroke-width="1.2"
-        stroke-opacity="0.11"/>
+  <!-- 선은 면보다 한 단계만 또렷하게 -->
+  <path d="M-30 112 C125 50 260 48 410 98 C565 150 690 145 870 70" stroke="#3B82F6" stroke-width="1.35" stroke-opacity="0.14"/>
+  <path d="M-25 124 C138 62 275 61 418 106 C568 154 700 150 868 84" stroke="#60A5FA" stroke-width="1.05" stroke-opacity="0.095"/>
+  <path d="M-20 137 C150 78 290 75 430 118 C575 162 710 158 862 104" stroke="#93C5FD" stroke-width="0.9" stroke-opacity="0.065"/>
 </svg>
