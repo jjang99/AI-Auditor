@@ -1,4 +1,5 @@
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QHBoxLayout, QHeaderView,
     QLabel, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
@@ -31,35 +32,43 @@ class ReportsPage(QWidget):
         main_layout.addWidget(title)
         main_layout.addSpacing(4)
         main_layout.addWidget(description)
-        main_layout.addSpacing(16)
+        main_layout.addSpacing(15)
 
         summary_layout = QHBoxLayout()
         summary_layout.setSpacing(10)
         summary_data = [
-            ("전체 검사", "12", "건", "reportMetricBlue"),
-            ("평균 점수", "84", "점", "reportMetricGreen"),
-            ("발견 이슈", "96", "건", "reportMetricOrange"),
-            ("조치 완료", "71", "건", "reportMetricPurple"),
+            ("●", "전체 검사", "12", "건", "reportMetricBlue", "reportDotBlue"),
+            ("●", "평균 점수", "84", "점", "reportMetricGreen", "reportDotGreen"),
+            ("●", "발견 이슈", "96", "건", "reportMetricOrange", "reportDotOrange"),
+            ("●", "조치 완료", "71", "건", "reportMetricPurple", "reportDotPurple"),
         ]
-        for label_text, value_text, suffix, object_name in summary_data:
+        for dot_text, label_text, value_text, suffix, value_object, dot_object in summary_data:
             card = QFrame()
             card.setObjectName("reportSummaryCard")
-            card.setFixedHeight(94)
+            card.setFixedHeight(96)
             card_layout = QVBoxLayout(card)
-            card_layout.setContentsMargins(15, 12, 15, 11)
-            card_layout.setSpacing(3)
+            card_layout.setContentsMargins(15, 11, 15, 11)
+            card_layout.setSpacing(5)
+            label_row = QHBoxLayout()
+            label_row.setSpacing(6)
+            dot = QLabel(dot_text)
+            dot.setObjectName(dot_object)
+            dot.setFixedWidth(10)
             label = QLabel(label_text)
             label.setObjectName("reportMetricLabel")
+            label_row.addWidget(dot)
+            label_row.addWidget(label)
+            label_row.addStretch()
             value_row = QHBoxLayout()
-            value_row.setSpacing(4)
+            value_row.setSpacing(5)
             value = QLabel(value_text)
-            value.setObjectName(object_name)
+            value.setObjectName(value_object)
             unit = QLabel(suffix)
             unit.setObjectName("reportMetricUnit")
             value_row.addWidget(value)
             value_row.addWidget(unit, 0, Qt.AlignBottom)
             value_row.addStretch()
-            card_layout.addWidget(label)
+            card_layout.addLayout(label_row)
             card_layout.addLayout(value_row)
             summary_layout.addWidget(card, 1)
         main_layout.addLayout(summary_layout)
@@ -67,101 +76,86 @@ class ReportsPage(QWidget):
 
         filter_frame = QFrame()
         filter_frame.setObjectName("reportFilterCard")
+        filter_frame.setFixedHeight(58)
         filter_layout = QHBoxLayout(filter_frame)
         filter_layout.setContentsMargins(14, 10, 14, 10)
-        filter_layout.setSpacing(9)
+        filter_layout.setSpacing(8)
         filter_title = QLabel("조회 조건")
         filter_title.setObjectName("reportFilterTitle")
         self.project_combo = QComboBox()
         self.project_combo.setObjectName("reportCombo")
         self.project_combo.addItems(["전체 프로젝트", "국방 건축행정시스템 재구축", "차세대 업무시스템", "통합관리시스템"])
-        self.project_combo.setFixedWidth(210)
+        self.project_combo.setFixedWidth(196)
         self.period_combo = QComboBox()
         self.period_combo.setObjectName("reportCombo")
         self.period_combo.addItems(["전체 기간", "최근 1개월", "최근 3개월", "최근 6개월"])
-        self.period_combo.setFixedWidth(128)
+        self.period_combo.setFixedWidth(122)
         self.status_combo = QComboBox()
         self.status_combo.setObjectName("reportCombo")
         self.status_combo.addItems(["전체 상태", "검사 완료", "검사 실패"])
-        self.status_combo.setFixedWidth(112)
+        self.status_combo.setFixedWidth(108)
         search_button = QPushButton("조회")
         search_button.setObjectName("reportSearchButton")
         search_button.setCursor(Qt.PointingHandCursor)
-        search_button.setFixedSize(72, 34)
+        search_button.setFixedSize(72, 36)
         filter_layout.addWidget(filter_title)
-        filter_layout.addSpacing(4)
+        filter_layout.addSpacing(2)
         filter_layout.addWidget(self.project_combo)
         filter_layout.addWidget(self.period_combo)
         filter_layout.addWidget(self.status_combo)
         filter_layout.addStretch()
         filter_layout.addWidget(search_button)
         main_layout.addWidget(filter_frame)
-        main_layout.addSpacing(14)
+        main_layout.addSpacing(13)
 
         report_card = QFrame()
         report_card.setObjectName("reportListCard")
         report_layout = QVBoxLayout(report_card)
-        report_layout.setContentsMargins(14, 13, 14, 13)
+        report_layout.setContentsMargins(14, 13, 14, 14)
         report_layout.setSpacing(0)
-        list_header = QHBoxLayout()
-        list_title_area = QVBoxLayout()
-        list_title_area.setSpacing(2)
         list_title = QLabel("검사 보고서")
         list_title.setObjectName("reportSectionTitle")
         list_subtitle = QLabel("검사 결과를 선택하여 상세 내용을 확인하거나 보고서로 내보낼 수 있습니다.")
         list_subtitle.setObjectName("reportSectionDescription")
-        list_title_area.addWidget(list_title)
-        list_title_area.addWidget(list_subtitle)
-        list_header.addLayout(list_title_area)
-        list_header.addStretch()
-        report_layout.addLayout(list_header)
+        report_layout.addWidget(list_title)
+        report_layout.addSpacing(3)
+        report_layout.addWidget(list_subtitle)
         report_layout.addSpacing(11)
 
         self.report_table = QTableWidget()
         self.report_table.setObjectName("reportTable")
         self.report_table.setColumnCount(6)
         self.report_table.setHorizontalHeaderLabels(["프로젝트", "검사일시", "Score", "Grade", "Issues", "상태"])
-        sample_reports = [
+        self.sample_reports = [
             ("국방 건축행정시스템 재구축", "2026.07.25 14:32", "82", "B", "14", "검사 완료"),
             ("차세대 업무시스템", "2026.07.18 10:15", "91", "A", "6", "검사 완료"),
             ("데이터 분석 플랫폼", "2026.07.10 16:05", "73", "C", "21", "검사 완료"),
             ("모바일 서비스 플랫폼", "2026.06.28 09:40", "88", "B", "9", "검사 완료"),
             ("통합관리시스템", "-", "-", "-", "-", "검사 실패"),
         ]
-        self.report_table.setRowCount(len(sample_reports))
-        for row, report in enumerate(sample_reports):
+        self.report_table.setRowCount(len(self.sample_reports))
+        for row, report in enumerate(self.sample_reports):
             for column, value in enumerate(report):
                 item = QTableWidgetItem(value)
                 item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter if column == 0 else Qt.AlignCenter)
-                if column == 2:
-                    item.setData(Qt.UserRole, "score")
-                elif column == 3:
-                    item.setData(Qt.UserRole, f"grade-{value}")
-                elif column == 4:
-                    item.setData(Qt.UserRole, "issues")
-                elif column == 5:
-                    item.setData(Qt.UserRole, "failed" if value == "검사 실패" else "complete")
                 self.report_table.setItem(row, column, item)
         self.report_table.verticalHeader().setVisible(False)
-        self.report_table.verticalHeader().setDefaultSectionSize(46)
+        self.report_table.verticalHeader().setDefaultSectionSize(48)
         self.report_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.report_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
-        self.report_table.setFixedHeight(278)
+        self.report_table.setFixedHeight(286)
         header = self.report_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.Fixed)
-        header.setSectionResizeMode(2, QHeaderView.Fixed)
-        header.setSectionResizeMode(3, QHeaderView.Fixed)
-        header.setSectionResizeMode(4, QHeaderView.Fixed)
-        header.setSectionResizeMode(5, QHeaderView.Fixed)
+        for column in range(1, 6):
+            header.setSectionResizeMode(column, QHeaderView.Fixed)
         self.report_table.setColumnWidth(1, 128)
-        self.report_table.setColumnWidth(2, 58)
-        self.report_table.setColumnWidth(3, 58)
-        self.report_table.setColumnWidth(4, 62)
-        self.report_table.setColumnWidth(5, 86)
+        self.report_table.setColumnWidth(2, 56)
+        self.report_table.setColumnWidth(3, 56)
+        self.report_table.setColumnWidth(4, 60)
+        self.report_table.setColumnWidth(5, 88)
         self.report_table.selectRow(0)
         self.report_table.itemSelectionChanged.connect(self.update_selected_report)
         report_layout.addWidget(self.report_table)
@@ -170,24 +164,28 @@ class ReportsPage(QWidget):
 
         action_frame = QFrame()
         action_frame.setObjectName("reportActionCard")
+        action_frame.setFixedHeight(82)
         action_layout = QHBoxLayout(action_frame)
         action_layout.setContentsMargins(14, 10, 14, 10)
         selected_area = QVBoxLayout()
         selected_area.setSpacing(2)
         selected_caption = QLabel("선택한 검사 결과")
         selected_caption.setObjectName("reportSelectedCaption")
-        self.selected_project = QLabel(sample_reports[0][0])
+        self.selected_project = QLabel(self.sample_reports[0][0])
         self.selected_project.setObjectName("reportSelectedProject")
+        self.selected_meta = QLabel("2026.07.25 14:32   ·   Score 82   ·   Grade B   ·   Issues 14")
+        self.selected_meta.setObjectName("reportSelectedMeta")
         selected_area.addWidget(selected_caption)
         selected_area.addWidget(self.selected_project)
+        selected_area.addWidget(self.selected_meta)
         detail_button = QPushButton("상세보기")
         detail_button.setObjectName("reportSecondaryButton")
         detail_button.setCursor(Qt.PointingHandCursor)
-        detail_button.setFixedSize(92, 36)
+        detail_button.setFixedSize(92, 38)
         export_button = QPushButton("보고서 내보내기")
         export_button.setObjectName("reportPrimaryButton")
         export_button.setCursor(Qt.PointingHandCursor)
-        export_button.setFixedSize(126, 36)
+        export_button.setFixedSize(126, 38)
         action_layout.addLayout(selected_area)
         action_layout.addStretch()
         action_layout.addWidget(detail_button)
@@ -200,53 +198,86 @@ class ReportsPage(QWidget):
 
     def update_selected_report(self):
         selected = self.report_table.selectionModel().selectedRows()
-        if selected:
-            item = self.report_table.item(selected[0].row(), 0)
-            if item:
-                self.selected_project.setText(item.text())
+        if not selected:
+            return
+        row = selected[0].row()
+        report = self.sample_reports[row]
+        self.selected_project.setText(report[0])
+        if report[2] == "-":
+            self.selected_meta.setText("검사 실패   ·   결과 정보 없음")
+        else:
+            self.selected_meta.setText(
+                f"{report[1]}   ·   Score {report[2]}   ·   Grade {report[3]}   ·   Issues {report[4]}"
+            )
+
+    def _apply_item_colors(self, is_dark):
+        score_colors = {"A": "#22c55e", "B": "#55a7ff", "C": "#f5b942", "D": "#f97316", "E": "#ef4444"}
+        normal = QColor("#edf4fa" if is_dark else "#24384a")
+        muted = QColor("#91a3b4" if is_dark else "#738596")
+        for row, report in enumerate(self.sample_reports):
+            for column in range(6):
+                item = self.report_table.item(row, column)
+                if item:
+                    item.setForeground(normal if report[5] != "검사 실패" else muted)
+            if report[2] != "-":
+                self.report_table.item(row, 2).setForeground(QColor("#55a7ff" if is_dark else "#176bc6"))
+                self.report_table.item(row, 3).setForeground(QColor(score_colors.get(report[3], "#ffffff")))
+                issues = int(report[4])
+                issue_color = "#ff9b45" if issues >= 10 else "#22c55e"
+                self.report_table.item(row, 4).setForeground(QColor(issue_color))
+                self.report_table.item(row, 5).setForeground(QColor("#22c55e" if is_dark else "#15934a"))
+            else:
+                self.report_table.item(row, 5).setForeground(QColor("#ef5b5b" if is_dark else "#c93636"))
 
     def apply_theme(self, is_dark):
         if is_dark:
             self.setStyleSheet("""
-                #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard { background:#101d29; border:1px solid #2e4558; border-radius:8px; }
-                #reportMetricLabel { color:#b8c7d6; font-size:11px; font-weight:750; }
-                #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple { color:#55a7ff; font-size:24px; font-weight:900; }
+                #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard { background:#101d29; border:1px solid #334b5e; border-radius:9px; }
+                #reportSummaryCard:hover { background:#132433; border-color:#46647b; }
+                #reportMetricLabel { color:#c7d4df; font-size:11px; font-weight:800; }
+                #reportDotBlue { color:#55a7ff; } #reportDotGreen { color:#2bd46f; } #reportDotOrange { color:#ff9b45; } #reportDotPurple { color:#b985ff; }
+                #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple { color:#55a7ff; font-size:25px; font-weight:900; }
                 #reportMetricGreen { color:#2bd46f; } #reportMetricOrange { color:#ff9b45; } #reportMetricPurple { color:#b985ff; }
-                #reportMetricUnit { color:#dce6ef; font-size:11px; font-weight:750; padding-bottom:3px; }
-                #reportFilterTitle { color:#ffffff; font-size:12px; font-weight:850; }
-                QComboBox#reportCombo { background:#0d1822; color:#eef5fb; border:1px solid #40586b; border-radius:6px; padding:0 9px; min-height:32px; font-size:11px; font-weight:650; }
-                #reportSearchButton, #reportPrimaryButton { background:#1672ef; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:850; }
+                #reportMetricUnit { color:#dce6ef; font-size:11px; font-weight:800; padding-bottom:3px; }
+                #reportFilterTitle { color:#ffffff; font-size:12px; font-weight:900; }
+                QComboBox#reportCombo { background:#0d1822; color:#f2f6fa; border:1px solid #486176; border-radius:6px; padding:0 9px; min-height:34px; font-size:11px; font-weight:700; }
+                #reportSearchButton, #reportPrimaryButton { background:#1672ef; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:900; }
                 #reportSearchButton:hover, #reportPrimaryButton:hover { background:#2c82f3; }
-                #reportSectionTitle { color:#ffffff; font-size:16px; font-weight:900; }
-                #reportSectionDescription { color:#9fb0c0; font-size:10px; font-weight:650; }
-                QTableWidget#reportTable { background:#0b1620; color:#eaf1f7; border:1px solid #30495d; border-radius:6px; selection-background-color:#183b57; selection-color:#ffffff; font-size:11px; font-weight:650; outline:0; }
-                QTableWidget#reportTable::item { border-bottom:1px solid #263c4e; padding:5px; }
-                QTableWidget#reportTable::item:selected { background:#183b57; color:#ffffff; }
-                QHeaderView::section { background:#1a3144; color:#ffffff; border:none; border-bottom:1px solid #50677a; padding:7px; font-size:11px; font-weight:850; }
-                #reportSelectedCaption { color:#8fa4b7; font-size:10px; font-weight:700; }
-                #reportSelectedProject { color:#ffffff; font-size:13px; font-weight:850; }
-                #reportSecondaryButton { background:#1a2d3d; color:#e8f0f7; border:1px solid #405a6f; border-radius:7px; font-size:11px; font-weight:800; }
+                #reportSectionTitle { color:#ffffff; font-size:17px; font-weight:900; }
+                #reportSectionDescription { color:#a9bac9; font-size:10px; font-weight:700; }
+                QTableWidget#reportTable { background:#0b1620; color:#edf4fa; border:1px solid #3b5366; border-radius:6px; selection-background-color:#152b3d; selection-color:#ffffff; font-size:11px; font-weight:700; outline:0; }
+                QTableWidget#reportTable::item { border-bottom:1px solid #2d4355; padding:5px; }
+                QTableWidget#reportTable::item:selected { background:#152b3d; }
+                QHeaderView::section { background:#1b3448; color:#ffffff; border:none; border-bottom:1px solid #597084; padding:7px; font-size:11px; font-weight:900; }
+                #reportSelectedCaption { color:#91a6b9; font-size:10px; font-weight:750; }
+                #reportSelectedProject { color:#ffffff; font-size:13px; font-weight:900; }
+                #reportSelectedMeta { color:#b8c7d5; font-size:10px; font-weight:700; }
+                #reportSecondaryButton { background:#1a2d3d; color:#edf4fa; border:1px solid #486176; border-radius:7px; font-size:11px; font-weight:850; }
                 #reportSecondaryButton:hover { background:#263e51; }
             """)
         else:
             self.setStyleSheet("""
-                #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard { background:#ffffff; border:1px solid #bdcbd7; border-radius:8px; }
-                #reportMetricLabel { color:#52677a; font-size:11px; font-weight:750; }
-                #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple { color:#176bc6; font-size:24px; font-weight:900; }
+                #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard { background:#ffffff; border:1px solid #b9c8d5; border-radius:9px; }
+                #reportSummaryCard:hover { background:#f6f9fc; border-color:#94aabd; }
+                #reportMetricLabel { color:#4b6174; font-size:11px; font-weight:800; }
+                #reportDotBlue { color:#176bc6; } #reportDotGreen { color:#15934a; } #reportDotOrange { color:#d96a18; } #reportDotPurple { color:#7b4ec2; }
+                #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple { color:#176bc6; font-size:25px; font-weight:900; }
                 #reportMetricGreen { color:#15934a; } #reportMetricOrange { color:#d96a18; } #reportMetricPurple { color:#7b4ec2; }
-                #reportMetricUnit { color:#4a6073; font-size:11px; font-weight:750; padding-bottom:3px; }
-                #reportFilterTitle { color:#1c3042; font-size:12px; font-weight:850; }
-                QComboBox#reportCombo { background:#ffffff; color:#24384a; border:1px solid #a9b9c7; border-radius:6px; padding:0 9px; min-height:32px; font-size:11px; font-weight:650; }
-                #reportSearchButton, #reportPrimaryButton { background:#1672ef; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:850; }
+                #reportMetricUnit { color:#4a6073; font-size:11px; font-weight:800; padding-bottom:3px; }
+                #reportFilterTitle { color:#1c3042; font-size:12px; font-weight:900; }
+                QComboBox#reportCombo { background:#ffffff; color:#24384a; border:1px solid #a2b4c3; border-radius:6px; padding:0 9px; min-height:34px; font-size:11px; font-weight:700; }
+                #reportSearchButton, #reportPrimaryButton { background:#1672ef; color:#ffffff; border:none; border-radius:7px; font-size:12px; font-weight:900; }
                 #reportSearchButton:hover, #reportPrimaryButton:hover { background:#0f63d6; }
-                #reportSectionTitle { color:#16293a; font-size:16px; font-weight:900; }
-                #reportSectionDescription { color:#64788a; font-size:10px; font-weight:650; }
-                QTableWidget#reportTable { background:#ffffff; color:#25394b; border:1px solid #b8c7d3; border-radius:6px; selection-background-color:#e5f1ff; selection-color:#142b40; font-size:11px; font-weight:650; outline:0; }
-                QTableWidget#reportTable::item { border-bottom:1px solid #d8e1e8; padding:5px; }
-                QTableWidget#reportTable::item:selected { background:#e5f1ff; color:#142b40; }
-                QHeaderView::section { background:#e5edf4; color:#24394b; border:none; border-bottom:1px solid #a9bbc9; padding:7px; font-size:11px; font-weight:850; }
-                #reportSelectedCaption { color:#667b8d; font-size:10px; font-weight:700; }
-                #reportSelectedProject { color:#172b3c; font-size:13px; font-weight:850; }
-                #reportSecondaryButton { background:#eef3f7; color:#244057; border:1px solid #aabac7; border-radius:7px; font-size:11px; font-weight:800; }
+                #reportSectionTitle { color:#16293a; font-size:17px; font-weight:900; }
+                #reportSectionDescription { color:#607587; font-size:10px; font-weight:700; }
+                QTableWidget#reportTable { background:#ffffff; color:#24384a; border:1px solid #b2c3d0; border-radius:6px; selection-background-color:#edf5fc; selection-color:#142b40; font-size:11px; font-weight:700; outline:0; }
+                QTableWidget#reportTable::item { border-bottom:1px solid #d4dfe7; padding:5px; }
+                QTableWidget#reportTable::item:selected { background:#edf5fc; }
+                QHeaderView::section { background:#e3edf5; color:#21384b; border:none; border-bottom:1px solid #a4b7c6; padding:7px; font-size:11px; font-weight:900; }
+                #reportSelectedCaption { color:#687e90; font-size:10px; font-weight:750; }
+                #reportSelectedProject { color:#172b3c; font-size:13px; font-weight:900; }
+                #reportSelectedMeta { color:#536a7c; font-size:10px; font-weight:700; }
+                #reportSecondaryButton { background:#eef3f7; color:#244057; border:1px solid #a5b7c5; border-radius:7px; font-size:11px; font-weight:850; }
                 #reportSecondaryButton:hover { background:#e2ebf2; }
             """)
+        self._apply_item_colors(is_dark)
