@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QProgressBar
+from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QProgressBar, QScrollArea
 
 
 DARK_INSPECTION_PROGRESS = r'''
@@ -10,30 +10,29 @@ DARK_INSPECTION_PROGRESS = r'''
 }
 #inspectionProgressPercent {
     color:#60a5fa;
-    font-size:32px;
+    font-size:31px;
     font-weight:800;
 }
 QProgressBar#inspectionProgressBar {
     background:#2b3b4b;
     border:none;
-    border-radius:10px;
+    border-radius:9px;
 }
 QProgressBar#inspectionProgressBar::chunk {
     background:#3b82f6;
-    border-radius:10px;
+    border-radius:9px;
 }
 #inspectionCancelButton {
-    color:#fecaca;
-    background:#2a171a;
-    border:1px solid #dc6262;
+    color:#ffffff;
+    background:#7f1d1d;
+    border:1px solid #b91c1c;
     border-radius:7px;
     font-size:11px;
-    font-weight:750;
+    font-weight:800;
 }
 #inspectionCancelButton:hover {
-    color:#ffffff;
-    background:#3a1c20;
-    border-color:#f87171;
+    background:#991b1b;
+    border-color:#dc2626;
 }
 #inspectionProgressInfoBox {
     background:#0d1721;
@@ -61,30 +60,29 @@ LIGHT_INSPECTION_PROGRESS = r'''
 }
 #inspectionProgressPercent {
     color:#2563eb;
-    font-size:32px;
+    font-size:31px;
     font-weight:800;
 }
 QProgressBar#inspectionProgressBar {
     background:#d6dee8;
     border:none;
-    border-radius:10px;
+    border-radius:9px;
 }
 QProgressBar#inspectionProgressBar::chunk {
     background:#3b82f6;
-    border-radius:10px;
+    border-radius:9px;
 }
 #inspectionCancelButton {
-    color:#b91c1c;
-    background:#fff1f2;
-    border:1px solid #e57a7a;
+    color:#ffffff;
+    background:#b91c1c;
+    border:1px solid #991b1b;
     border-radius:7px;
     font-size:11px;
-    font-weight:750;
+    font-weight:800;
 }
 #inspectionCancelButton:hover {
-    color:#991b1b;
-    background:#ffe4e6;
-    border-color:#dc2626;
+    background:#991b1b;
+    border-color:#7f1d1d;
 }
 #inspectionProgressInfoBox {
     background:#f8fafc;
@@ -113,14 +111,36 @@ def apply_inspection_progress_refinements(inspection_cls):
     def refined_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
 
+        # The page is designed as a fixed 840x900 desktop screen.  Keep the
+        # content inside the viewport so hiding the scrollbar does not leave a
+        # wheel-scrollable page underneath.
+        page_scroll = next(iter(self.findChildren(QScrollArea, 'inspectionScroll')), None)
+        if page_scroll is not None:
+            page_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            page_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            page_scroll.verticalScrollBar().setEnabled(False)
+            page_scroll.verticalScrollBar().setValue(0)
+
+        if hasattr(self, 'main_layout'):
+            self.main_layout.setContentsMargins(14, 8, 10, 8)
+            self.main_layout.setSpacing(8)
+
+        # Slight height reductions are visually negligible but remove the
+        # few-pixel overflow that allowed the base Inspection page to move.
+        cards = self.findChildren(QFrame, 'inspectionCard')
+        if len(cards) >= 4:
+            for card, height in zip(cards[:4], [171, 215, 198, 184]):
+                card.setFixedHeight(height)
+
         progress_card = getattr(self, 'progress_card', None)
         if progress_card is None:
             return
 
+        progress_card.setFixedHeight(184)
         progress_layout = progress_card.layout()
         if progress_layout is not None:
-            progress_layout.setContentsMargins(14, 13, 14, 13)
-            progress_layout.setSpacing(11)
+            progress_layout.setContentsMargins(14, 10, 14, 10)
+            progress_layout.setSpacing(8)
 
         percent = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressPercent')), None)
         if percent is not None:
@@ -129,25 +149,24 @@ def apply_inspection_progress_refinements(inspection_cls):
 
         bar = next(iter(progress_card.findChildren(QProgressBar, 'inspectionProgressBar')), None)
         if bar is not None:
-            bar.setFixedHeight(20)
+            bar.setFixedHeight(18)
 
         cancel = next(iter(progress_card.findChildren(QPushButton, 'inspectionCancelButton')), None)
         if cancel is not None:
-            cancel.setFixedSize(115, 46)
+            cancel.setFixedSize(115, 44)
 
         info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
         for box in info_boxes:
-            box.setFixedHeight(74)
+            box.setFixedHeight(64)
             box_layout = box.layout()
             if box_layout is not None:
-                box_layout.setContentsMargins(11, 9, 11, 9)
-                box_layout.setSpacing(5)
+                box_layout.setContentsMargins(10, 7, 10, 7)
+                box_layout.setSpacing(3)
 
             title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
             if title is not None:
                 title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                title_text = title.text()
-                if title_text == '현재 검사 항목':
+                if title.text() == '현재 검사 항목':
                     box.setFixedWidth(250)
                 else:
                     box.setFixedWidth(108)
