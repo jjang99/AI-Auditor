@@ -5,30 +5,26 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QScrollArea
 
 DARK_INSPECTION_FINAL = r'''
-#inspectionTitle { color:#ffffff; font-size:27px; font-weight:800; }
-#inspectionDescription { color:#e2e8f0; font-size:13px; font-weight:500; }
-#inspectionSectionTitle { color:#ffffff; font-size:17px; font-weight:800; }
-#inspectionFieldLabel { color:#f8fafc; font-size:13px; font-weight:650; }
-#inspectionInput, #inspectionCombo { color:#ffffff; font-size:13px; font-weight:500; }
-#inspectionDuplicate { color:#fbbf24; font-size:12px; font-weight:700; }
-#inspectionDuplicateButton { color:#fbbf24; font-size:12px; font-weight:700; }
-#inspectionUploadText { color:#f8fafc; font-size:13px; font-weight:600; }
-#inspectionFileButton { color:#ffffff; font-size:12px; font-weight:700; }
-#inspectionFileCount { color:#ffffff; font-size:13px; font-weight:800; }
-#inspectionTableText { color:#ffffff; font-size:12px; font-weight:650; }
-#inspectionTableMuted { color:#e2e8f0; font-size:11px; font-weight:550; }
-#inspectionFileIcon { color:#60a5fa; }
-#inspectionDeleteIcon { color:#e2e8f0; }
-#inspectionBlueNote { color:#93c5fd; font-size:11px; font-weight:600; }
-#inspectionRuleName { color:#ffffff; font-size:13px; font-weight:750; }
-#inspectionRuleCount, #inspectionRuleDescription { color:#f1f5f9; font-size:12px; font-weight:550; }
-#inspectionSummaryTitle { color:#f1f5f9; font-size:12px; font-weight:650; }
-#inspectionSummaryValue { color:#ffffff; font-size:18px; font-weight:800; }
-#inspectionSummaryDetail { color:#e2e8f0; font-size:11px; font-weight:500; }
-#inspectionInfoTitle { color:#93c5fd; font-size:12px; font-weight:750; }
-#inspectionInfoText { color:#e2e8f0; font-size:11px; font-weight:500; }
-#inspectionSmallButton, #inspectionViewButton { color:#ffffff; font-size:11px; font-weight:650; }
-#inspectionStartButton { color:#ffffff; font-size:16px; font-weight:750; }
+#inspectionSectionTitle { color:#ffffff; font-size:16px; font-weight:700; }
+#inspectionFieldLabel { color:#f8fafc; font-size:12px; font-weight:600; }
+#inspectionInput, #inspectionCombo { color:#ffffff; font-size:12px; }
+#inspectionDuplicate { color:#fbbf24; font-size:11px; font-weight:700; }
+#inspectionDuplicateButton { color:#fbbf24; font-size:11px; font-weight:700; }
+#inspectionUploadText { color:#f8fafc; font-size:12px; font-weight:600; }
+#inspectionFileButton { color:#ffffff; font-size:11px; font-weight:700; }
+#inspectionFileCount { color:#ffffff; font-size:13px; font-weight:700; }
+#inspectionTableText { color:#f8fafc; font-size:12px; font-weight:600; }
+#inspectionTableMuted { color:#dbe4ee; font-size:11px; font-weight:500; }
+#inspectionBlueNote { color:#93c5fd; font-size:11px; font-weight:500; }
+#inspectionRuleName { color:#ffffff; font-size:13px; font-weight:700; }
+#inspectionRuleCount, #inspectionRuleDescription { color:#e8eef6; font-size:11px; font-weight:500; }
+#inspectionSummaryTitle { color:#e8eef6; font-size:12px; font-weight:600; }
+#inspectionSummaryValue { color:#ffffff; font-size:17px; font-weight:700; }
+#inspectionSummaryDetail { color:#d1d9e4; font-size:11px; }
+#inspectionInfoTitle { color:#93c5fd; font-size:11px; font-weight:700; }
+#inspectionInfoText { color:#dbe4ee; font-size:11px; }
+#inspectionSmallButton, #inspectionViewButton { color:#ffffff; font-size:10px; font-weight:650; }
+#inspectionStartButton { color:#ffffff; font-size:15px; font-weight:700; }
 #inspectionFileScroll { background:transparent; border:none; }
 #inspectionFileScroll QWidget { background:transparent; }
 #inspectionFileScroll QScrollBar:vertical { background:#0b1219; width:10px; margin:2px; }
@@ -37,28 +33,26 @@ DARK_INSPECTION_FINAL = r'''
 '''
 
 LIGHT_INSPECTION_FINAL = r'''
-#inspectionTitle { color:#0f172a; font-size:27px; font-weight:800; }
-#inspectionDescription { color:#334155; font-size:13px; font-weight:500; }
-#inspectionSectionTitle { color:#0f172a; font-size:17px; font-weight:800; }
-#inspectionFieldLabel { color:#172033; font-size:13px; font-weight:650; }
-#inspectionInput, #inspectionCombo { color:#0f172a; font-size:13px; font-weight:500; }
-#inspectionDuplicate { color:#b45309; font-size:12px; font-weight:700; }
-#inspectionDuplicateButton { color:#b45309; font-size:12px; font-weight:700; }
-#inspectionUploadText { color:#172033; font-size:13px; font-weight:600; }
-#inspectionFileButton { color:#ffffff; font-size:12px; font-weight:700; }
-#inspectionFileCount { color:#0f172a; font-size:13px; font-weight:800; }
-#inspectionTableText { color:#0f172a; font-size:12px; font-weight:650; }
-#inspectionTableMuted { color:#334155; font-size:11px; font-weight:550; }
-#inspectionBlueNote { color:#1d4ed8; font-size:11px; font-weight:600; }
-#inspectionRuleName { color:#0f172a; font-size:13px; font-weight:750; }
-#inspectionRuleCount, #inspectionRuleDescription { color:#1e293b; font-size:12px; font-weight:550; }
-#inspectionSummaryTitle { color:#1e293b; font-size:12px; font-weight:650; }
-#inspectionSummaryValue { color:#0f172a; font-size:18px; font-weight:800; }
-#inspectionSummaryDetail { color:#334155; font-size:11px; font-weight:500; }
-#inspectionInfoTitle { color:#1d4ed8; font-size:12px; font-weight:750; }
-#inspectionInfoText { color:#334155; font-size:11px; font-weight:500; }
-#inspectionSmallButton, #inspectionViewButton { color:#0f172a; font-size:11px; font-weight:650; }
-#inspectionStartButton { color:#ffffff; font-size:16px; font-weight:750; }
+#inspectionSectionTitle { color:#0f172a; font-size:16px; font-weight:700; }
+#inspectionFieldLabel { color:#1e293b; font-size:12px; font-weight:600; }
+#inspectionInput, #inspectionCombo { color:#0f172a; font-size:12px; }
+#inspectionDuplicate { color:#b45309; font-size:11px; font-weight:700; }
+#inspectionDuplicateButton { color:#b45309; font-size:11px; font-weight:700; }
+#inspectionUploadText { color:#172033; font-size:12px; font-weight:600; }
+#inspectionFileButton { color:#ffffff; font-size:11px; font-weight:700; }
+#inspectionFileCount { color:#0f172a; font-size:13px; font-weight:700; }
+#inspectionTableText { color:#0f172a; font-size:12px; font-weight:600; }
+#inspectionTableMuted { color:#334155; font-size:11px; font-weight:500; }
+#inspectionBlueNote { color:#1d4ed8; font-size:11px; font-weight:500; }
+#inspectionRuleName { color:#0f172a; font-size:13px; font-weight:700; }
+#inspectionRuleCount, #inspectionRuleDescription { color:#334155; font-size:11px; font-weight:500; }
+#inspectionSummaryTitle { color:#334155; font-size:12px; font-weight:600; }
+#inspectionSummaryValue { color:#0f172a; font-size:17px; font-weight:700; }
+#inspectionSummaryDetail { color:#475569; font-size:11px; }
+#inspectionInfoTitle { color:#1d4ed8; font-size:11px; font-weight:700; }
+#inspectionInfoText { color:#334155; font-size:11px; }
+#inspectionSmallButton, #inspectionViewButton { color:#0f172a; font-size:10px; font-weight:650; }
+#inspectionStartButton { color:#ffffff; font-size:15px; font-weight:700; }
 #inspectionFileScroll { background:transparent; border:none; }
 #inspectionFileScroll QWidget { background:transparent; }
 #inspectionFileScroll QScrollBar:vertical { background:#eef2f7; width:10px; margin:2px; }
@@ -103,6 +97,7 @@ def apply_inspection_final_refinements(inspection_cls):
                     raw_name = raw_name.split('  ', 1)[1]
                 name_label.setText(raw_name)
                 name_label.setFixedWidth(175)
+
                 layout = row.layout()
                 if layout is not None:
                     file_label = QLabel()
@@ -111,6 +106,7 @@ def apply_inspection_final_refinements(inspection_cls):
                     file_label.setAlignment(Qt.AlignCenter)
                     file_label.setFixedWidth(22)
                     layout.insertWidget(0, file_label)
+
                 delete_label.setText('')
                 delete_label.setPixmap(trash_icon.pixmap(QSize(17, 17)))
                 delete_label.setAlignment(Qt.AlignCenter)
@@ -126,6 +122,7 @@ def apply_inspection_final_refinements(inspection_cls):
                 row_height = 34
                 viewport_height = visible_rows * row_height + 2
                 table.setMinimumHeight(max(viewport_height, len(file_rows) * row_height))
+
                 scroll = QScrollArea()
                 scroll.setObjectName('inspectionFileScroll')
                 scroll.setWidgetResizable(True)
@@ -139,29 +136,29 @@ def apply_inspection_final_refinements(inspection_cls):
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
             label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(20, 20)))
+            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(19, 19)))
             label.setAlignment(Qt.AlignCenter)
-            label.setFixedWidth(31)
+            label.setFixedWidth(30)
 
-        # 요약 아이콘은 제목+값 두 줄 높이와 시각적으로 맞도록 크게 표시.
+        # 요약 아이콘만 적당히 확대. 폭은 고정 창 레이아웃을 밀지 않도록 제한한다.
         summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         for label, filename in zip(summary_icons, summary_icon_files):
             label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(36, 36)))
+            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(28, 28)))
             label.setAlignment(Qt.AlignCenter)
-            label.setFixedSize(46, 46)
+            label.setFixedSize(36, 36)
 
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
             start.setFixedSize(145, 72)
 
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(48)
+            row.setFixedHeight(46)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
-            button.setFixedSize(74, 31)
+            button.setFixedSize(74, 30)
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
-            button.setMinimumHeight(31)
+            button.setMinimumHeight(30)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
