@@ -178,6 +178,7 @@ class AdministrationPage(QWidget):
         body_layout.setSpacing(0)
 
         self.theme_combo = QComboBox()
+        self.theme_combo.setObjectName("adminThemeCombo")
         self.theme_combo.addItems(["다크", "라이트"])
         self.theme_combo.setFixedSize(240, 34)
         body_layout.addLayout(self.setting_row("테마", self.theme_combo, 44))
@@ -257,7 +258,10 @@ class AdministrationPage(QWidget):
                 #adminViewButton:hover, #adminBrowseButton:hover { background:#27465e; }
                 #adminNote { color:#d7e1eb; font-size:11px; font-weight:700; }
                 #adminSettingLabel { color:#ffffff; font-size:12px; font-weight:800; }
-                #adminPath, QComboBox { background:#102331; color:#ffffff; border:1px solid #476174; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
+                #adminPath { background:#102331; color:#ffffff; border:1px solid #476174; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
+                QComboBox#adminThemeCombo { background:#102331; color:#ffffff; border:1px solid #557187; border-radius:7px; padding:0 10px; font-size:12px; font-weight:700; }
+                QComboBox#adminThemeCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #405a6e; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#132433; }
+                QComboBox#adminThemeCombo::down-arrow { width:9px; height:9px; }
                 QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
                 QPushButton#adminToggle:checked { background:#20c967; color:#ffffff; }
             """)
@@ -285,7 +289,10 @@ class AdministrationPage(QWidget):
                 #adminViewButton:hover, #adminBrowseButton:hover { background:#e0eaf2; }
                 #adminNote { color:#4a5e72; font-size:11px; font-weight:700; }
                 #adminSettingLabel { color:#243648; font-size:12px; font-weight:800; }
-                #adminPath, QComboBox { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
+                #adminPath { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
+                QComboBox#adminThemeCombo { background:#ffffff; color:#172a3c; border:1px solid #97adbd; border-radius:7px; padding:0 10px; font-size:12px; font-weight:700; }
+                QComboBox#adminThemeCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #b3c3cf; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#edf3f7; }
+                QComboBox#adminThemeCombo::down-arrow { width:9px; height:9px; }
                 QPushButton#adminToggle { background:#aab6c3; color:#ffffff; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
                 QPushButton#adminToggle:checked { background:#20b85f; color:#ffffff; }
             """)
