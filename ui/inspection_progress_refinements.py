@@ -1,6 +1,9 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QProgressBar, QScrollArea
+from PySide6.QtWidgets import (
+    QFrame, QHBoxLayout, QLabel, QPushButton, QProgressBar,
+    QScrollArea, QVBoxLayout, QWidget,
+)
 
 DARK_INSPECTION_PROGRESS = r'''
 #inspectionProgressDescription { color:#e2e8f0; font-size:11px; font-weight:650; }
@@ -47,9 +50,188 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 '''
 
 
+def _progress_row_widget(parent):
+    row_widget = QWidget(parent)
+    row_widget.setFixedHeight(46)
+    row = QHBoxLayout(row_widget)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(14)
+
+    percent = QLabel('42%')
+    percent.setObjectName('inspectionProgressPercent')
+    percent.setFixedSize(72, 46)
+    percent.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+    bar = QProgressBar()
+    bar.setObjectName('inspectionProgressBar')
+    bar.setRange(0, 100)
+    bar.setValue(42)
+    bar.setTextVisible(False)
+    bar.setFixedHeight(18)
+
+    cancel = QPushButton('검사 취소')
+    cancel.setObjectName('inspectionCancelButton')
+    cancel.setFixedSize(115, 46)
+    cancel.setCursor(Qt.PointingHandCursor)
+    cancel.clicked.connect(parent.cancel_progress)
+
+    row.addWidget(percent)
+    row.addWidget(bar, 1, Qt.AlignVCenter)
+    row.addWidget(cancel)
+    return row_widget
+
+
+def _progress_status_widget(parent):
+    row_widget = QWidget(parent)
+    row_widget.setFixedHeight(46)
+    row = QHBoxLayout(row_widget)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(10)
+
+    items = [
+        ('완료 규칙', '43 / 102개', 108),
+        ('현재 검사 항목', 'SEC-011 입력값 검증', 250),
+        ('예상 남은 시간', '약 1분 15초', 108),
+        ('처리 상태', '검사 진행 중', 108),
+    ]
+    for title, value, width in items:
+        box = parent.create_progress_info_box(title, value)
+        box.setFixedSize(width, 46)
+        box_layout = box.layout()
+        if box_layout is not None:
+            box_layout.setContentsMargins(10, 3, 10, 3)
+            box_layout.setSpacing(0)
+        row.addWidget(box)
+    return row_widget
+
+
+def _build_progress_card(self):
+    card = self.create_card()
+    layout = QVBoxLayout(card)
+    layout.setContentsMargins(14, 8, 14, 8)
+    layout.setSpacing(0)
+    layout.setAlignment(Qt.AlignTop)
+
+    title = self.section_title('4. 검사 진행')
+    title.setFixedHeight(20)
+    layout.addWidget(title)
+    layout.addSpacing(8)
+
+    description = QLabel('AI Auditor가 등록된 산출물을 검사하고 있습니다.')
+    description.setObjectName('inspectionProgressDescription')
+    description.setFixedHeight(17)
+    description.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    layout.addWidget(description)
+    layout.addSpacing(8)
+
+    layout.addWidget(_progress_row_widget(self))
+    layout.addSpacing(8)
+    layout.addWidget(_progress_status_widget(self))
+    layout.addStretch(1)
+    return card
+
+
+def _complete_result_box(parent, title, value):
+    box = parent.create_complete_info_box(title, value)
+    box.setFixedSize(105, 50)
+    box_layout = box.layout()
+    if box_layout is not None:
+        box_layout.setContentsMargins(10, 2, 10, 2)
+        box_layout.setSpacing(0)
+    title_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoTitle')), None)
+    value_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoValue')), None)
+    if title_label is not None:
+        title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    if value_label is not None:
+        value_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    return box
+
+
+def _build_complete_card(self):
+    card = self.create_card()
+    layout = QVBoxLayout(card)
+    layout.setContentsMargins(14, 7, 14, 7)
+    layout.setSpacing(0)
+    layout.setAlignment(Qt.AlignTop)
+
+    title = self.section_title('4. 검사 완료')
+    title.setFixedHeight(20)
+    layout.addWidget(title)
+    layout.addSpacing(6)
+
+    success_row_widget = QWidget(card)
+    success_row_widget.setFixedHeight(34)
+    success_row = QHBoxLayout(success_row_widget)
+    success_row.setContentsMargins(0, 0, 0, 0)
+    success_row.setSpacing(10)
+    check = QLabel('✓')
+    check.setObjectName('inspectionCompleteCheck')
+    check.setAlignment(Qt.AlignCenter)
+    check.setFixedSize(34, 34)
+    message = QLabel('검사가 성공적으로 완료되었습니다.')
+    message.setObjectName('inspectionCompleteMessage')
+    message.setFixedHeight(24)
+    message.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    success_row.addWidget(check)
+    success_row.addWidget(message)
+    success_row.addStretch(1)
+    layout.addWidget(success_row_widget)
+    layout.addSpacing(6)
+
+    description_row_widget = QWidget(card)
+    description_row_widget.setFixedHeight(18)
+    description_row = QHBoxLayout(description_row_widget)
+    description_row.setContentsMargins(44, 0, 0, 0)
+    description_row.setSpacing(0)
+    description = QLabel('검사 결과를 확인하거나 Project Detail로 이동할 수 있습니다.')
+    description.setObjectName('inspectionCompleteDescription')
+    description.setWordWrap(False)
+    description.setFixedHeight(18)
+    description.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    description_row.addWidget(description)
+    description_row.addStretch(1)
+    layout.addWidget(description_row_widget)
+    layout.addSpacing(6)
+
+    result_row_widget = QWidget(card)
+    result_row_widget.setFixedHeight(50)
+    result_row = QHBoxLayout(result_row_widget)
+    result_row.setContentsMargins(0, 0, 0, 0)
+    result_row.setSpacing(8)
+    for result_title, result_value in [
+        ('적용 규칙', '100 / 100개'),
+        ('발견 Issues', '14개'),
+        ('소요 시간', '2분 18초'),
+        ('검사 파일', '18개'),
+    ]:
+        result_row.addWidget(_complete_result_box(self, result_title, result_value))
+
+    result_button = QPushButton('검사 결과 보기 →')
+    result_button.setObjectName('inspectionResultButton')
+    result_button.setFixedSize(126, 50)
+    result_button.setCursor(Qt.PointingHandCursor)
+    result_button.clicked.connect(self.inspection_result_requested.emit)
+    result_row.addWidget(result_button)
+    layout.addWidget(result_row_widget)
+    layout.addSpacing(6)
+
+    note = QLabel('※ 완료된 결과는 해당 Project의 Inspection History에 자동으로 저장됩니다.')
+    note.setObjectName('inspectionCompleteNote')
+    note.setFixedHeight(17)
+    note.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    layout.addWidget(note)
+    layout.addStretch(1)
+    return card
+
+
 def apply_inspection_progress_refinements(inspection_cls):
     if getattr(inspection_cls, '_progress_refined', False):
         return
+
+    # Keep the approved Inspection screen and only replace the two 4th-area
+    # state cards so the requested vertical gaps are explicit and stable.
+    inspection_cls.create_progress_card = _build_progress_card
+    inspection_cls.create_complete_card = _build_complete_card
 
     original_init = inspection_cls.__init__
 
@@ -72,12 +254,13 @@ def apply_inspection_progress_refinements(inspection_cls):
             for card, height in zip(cards[:4], [175, 221, 204, 190]):
                 card.setFixedHeight(height)
 
-        summary_card = getattr(self, 'summary_card', None)
-        progress_card = getattr(self, 'progress_card', None)
-        complete_card = getattr(self, 'complete_card', None)
-        for card in (summary_card, progress_card, complete_card):
-            if card is not None:
-                card.setFixedHeight(190)
+        for state_card in (
+            getattr(self, 'summary_card', None),
+            getattr(self, 'progress_card', None),
+            getattr(self, 'complete_card', None),
+        ):
+            if state_card is not None:
+                state_card.setFixedHeight(190)
 
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         if len(summary_icons) >= 3:
@@ -86,95 +269,6 @@ def apply_inspection_progress_refinements(inspection_cls):
             time_icon.setText('◷')
             time_icon.setAlignment(Qt.AlignCenter)
             time_icon.setStyleSheet('font-size:22px; font-weight:700;')
-
-        # 검사 진행: 기존 확정 화면을 유지하고 수직 간격만 조정
-        if progress_card is not None:
-            lay = progress_card.layout()
-            if lay is not None:
-                lay.setContentsMargins(14, 8, 14, 8)
-                lay.setSpacing(5)
-                lay.setAlignment(Qt.AlignTop)
-
-            description = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressDescription')), None)
-            if description is not None:
-                description.setFixedHeight(17)
-                description.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-            percent = next(iter(progress_card.findChildren(QLabel, 'inspectionProgressPercent')), None)
-            if percent is not None:
-                percent.setFixedWidth(72)
-                percent.setFixedHeight(38)
-                percent.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-            bar = next(iter(progress_card.findChildren(QProgressBar, 'inspectionProgressBar')), None)
-            if bar is not None:
-                bar.setFixedHeight(18)
-
-            cancel = next(iter(progress_card.findChildren(QPushButton, 'inspectionCancelButton')), None)
-            if cancel is not None:
-                cancel.setFixedSize(115, 46)
-
-            for box in progress_card.findChildren(QFrame, 'inspectionProgressInfoBox'):
-                box.setFixedHeight(46)
-                bl = box.layout()
-                if bl is not None:
-                    bl.setContentsMargins(10, 3, 10, 3)
-                    bl.setSpacing(0)
-                title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
-                if title is not None:
-                    title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                    box.setFixedWidth(250 if title.text() == '현재 검사 항목' else 108)
-                value = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoValue')), None)
-                if value is not None:
-                    value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-        # 검사 완료: 마지막 안내문을 기준으로 전체 수직 리듬을 재조정
-        if complete_card is not None:
-            lay = complete_card.layout()
-            if lay is not None:
-                lay.setContentsMargins(14, 7, 14, 7)
-                lay.setSpacing(5)
-                lay.setAlignment(Qt.AlignTop)
-
-            check = next(iter(complete_card.findChildren(QLabel, 'inspectionCompleteCheck')), None)
-            if check is not None:
-                check.setFixedSize(34, 34)
-
-            message = next(iter(complete_card.findChildren(QLabel, 'inspectionCompleteMessage')), None)
-            if message is not None:
-                message.setFixedHeight(21)
-                message.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-            description = next(iter(complete_card.findChildren(QLabel, 'inspectionCompleteDescription')), None)
-            if description is not None:
-                description.setWordWrap(False)
-                description.setMinimumWidth(430)
-                description.setFixedHeight(18)
-                description.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-            info_boxes = complete_card.findChildren(QFrame, 'inspectionCompleteInfoBox')
-            for box in info_boxes:
-                box.setFixedSize(105, 50)
-                bl = box.layout()
-                if bl is not None:
-                    bl.setContentsMargins(10, 2, 10, 2)
-                    bl.setSpacing(0)
-                title = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoTitle')), None)
-                value = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoValue')), None)
-                if title is not None:
-                    title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                if value is not None:
-                    value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-            result_button = next(iter(complete_card.findChildren(QPushButton, 'inspectionResultButton')), None)
-            if result_button is not None:
-                result_button.setText('검사 결과 보기 →')
-                result_button.setFixedSize(155, 50)
-
-            note = next(iter(complete_card.findChildren(QLabel, 'inspectionCompleteNote')), None)
-            if note is not None:
-                note.setFixedHeight(17)
-                note.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._progress_refined = True
