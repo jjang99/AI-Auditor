@@ -15,14 +15,14 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionProgressInfoBox { background:#0d1721; border:1px solid #465669; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#d1d9e3; font-size:11px; font-weight:700; }
 #inspectionProgressInfoValue { color:#ffffff; font-size:14px; font-weight:850; }
-#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:14px; font-size:18px; font-weight:900; }
+#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:12px; font-size:16px; font-weight:900; }
 #inspectionCompleteMessage { color:#ffffff; font-size:17px; font-weight:900; }
 #inspectionCompleteDescription { color:#f1f5f9; font-size:13px; font-weight:750; }
 #inspectionCompleteInfoBox { background:#0d1721; border:1px solid #63758a; border-radius:7px; }
-#inspectionCompleteInfoTitle { color:#e2e8f0; font-size:12px; font-weight:800; }
-#inspectionCompleteInfoValue { color:#ffffff; font-size:17px; font-weight:900; }
-#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #60a5fa; border-radius:7px; font-size:14px; font-weight:900; text-align:center; padding:0px; }
-#inspectionResultButton:hover { background:#3475f5; border-color:#93c5fd; }
+#inspectionCompleteInfoTitle { color:#dbe4ee; font-size:11px; font-weight:750; }
+#inspectionCompleteInfoValue { color:#ffffff; font-size:16px; font-weight:850; }
+#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #93c5fd; border-radius:7px; font-size:15px; font-weight:900; text-align:center; padding:0px; }
+#inspectionResultButton:hover { background:#3475f5; border-color:#bfdbfe; }
 #inspectionCompleteNote { color:#f8fafc; font-size:11px; font-weight:800; }
 #inspectionSummaryIcon { color:#3b82f6; }
 '''
@@ -37,13 +37,13 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionProgressInfoBox { background:#f8fafc; border:1px solid #aebccc; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#334155; font-size:11px; font-weight:700; }
 #inspectionProgressInfoValue { color:#0b1220; font-size:14px; font-weight:850; }
-#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:14px; font-size:18px; font-weight:900; }
+#inspectionCompleteCheck { color:#ffffff; background:#168653; border-radius:12px; font-size:16px; font-weight:900; }
 #inspectionCompleteMessage { color:#020617; font-size:17px; font-weight:900; }
 #inspectionCompleteDescription { color:#1e293b; font-size:13px; font-weight:750; }
 #inspectionCompleteInfoBox { background:#ffffff; border:1px solid #91a2b7; border-radius:7px; }
-#inspectionCompleteInfoTitle { color:#334155; font-size:12px; font-weight:800; }
-#inspectionCompleteInfoValue { color:#020617; font-size:17px; font-weight:900; }
-#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #1d4ed8; border-radius:7px; font-size:14px; font-weight:900; text-align:center; padding:0px; }
+#inspectionCompleteInfoTitle { color:#475569; font-size:11px; font-weight:750; }
+#inspectionCompleteInfoValue { color:#020617; font-size:16px; font-weight:850; }
+#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #1d4ed8; border-radius:7px; font-size:15px; font-weight:900; text-align:center; padding:0px; }
 #inspectionResultButton:hover { background:#1d4ed8; border-color:#1e40af; }
 #inspectionCompleteNote { color:#0f172a; font-size:11px; font-weight:800; }
 #inspectionSummaryIcon { color:#2563eb; }
@@ -135,8 +135,8 @@ def _complete_result_box(parent, title, value):
     box.setFixedSize(110, 54)
     box_layout = box.layout()
     if box_layout is not None:
-        box_layout.setContentsMargins(10, 3, 10, 3)
-        box_layout.setSpacing(0)
+        box_layout.setContentsMargins(10, 4, 10, 4)
+        box_layout.setSpacing(3)
     title_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoTitle')), None)
     value_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoValue')), None)
     if title_label is not None:
@@ -159,14 +159,14 @@ def _build_complete_card(self):
     layout.addSpacing(8)
 
     success_row_widget = QWidget(card)
-    success_row_widget.setFixedHeight(30)
+    success_row_widget.setFixedHeight(26)
     success_row = QHBoxLayout(success_row_widget)
     success_row.setContentsMargins(0, 0, 0, 0)
-    success_row.setSpacing(10)
+    success_row.setSpacing(8)
     check = QLabel('✓')
     check.setObjectName('inspectionCompleteCheck')
     check.setAlignment(Qt.AlignCenter)
-    check.setFixedSize(28, 28)
+    check.setFixedSize(24, 24)
     message = QLabel('검사가 성공적으로 완료되었습니다.')
     message.setObjectName('inspectionCompleteMessage')
     message.setFixedHeight(22)
@@ -175,12 +175,12 @@ def _build_complete_card(self):
     success_row.addWidget(message)
     success_row.addStretch(1)
     layout.addWidget(success_row_widget)
-    layout.addSpacing(3)
+    layout.addSpacing(1)
 
     description_row_widget = QWidget(card)
     description_row_widget.setFixedHeight(18)
     description_row = QHBoxLayout(description_row_widget)
-    description_row.setContentsMargins(38, 0, 0, 0)
+    description_row.setContentsMargins(32, 0, 0, 0)
     description_row.setSpacing(0)
     description = QLabel('검사 결과를 확인하거나 Project Detail로 이동할 수 있습니다.')
     description.setObjectName('inspectionCompleteDescription')
@@ -192,7 +192,6 @@ def _build_complete_card(self):
     description_row.addStretch(1)
     layout.addWidget(description_row_widget)
 
-    # 결과값 카드 라인을 현재보다 살짝 아래로 내린다.
     layout.addSpacing(12)
 
     result_row_widget = QWidget(card)
