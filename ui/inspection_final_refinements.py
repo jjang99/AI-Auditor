@@ -87,8 +87,6 @@ def apply_inspection_final_refinements(inspection_cls):
     def refined_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
 
-        # Freeze rule: the Inspection page itself never scrolls.
-        # Only the registered-file list may have a scrollbar.
         page_scroll = self.findChild(QScrollArea, 'inspectionScroll')
         if page_scroll is not None:
             page_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -106,8 +104,6 @@ def apply_inspection_final_refinements(inspection_cls):
         for i, title in enumerate(titles[:4]):
             title.setText(clean_titles[i])
 
-        # Rebalance vertical space: project gets more breathing room;
-        # file card becomes shorter after removing its footer.
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
             cards[0].setFixedHeight(165)
@@ -115,9 +111,10 @@ def apply_inspection_final_refinements(inspection_cls):
             cards[2].setFixedHeight(208)
             cards[3].setFixedHeight(190)
 
-        # Project information: stop the duplicate warning from colliding with fields.
+        # 1. 프로젝트 정보: 좌/우 필드의 라벨과 입력칸 높이를 정확히 맞춘다.
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
-            label.setMinimumHeight(17)
+            label.setFixedHeight(17)
+            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             if label.text().startswith('Project Name'):
                 label.setText('Project Name <span style="color:#ef4444;font-weight:700;">*</span>')
                 label.setTextFormat(Qt.RichText)
@@ -127,19 +124,40 @@ def apply_inspection_final_refinements(inspection_cls):
         for combo in self.findChildren(QComboBox, 'inspectionCombo'):
             combo.setFixedHeight(29)
 
+        # project card: title + form_row. form_row 안의 좌/우 컬럼을 직접 정렬한다.
+        if len(cards) >= 1 and cards[0].layout() is not None:
+            project_layout = cards[0].layout()
+            project_layout.setSpacing(8)
+            if project_layout.count() > 1 and project_layout.itemAt(1).layout() is not None:
+                form_row = project_layout.itemAt(1).layout()
+                form_row.setSpacing(16)
+                left_col = form_row.itemAt(0).layout() if form_row.count() > 0 else None
+                right_col = form_row.itemAt(1).layout() if form_row.count() > 1 else None
+                if left_col is not None:
+                    left_col.setSpacing(4)
+                if right_col is not None:
+                    right_col.setSpacing(4)
+                    # 왼쪽의 중복 안내 행 높이만큼 우측에도 동일한 빈 공간을 둬서
+                    # Description ↔ 프로젝트 구분 라인이 정확히 맞도록 한다.
+                    if right_col.count() > 2 and right_col.itemAt(2).spacerItem() is not None:
+                        right_col.itemAt(2).spacerItem().changeSize(0, 26)
+                    right_col.invalidate()
+
+        # 동일 이름 경고는 위 입력칸에서 한 템포 떨어져 보이도록 내부 상단 여백 확보.
         for label in self.findChildren(QLabel, 'inspectionDuplicate'):
-            label.setMinimumHeight(18)
-            label.setContentsMargins(0, 2, 0, 2)
+            label.setFixedHeight(22)
+            label.setContentsMargins(0, 4, 0, 0)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for button in self.findChildren(QPushButton, 'inspectionDuplicateButton'):
-            button.setMinimumHeight(20)
+            button.setFixedHeight(22)
 
-        if len(cards) >= 1 and cards[0].layout() is not None:
-            cards[0].layout().setSpacing(9)
-
-        # Upload area.
+        # 2. 검사 대상 파일: 업로드 안내 + 파일선택 그룹을 박스의 정중앙에 둔다.
         for box in self.findChildren(QFrame, 'inspectionUploadBox'):
             box.setFixedHeight(46)
+            if box.layout() is not None:
+                box.layout().setContentsMargins(0, 0, 0, 0)
+                box.layout().setSpacing(16)
+                box.layout().setAlignment(Qt.AlignCenter)
 
         icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'icons')
         file_icon = QIcon(os.path.join(icon_dir, 'file.svg'))
@@ -156,7 +174,6 @@ def apply_inspection_final_refinements(inspection_cls):
                     raw_name = raw_name.split('  ', 1)[1]
                 name_label.setText(raw_name)
                 name_label.setFixedWidth(150)
-
                 layout = row.layout()
                 if layout is not None:
                     file_label = QLabel()
@@ -165,7 +182,6 @@ def apply_inspection_final_refinements(inspection_cls):
                     file_label.setAlignment(Qt.AlignCenter)
                     file_label.setFixedWidth(20)
                     layout.insertWidget(0, file_label)
-
                 size_label.setFixedWidth(50)
                 delete_label.setText('')
                 delete_label.setPixmap(trash_icon.pixmap(QSize(16, 16)))
@@ -192,13 +208,11 @@ def apply_inspection_final_refinements(inspection_cls):
                     scroll.setWidget(table)
                     parent_layout.insertWidget(idx, scroll)
 
-        # Footer is redundant: registered count/size are already shown above.
         for label in self.findChildren(QLabel):
             if label.text() in ('외 14개 파일', '총 12.3 MB'):
                 label.hide()
                 label.setFixedHeight(0)
 
-        # Rules: compact rows with visible separation.
         rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
@@ -206,7 +220,6 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(18, 18)))
             label.setAlignment(Qt.AlignCenter)
             label.setFixedWidth(26)
-
         for label in self.findChildren(QLabel, 'inspectionRuleName'):
             label.setFixedWidth(120)
         for label in self.findChildren(QLabel, 'inspectionRuleCount'):
@@ -220,8 +233,7 @@ def apply_inspection_final_refinements(inspection_cls):
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
             button.setFixedHeight(27)
 
-        # Summary: reduce top boxes slightly, create clear vertical gap,
-        # and give the information box enough internal padding/readability.
+        # 4. 검사 준비 요약
         summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         for label, filename in zip(summary_icons, summary_icon_files):
@@ -232,24 +244,28 @@ def apply_inspection_final_refinements(inspection_cls):
 
         for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
             box.setFixedHeight(60)
-
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
             start.setFixedSize(118, 60)
-
         if len(cards) >= 4 and cards[3].layout() is not None:
             cards[3].layout().setSpacing(11)
 
+        # 안내 박스의 제목+두 줄 문구 묶음을 박스 세로 중앙에 배치한다.
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
             box.setFixedHeight(60)
             if box.layout() is not None:
-                box.layout().setContentsMargins(12, 9, 12, 9)
-                box.layout().setSpacing(4)
+                info_layout = box.layout()
+                info_layout.setContentsMargins(12, 6, 12, 6)
+                info_layout.setSpacing(2)
+                info_layout.setAlignment(Qt.AlignVCenter)
 
+        for label in self.findChildren(QLabel, 'inspectionInfoTitle'):
+            label.setFixedHeight(14)
+            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoText'):
             label.setWordWrap(True)
-            label.setMinimumHeight(34)
-            label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+            label.setFixedHeight(32)
+            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
