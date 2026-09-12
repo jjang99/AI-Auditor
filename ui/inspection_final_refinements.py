@@ -20,7 +20,7 @@ DARK_INSPECTION_FINAL = r'''
 #inspectionFileTable { border-color:#3a4758; }
 #inspectionFileRow { border-bottom:1px solid #2f3c4c; }
 #inspectionTableText { color:#ffffff; font-size:11px; font-weight:650; }
-#inspectionTableMuted { color:#cbd5e1; font-size:10px; font-weight:500; }
+#inspectionTableMuted { color:#d7e0ea; font-size:11px; font-weight:550; }
 #inspectionBlueNote { color:#7db7ff; font-size:10px; font-weight:600; }
 #inspectionRuleRow { border-color:#3a4758; }
 #inspectionRuleName { color:#ffffff; font-size:12px; font-weight:750; }
@@ -57,7 +57,7 @@ LIGHT_INSPECTION_FINAL = r'''
 #inspectionFileTable { background:#ffffff; border-color:#b7c4d3; }
 #inspectionFileRow { border-bottom:1px solid #d6dee8; }
 #inspectionTableText { color:#0b1220; font-size:11px; font-weight:700; }
-#inspectionTableMuted { color:#334155; font-size:10px; font-weight:600; }
+#inspectionTableMuted { color:#263548; font-size:11px; font-weight:600; }
 #inspectionBlueNote { color:#1e40af; font-size:10px; font-weight:650; }
 #inspectionRuleRow { background:#ffffff; border-color:#b8c4d2; }
 #inspectionRuleName { color:#0b1220; font-size:12px; font-weight:800; }
@@ -94,8 +94,8 @@ def apply_inspection_final_refinements(inspection_cls):
 
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 10, 10, 10)
-            # 카드 사이가 붙어 보이지 않도록 전체 간격을 조금 늘린다.
-            self.main_layout.setSpacing(9)
+            # 카드 사이 간격을 조금 더 넓혀 각 섹션을 명확히 구분한다.
+            self.main_layout.setSpacing(11)
 
         for button in self.findChildren(QPushButton, 'inspectionHelpButton'):
             button.hide()
@@ -108,11 +108,11 @@ def apply_inspection_final_refinements(inspection_cls):
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
             cards[0].setFixedHeight(165)
-            cards[1].setFixedHeight(223)
-            cards[2].setFixedHeight(206)
+            cards[1].setFixedHeight(221)
+            cards[2].setFixedHeight(204)
             cards[3].setFixedHeight(190)
 
-        # 1. 프로젝트 정보: 전체 폼을 카드 상단 쪽으로 올리고 좌/우 기준선을 유지한다.
+        # 1. 프로젝트 정보: 좌/우 필드 기준선을 정확히 맞춘다.
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -127,21 +127,26 @@ def apply_inspection_final_refinements(inspection_cls):
 
         if len(cards) >= 1 and cards[0].layout() is not None:
             project_layout = cards[0].layout()
-            # 위쪽 여백을 줄이고 아래쪽 여백을 더 두어 내용 묶음을 위로 이동.
             project_layout.setContentsMargins(14, 7, 14, 13)
             project_layout.setSpacing(6)
             project_layout.setAlignment(Qt.AlignTop)
             if project_layout.count() > 1 and project_layout.itemAt(1).layout() is not None:
                 form_row = project_layout.itemAt(1).layout()
                 form_row.setSpacing(16)
+                form_row.setAlignment(Qt.AlignTop)
                 left_col = form_row.itemAt(0).layout() if form_row.count() > 0 else None
                 right_col = form_row.itemAt(1).layout() if form_row.count() > 1 else None
                 if left_col is not None:
+                    left_col.setContentsMargins(0, 0, 0, 0)
                     left_col.setSpacing(4)
+                    left_col.setAlignment(Qt.AlignTop)
                 if right_col is not None:
+                    right_col.setContentsMargins(0, 0, 0, 0)
                     right_col.setSpacing(4)
+                    right_col.setAlignment(Qt.AlignTop)
+                    # 왼쪽 중복 안내 행(22px)과 동일한 높이를 우측에 확보한다.
                     if right_col.count() > 2 and right_col.itemAt(2).spacerItem() is not None:
-                        right_col.itemAt(2).spacerItem().changeSize(0, 26)
+                        right_col.itemAt(2).spacerItem().changeSize(0, 22)
                     right_col.invalidate()
 
         for label in self.findChildren(QLabel, 'inspectionDuplicate'):
@@ -182,6 +187,8 @@ def apply_inspection_final_refinements(inspection_cls):
                     file_label.setAlignment(Qt.AlignCenter)
                     file_label.setFixedWidth(20)
                     layout.insertWidget(0, file_label)
+                path_label.setMinimumHeight(18)
+                path_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 size_label.setFixedWidth(50)
                 delete_label.setText('')
                 delete_label.setPixmap(trash_icon.pixmap(QSize(16, 16)))
