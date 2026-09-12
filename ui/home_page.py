@@ -21,7 +21,7 @@ class HomePage(QWidget):
         # 전체 Home 레이아웃
         # ==================================================
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(40, 18, 40, 14)
+        main_layout.setContentsMargins(24, 18, 24, 14)
         main_layout.setSpacing(0)
 
         # ==================================================
@@ -58,19 +58,14 @@ class HomePage(QWidget):
         )
 
         self.inspection_button.setIcon(QIcon(play_icon_path))
-        self.inspection_button.setIconSize(
-            QSize(24, 24)
-        )
+        self.inspection_button.setIconSize(QSize(24, 24))
 
         hero_layout.addWidget(title)
         hero_layout.addSpacing(10)
-
         hero_layout.addWidget(subtitle)
         hero_layout.addSpacing(10)
-
         hero_layout.addWidget(description)
         hero_layout.addSpacing(16)
-
         hero_layout.addWidget(
             self.inspection_button,
             alignment=Qt.AlignCenter,
@@ -84,7 +79,7 @@ class HomePage(QWidget):
         # ==================================================
         wave_label = QLabel()
         wave_label.setAlignment(Qt.AlignCenter)
-        wave_label.setFixedHeight(90)
+        wave_label.setFixedHeight(100)
 
         wave_path = self.asset_path(
             "icons",
@@ -92,12 +87,11 @@ class HomePage(QWidget):
         )
 
         wave_pixmap = QPixmap(wave_path)
-
         wave_label.setPixmap(
             wave_pixmap.scaled(
-                680,
-                105,
-                Qt.KeepAspectRatio,
+                790,
+                100,
+                Qt.IgnoreAspectRatio,
                 Qt.SmoothTransformation,
             )
         )
@@ -109,7 +103,7 @@ class HomePage(QWidget):
         # 주요 메뉴 카드
         # ==================================================
         cards_layout = QGridLayout()
-        cards_layout.setHorizontalSpacing(15)
+        cards_layout.setHorizontalSpacing(14)
         cards_layout.setVerticalSpacing(0)
 
         card_data = [
@@ -136,28 +130,30 @@ class HomePage(QWidget):
             cards_layout.addWidget(card, 0, index)
 
         main_layout.addLayout(cards_layout)
-        main_layout.addSpacing(12)
+
+        # 카드 아래 여백은 남는 높이에 따라 자연스럽게 확보
+        main_layout.addStretch(1)
 
         # ==================================================
         # Why AI Auditor
         # ==================================================
         why_frame = QFrame()
         why_frame.setObjectName("whyFrame")
-        why_frame.setFixedHeight(170)
+        why_frame.setFixedHeight(128)
 
         why_layout = QVBoxLayout(why_frame)
-        why_layout.setContentsMargins(20, 12, 20, 12)
+        why_layout.setContentsMargins(16, 10, 16, 10)
         why_layout.setSpacing(0)
 
         why_title = QLabel("Why AI Auditor?")
         why_title.setObjectName("whyTitle")
 
         why_layout.addWidget(why_title)
-        why_layout.addSpacing(8)
+        why_layout.addSpacing(6)
 
         why_items_layout = QHBoxLayout()
         why_items_layout.setContentsMargins(0, 0, 0, 0)
-        why_items_layout.setSpacing(12)
+        why_items_layout.setSpacing(10)
 
         why_data = [
             (
@@ -190,11 +186,15 @@ class HomePage(QWidget):
 
             item_layout = QVBoxLayout()
             item_layout.setContentsMargins(0, 0, 0, 0)
-            item_layout.setSpacing(4)
+            item_layout.setSpacing(3)
 
-            # Why 아이콘
+            # 아이콘 + 제목을 같은 라인에 배치
+            item_header = QHBoxLayout()
+            item_header.setContentsMargins(0, 0, 0, 0)
+            item_header.setSpacing(7)
+
             icon_label = QLabel()
-            icon_label.setFixedSize(38, 38)
+            icon_label.setFixedSize(28, 28)
             icon_label.setAlignment(Qt.AlignCenter)
 
             icon_path = self.asset_path(
@@ -203,42 +203,53 @@ class HomePage(QWidget):
             )
 
             icon_pixmap = QPixmap(icon_path)
-
             icon_label.setPixmap(
                 icon_pixmap.scaled(
-                    34,
-                    34,
+                    25,
+                    25,
                     Qt.KeepAspectRatio,
                     Qt.SmoothTransformation,
                 )
             )
 
-            # 제목
             item_title = QLabel(title_text)
             item_title.setObjectName("whyItemTitle")
 
-            # 설명
+            item_header.addWidget(icon_label)
+            item_header.addWidget(item_title)
+            item_header.addStretch()
+
+            # 설명은 제목 시작 위치에 맞춰 좌측 정렬
+            body_row = QHBoxLayout()
+            body_row.setContentsMargins(35, 0, 0, 0)
+            body_row.setSpacing(0)
+
             item_body = QLabel(body_text)
             item_body.setObjectName("whyItemBody")
+            item_body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            body_row.addWidget(item_body)
+            body_row.addStretch()
 
-            item_layout.addWidget(icon_label)
-            item_layout.addWidget(item_title)
-            item_layout.addWidget(item_body)
+            item_layout.addLayout(item_header)
+            item_layout.addLayout(body_row)
             item_layout.addStretch()
 
             why_items_layout.addLayout(item_layout, 1)
 
-            # 항목 사이 세로 구분선
             if index < len(why_data) - 1:
                 divider = QFrame()
                 divider.setFrameShape(QFrame.VLine)
                 divider.setObjectName("whyDivider")
-                why_items_layout.addWidget(divider)
+                divider.setFixedHeight(64)
+                why_items_layout.addWidget(
+                    divider,
+                    alignment=Qt.AlignVCenter,
+                )
 
         why_layout.addLayout(why_items_layout)
 
         main_layout.addWidget(why_frame)
-        main_layout.addSpacing(6)
+        main_layout.addSpacing(10)
 
         # ==================================================
         # Footer
@@ -270,20 +281,25 @@ class HomePage(QWidget):
         card.setFixedHeight(205)
 
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(18, 16, 18, 14)
+        layout.setContentsMargins(16, 16, 16, 14)
         layout.setSpacing(0)
 
-        # 아이콘 영역
+        # 아이콘 영역 - 확정 시안의 원형 배경 적용
         icon_label = QLabel()
-        icon_label.setFixedSize(48, 48)
+        icon_label.setFixedSize(58, 58)
         icon_label.setAlignment(Qt.AlignCenter)
 
-        # Reports 원형 배경
-        if title_text == "Reports":
-            icon_label.setStyleSheet("""
-                background-color: rgba(168, 85, 247, 35);
-                border-radius: 24px;
-            """)
+        icon_backgrounds = {
+            "Projects": "rgba(37, 99, 235, 32)",
+            "Inspection": "rgba(16, 185, 129, 30)",
+            "Reports": "rgba(168, 85, 247, 35)",
+            "Administration": "rgba(245, 158, 11, 28)",
+        }
+
+        icon_label.setStyleSheet(
+            f"background-color: {icon_backgrounds[title_text]}; "
+            "border-radius: 29px;"
+        )
 
         icon_files = {
             "Projects": "project.svg",
@@ -298,11 +314,10 @@ class HomePage(QWidget):
         )
 
         pixmap = QPixmap(icon_path)
-
         icon_label.setPixmap(
             pixmap.scaled(
-                42,
-                42,
+                40,
+                40,
                 Qt.KeepAspectRatio,
                 Qt.SmoothTransformation,
             )
@@ -311,26 +326,27 @@ class HomePage(QWidget):
         # 카드 제목
         title = QLabel(title_text)
         title.setObjectName("homeCardTitle")
+        title.setAlignment(Qt.AlignCenter)
 
         # 카드 설명
         description = QLabel(description_text)
         description.setObjectName("homeCardDescription")
+        description.setAlignment(Qt.AlignCenter)
 
         # 화살표
         arrow = QLabel("→")
         arrow.setObjectName("homeCardArrow")
         arrow.setAlignment(Qt.AlignRight)
 
-        layout.addWidget(icon_label)
+        layout.addWidget(
+            icon_label,
+            alignment=Qt.AlignHCenter,
+        )
         layout.addSpacing(7)
-
         layout.addWidget(title)
         layout.addSpacing(7)
-
         layout.addWidget(description)
-
         layout.addStretch()
-
         layout.addWidget(arrow)
 
         return card
