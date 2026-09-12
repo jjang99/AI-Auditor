@@ -168,14 +168,14 @@ class ProjectDetailPage(QWidget):
 
         # =====================================================
         # 본문 3열
+        # 최종 비율: 좌측 < 가운데 < 우측
+        # - 좌측: 분포/이력 중심이라 가장 작게
+        # - 가운데: 이슈 목록 가독성 확보
+        # - 우측: 설명형 정보가 많아 가장 넓게
         # =====================================================
         body_layout = QHBoxLayout()
         body_layout.setSpacing(8)
 
-        # -----------------------------------------------------
-        # 좌측
-        # Issue Distribution + Inspection History
-        # -----------------------------------------------------
         left_column = QVBoxLayout()
         left_column.setSpacing(8)
 
@@ -187,17 +187,11 @@ class ProjectDetailPage(QWidget):
 
         body_layout.addLayout(left_column, 3)
 
-        # -----------------------------------------------------
-        # 중앙 Issues
-        # -----------------------------------------------------
         issues_card = self.create_issues_card()
-        body_layout.addWidget(issues_card, 5)
+        body_layout.addWidget(issues_card, 4)
 
-        # -----------------------------------------------------
-        # 우측 Issue Detail
-        # -----------------------------------------------------
         detail_card = self.create_issue_detail_card()
-        body_layout.addWidget(detail_card, 6)
+        body_layout.addWidget(detail_card, 5)
 
         main_layout.addLayout(body_layout, 1)
 
@@ -319,11 +313,11 @@ class ProjectDetailPage(QWidget):
         progress_row.setSpacing(5)
 
         progress = QProgressBar()
+        progress.setObjectName("detailProgress")
         progress.setRange(0, 100)
         progress.setValue(64)
         progress.setTextVisible(False)
         progress.setFixedHeight(6)
-        progress.setObjectName("detailProgress")
 
         percent = QLabel("64%")
         percent.setObjectName("detailSmallText")
@@ -346,57 +340,55 @@ class ProjectDetailPage(QWidget):
     def create_distribution_card(self):
         card = QFrame()
         card.setObjectName("detailBodyCard")
-        card.setFixedHeight(190)
+        card.setFixedHeight(188)
 
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 11, 12, 11)
-        layout.setSpacing(8)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(10)
 
         title = QLabel("Issue Distribution")
         title.setObjectName("detailBodyTitle")
         layout.addWidget(title)
 
-        distributions = [
+        rows = [
             ("Critical", 1, "critical"),
             ("High", 3, "high"),
             ("Medium", 5, "medium"),
             ("Low", 5, "low"),
         ]
 
-        for name, count, level in distributions:
+        for level, count, key in rows:
             row = QHBoxLayout()
             row.setSpacing(5)
 
             dot = QLabel("●")
-            dot.setObjectName(
-                f"detailLevel_{level}"
-            )
+            dot.setObjectName(f"detailLevel_{key}")
             dot.setFixedWidth(10)
 
-            label = QLabel(name)
+            label = QLabel(level)
             label.setObjectName("detailSmallText")
-            label.setFixedWidth(46)
+            label.setFixedWidth(52)
 
             bar = QProgressBar()
             bar.setRange(0, 5)
             bar.setValue(count)
             bar.setTextVisible(False)
-            bar.setFixedHeight(7)
-            bar.setObjectName(
-                f"detailDistribution_{level}"
-            )
+            bar.setFixedHeight(6)
+            bar.setObjectName(f"detailDistribution_{key}")
 
-            number = QLabel(str(count))
-            number.setObjectName("detailSmallText")
-            number.setFixedWidth(10)
+            count_label = QLabel(str(count))
+            count_label.setObjectName("detailSmallText")
+            count_label.setFixedWidth(12)
+            count_label.setAlignment(Qt.AlignRight)
 
             row.addWidget(dot)
             row.addWidget(label)
             row.addWidget(bar, 1)
-            row.addWidget(number)
+            row.addWidget(count_label)
 
             layout.addLayout(row)
 
+        layout.addStretch()
         return card
 
     # =========================================================
@@ -407,72 +399,53 @@ class ProjectDetailPage(QWidget):
         card.setObjectName("detailBodyCard")
 
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 11, 12, 11)
-        layout.setSpacing(7)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
 
         title = QLabel("Inspection History")
         title.setObjectName("detailBodyTitle")
-
         layout.addWidget(title)
 
-        history_items = [
-            (
-                "2026.07.25 14:32",
-                "전체 검사 · 100 Rules",
-            ),
-            (
-                "2026.07.18 10:15",
-                "요구사항 검사 · 25 Rules",
-            ),
-            (
-                "2026.06.28 09:20",
-                "보안 검사 · 20 Rules",
-            ),
+        history_data = [
+            ("2026.07.25 14:32", "전체 검사 · 100 Rules", True),
+            ("2026.07.18 10:15", "요구사항 검사 · 25 Rules", False),
+            ("2026.06.28 09:20", "보안 검사 · 20 Rules", False),
         ]
 
-        for index, (date, inspection_type) in enumerate(
-            history_items
-        ):
+        for date, inspection_type, active in history_data:
             row = QHBoxLayout()
             row.setSpacing(7)
 
             marker = QLabel("●")
             marker.setObjectName(
-                "detailHistoryActive"
-                if index == 0
-                else "detailHistoryInactive"
+                "detailHistoryActive" if active else "detailHistoryInactive"
             )
             marker.setFixedWidth(12)
 
-            text_layout = QVBoxLayout()
-            text_layout.setSpacing(1)
+            text = QVBoxLayout()
+            text.setSpacing(1)
 
             date_label = QLabel(date)
-            date_label.setObjectName(
-                "detailHistoryDate"
-            )
+            date_label.setObjectName("detailHistoryDate")
 
             type_label = QLabel(inspection_type)
-            type_label.setObjectName(
-                "detailHistoryType"
-            )
+            type_label.setObjectName("detailHistoryType")
 
-            text_layout.addWidget(date_label)
-            text_layout.addWidget(type_label)
+            text.addWidget(date_label)
+            text.addWidget(type_label)
 
-            row.addWidget(marker)
-            row.addLayout(text_layout, 1)
-
+            row.addWidget(marker, 0, Qt.AlignTop)
+            row.addLayout(text, 1)
             layout.addLayout(row)
 
         layout.addStretch()
 
-        button = QPushButton("전체 이력 보기   ›")
-        button.setObjectName("detailHistoryButton")
-        button.setFixedHeight(32)
+        history_button = QPushButton("전체 이력 보기   ›")
+        history_button.setObjectName("detailHistoryButton")
+        history_button.setCursor(Qt.PointingHandCursor)
+        history_button.setFixedHeight(34)
 
-        layout.addWidget(button)
-
+        layout.addWidget(history_button)
         return card
 
     # =========================================================
@@ -488,39 +461,34 @@ class ProjectDetailPage(QWidget):
 
         header = QFrame()
         header.setObjectName("detailIssuesHeader")
-
         header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(
-            12, 9, 12, 9
-        )
+        header_layout.setContentsMargins(12, 9, 8, 9)
 
         title = QLabel("Issues (14)")
         title.setObjectName("detailBodyTitle")
 
-        sort = QPushButton("Sort : Severity ⌄")
-        sort.setObjectName("detailSortButton")
-        sort.setFixedHeight(28)
+        sort_button = QPushButton("Sort : Severity⌄")
+        sort_button.setObjectName("detailSortButton")
+        sort_button.setFixedHeight(28)
+        sort_button.setCursor(Qt.PointingHandCursor)
 
         header_layout.addWidget(title)
         header_layout.addStretch()
-        header_layout.addWidget(sort)
+        header_layout.addWidget(sort_button)
 
         layout.addWidget(header)
 
         scroll = QScrollArea()
+        scroll.setObjectName("detailIssueScroll")
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setObjectName("detailIssueScroll")
-        scroll.setHorizontalScrollBarPolicy(
-           Qt.ScrollBarAlwaysOff
-        )
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         container = QWidget()
         container.setObjectName("detailIssueContainer")
-
-        items_layout = QVBoxLayout(container)
-        items_layout.setContentsMargins(0, 0, 0, 0)
-        items_layout.setSpacing(0)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(8, 0, 8, 0)
+        container_layout.setSpacing(0)
 
         issues = [
             ("Critical", "REQ-021", "요구사항 누락", "미조치"),
@@ -539,87 +507,67 @@ class ProjectDetailPage(QWidget):
             ("Medium", "TEST-009", "테스트 케이스 누락", "조치완료"),
         ]
 
-        hidden_rows = []
-
-        for index, (level, code, text, status) in enumerate(issues):
-            row = QFrame()
-            row.setObjectName("detailIssueListRow")
-            row.setFixedHeight(62)
-            row.setCursor(Qt.PointingHandCursor)
-
-            row.mousePressEvent = (
-                lambda event,
-                level=level,
-                code=code,
-                status=status:
-                self.update_issue_header(level, code, status)
-            )
-
-            row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(
-                9, 6, 9, 6
-            )
-            row_layout.setSpacing(8)
-
-            badge = QLabel(level)
-            badge.setObjectName(
-                f"detailBadge_{level.lower()}"
-            )
-            badge.setAlignment(Qt.AlignCenter)
-            badge.setFixedWidth(52)
-
-            issue_text = QVBoxLayout()
-            issue_text.setSpacing(1)
-
-            code_label = QLabel(code)
-            code_label.setObjectName(
-                "detailIssueCode"
-            )
-
-            desc_label = QLabel(text)
-            desc_label.setObjectName(
-                "detailIssueDescription"
-            )
-
-            issue_text.addWidget(code_label)
-            issue_text.addWidget(desc_label)
-
-            status_label = QLabel(status)
-            status_label.setObjectName(
-                "detailStatusResolved"
-                if status == "조치완료"
-                else "detailStatusOpen"
-            )
-
-            row_layout.addWidget(badge)
-            row_layout.addLayout(issue_text, 1)
-            row_layout.addWidget(status_label)
-
-            items_layout.addWidget(row)
-            if index >= 10:
+        for index, issue in enumerate(issues):
+            row = self.create_issue_row(*issue)
+            if index >= 8:
                 row.hide()
-                hidden_rows.append(row)
-
-        items_layout.addStretch()
+            container_layout.addWidget(row)
 
         more_button = QPushButton("더 보기")
         more_button.setObjectName("detailHistoryButton")
-        more_button.setFixedHeight(32)
+        more_button.setCursor(Qt.PointingHandCursor)
+        more_button.clicked.connect(
+            lambda: self.show_all_issue_rows(container, more_button)
+        )
 
-        def show_more():
-            for row in hidden_rows:
-                row.show()
-
-            more_button.hide()
-
-        more_button.clicked.connect(show_more)
-
-        items_layout.addWidget(more_button)
+        container_layout.addWidget(more_button)
+        container_layout.addStretch()
 
         scroll.setWidget(container)
         layout.addWidget(scroll, 1)
-
         return card
+
+    def create_issue_row(self, severity, code, description, status):
+        row = QFrame()
+        row.setObjectName("detailIssueListRow")
+        row.setFixedHeight(62)
+
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(2, 6, 2, 6)
+        layout.setSpacing(8)
+
+        badge = QLabel(severity)
+        badge.setObjectName(f"detailBadge_{severity.lower()}")
+        badge.setFixedWidth(52)
+        badge.setAlignment(Qt.AlignCenter)
+
+        text = QVBoxLayout()
+        text.setSpacing(2)
+
+        code_label = QLabel(code)
+        code_label.setObjectName("detailIssueCode")
+
+        desc_label = QLabel(description)
+        desc_label.setObjectName("detailIssueDescription")
+
+        text.addWidget(code_label)
+        text.addWidget(desc_label)
+
+        status_label = QLabel(status)
+        status_label.setObjectName(
+            "detailStatusResolved" if status == "조치완료" else "detailStatusOpen"
+        )
+        status_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+        layout.addWidget(badge)
+        layout.addLayout(text, 1)
+        layout.addWidget(status_label)
+        return row
+
+    def show_all_issue_rows(self, container, button):
+        for child in container.findChildren(QFrame, "detailIssueListRow"):
+            child.show()
+        button.hide()
 
     # =========================================================
     # Issue Detail
@@ -629,61 +577,50 @@ class ProjectDetailPage(QWidget):
         card.setObjectName("detailBodyCard")
 
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 11, 12, 11)
-        layout.setSpacing(7)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(6)
 
         title = QLabel("Issue Detail")
         title.setObjectName("detailBodyTitle")
-
         layout.addWidget(title)
 
-        issue_header = QHBoxLayout()
+        header = QHBoxLayout()
+        header.setSpacing(7)
 
-        self.detail_badge = QLabel("Critical")
-        self.detail_badge.setObjectName("detailBadge_critical")
-        self.detail_badge.setAlignment(Qt.AlignCenter)
-        self.detail_badge.setFixedWidth(52)
+        badge = QLabel("Critical")
+        badge.setObjectName("detailBadge_critical")
+        badge.setFixedWidth(54)
+        badge.setAlignment(Qt.AlignCenter)
 
-        self.detail_code = QLabel("REQ-021")
-        self.detail_code.setObjectName("detailIssueDetailCode")
+        code = QLabel("REQ-021")
+        code.setObjectName("detailIssueDetailCode")
 
-        self.detail_status = QLabel("미조치")
-        self.detail_status.setObjectName("detailStatusOpen")
+        status = QLabel("미조치")
+        status.setObjectName("detailStatusOpen")
+        status.setAlignment(Qt.AlignRight)
 
-        issue_header.addWidget(self.detail_badge)
-        issue_header.addWidget(self.detail_code)
-        issue_header.addStretch()
-        issue_header.addWidget(self.detail_status)
+        header.addWidget(badge)
+        header.addWidget(code)
+        header.addStretch()
+        header.addWidget(status)
 
-        layout.addLayout(issue_header)
+        layout.addLayout(header)
 
-        layout.addSpacing(4)
-
-        self.add_detail_text(
-            layout,
-            "제목",
-            "요구사항 누락",
-        )
-
-        self.add_detail_text(
+        self.add_detail_section(layout, "제목", "요구사항 누락")
+        self.add_detail_section(
             layout,
             "설명",
-            "요구사항 정의서와 설계서 간 "
-            "정합성 불일치가 발견되었습니다.",
+            "요구사항 정의서와 설계서 간 정합성 불일치가 발견되었습니다.",
         )
-
-        self.add_detail_text(
+        self.add_detail_section(
             layout,
             "근거",
-            "• 요구사항 정의서 : 3.2.1, 3.2.4\n"
-            "• 설계서(기능 정의) : 관련 항목 누락",
+            "• 요구사항 정의서 : 3.2.1, 3.2.4\n• 설계서(기능 정의) : 관련 항목 누락",
         )
-
-        self.add_detail_text(
+        self.add_detail_section(
             layout,
             "영향",
-            "• 관련 기능 구현 오류 가능성\n"
-            "• 시스템 요구사항 충족 불가 위험",
+            "• 관련 기능 구현 오류 가능성\n• 시스템 요구사항 충족 불가 위험",
         )
 
         ai_title = QLabel("AI 권고")
@@ -692,33 +629,31 @@ class ProjectDetailPage(QWidget):
 
         ai_box = QFrame()
         ai_box.setObjectName("detailAIBox")
-
         ai_layout = QHBoxLayout(ai_box)
-        ai_layout.setContentsMargins(9, 8, 9, 8)
+        ai_layout.setContentsMargins(10, 9, 10, 9)
+        ai_layout.setSpacing(7)
 
         ai_icon = QLabel("♙")
         ai_icon.setObjectName("detailAIIcon")
+        ai_icon.setFixedWidth(16)
 
         ai_text = QLabel(
             "누락된 요구사항을 설계서에 반영하고,\n"
             "관련 구현 모듈을 검토 후 재검사를 권장합니다."
         )
-        ai_text.setWordWrap(True)
         ai_text.setObjectName("detailAIText")
+        ai_text.setWordWrap(True)
 
-        ai_layout.addWidget(ai_icon)
+        ai_layout.addWidget(ai_icon, 0, Qt.AlignTop)
         ai_layout.addWidget(ai_text, 1)
 
         layout.addWidget(ai_box)
-
         layout.addStretch()
 
         category = QLabel("카테고리    요구사항")
         category.setObjectName("detailTagText")
 
-        rule = QLabel(
-            "발견 기준    Requirement Consistency Rule"
-        )
+        rule = QLabel("발견 기준    Requirement Consistency Rule")
         rule.setObjectName("detailTagText")
 
         layout.addWidget(category)
@@ -726,44 +661,20 @@ class ProjectDetailPage(QWidget):
 
         return card
 
-    def add_detail_text(
-        self,
-        layout,
-        label_text,
-        body_text,
-    ):
-        label = QLabel(label_text)
-        label.setObjectName("detailTextLabel")
+    def add_detail_section(self, layout, title, text):
+        title_label = QLabel(title)
+        title_label.setObjectName("detailTextLabel")
 
-        body = QLabel(body_text)
+        body = QLabel(text)
         body.setObjectName("detailTextBody")
         body.setWordWrap(True)
 
-        layout.addWidget(label)
+        layout.addWidget(title_label)
         layout.addWidget(body)
 
-    def update_issue_header(self, level, code, status):
-        self.detail_badge.setText(level)
-        self.detail_badge.setObjectName(
-            f"detailBadge_{level.lower()}"
-        )
-
-        self.detail_code.setText(code)
-
-        self.detail_status.setText(status)
-        self.detail_status.setObjectName(
-            "detailStatusResolved"
-            if status == "조치완료"
-            else "detailStatusOpen"
-        )
-
-        # 변경된 ObjectName의 스타일 다시 적용
-        self.detail_badge.style().unpolish(self.detail_badge)
-        self.detail_badge.style().polish(self.detail_badge)
-
-        self.detail_status.style().unpolish(self.detail_status)
-        self.detail_status.style().polish(self.detail_status)
-
+    # =========================================================
+    # ReInspect 팝업
+    # =========================================================
     def open_reinspect_dialog(self):
         dialog = ReInspectDialog(self)
         dialog.exec()
