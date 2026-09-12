@@ -21,7 +21,7 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionCompleteInfoBox { background:#0d1721; border:1px solid #63758a; border-radius:7px; }
 #inspectionCompleteInfoTitle { color:#dbe4ee; font-size:11px; font-weight:750; }
 #inspectionCompleteInfoValue { color:#ffffff; font-size:16px; font-weight:850; }
-#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #93c5fd; border-radius:7px; font-size:15px; font-weight:900; text-align:center; padding:0px; }
+#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #93c5fd; border-radius:7px; font-size:16px; font-weight:900; text-align:center; padding:0px; }
 #inspectionResultButton:hover { background:#3475f5; border-color:#bfdbfe; }
 #inspectionCompleteNote { color:#f8fafc; font-size:11px; font-weight:800; }
 #inspectionSummaryIcon { color:#3b82f6; }
@@ -43,7 +43,7 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 #inspectionCompleteInfoBox { background:#ffffff; border:1px solid #91a2b7; border-radius:7px; }
 #inspectionCompleteInfoTitle { color:#475569; font-size:11px; font-weight:750; }
 #inspectionCompleteInfoValue { color:#020617; font-size:16px; font-weight:850; }
-#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #1d4ed8; border-radius:7px; font-size:15px; font-weight:900; text-align:center; padding:0px; }
+#inspectionResultButton { color:#ffffff; background:#2563eb; border:1px solid #1d4ed8; border-radius:7px; font-size:16px; font-weight:900; text-align:center; padding:0px; }
 #inspectionResultButton:hover { background:#1d4ed8; border-color:#1e40af; }
 #inspectionCompleteNote { color:#0f172a; font-size:11px; font-weight:800; }
 #inspectionSummaryIcon { color:#2563eb; }
@@ -132,11 +132,11 @@ def _build_progress_card(self):
 
 def _complete_result_box(parent, title, value):
     box = parent.create_complete_info_box(title, value)
-    box.setFixedSize(110, 54)
+    box.setFixedSize(110, 60)
     box_layout = box.layout()
     if box_layout is not None:
-        box_layout.setContentsMargins(10, 4, 10, 4)
-        box_layout.setSpacing(3)
+        box_layout.setContentsMargins(10, 5, 10, 5)
+        box_layout.setSpacing(5)
     title_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoTitle')), None)
     value_label = next(iter(box.findChildren(QLabel, 'inspectionCompleteInfoValue')), None)
     if title_label is not None:
@@ -192,10 +192,10 @@ def _build_complete_card(self):
     description_row.addStretch(1)
     layout.addWidget(description_row_widget)
 
-    layout.addSpacing(12)
+    layout.addSpacing(9)
 
     result_row_widget = QWidget(card)
-    result_row_widget.setFixedHeight(54)
+    result_row_widget.setFixedHeight(60)
     result_row = QHBoxLayout(result_row_widget)
     result_row.setContentsMargins(0, 0, 0, 0)
     result_row.setSpacing(0)
@@ -209,9 +209,9 @@ def _build_complete_card(self):
     ]:
         result_widgets.append(_complete_result_box(self, result_title, result_value))
 
-    result_button = QPushButton('검사 결과 보기 →')
+    result_button = QPushButton('검사 결과')
     result_button.setObjectName('inspectionResultButton')
-    result_button.setFixedSize(120, 54)
+    result_button.setFixedSize(120, 60)
     result_button.setCursor(Qt.PointingHandCursor)
     result_button.clicked.connect(self.inspection_result_requested.emit)
     result_widgets.append(result_button)
