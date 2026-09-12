@@ -85,7 +85,7 @@ class AdministrationPage(QWidget):
 
         header = QFrame()
         header.setObjectName("adminRulesHeader")
-        header.setFixedHeight(40)
+        header.setFixedHeight(42)
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(14, 0, 12, 0)
         header_layout.setSpacing(8)
@@ -93,7 +93,7 @@ class AdministrationPage(QWidget):
             label = QLabel(text)
             label.setObjectName("adminHeaderText")
             label.setFixedWidth(width)
-            label.setAlignment(Qt.AlignCenter if text != "카테고리" else Qt.AlignLeft | Qt.AlignVCenter)
+            label.setAlignment(Qt.AlignCenter)
             header_layout.addWidget(label)
         table_layout.addWidget(header)
 
@@ -172,10 +172,10 @@ class AdministrationPage(QWidget):
         body_layout.setContentsMargins(12, 2, 12, 2)
         body_layout.setSpacing(0)
 
-        theme_combo = QComboBox()
-        theme_combo.addItems(["다크", "라이트"])
-        theme_combo.setFixedSize(240, 34)
-        body_layout.addLayout(self.setting_row("테마", theme_combo, 44))
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItems(["다크", "라이트"])
+        self.theme_combo.setFixedSize(240, 34)
+        body_layout.addLayout(self.setting_row("테마", self.theme_combo, 44))
 
         path_controls = QWidget()
         path_controls.setFixedWidth(240)
@@ -202,31 +202,7 @@ class AdministrationPage(QWidget):
         main_layout.addWidget(settings_card)
         main_layout.addStretch(1)
 
-        self.setStyleSheet("""
-            #adminAccentLabel { color:#46a3ff; font-size:13px; font-weight:800; }
-            #adminSummaryFrame { background:transparent; border:1px solid #40576b; border-radius:9px; }
-            #adminSummaryValue, #adminSummaryActive, #adminSummaryInactive { color:#ffffff; font-size:24px; font-weight:850; }
-            #adminSummaryActive { color:#22c55e; }
-            #adminSummaryInactive { color:#ff5a36; }
-            #adminSummaryText { color:#f1f5f9; font-size:13px; font-weight:700; }
-            #adminSectionCard { background:#172636; border-radius:8px; }
-            #adminSectionTitle { color:#ffffff; font-size:16px; font-weight:850; }
-            #adminRulesTable, #adminSettingsBody { background:#0e1b27; border-radius:7px; }
-            #adminRulesHeader { background:#132332; border-bottom:1px solid #2b4052; }
-            #adminHeaderText { color:#f1f5f9; font-size:12px; font-weight:800; }
-            #adminCategoryRow { background:#0e1b27; border-bottom:1px solid #263a4b; }
-            #adminCategoryName { color:#ffffff; font-size:13px; font-weight:800; }
-            #adminCount { color:#ffffff; font-size:14px; font-weight:800; }
-            #adminActiveCount { color:#22c55e; font-size:14px; font-weight:850; }
-            #adminInactiveCount { color:#ff5a36; font-size:14px; font-weight:850; }
-            #adminViewButton, #adminBrowseButton { background:#182b3d; color:#ffffff; border:1px solid #36536a; border-radius:6px; font-size:12px; font-weight:800; }
-            #adminViewButton:hover, #adminBrowseButton:hover { background:#22394d; }
-            #adminNote { color:#cbd5e1; font-size:11px; font-weight:650; }
-            #adminSettingLabel { color:#f1f5f9; font-size:12px; font-weight:750; }
-            #adminPath, QComboBox { background:#10202e; color:#ffffff; border:1px solid #3a5368; border-radius:6px; padding:0 9px; font-size:12px; }
-            QPushButton#adminToggle { background:#31465a; color:#dbe4ed; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
-            QPushButton#adminToggle:checked { background:#22c55e; color:#ffffff; }
-        """)
+        self.apply_theme(True)
 
     def create_toggle(self, checked):
         toggle = QPushButton("ON" if checked else "OFF")
@@ -249,6 +225,63 @@ class AdministrationPage(QWidget):
         row.addStretch()
         row.addWidget(control, 0, Qt.AlignVCenter)
         return row
+
+    def apply_theme(self, is_dark):
+        self.theme_combo.setCurrentText("다크" if is_dark else "라이트")
+        if is_dark:
+            self.setStyleSheet("""
+                #adminAccentLabel { color:#46a3ff; font-size:13px; font-weight:800; }
+                #adminSummaryFrame { background:#0b1219; border:1px solid #40576b; border-radius:9px; }
+                #adminSummaryValue, #adminSummaryActive, #adminSummaryInactive { color:#ffffff; font-size:24px; font-weight:850; }
+                #adminSummaryActive { color:#22c55e; }
+                #adminSummaryInactive { color:#ff5a36; }
+                #adminSummaryText { color:#f8fafc; font-size:13px; font-weight:750; }
+                #adminSectionCard { background:#18293a; border:1px solid #21394d; border-radius:8px; }
+                #adminSectionTitle { color:#ffffff; font-size:16px; font-weight:850; }
+                #adminRulesTable, #adminSettingsBody { background:#0d1b27; border:1px solid #21384a; border-radius:7px; }
+                #adminRulesHeader { background:#162b3c; border-bottom:1px solid #476174; }
+                #adminHeaderText { color:#ffffff; font-size:12px; font-weight:850; }
+                #adminCategoryRow { background:#0d1b27; border-bottom:1px solid #30485a; }
+                #adminCategoryRow:hover { background:#132536; }
+                #adminCategoryName { color:#ffffff; font-size:13px; font-weight:850; }
+                #adminCount { color:#ffffff; font-size:15px; font-weight:850; }
+                #adminActiveCount { color:#28d768; font-size:15px; font-weight:900; }
+                #adminInactiveCount { color:#ff613e; font-size:15px; font-weight:900; }
+                #adminViewButton, #adminBrowseButton { background:#1b3347; color:#ffffff; border:1px solid #46647b; border-radius:6px; font-size:12px; font-weight:850; }
+                #adminViewButton:hover, #adminBrowseButton:hover { background:#27465e; }
+                #adminNote { color:#d7e1eb; font-size:11px; font-weight:700; }
+                #adminSettingLabel { color:#ffffff; font-size:12px; font-weight:800; }
+                #adminPath, QComboBox { background:#102331; color:#ffffff; border:1px solid #476174; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
+                QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
+                QPushButton#adminToggle:checked { background:#20c967; color:#ffffff; }
+            """)
+        else:
+            self.setStyleSheet("""
+                #adminAccentLabel { color:#1d70d6; font-size:13px; font-weight:800; }
+                #adminSummaryFrame { background:#ffffff; border:1px solid #9fb0c1; border-radius:9px; }
+                #adminSummaryValue { color:#152333; font-size:24px; font-weight:850; }
+                #adminSummaryActive { color:#149447; font-size:24px; font-weight:850; }
+                #adminSummaryInactive { color:#e2492d; font-size:24px; font-weight:850; }
+                #adminSummaryText { color:#26384a; font-size:13px; font-weight:750; }
+                #adminSectionCard { background:#ffffff; border:1px solid #c2ced9; border-radius:8px; }
+                #adminSectionTitle { color:#142435; font-size:16px; font-weight:850; }
+                #adminRulesTable, #adminSettingsBody { background:#f8fafc; border:1px solid #c5d0da; border-radius:7px; }
+                #adminRulesHeader { background:#e7eef5; border-bottom:1px solid #aebdcb; }
+                #adminHeaderText { color:#243648; font-size:12px; font-weight:850; }
+                #adminCategoryRow { background:#ffffff; border-bottom:1px solid #d2dce5; }
+                #adminCategoryRow:hover { background:#f1f6fa; }
+                #adminCategoryName { color:#142435; font-size:13px; font-weight:850; }
+                #adminCount { color:#142435; font-size:15px; font-weight:850; }
+                #adminActiveCount { color:#149447; font-size:15px; font-weight:900; }
+                #adminInactiveCount { color:#e2492d; font-size:15px; font-weight:900; }
+                #adminViewButton, #adminBrowseButton { background:#edf3f8; color:#17324a; border:1px solid #a9bac8; border-radius:6px; font-size:12px; font-weight:850; }
+                #adminViewButton:hover, #adminBrowseButton:hover { background:#e0eaf2; }
+                #adminNote { color:#4a5e72; font-size:11px; font-weight:700; }
+                #adminSettingLabel { color:#243648; font-size:12px; font-weight:800; }
+                #adminPath, QComboBox { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
+                QPushButton#adminToggle { background:#aab6c3; color:#ffffff; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
+                QPushButton#adminToggle:checked { background:#20b85f; color:#ffffff; }
+            """)
 
     def open_rules(self, name, total, active, inactive):
         dialog = AdministrationRulesDialog(name, total, active, inactive, self)
