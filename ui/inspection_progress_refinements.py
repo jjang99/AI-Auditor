@@ -83,7 +83,7 @@ def _progress_row_widget(parent):
 
 def _progress_status_widget(parent):
     row_widget = QWidget(parent)
-    row_widget.setFixedHeight(46)
+    row_widget.setFixedHeight(54)
     row = QHBoxLayout(row_widget)
     row.setContentsMargins(0, 0, 0, 0)
     row.setSpacing(10)
@@ -96,11 +96,11 @@ def _progress_status_widget(parent):
     ]
     for title, value, width in items:
         box = parent.create_progress_info_box(title, value)
-        box.setFixedSize(width, 46)
+        box.setFixedSize(width, 54)
         box_layout = box.layout()
         if box_layout is not None:
-            box_layout.setContentsMargins(10, 3, 10, 3)
-            box_layout.setSpacing(0)
+            box_layout.setContentsMargins(10, 6, 10, 5)
+            box_layout.setSpacing(4)
         row.addWidget(box)
     return row_widget
 
