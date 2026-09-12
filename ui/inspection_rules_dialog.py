@@ -38,9 +38,9 @@ class InspectionRulesDialog(QDialog):
         icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons")
         icon = QLabel()
         icon.setObjectName("rulesDialogShieldIcon")
-        icon.setPixmap(QIcon(os.path.join(icon_dir, "detail_grade.svg")).pixmap(QSize(18, 18)))
+        icon.setPixmap(QIcon(os.path.join(icon_dir, "detail_grade.svg")).pixmap(QSize(22, 22)))
         icon.setAlignment(Qt.AlignCenter)
-        icon.setFixedSize(26, 26)
+        icon.setFixedSize(30, 30)
         icon.installEventFilter(self)
         title = QLabel("보안 취약점")
         title.setObjectName("rulesDialogTitle")
@@ -250,8 +250,6 @@ class InspectionRulesDialog(QDialog):
                 #rulesTableScroll QScrollBar::add-line:vertical, #rulesTableScroll QScrollBar::sub-line:vertical { height:0px; }
                 QCheckBox#rulesCheckbox { background:transparent; spacing:0px; }
                 QCheckBox#rulesCheckbox::indicator { width:18px; height:18px; }
-                QCheckBox#rulesCheckbox::indicator:unchecked { background:#0d1721; border:1px solid #64748b; border-radius:4px; }
-                QCheckBox#rulesCheckbox::indicator:checked { background:#0878f9; border:1px solid #3194ff; border-radius:4px; }
             """)
         else:
             self.setStyleSheet("""
@@ -284,6 +282,4 @@ class InspectionRulesDialog(QDialog):
                 #rulesTableScroll QScrollBar::add-line:vertical, #rulesTableScroll QScrollBar::sub-line:vertical { height:0px; }
                 QCheckBox#rulesCheckbox { background:transparent; spacing:0px; }
                 QCheckBox#rulesCheckbox::indicator { width:18px; height:18px; }
-                QCheckBox#rulesCheckbox::indicator:unchecked { background:#ffffff; border:1px solid #8296aa; border-radius:4px; }
-                QCheckBox#rulesCheckbox::indicator:checked { background:#0878f9; border:1px solid #2563eb; border-radius:4px; }
             """)
