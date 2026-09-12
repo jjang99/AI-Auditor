@@ -163,7 +163,7 @@ class InspectionPage(QWidget):
         row=QFrame(); row.setObjectName("inspectionRuleRow"); row.setFixedHeight(37); layout=QHBoxLayout(row); layout.setContentsMargins(10,3,8,3); layout.setSpacing(9)
         checked=QLabel("✓"); checked.setObjectName("inspectionCheck"); checked.setAlignment(Qt.AlignCenter); checked.setFixedSize(20,20)
         icon_label=QLabel(icon); icon_label.setObjectName("inspectionRuleIcon"); icon_label.setFixedWidth(28); name_label=QLabel(name); name_label.setObjectName("inspectionRuleName"); name_label.setFixedWidth(145); count_label=QLabel(count); count_label.setObjectName("inspectionRuleCount"); count_label.setFixedWidth(95); desc_label=QLabel(description); desc_label.setObjectName("inspectionRuleDescription")
-        view=QPushButton("보기 ⌄"); view.setObjectName("inspectionViewButton"); view.setFixedSize(68,27)
+        view=QPushButton("보기"); view.setObjectName("inspectionViewButton"); view.setFixedSize(58,27)
         if open_dialog: view.clicked.connect(self.open_security_rules)
         layout.addWidget(checked); layout.addWidget(icon_label); layout.addWidget(name_label); layout.addWidget(count_label); layout.addWidget(desc_label,1); layout.addWidget(view); return row
 
@@ -186,7 +186,10 @@ class InspectionPage(QWidget):
         #inspectionCard { background:#10161c; border:1px solid #293747; border-radius:8px; }
         #inspectionSectionTitle { color:#f8fafc; font-size:13px; font-weight:700; }
         #inspectionFieldLabel { color:#cbd5e1; font-size:9px; }
-        #inspectionInput, #inspectionCombo { color:#e5e7eb; background:#0c141c; border:1px solid #334155; border-radius:5px; padding:0 10px; font-size:10px; }
+        #inspectionInput { color:#e5e7eb; background:#0c141c; border:1px solid #334155; border-radius:5px; padding:0 10px; font-size:10px; }
+        QComboBox#inspectionCombo { color:#e5e7eb; background:#0c141c; border:1px solid #334155; border-radius:5px; padding:0 10px; font-size:10px; }
+        QComboBox#inspectionCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #334155; border-top-right-radius:5px; border-bottom-right-radius:5px; background:#132433; }
+        QComboBox#inspectionCombo::down-arrow { width:9px; height:9px; }
         #inspectionDuplicate { color:#f59e0b; font-size:8px; }
         #inspectionDuplicateButton { color:#f59e0b; background:transparent; border:none; padding:0; font-size:8px; font-weight:600; text-decoration:underline; }
         #inspectionDuplicateButton:hover { color:#fbbf24; }
