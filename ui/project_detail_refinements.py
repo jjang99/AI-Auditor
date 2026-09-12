@@ -37,9 +37,9 @@ def apply_project_detail_refinements(ProjectDetailPage):
         issues = _card_by_prefix(body_cards, "Issues (")
         detail = _card_by_title(body_cards, "Issue Detail")
 
-        # Issues를 조금 더 넓히기 위해 좌측 분석열과 우측 상세열을 소폭 축소.
         if distribution:
             distribution.setMaximumWidth(166)
+            _refine_distribution(distribution)
         if history:
             history.setMaximumWidth(166)
         if issues:
@@ -72,6 +72,14 @@ def apply_project_detail_refinements(ProjectDetailPage):
             button.clicked.connect(show_remaining)
             button.show()
 
+        # 공통 보조 버튼의 높이/가독성 통일
+        for button in self.findChildren(QPushButton, "detailHistoryButton"):
+            button.setMinimumHeight(34)
+        sort_button = self.findChild(QPushButton, "detailSortButton")
+        if sort_button:
+            sort_button.setMinimumHeight(30)
+            sort_button.setMinimumWidth(78)
+
         icon_map = {
             "detailStatIcon_purple": "detail_score.svg",
             "detailStatIcon_green": "detail_grade.svg",
@@ -92,12 +100,11 @@ def apply_project_detail_refinements(ProjectDetailPage):
             _replace_detail_metadata_rows(detail)
             _refine_detail_header(detail)
 
-        # Inspection History 텍스트 공간 확보
         if history:
             for label in history.findChildren(QLabel, "detailHistoryDate"):
-                label.setMinimumHeight(16)
+                label.setMinimumHeight(17)
             for label in history.findChildren(QLabel, "detailHistoryType"):
-                label.setMinimumHeight(15)
+                label.setMinimumHeight(16)
 
         reinspect = self.findChild(QPushButton, "detailReInspectButton")
         if reinspect:
@@ -127,11 +134,20 @@ def _card_by_prefix(cards, prefix):
     )
 
 
+def _refine_distribution(card):
+    # Distribution의 라벨/숫자는 작은 보조문자이지만 실제 읽기 정보이므로 높이를 확보.
+    for label in card.findChildren(QLabel, "detailSmallText"):
+        label.setMinimumHeight(17)
+        if label.text().isdigit():
+            label.setMinimumWidth(12)
+
+
 def _refine_issue_row(row):
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
         badge.setFixedWidth(44)
-        badge.setMinimumHeight(24)
+        badge.setFixedHeight(20)
+        badge.setAlignment(Qt.AlignCenter)
 
     status = next(
         (x for x in row.findChildren(QLabel)
@@ -155,14 +171,14 @@ def _refine_detail_header(detail_card):
 
     if badge:
         badge.setFixedWidth(58)
-        badge.setMinimumHeight(26)
+        badge.setFixedHeight(24)
         badge.setAlignment(Qt.AlignCenter)
     if status:
-        status.setFixedWidth(46)
-        status.setMinimumHeight(26)
+        status.setFixedWidth(48)
+        status.setMinimumHeight(24)
         status.setAlignment(Qt.AlignCenter)
     if code:
-        code.setMinimumHeight(26)
+        code.setMinimumHeight(24)
         code.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
 
 
@@ -185,26 +201,30 @@ def _replace_detail_metadata_rows(detail_card):
     category.hide()
     rule.hide()
 
-    category_row = _metadata_row("카테고리", "요구사항")
-    rule_row = _metadata_row("발견 기준", "Requirement Consistency Rule")
+    category_row = _metadata_row("카테고리", "요구사항", wrap=False)
+    rule_row = _metadata_row("발견 기준", "Requirement Consistency Rule", wrap=True)
     layout.insertWidget(insert_at, category_row)
     layout.insertWidget(insert_at + 1, rule_row)
 
 
-def _metadata_row(label_text, value_text):
+def _metadata_row(label_text, value_text, wrap=False):
     row = QFrame()
     row.setObjectName("detailMetaRow")
     row_layout = QHBoxLayout(row)
-    row_layout.setContentsMargins(8, 4, 8, 4)
+    row_layout.setContentsMargins(8, 5, 8, 5)
     row_layout.setSpacing(8)
 
     label = QLabel(label_text)
     label.setObjectName("detailMetaLabel")
     label.setFixedWidth(50)
+    label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
     value = QLabel(value_text)
     value.setObjectName("detailMetaValue")
-    value.setWordWrap(False)
+    value.setWordWrap(wrap)
+    value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+    value.setMinimumWidth(0)
+    value.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
     row_layout.addWidget(label)
     row_layout.addWidget(value, 1)
