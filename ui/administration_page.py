@@ -80,7 +80,7 @@ class AdministrationPage(QWidget):
         table = QFrame()
         table.setObjectName("adminRulesTable")
         table_layout = QVBoxLayout(table)
-        table_layout.setContentsMargins(0, 0, 0, 0)
+        table_layout.setContentsMargins(0, 0, 0, 1)
         table_layout.setSpacing(0)
 
         header = QFrame()
@@ -265,7 +265,7 @@ class AdministrationPage(QWidget):
                 #adminSummaryText { color:#26384a; font-size:13px; font-weight:750; }
                 #adminSectionCard { background:#ffffff; border:1px solid #c2ced9; border-radius:8px; }
                 #adminSectionTitle { color:#142435; font-size:16px; font-weight:850; }
-                #adminRulesTable, #adminSettingsBody { background:#f8fafc; border:1px solid #c5d0da; border-radius:7px; }
+                #adminRulesTable, #adminSettingsBody { background:#f8fafc; border:1px solid #b6c4d1; border-radius:7px; }
                 #adminRulesHeader { background:#e7eef5; border-bottom:1px solid #aebdcb; }
                 #adminHeaderText { color:#243648; font-size:12px; font-weight:850; }
                 #adminCategoryRow { background:#ffffff; border-bottom:1px solid #d2dce5; }
