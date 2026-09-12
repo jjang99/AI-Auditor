@@ -7,11 +7,14 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QMainWindow, QPushButton, QSt
 from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
 from ui.project_detail_page import ProjectDetailPage
+from ui.project_detail_refinements import apply_project_detail_refinements
 from ui.inspection_page import InspectionPage
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
 from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES
+
+apply_project_detail_refinements(ProjectDetailPage)
 
 
 class MainWindow(QMainWindow):
