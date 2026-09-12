@@ -4,14 +4,14 @@ from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QProgressBar
 
 DARK_INSPECTION_PROGRESS = r'''
 #inspectionProgressDescription {
-    color:#cbd5e1;
-    font-size:10px;
-    font-weight:550;
+    color:#e2e8f0;
+    font-size:11px;
+    font-weight:650;
 }
 #inspectionProgressPercent {
     color:#60a5fa;
-    font-size:30px;
-    font-weight:700;
+    font-size:32px;
+    font-weight:800;
 }
 QProgressBar#inspectionProgressBar {
     background:#2b3b4b;
@@ -23,44 +23,46 @@ QProgressBar#inspectionProgressBar::chunk {
     border-radius:10px;
 }
 #inspectionCancelButton {
-    color:#f87171;
-    background:#10161c;
-    border:1px solid #d35b5b;
+    color:#fecaca;
+    background:#2a171a;
+    border:1px solid #dc6262;
     border-radius:7px;
     font-size:11px;
-    font-weight:700;
+    font-weight:750;
 }
 #inspectionCancelButton:hover {
-    background:#241619;
+    color:#ffffff;
+    background:#3a1c20;
+    border-color:#f87171;
 }
 #inspectionProgressInfoBox {
     background:#0d1721;
-    border:1px solid #3a4758;
+    border:1px solid #465669;
     border-radius:7px;
 }
 #inspectionProgressInfoTitle {
-    color:#aebaca;
-    font-size:10px;
-    font-weight:600;
+    color:#d1d9e3;
+    font-size:11px;
+    font-weight:700;
 }
 #inspectionProgressInfoValue {
     color:#ffffff;
-    font-size:11px;
-    font-weight:650;
+    font-size:12px;
+    font-weight:750;
 }
 '''
 
 
 LIGHT_INSPECTION_PROGRESS = r'''
 #inspectionProgressDescription {
-    color:#475569;
-    font-size:10px;
-    font-weight:600;
+    color:#334155;
+    font-size:11px;
+    font-weight:650;
 }
 #inspectionProgressPercent {
     color:#2563eb;
-    font-size:30px;
-    font-weight:750;
+    font-size:32px;
+    font-weight:800;
 }
 QProgressBar#inspectionProgressBar {
     background:#d6dee8;
@@ -73,29 +75,31 @@ QProgressBar#inspectionProgressBar::chunk {
 }
 #inspectionCancelButton {
     color:#b91c1c;
-    background:#ffffff;
-    border:1px solid #dc6b6b;
+    background:#fff1f2;
+    border:1px solid #e57a7a;
     border-radius:7px;
     font-size:11px;
-    font-weight:700;
+    font-weight:750;
 }
 #inspectionCancelButton:hover {
-    background:#fff1f2;
+    color:#991b1b;
+    background:#ffe4e6;
+    border-color:#dc2626;
 }
 #inspectionProgressInfoBox {
     background:#f8fafc;
-    border:1px solid #b8c4d2;
+    border:1px solid #aebccc;
     border-radius:7px;
 }
 #inspectionProgressInfoTitle {
-    color:#475569;
-    font-size:10px;
-    font-weight:650;
+    color:#334155;
+    font-size:11px;
+    font-weight:700;
 }
 #inspectionProgressInfoValue {
     color:#0b1220;
-    font-size:11px;
-    font-weight:700;
+    font-size:12px;
+    font-weight:750;
 }
 '''
 
@@ -131,12 +135,26 @@ def apply_inspection_progress_refinements(inspection_cls):
         if cancel is not None:
             cancel.setFixedSize(115, 46)
 
-        for box in progress_card.findChildren(QFrame, 'inspectionProgressInfoBox'):
-            box.setFixedHeight(70)
+        info_boxes = progress_card.findChildren(QFrame, 'inspectionProgressInfoBox')
+        for box in info_boxes:
+            box.setFixedHeight(74)
             box_layout = box.layout()
             if box_layout is not None:
-                box_layout.setContentsMargins(10, 9, 10, 9)
+                box_layout.setContentsMargins(11, 9, 11, 9)
                 box_layout.setSpacing(5)
+
+            title = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoTitle')), None)
+            if title is not None:
+                title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                title_text = title.text()
+                if title_text == '현재 검사 항목':
+                    box.setFixedWidth(250)
+                else:
+                    box.setFixedWidth(108)
+
+            value = next(iter(box.findChildren(QLabel, 'inspectionProgressInfoValue')), None)
+            if value is not None:
+                value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     inspection_cls.__init__ = refined_init
     inspection_cls._progress_refined = True
