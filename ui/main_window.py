@@ -1,8 +1,8 @@
 import os
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
 
 from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
@@ -93,10 +93,27 @@ class MainWindow(QMainWindow):
         self.projects_page.project_selected.connect(self.open_project_detail)
         self.inspection_page.existing_project_selected.connect(self.open_project_detail)
         self.inspection_page.inspection_result_requested.connect(lambda: self.open_project_detail({}))
+
+        self.home_page.inspection_button.clicked.connect(lambda: self.select_menu("Inspection"))
+        for card in self.home_page.findChildren(QFrame, "homeCard"):
+            title_label = card.findChild(QLabel, "homeCardTitle")
+            if title_label is not None:
+                card.setProperty("menuName", title_label.text())
+                card.setCursor(Qt.PointingHandCursor)
+                card.installEventFilter(self)
+
         main_layout.addWidget(self.header)
         main_layout.addWidget(content)
         self.page_stack.setCurrentWidget(self.home_page)
         self.apply_theme()
+
+    def eventFilter(self, watched, event):
+        if event.type() == QEvent.MouseButtonRelease:
+            menu_name = watched.property("menuName")
+            if menu_name in {"Projects", "Inspection", "Reports", "Administration"}:
+                self.select_menu(menu_name)
+                return True
+        return super().eventFilter(watched, event)
 
     def update_sidebar_selection(self, selected_name):
         for sidebar in self.sidebars:
