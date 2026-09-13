@@ -1,0 +1,319 @@
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QPushButton, QStyle
+
+from rules.definitions.default_rules import get_default_rules
+from ui.inspection_rules_dialog import InspectionRulesDialog
+
+
+CATEGORY_COUNTS = {
+    "보안 취약점": 32,
+    "코드 품질": 45,
+    "AI 특화 검증": 15,
+    "성능 및 효율성": 10,
+}
+
+CATEGORY_ICONS = {
+    "보안 취약점": "♢",
+    "코드 품질": "</>",
+    "AI 특화 검증": "AI",
+    "성능 및 효율성": "◌",
+}
+
+# 현재 화면에 정의되어 있는 대표 규칙 8개는 각 카테고리의 앞쪽 규칙으로 취급한다.
+# 실제 102개 규칙 목록은 추후 Rule 정의가 완성되는 시점에 이 UI 데이터와 연결한다.
+EXECUTABLE_RULE_INDEX = {
+    "SEC-001": ("보안 취약점", 3),   # Hard Coding (민감정보)
+    "SEC-002": ("보안 취약점", 0),   # SQL Injection 계열
+    "QUAL-001": ("코드 품질", 0),    # TODO/FIXME 잔존
+    "QUAL-002": ("코드 품질", 1),    # 디버그 출력 잔존
+    "PERF-001": ("성능 및 효율성", 0),  # 무한 반복문
+}
+
+
+def apply_inspection_rule_ui_patch(InspectionPage):
+    """Inspection runtime 적용 이후, Rule 선택 UI/상태 표시를 보정한다."""
+
+    original_init = InspectionPage.__init__
+    original_refresh_file_table = InspectionPage._refresh_file_table
+
+    def patched_init(self):
+        original_init(self)
+
+        # 102개 Rule의 선택 상태를 UI 기준으로 관리한다.
+        # 현재 상세 모달에 실제 명칭이 정의된 것은 앞쪽 8개이며,
+        # 나머지는 Rule 목록 확정 시 상세 데이터와 연결한다.
+        self.rule_selection_state = {
+            category: [True] * total
+            for category, total in CATEGORY_COUNTS.items()
+        }
+        self.selected_rule_categories = set(CATEGORY_COUNTS)
+
+        # 업로드 안내 앞의 장식 아이콘 제거
+        upload_text = self.findChild(QLabel, "inspectionUploadText")
+        if upload_text:
+            upload_text.setText("파일을 드래그 앤 드롭하거나")
+
+        # 전체 삭제 버튼: 문자 기호 대신 OS/Qt 표준 휴지통 아이콘 사용
+        trash_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
+        for button in self.findChildren(QPushButton, "inspectionSmallButton"):
+            if "전체 삭제" in button.text():
+                button.setText("전체 삭제")
+                button.setIcon(trash_icon)
+                button.setToolTip("등록된 파일 전체 삭제")
+
+        # 카테고리 체크 버튼을 일반적인 체크박스 형태로 보이도록 스타일 보강
+        self.setStyleSheet(
+            self.styleSheet()
+            + """
+            QPushButton#inspectionCheck {
+                color: transparent;
+                background: transparent;
+                border: 1px solid #64748b;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 800;
+                padding: 0;
+            }
+            QPushButton#inspectionCheck:checked {
+                color: #ffffff;
+                background: #2563eb;
+                border: 1px solid #2563eb;
+            }
+            QPushButton#inspectionCheck:hover {
+                border: 1px solid #3b82f6;
+            }
+            QPushButton#inspectionFileDeleteButton {
+                color: #cbd5e1;
+                background: transparent;
+                border: none;
+                border-radius: 4px;
+                padding: 2px;
+            }
+            QPushButton#inspectionFileDeleteButton:hover {
+                background: #263747;
+            }
+            """
+        )
+
+        self._refresh_file_table()
+        self._refresh_rule_summary()
+
+    def selected_count(self, category):
+        states = getattr(self, "rule_selection_state", {}).get(category)
+        if states is None:
+            return CATEGORY_COUNTS.get(category, 0) if category in getattr(self, "selected_rule_categories", set()) else 0
+        return sum(1 for checked in states if checked)
+
+    def sync_rule_rows(self):
+        for row in self.findChildren(QFrame, "inspectionRuleRow"):
+            category = row.property("ruleCategory")
+            if category not in CATEGORY_COUNTS:
+                continue
+
+            current = selected_count(self, category)
+            total = CATEGORY_COUNTS[category]
+
+            count_label = row.findChild(QLabel, "inspectionRuleCount")
+            if count_label:
+                count_label.setText(f"{current} / {total}개 규칙")
+
+            toggle = row.findChild(QPushButton, "inspectionCheck")
+            if toggle:
+                toggle.blockSignals(True)
+                toggle.setChecked(current > 0)
+                toggle.setText("✓" if current > 0 else "")
+                toggle.setToolTip(
+                    "선택된 규칙 있음" if current == total
+                    else "일부 규칙 선택됨" if current > 0
+                    else "선택된 규칙 없음"
+                )
+                toggle.blockSignals(False)
+
+    def set_rule_category(self, category, selected):
+        if not hasattr(self, "rule_selection_state"):
+            self.rule_selection_state = {
+                name: [True] * total for name, total in CATEGORY_COUNTS.items()
+            }
+        self.rule_selection_state[category] = [selected] * CATEGORY_COUNTS[category]
+        if selected:
+            self.selected_rule_categories.add(category)
+        else:
+            self.selected_rule_categories.discard(category)
+        self._refresh_rule_summary()
+
+    def set_all_rule_categories(self, selected):
+        if not hasattr(self, "rule_selection_state"):
+            self.rule_selection_state = {}
+        for category, total in CATEGORY_COUNTS.items():
+            self.rule_selection_state[category] = [selected] * total
+        self.selected_rule_categories = set(CATEGORY_COUNTS) if selected else set()
+        self._refresh_rule_summary()
+
+    def refresh_rule_summary(self):
+        # runtime __init__ 안에서 이 함수가 먼저 호출될 수 있으므로 fallback 처리
+        if not hasattr(self, "rule_selection_state"):
+            current = sum(
+                CATEGORY_COUNTS[name]
+                for name in getattr(self, "selected_rule_categories", set())
+                if name in CATEGORY_COUNTS
+            )
+        else:
+            current = sum(sum(1 for checked in states if checked) for states in self.rule_selection_state.values())
+
+        total = sum(CATEGORY_COUNTS.values())
+        sync_rule_rows(self)
+
+        summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
+        summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
+        if len(summary_values) > 1:
+            summary_values[1].setText(f"{current} / {total}개")
+        if len(summary_details) > 1:
+            summary_details[1].setText("(현재 선택된 규칙)")
+
+    def selected_executable_rules(self):
+        """현재 실제 구현된 5개 Rule은 상세 선택 상태까지 반영해서 실행한다."""
+        rules = []
+        states_by_category = getattr(self, "rule_selection_state", {})
+        for rule in get_default_rules():
+            mapping = EXECUTABLE_RULE_INDEX.get(rule.code)
+            if mapping is None:
+                if rule.category in getattr(self, "selected_rule_categories", set()):
+                    rules.append(rule)
+                continue
+
+            category, index = mapping
+            states = states_by_category.get(category)
+            if states is None:
+                if category in getattr(self, "selected_rule_categories", set()):
+                    rules.append(rule)
+            elif 0 <= index < len(states) and states[index]:
+                rules.append(rule)
+        return rules
+
+    def open_rule_category_dialog(self, category):
+        if not hasattr(self, "rule_selection_state"):
+            self.rule_selection_state = {
+                name: [True] * total for name, total in CATEGORY_COUNTS.items()
+            }
+
+        dialog = InspectionRulesDialog(self)
+        total = CATEGORY_COUNTS.get(category, 0)
+        working = list(self.rule_selection_state[category])
+
+        title = dialog.findChild(QLabel, "rulesDialogTitle")
+        count = dialog.findChild(QLabel, "rulesDialogCount")
+        header_icon = dialog.findChild(QLabel, "rulesDialogShieldIcon")
+        if title:
+            title.setText(category)
+        if count:
+            count.setText(f"{total}개 규칙")
+        if header_icon:
+            header_icon.setPixmap(header_icon.pixmap().__class__()) if header_icon.pixmap() else None
+            header_icon.clear()
+            header_icon.setText(CATEGORY_ICONS.get(category, ""))
+            header_icon.setAlignment(Qt.AlignCenter)
+
+        # 문구를 '항목'이 아닌 '규칙' 기준으로 통일
+        for label in dialog.findChildren(QLabel):
+            if label.text() == "항목명":
+                label.setText("규칙명")
+            elif label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.":
+                label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
+
+        # runtime에서 사용하던 카테고리별 대표 규칙 명칭/설명 반영
+        try:
+            from ui.inspection_runtime import CATEGORY_DIALOG_ROWS
+            samples = CATEGORY_DIALOG_ROWS.get(category, [])
+        except Exception:
+            samples = []
+
+        rows = dialog.findChildren(QFrame, "rulesTableRow")
+        for index, row in enumerate(rows):
+            labels = [
+                label for label in row.findChildren(QLabel)
+                if label.objectName() in {"rulesRowText", "rulesRowDescription"}
+            ]
+            if index < len(samples) and len(labels) >= 2:
+                labels[0].setText(samples[index][0])
+                labels[1].setText(samples[index][1])
+
+        checkboxes = list(dialog.rule_checkboxes)
+        state_labels = list(dialog.state_labels)
+
+        # 기존 '32 - 화면의 8개 미선택' 계산 로직 연결을 제거하고
+        # 실제 카테고리 전체 선택 상태를 기준으로 계산한다.
+        for checkbox in checkboxes:
+            try:
+                checkbox.stateChanged.disconnect()
+            except (RuntimeError, TypeError):
+                pass
+
+        def update_count_label():
+            selected = sum(1 for checked in working if checked)
+            dialog.selected_count.setText(f"선택됨 {selected} / {total}개 규칙")
+
+        def set_visible_state(index, checked):
+            if index < len(working):
+                working[index] = checked
+            if index < len(state_labels):
+                state_labels[index].setText("활성" if checked else "비활성")
+            update_count_label()
+
+        for index, checkbox in enumerate(checkboxes):
+            checked = working[index] if index < len(working) else False
+            checkbox.blockSignals(True)
+            checkbox.setChecked(checked)
+            checkbox.blockSignals(False)
+            if index < len(state_labels):
+                state_labels[index].setText("활성" if checked else "비활성")
+            checkbox.stateChanged.connect(
+                lambda state, idx=index: set_visible_state(idx, state == Qt.Checked.value)
+            )
+
+        def set_all(checked):
+            for i in range(len(working)):
+                working[i] = checked
+            for index, checkbox in enumerate(checkboxes):
+                checkbox.blockSignals(True)
+                checkbox.setChecked(checked)
+                checkbox.blockSignals(False)
+                if index < len(state_labels):
+                    state_labels[index].setText("활성" if checked else "비활성")
+            update_count_label()
+
+        for button in dialog.findChildren(QPushButton, "rulesDialogSmallButton"):
+            try:
+                button.clicked.disconnect()
+            except (RuntimeError, TypeError):
+                pass
+            if button.text() == "전체 선택":
+                button.clicked.connect(lambda _checked=False: set_all(True))
+            elif button.text() == "전체 해제":
+                button.clicked.connect(lambda _checked=False: set_all(False))
+
+        update_count_label()
+
+        if dialog.exec() == QDialog.Accepted:
+            self.rule_selection_state[category] = working
+            current = sum(1 for checked in working if checked)
+            if current > 0:
+                self.selected_rule_categories.add(category)
+            else:
+                self.selected_rule_categories.discard(category)
+            self._refresh_rule_summary()
+
+    def refresh_file_table(self):
+        original_refresh_file_table(self)
+        trash_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
+        for button in self.findChildren(QPushButton, "inspectionFileDeleteButton"):
+            button.setText("")
+            button.setIcon(trash_icon)
+            button.setIconSize(button.size() * 0.62)
+
+    InspectionPage.__init__ = patched_init
+    InspectionPage.set_rule_category = set_rule_category
+    InspectionPage.set_all_rule_categories = set_all_rule_categories
+    InspectionPage._refresh_rule_summary = refresh_rule_summary
+    InspectionPage._selected_executable_rules = selected_executable_rules
+    InspectionPage.open_rule_category_dialog = open_rule_category_dialog
+    InspectionPage._refresh_file_table = refresh_file_table
