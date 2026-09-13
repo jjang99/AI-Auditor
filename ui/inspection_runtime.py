@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QThread, Signal, Qt
-from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton
+from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_name
 from app.services.inspection_service import InspectionService
@@ -135,15 +135,20 @@ def apply_inspection_runtime(InspectionPage):
             row_layout.addWidget(delete_label)
             layout.addWidget(row)
 
-        # The frozen UI uses a 92px viewport for the file list.  The original
-        # demo rows left the inner table at 150px, which caused a scrollbar
-        # even when only one real file was selected.  Keep the viewport as-is
-        # and resize the inner table to the actual number of visible rows.
         row_height = 30
         viewport_height = 92
-        needed_height = max(viewport_height, len(visible_files) * row_height)
+        needed_height = max(viewport_height - 4, len(visible_files) * row_height)
         table.setMinimumHeight(needed_height)
         table.setMaximumHeight(needed_height)
+
+        scroll = self.findChild(QScrollArea, "inspectionFileScroll")
+        if scroll is not None:
+            # Up to three rows fit inside the frozen 92px viewport, so no
+            # scrollbar should be visible. Enable it only when rows overflow.
+            if len(visible_files) <= 3:
+                scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            else:
+                scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def _refresh_file_view(self):
         total_bytes = sum(Path(path).stat().st_size for path in self.selected_files if Path(path).is_file())
