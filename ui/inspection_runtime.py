@@ -94,6 +94,13 @@ def apply_inspection_runtime(InspectionPage):
         self.selected_files.clear()
         self._refresh_file_view()
 
+    def remove_inspection_file(self, file_path):
+        try:
+            self.selected_files.remove(file_path)
+        except ValueError:
+            return
+        self._refresh_file_view()
+
     def _refresh_file_table(self):
         table = self.findChild(QFrame, "inspectionFileTable")
         if table is None or table.layout() is None:
@@ -124,15 +131,21 @@ def apply_inspection_runtime(InspectionPage):
             size_label = QLabel(_format_size(path.stat().st_size) if path.is_file() else "-")
             size_label.setObjectName("inspectionTableText")
             size_label.setFixedWidth(52)
-            delete_label = QLabel("♜")
-            delete_label.setObjectName("inspectionTableText")
-            delete_label.setAlignment(Qt.AlignCenter)
-            delete_label.setFixedWidth(24)
+
+            delete_button = QPushButton("♜")
+            delete_button.setObjectName("inspectionFileDeleteButton")
+            delete_button.setCursor(Qt.PointingHandCursor)
+            delete_button.setToolTip(f"{path.name} 삭제")
+            delete_button.setFlat(True)
+            delete_button.setFixedSize(24, 24)
+            delete_button.clicked.connect(
+                lambda _checked=False, file_path=raw_path: self.remove_inspection_file(file_path)
+            )
 
             row_layout.addWidget(name_label)
             row_layout.addWidget(path_label, 1)
             row_layout.addWidget(size_label)
-            row_layout.addWidget(delete_label)
+            row_layout.addWidget(delete_button)
             layout.addWidget(row)
 
         row_height = 30
@@ -143,8 +156,6 @@ def apply_inspection_runtime(InspectionPage):
 
         scroll = self.findChild(QScrollArea, "inspectionFileScroll")
         if scroll is not None:
-            # Up to three rows fit inside the frozen 92px viewport, so no
-            # scrollbar should be visible. Enable it only when rows overflow.
             if len(visible_files) <= 3:
                 scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             else:
@@ -262,6 +273,7 @@ def apply_inspection_runtime(InspectionPage):
     InspectionPage.create_complete_card = runtime_complete_card
     InspectionPage.select_inspection_files = select_inspection_files
     InspectionPage.clear_inspection_files = clear_inspection_files
+    InspectionPage.remove_inspection_file = remove_inspection_file
     InspectionPage._refresh_file_table = _refresh_file_table
     InspectionPage._refresh_file_view = _refresh_file_view
     InspectionPage.start_real_inspection = start_real_inspection
