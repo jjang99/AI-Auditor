@@ -12,6 +12,7 @@ def apply_inspection_visual_polish(InspectionPage):
 
     original_init = InspectionPage.__init__
     original_refresh_file_table = InspectionPage._refresh_file_table
+    original_refresh_rule_summary = InspectionPage._refresh_rule_summary
     original_dialog_init = InspectionRulesDialog.__init__
 
     icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons")
@@ -29,8 +30,7 @@ def apply_inspection_visual_polish(InspectionPage):
             if count_label is not None:
                 count_label.setFixedWidth(122)
 
-            # 부모 QSS의 기존 font-size가 setFont보다 우선 적용될 수 있으므로,
-            # 세 텍스트에 인라인 QSS를 직접 지정해 실제 렌더링 크기를 확실히 통일한다.
+            # 세 텍스트는 실제 렌더링 크기를 11px로 통일한다.
             if name_label is not None:
                 name_label.setStyleSheet(
                     "color:#f1f5f9; font-size:11px; font-weight:600;"
@@ -46,7 +46,7 @@ def apply_inspection_visual_polish(InspectionPage):
 
             toggle = row.findChild(QPushButton, "inspectionCheck")
             if toggle is not None:
-                # 박스는 기존 17px보다 작게 유지하되, 체크 문자는 거의 박스를 채우도록 키운다.
+                # 선택 상태가 바뀐 뒤에도 동일한 크기/체크 표시가 유지되도록 항상 재적용한다.
                 toggle.setFixedSize(15, 15)
                 toggle.setText("✓" if toggle.isChecked() else "")
                 toggle.setStyleSheet(
@@ -82,6 +82,12 @@ def apply_inspection_visual_polish(InspectionPage):
         original_refresh_file_table(self)
         apply_trash_icon(self)
 
+    def patched_refresh_rule_summary(self):
+        # inspection_rule_ui_patch가 선택 변경 시 14px로 다시 지정하므로,
+        # 원래 상태 갱신이 끝난 직후 최종 시각값(15px)을 다시 적용한다.
+        original_refresh_rule_summary(self)
+        polish_rule_rows(self)
+
     def patched_dialog_init(dialog, *args, **kwargs):
         original_dialog_init(dialog, *args, **kwargs)
 
@@ -94,4 +100,5 @@ def apply_inspection_visual_polish(InspectionPage):
 
     InspectionPage.__init__ = patched_init
     InspectionPage._refresh_file_table = patched_refresh_file_table
+    InspectionPage._refresh_rule_summary = patched_refresh_rule_summary
     InspectionRulesDialog.__init__ = patched_dialog_init
