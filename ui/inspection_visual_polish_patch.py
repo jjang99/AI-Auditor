@@ -31,10 +31,43 @@ def apply_inspection_visual_polish(InspectionPage):
             if count_label is not None:
                 count_label.setFixedWidth(122)
 
-            # 검사기준 행 체크박스는 주변 아이콘/텍스트와 균형이 맞도록 축소한다.
             toggle = row.findChild(QPushButton, "inspectionCheck")
             if toggle is not None:
-                toggle.setFixedSize(17, 17)
+                # 박스 크기는 작게 유지하되, 체크 표시는 더 굵고 선명하게 보이도록 한다.
+                toggle.setFixedSize(14, 14)
+                toggle.setStyleSheet(
+                    "QPushButton#inspectionCheck {"
+                    "font-size:10px; font-weight:900; padding:0;"
+                    "min-width:14px; max-width:14px; min-height:14px; max-height:14px;"
+                    "border-radius:3px;"
+                    "}"
+                    "QPushButton#inspectionCheck:checked {"
+                    "color:#ffffff; background:#2563eb; border:1px solid #2563eb;"
+                    "}"
+                    "QPushButton#inspectionCheck:!checked {"
+                    "color:transparent; background:transparent; border:1px solid #64748b;"
+                    "}"
+                )
+
+        # 구분명 / 규칙수 / 설명의 실제 글자 크기를 동일하게 맞춘다.
+        # 구분명은 굵기만 더 높이고, 크기는 세 항목 모두 11px로 통일한다.
+        self.setStyleSheet(
+            self.styleSheet()
+            + """
+            #inspectionRuleName,
+            #inspectionRuleCount,
+            #inspectionRuleDescription {
+                font-size: 11px;
+            }
+            #inspectionRuleName {
+                font-weight: 600;
+            }
+            #inspectionRuleCount,
+            #inspectionRuleDescription {
+                font-weight: 500;
+            }
+            """
+        )
 
     def apply_trash_icon(self):
         for button in self.findChildren(QPushButton, "inspectionSmallButton"):
@@ -59,8 +92,6 @@ def apply_inspection_visual_polish(InspectionPage):
     def patched_dialog_init(dialog, *args, **kwargs):
         original_dialog_init(dialog, *args, **kwargs)
 
-        # 본문에는 세로 스크롤바(8px)가 있으므로 헤더의 오른쪽 여백도
-        # 그만큼 더 확보해야 '상태' 헤더 중심과 활성/비활성 값의 중심이 일치한다.
         table_header = dialog.findChild(QFrame, "rulesTableHeader")
         if table_header is not None and table_header.layout() is not None:
             table_header.layout().setContentsMargins(12, 0, 20, 0)
