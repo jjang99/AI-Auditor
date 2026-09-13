@@ -12,13 +12,6 @@ CATEGORY_COUNTS = {
     "성능 및 효율성": 10,
 }
 
-CATEGORY_ICONS = {
-    "보안 취약점": "♢",
-    "코드 품질": "</>",
-    "AI 특화 검증": "AI",
-    "성능 및 효율성": "◌",
-}
-
 # 현재 화면에 정의되어 있는 대표 규칙 8개는 각 카테고리의 앞쪽 규칙으로 취급한다.
 # 실제 102개 규칙 목록은 추후 Rule 정의가 완성되는 시점에 이 UI 데이터와 연결한다.
 EXECUTABLE_RULE_INDEX = {
@@ -49,7 +42,6 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         if upload_text:
             upload_text.setText("파일을 드래그 앤 드롭하거나")
 
-        # 전체 삭제: 텍스트보다 튀지 않도록 작은 표준 휴지통 아이콘 사용
         trash_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
         for button in self.findChildren(QPushButton, "inspectionSmallButton"):
             if "전체 삭제" in button.text():
@@ -201,22 +193,41 @@ def apply_inspection_rule_ui_patch(InspectionPage):
             title.setText(category)
         if count:
             count.setText(f"{total}개 규칙")
-        if header_icon:
-            # 메인 검사기준 카드와 동일한 문자 아이콘을 그대로 사용한다.
-            header_icon.clear()
-            header_icon.setText(CATEGORY_ICONS.get(category, ""))
-            header_icon.setAlignment(Qt.AlignCenter)
-            header_icon.setStyleSheet(
-                "color:#60a5fa; background:transparent; border:none; "
-                "font-size:13px; font-weight:700;"
-            )
-            header_icon.setFixedSize(30, 30)
+
+        # 검사기준 선택 카드에서 현재 실제로 렌더링된 아이콘을 그대로 캡처해 사용한다.
+        # 캡처가 실패할 경우 기존 모달의 기본 SVG 아이콘을 그대로 유지한다.
+        source_icon = None
+        for row in self.findChildren(QFrame, "inspectionRuleRow"):
+            if row.property("ruleCategory") == category:
+                source_icon = row.findChild(QLabel, "inspectionRuleIcon")
+                break
+        if header_icon is not None and source_icon is not None:
+            captured = source_icon.grab()
+            if not captured.isNull():
+                header_icon.clear()
+                header_icon.setPixmap(
+                    captured.scaled(
+                        QSize(34, 30),
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation,
+                    )
+                )
+                header_icon.setAlignment(Qt.AlignCenter)
+                header_icon.setFixedSize(40, 34)
+                header_icon.show()
 
         for label in dialog.findChildren(QLabel):
             if label.text() == "항목명":
                 label.setText("규칙명")
             elif label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.":
                 label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
+
+        # 헤더는 각 실제 데이터 컬럼의 중앙에 맞추고,
+        # 상태 값도 중앙 정렬해 헤더와 내용이 자연스럽게 맞도록 한다.
+        for label in dialog.findChildren(QLabel, "rulesTableHeaderText"):
+            label.setAlignment(Qt.AlignCenter)
+        for label in dialog.findChildren(QLabel, "rulesRowState"):
+            label.setAlignment(Qt.AlignCenter)
 
         try:
             from ui.inspection_runtime import CATEGORY_DIALOG_ROWS
@@ -252,6 +263,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
                 working[index] = checked
             if index < len(state_labels):
                 state_labels[index].setText("활성" if checked else "비활성")
+                state_labels[index].setAlignment(Qt.AlignCenter)
             update_count_label()
 
         for index, checkbox in enumerate(checkboxes):
@@ -261,6 +273,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
             checkbox.blockSignals(False)
             if index < len(state_labels):
                 state_labels[index].setText("활성" if checked else "비활성")
+                state_labels[index].setAlignment(Qt.AlignCenter)
             checkbox.stateChanged.connect(
                 lambda state, idx=index: set_visible_state(idx, state == Qt.Checked.value)
             )
@@ -274,6 +287,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
                 checkbox.blockSignals(False)
                 if index < len(state_labels):
                     state_labels[index].setText("활성" if checked else "비활성")
+                    state_labels[index].setAlignment(Qt.AlignCenter)
             update_count_label()
 
         for button in dialog.findChildren(QPushButton, "rulesDialogSmallButton"):
