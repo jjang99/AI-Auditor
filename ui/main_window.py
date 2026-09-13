@@ -8,6 +8,7 @@ from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
 from ui.project_detail_page import ProjectDetailPage
 from ui.project_detail_refinements import apply_project_detail_refinements
+from ui.project_detail_runtime import apply_project_detail_runtime
 from ui.project_detail_theme import DETAIL_DARK_REFINEMENTS, DETAIL_LIGHT_REFINEMENTS
 from ui.inspection_page import InspectionPage
 from ui.inspection_refinements import apply_inspection_refinements, DARK_INSPECTION_REFINEMENTS, LIGHT_INSPECTION_REFINEMENTS
@@ -21,6 +22,7 @@ from ui.theme import DARK_THEME, LIGHT_THEME
 from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES
 
 apply_project_detail_refinements(ProjectDetailPage)
+apply_project_detail_runtime(ProjectDetailPage)
 apply_inspection_refinements(InspectionPage)
 apply_inspection_readability_v2(InspectionPage)
 apply_inspection_final_refinements(InspectionPage)
@@ -92,7 +94,7 @@ class MainWindow(QMainWindow):
             sidebar.theme_toggle_requested.connect(self.toggle_theme)
         self.projects_page.project_selected.connect(self.open_project_detail)
         self.inspection_page.existing_project_selected.connect(self.open_project_detail)
-        self.inspection_page.inspection_result_requested.connect(lambda: self.open_project_detail({}))
+        self.inspection_page.inspection_result_requested.connect(self.open_latest_inspection_result)
 
         self.home_page.inspection_button.clicked.connect(lambda: self.select_menu("Inspection"))
         for card in self.home_page.findChildren(QFrame, "homeCard"):
@@ -140,9 +142,20 @@ class MainWindow(QMainWindow):
             self.header.hide()
             self.page_stack.setCurrentWidget(self.administration_page)
 
+    def open_latest_inspection_result(self):
+        project_id = self.inspection_page.last_project_id
+        inspection_id = self.inspection_page.last_inspection_id
+        if project_id is None:
+            return
+        self.open_project_detail({"id": project_id, "inspection_id": inspection_id})
+
     def open_project_detail(self, project):
         self.header.hide()
         self.update_sidebar_selection("Projects")
+        project_id = project.get("id") if isinstance(project, dict) else None
+        inspection_id = project.get("inspection_id") if isinstance(project, dict) else None
+        if project_id is not None:
+            self.project_detail_page.load_project(project_id, inspection_id)
         self.page_stack.setCurrentWidget(self.project_detail_page)
 
     def toggle_theme(self):
