@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QThread, Signal
-from PySide6.QtWidgets import QFileDialog, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton
+from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton
 
 from app.database.repositories.project_repository import create_project, get_project_by_name
 from app.services.inspection_service import InspectionService
@@ -94,8 +94,44 @@ def apply_inspection_runtime(InspectionPage):
         self.selected_files.clear()
         self._refresh_file_view()
 
+    def _refresh_file_table(self):
+        table = self.findChild(QFrame, "inspectionFileTable")
+        if table is None or table.layout() is None:
+            return
+        layout = table.layout()
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        for raw_path in self.selected_files[:5]:
+            path = Path(raw_path)
+            row = QFrame()
+            row.setObjectName("inspectionFileRow")
+            row.setFixedHeight(24)
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(10, 2, 10, 2)
+            name_label = QLabel(f"▣  {path.name}")
+            name_label.setObjectName("inspectionTableText")
+            name_label.setFixedWidth(190)
+            path_label = QLabel(str(path.parent))
+            path_label.setObjectName("inspectionTableMuted")
+            size_label = QLabel(_format_size(path.stat().st_size) if path.is_file() else "-")
+            size_label.setObjectName("inspectionTableText")
+            size_label.setFixedWidth(52)
+            delete_label = QLabel("♜")
+            delete_label.setObjectName("inspectionTableText")
+            delete_label.setFixedWidth(18)
+            row_layout.addWidget(name_label)
+            row_layout.addWidget(path_label, 1)
+            row_layout.addWidget(size_label)
+            row_layout.addWidget(delete_label)
+            layout.addWidget(row)
+
     def _refresh_file_view(self):
         total_bytes = sum(Path(path).stat().st_size for path in self.selected_files if Path(path).is_file())
+        self._refresh_file_table()
         count_label = self.findChild(QLabel, "inspectionFileCount")
         if count_label:
             count_label.setText(f"등록된 파일 {len(self.selected_files)}개 ({_format_size(total_bytes)})")
@@ -205,6 +241,7 @@ def apply_inspection_runtime(InspectionPage):
     InspectionPage.create_complete_card = runtime_complete_card
     InspectionPage.select_inspection_files = select_inspection_files
     InspectionPage.clear_inspection_files = clear_inspection_files
+    InspectionPage._refresh_file_table = _refresh_file_table
     InspectionPage._refresh_file_view = _refresh_file_view
     InspectionPage.start_real_inspection = start_real_inspection
     InspectionPage._set_progress_state = _set_progress_state
