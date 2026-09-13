@@ -1,0 +1,243 @@
+import time
+from pathlib import Path
+
+from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+from app.database.repositories.project_repository import create_project, get_project_by_name
+from app.services.inspection_service import InspectionService
+
+
+class InspectionWorker(QObject):
+    finished = Signal(object, object, float)
+    failed = Signal(str)
+
+    def __init__(self, file_paths, project_id, inspection_type):
+        super().__init__()
+        self.file_paths = file_paths
+        self.project_id = project_id
+        self.inspection_type = inspection_type
+
+    def run(self):
+        started = time.perf_counter()
+        try:
+            service = InspectionService()
+            inspection_id, summary = service.run(
+                self.file_paths,
+                project_id=self.project_id,
+                inspection_type=self.inspection_type,
+            )
+            self.finished.emit(inspection_id, summary, time.perf_counter() - started)
+        except Exception as exc:
+            self.failed.emit(str(exc))
+
+
+def _format_size(byte_count):
+    if byte_count < 1024:
+        return f"{byte_count} B"
+    if byte_count < 1024 * 1024:
+        return f"{byte_count / 1024:.1f} KB"
+    return f"{byte_count / (1024 * 1024):.1f} MB"
+
+
+def _summary_labels(page):
+    boxes = page.summary_card.findChildren(type(page.project_name.parentWidget()).__mro__[1])
+    return boxes
+
+
+def apply_inspection_runtime(InspectionPage):
+    original_init = InspectionPage.__init__
+    original_progress = InspectionPage.create_progress_card
+    original_complete = InspectionPage.create_complete_card
+
+    def runtime_init(self):
+        original_init(self)
+        self.selected_files = []
+        self.last_inspection_id = None
+        self.last_project_id = None
+        self._inspection_thread = None
+        self._inspection_worker = None
+
+        self.demo_timer.stop()
+        try:
+            self.demo_timer.timeout.disconnect()
+        except RuntimeError:
+            pass
+
+        file_button = self.findChild(type(self.start_button), "inspectionFileButton")
+        if file_button:
+            try:
+                file_button.clicked.disconnect()
+            except RuntimeError:
+                pass
+            file_button.clicked.connect(self.select_inspection_files)
+
+        small_buttons = self.findChildren(type(self.start_button), "inspectionSmallButton")
+        for button in small_buttons:
+            if "전체 삭제" in button.text():
+                button.clicked.connect(self.clear_inspection_files)
+
+        try:
+            self.start_button.clicked.disconnect()
+        except RuntimeError:
+            pass
+        self.start_button.clicked.connect(self.start_real_inspection)
+        self._refresh_file_view()
+
+    def select_inspection_files(self):
+        paths, _ = QFileDialog.getOpenFileNames(
+            self,
+            "검사 대상 파일 선택",
+            "",
+            "텍스트/소스 파일 (*.py *.java *.js *.ts *.yml *.yaml *.xml *.json *.md *.txt *.properties *.sql);;모든 파일 (*.*)",
+        )
+        if not paths:
+            return
+        existing = set(self.selected_files)
+        for path in paths:
+            if path not in existing:
+                self.selected_files.append(path)
+                existing.add(path)
+        self._refresh_file_view()
+
+    def clear_inspection_files(self):
+        self.selected_files.clear()
+        self._refresh_file_view()
+
+    def _refresh_file_view(self):
+        count_label = self.findChild(type(self.project_name), "inspectionFileCount")
+        total_bytes = sum(Path(path).stat().st_size for path in self.selected_files if Path(path).is_file())
+        if count_label:
+            count_label.setText(f"등록된 파일 {len(self.selected_files)}개 ({_format_size(total_bytes)})")
+
+        muted = self.findChildren(type(self.project_name), "inspectionTableMuted")
+        for label in muted:
+            if label.text().startswith("외 "):
+                hidden_count = max(0, len(self.selected_files) - 5)
+                label.setText(f"외 {hidden_count}개 파일" if hidden_count else "")
+            elif label.text().startswith("총 "):
+                label.setText(f"총 {_format_size(total_bytes)}")
+
+        summary_values = self.findChildren(type(self.project_name), "inspectionSummaryValue")
+        summary_details = self.findChildren(type(self.project_name), "inspectionSummaryDetail")
+        if summary_values:
+            summary_values[0].setText(f"{len(self.selected_files)}개 파일")
+        if summary_details:
+            summary_details[0].setText(f"({_format_size(total_bytes)})")
+        if len(summary_values) > 1:
+            summary_values[1].setText("5 / 5개")
+        if len(summary_details) > 1:
+            summary_details[1].setText("(기본 실행 규칙)")
+        if len(summary_values) > 2:
+            summary_values[2].setText("실제 실행 시 측정")
+        if len(summary_details) > 2:
+            summary_details[2].setText("(로컬 Rule Engine)")
+
+    def start_real_inspection(self):
+        name = self.project_name.text().strip()
+        if not name:
+            QMessageBox.warning(self, "프로젝트 정보 확인", "Project Name을 입력해 주세요.")
+            return
+        if not self.selected_files:
+            QMessageBox.warning(self, "검사 대상 확인", "검사할 파일을 먼저 선택해 주세요.")
+            return
+
+        department_inputs = self.findChildren(type(self.project_name), "inspectionInput")
+        department = department_inputs[2].text().strip() if len(department_inputs) > 2 else None
+        note = department_inputs[1].text().strip() if len(department_inputs) > 1 else None
+        project = get_project_by_name(name)
+        if project is None:
+            project_id = create_project(name, department=department or None, note=note or None)
+        else:
+            project_id = project["id"]
+        self.last_project_id = project_id
+
+        combos = self.findChildren(type(self.project_name.parentWidget()).findChild.__self__.__class__) if False else []
+        inspection_type = "전체 검사"
+
+        self.summary_card.hide()
+        self.complete_card.hide()
+        self.progress_card.show()
+        self._set_progress_state("검사 실행 중")
+
+        self._inspection_thread = QThread(self)
+        self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, inspection_type)
+        self._inspection_worker.moveToThread(self._inspection_thread)
+        self._inspection_thread.started.connect(self._inspection_worker.run)
+        self._inspection_worker.finished.connect(self._inspection_succeeded)
+        self._inspection_worker.failed.connect(self._inspection_failed)
+        self._inspection_worker.finished.connect(self._inspection_thread.quit)
+        self._inspection_worker.failed.connect(self._inspection_thread.quit)
+        self._inspection_thread.finished.connect(self._inspection_worker.deleteLater)
+        self._inspection_thread.finished.connect(self._inspection_thread.deleteLater)
+        self._inspection_thread.start()
+
+    def _set_progress_state(self, status):
+        if hasattr(self, "runtime_progress_percent"):
+            self.runtime_progress_percent.setText("…")
+        if hasattr(self, "runtime_progress_bar"):
+            self.runtime_progress_bar.setRange(0, 0)
+        if hasattr(self, "runtime_progress_status"):
+            self.runtime_progress_status.setText(status)
+        if hasattr(self, "runtime_progress_rule"):
+            self.runtime_progress_rule.setText("로컬 Rule Engine 검사")
+        if hasattr(self, "runtime_progress_count"):
+            self.runtime_progress_count.setText("실행 중")
+        if hasattr(self, "runtime_progress_time"):
+            self.runtime_progress_time.setText("측정 중")
+
+    def _inspection_succeeded(self, inspection_id, summary, elapsed):
+        self.last_inspection_id = inspection_id
+        self.progress_card.hide()
+        self.summary_card.hide()
+        self.complete_card.show()
+        if hasattr(self, "runtime_complete_rules"):
+            self.runtime_complete_rules.setText(f"{summary.rule_count} / {summary.rule_count}개")
+        if hasattr(self, "runtime_complete_issues"):
+            self.runtime_complete_issues.setText(f"{summary.total_issues}개")
+        if hasattr(self, "runtime_complete_time"):
+            self.runtime_complete_time.setText(f"{elapsed:.2f}초")
+        if hasattr(self, "runtime_complete_files"):
+            self.runtime_complete_files.setText(f"{summary.file_count}개")
+        self._inspection_thread = None
+        self._inspection_worker = None
+
+    def _inspection_failed(self, message):
+        self.progress_card.hide()
+        self.complete_card.hide()
+        self.summary_card.show()
+        self._inspection_thread = None
+        self._inspection_worker = None
+        QMessageBox.critical(self, "검사 실행 오류", message)
+
+    def runtime_progress_card(self):
+        card = original_progress(self)
+        labels = card.findChildren(type(self.project_name))
+        progress_bars = card.findChildren(__import__("PySide6.QtWidgets", fromlist=["QProgressBar"]).QProgressBar)
+        for label in labels:
+            if label.objectName() == "inspectionProgressPercent":
+                self.runtime_progress_percent = label
+        values = [label for label in labels if label.objectName() == "inspectionProgressInfoValue"]
+        if len(values) >= 4:
+            self.runtime_progress_count, self.runtime_progress_rule, self.runtime_progress_time, self.runtime_progress_status = values[:4]
+        if progress_bars:
+            self.runtime_progress_bar = progress_bars[0]
+        return card
+
+    def runtime_complete_card(self):
+        card = original_complete(self)
+        values = [label for label in card.findChildren(type(self.project_name)) if label.objectName() == "inspectionCompleteInfoValue"]
+        if len(values) >= 4:
+            self.runtime_complete_rules, self.runtime_complete_issues, self.runtime_complete_time, self.runtime_complete_files = values[:4]
+        return card
+
+    InspectionPage.__init__ = runtime_init
+    InspectionPage.create_progress_card = runtime_progress_card
+    InspectionPage.create_complete_card = runtime_complete_card
+    InspectionPage.select_inspection_files = select_inspection_files
+    InspectionPage.clear_inspection_files = clear_inspection_files
+    InspectionPage._refresh_file_view = _refresh_file_view
+    InspectionPage.start_real_inspection = start_real_inspection
+    InspectionPage._set_progress_state = _set_progress_state
+    InspectionPage._inspection_succeeded = _inspection_succeeded
+    InspectionPage._inspection_failed = _inspection_failed
