@@ -9,7 +9,7 @@ def apply_inspection_visual_polish(InspectionPage):
     """Inspection UI의 확정된 잔여 시각 보정만 적용한다.
 
     모달 아이콘/표 정렬은 inspection_rule_ui_patch에서 직접 처리한다.
-    여기서는 이미 확인된 휴지통과 검사기준 행 간격만 유지한다.
+    여기서는 이미 확인된 휴지통, 검사기준 행 간격, 체크박스 크기를 유지한다.
     """
 
     original_init = InspectionPage.__init__
@@ -26,6 +26,11 @@ def apply_inspection_visual_polish(InspectionPage):
             count_label = row.findChild(QLabel, "inspectionRuleCount")
             if count_label is not None:
                 count_label.setFixedWidth(122)
+
+            # 검사기준 행의 체크박스가 주변 아이콘/텍스트보다 커 보이지 않도록 축소한다.
+            toggle = row.findChild(QPushButton, "inspectionCheck")
+            if toggle is not None:
+                toggle.setFixedSize(17, 17)
 
     def apply_trash_icon(self):
         for button in self.findChildren(QPushButton, "inspectionSmallButton"):
