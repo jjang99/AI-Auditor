@@ -1,7 +1,7 @@
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtCore import QObject, QThread, Signal, Qt
 from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton
 
 from app.database.repositories.project_repository import create_project, get_project_by_name
@@ -98,23 +98,27 @@ def apply_inspection_runtime(InspectionPage):
         table = self.findChild(QFrame, "inspectionFileTable")
         if table is None or table.layout() is None:
             return
+
         layout = table.layout()
+        layout.setAlignment(Qt.AlignTop)
         while layout.count():
             item = layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
 
-        for raw_path in self.selected_files[:5]:
+        visible_files = self.selected_files[:5]
+        for raw_path in visible_files:
             path = Path(raw_path)
             row = QFrame()
             row.setObjectName("inspectionFileRow")
-            row.setFixedHeight(24)
+            row.setFixedHeight(30)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(10, 2, 10, 2)
-            name_label = QLabel(f"▣  {path.name}")
+
+            name_label = QLabel(path.name)
             name_label.setObjectName("inspectionTableText")
-            name_label.setFixedWidth(190)
+            name_label.setFixedWidth(170)
             path_label = QLabel(str(path.parent))
             path_label.setObjectName("inspectionTableMuted")
             size_label = QLabel(_format_size(path.stat().st_size) if path.is_file() else "-")
@@ -122,12 +126,24 @@ def apply_inspection_runtime(InspectionPage):
             size_label.setFixedWidth(52)
             delete_label = QLabel("♜")
             delete_label.setObjectName("inspectionTableText")
-            delete_label.setFixedWidth(18)
+            delete_label.setAlignment(Qt.AlignCenter)
+            delete_label.setFixedWidth(24)
+
             row_layout.addWidget(name_label)
             row_layout.addWidget(path_label, 1)
             row_layout.addWidget(size_label)
             row_layout.addWidget(delete_label)
             layout.addWidget(row)
+
+        # The frozen UI uses a 92px viewport for the file list.  The original
+        # demo rows left the inner table at 150px, which caused a scrollbar
+        # even when only one real file was selected.  Keep the viewport as-is
+        # and resize the inner table to the actual number of visible rows.
+        row_height = 30
+        viewport_height = 92
+        needed_height = max(viewport_height, len(visible_files) * row_height)
+        table.setMinimumHeight(needed_height)
+        table.setMaximumHeight(needed_height)
 
     def _refresh_file_view(self):
         total_bytes = sum(Path(path).stat().st_size for path in self.selected_files if Path(path).is_file())
