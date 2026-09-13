@@ -14,6 +14,7 @@ from ui.inspection_refinements import apply_inspection_refinements, DARK_INSPECT
 from ui.inspection_readability_v2 import apply_inspection_readability_v2, DARK_INSPECTION_READABILITY_V2, LIGHT_INSPECTION_READABILITY_V2
 from ui.inspection_final_refinements import apply_inspection_final_refinements, DARK_INSPECTION_FINAL, LIGHT_INSPECTION_FINAL
 from ui.inspection_progress_refinements import apply_inspection_progress_refinements, DARK_INSPECTION_PROGRESS, LIGHT_INSPECTION_PROGRESS
+from ui.inspection_runtime import apply_inspection_runtime
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
@@ -24,6 +25,7 @@ apply_inspection_refinements(InspectionPage)
 apply_inspection_readability_v2(InspectionPage)
 apply_inspection_final_refinements(InspectionPage)
 apply_inspection_progress_refinements(InspectionPage)
+apply_inspection_runtime(InspectionPage)
 
 
 class MainWindow(QMainWindow):
