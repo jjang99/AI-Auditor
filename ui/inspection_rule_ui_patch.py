@@ -194,8 +194,8 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         if count:
             count.setText(f"{total}개 규칙")
 
-        # 검사기준 선택 카드에서 현재 실제로 렌더링된 아이콘을 그대로 캡처해 사용한다.
-        # 캡처가 실패할 경우 기존 모달의 기본 SVG 아이콘을 그대로 유지한다.
+        # 검사기준 선택 카드에서 실제 렌더링된 아이콘을 그대로 사용하되,
+        # 모달 타이틀과 균형이 맞도록 이전보다 한 단계 크게 표시한다.
         source_icon = None
         for row in self.findChildren(QFrame, "inspectionRuleRow"):
             if row.property("ruleCategory") == category:
@@ -207,25 +207,35 @@ def apply_inspection_rule_ui_patch(InspectionPage):
                 header_icon.clear()
                 header_icon.setPixmap(
                     captured.scaled(
-                        QSize(34, 30),
+                        QSize(40, 34),
                         Qt.KeepAspectRatio,
                         Qt.SmoothTransformation,
                     )
                 )
                 header_icon.setAlignment(Qt.AlignCenter)
-                header_icon.setFixedSize(40, 34)
+                header_icon.setFixedSize(44, 36)
                 header_icon.show()
 
-        for label in dialog.findChildren(QLabel):
+        header_labels = dialog.findChildren(QLabel, "rulesTableHeaderText")
+        for label in header_labels:
             if label.text() == "항목명":
                 label.setText("규칙명")
-            elif label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.":
+                label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            elif label.text() == "설명":
+                label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            elif label.text() == "상태":
+                label.setAlignment(Qt.AlignCenter)
+
+        for label in dialog.findChildren(QLabel):
+            if label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.":
                 label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
 
-        # 헤더는 각 실제 데이터 컬럼의 중앙에 맞추고,
-        # 상태 값도 중앙 정렬해 헤더와 내용이 자연스럽게 맞도록 한다.
-        for label in dialog.findChildren(QLabel, "rulesTableHeaderText"):
-            label.setAlignment(Qt.AlignCenter)
+        # 데이터는 규칙명/설명은 좌측 정렬, 상태만 중앙 정렬하여
+        # 헤더와 각 컬럼의 실제 내용 위치가 자연스럽게 일치하도록 한다.
+        for label in dialog.findChildren(QLabel, "rulesRowText"):
+            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        for label in dialog.findChildren(QLabel, "rulesRowDescription"):
+            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for label in dialog.findChildren(QLabel, "rulesRowState"):
             label.setAlignment(Qt.AlignCenter)
 
