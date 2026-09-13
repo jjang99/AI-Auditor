@@ -143,7 +143,7 @@ class ExistingProjectDialog(QDialog):
         selector.setObjectName("existingProjectSelector")
         selector.setCheckable(True)
         selector.setCursor(Qt.PointingHandCursor)
-        selector.setFixedSize(17, 17)
+        selector.setFixedSize(15, 15)
         self.radio_group.addButton(selector, index)
 
         name = QLabel(project["name"])
@@ -205,8 +205,9 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
                 QPushButton#existingProjectSelector {
                     color:transparent; background:transparent;
-                    border:1px solid #64748b; border-radius:4px;
-                    font-size:11px; font-weight:800; padding:0;
+                    border:1px solid #64748b; border-radius:3px;
+                    font-family:'Segoe UI Symbol'; font-size:12px; font-weight:900; padding:0;
+                    min-width:15px; max-width:15px; min-height:15px; max-height:15px;
                 }
                 QPushButton#existingProjectSelector:hover { border:1px solid #3b82f6; }
                 QPushButton#existingProjectSelector:checked {
@@ -239,8 +240,9 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
                 QPushButton#existingProjectSelector {
                     color:transparent; background:transparent;
-                    border:1px solid #8296aa; border-radius:4px;
-                    font-size:11px; font-weight:800; padding:0;
+                    border:1px solid #8296aa; border-radius:3px;
+                    font-family:'Segoe UI Symbol'; font-size:12px; font-weight:900; padding:0;
+                    min-width:15px; max-width:15px; min-height:15px; max-height:15px;
                 }
                 QPushButton#existingProjectSelector:hover { border:1px solid #3b82f6; }
                 QPushButton#existingProjectSelector:checked {
