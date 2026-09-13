@@ -50,6 +50,10 @@ def apply_inspection_rule_ui_patch(InspectionPage):
                 button.setIconSize(QSize(12, 12))
                 button.setToolTip("등록된 파일 전체 삭제")
 
+        # 검사기준 선택 체크박스는 주변 아이콘/텍스트와 균형이 맞도록 더 작게 고정한다.
+        for toggle in self.findChildren(QPushButton, "inspectionCheck"):
+            toggle.setFixedSize(14, 14)
+
         self.setStyleSheet(
             self.styleSheet()
             + """
@@ -57,10 +61,14 @@ def apply_inspection_rule_ui_patch(InspectionPage):
                 color: transparent;
                 background: transparent;
                 border: 1px solid #64748b;
-                border-radius: 4px;
-                font-size: 12px;
+                border-radius: 3px;
+                font-size: 9px;
                 font-weight: 800;
                 padding: 0;
+                min-width:14px;
+                max-width:14px;
+                min-height:14px;
+                max-height:14px;
             }
             QPushButton#inspectionCheck:checked {
                 color: #ffffff;
@@ -69,6 +77,10 @@ def apply_inspection_rule_ui_patch(InspectionPage):
             }
             QPushButton#inspectionCheck:hover {
                 border: 1px solid #3b82f6;
+            }
+            #inspectionRuleCount,
+            #inspectionRuleDescription {
+                font-size: 10px;
             }
             QPushButton#inspectionFileDeleteButton {
                 color: #cbd5e1;
@@ -107,6 +119,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
 
             toggle = row.findChild(QPushButton, "inspectionCheck")
             if toggle:
+                toggle.setFixedSize(14, 14)
                 toggle.blockSignals(True)
                 toggle.setChecked(current > 0)
                 toggle.setText("✓" if current > 0 else "")
@@ -119,215 +132,108 @@ def apply_inspection_rule_ui_patch(InspectionPage):
 
     def set_rule_category(self, category, selected):
         if not hasattr(self, "rule_selection_state"):
-            self.rule_selection_state = {
-                name: [True] * total for name, total in CATEGORY_COUNTS.items()
-            }
+            self.rule_selection_state = {name: [True] * total for name, total in CATEGORY_COUNTS.items()}
         self.rule_selection_state[category] = [selected] * CATEGORY_COUNTS[category]
-        if selected:
-            self.selected_rule_categories.add(category)
-        else:
-            self.selected_rule_categories.discard(category)
+        if selected: self.selected_rule_categories.add(category)
+        else: self.selected_rule_categories.discard(category)
         self._refresh_rule_summary()
 
     def set_all_rule_categories(self, selected):
-        if not hasattr(self, "rule_selection_state"):
-            self.rule_selection_state = {}
-        for category, total in CATEGORY_COUNTS.items():
-            self.rule_selection_state[category] = [selected] * total
-        self.selected_rule_categories = set(CATEGORY_COUNTS) if selected else set()
-        self._refresh_rule_summary()
+        if not hasattr(self, "rule_selection_state"): self.rule_selection_state = {}
+        for category, total in CATEGORY_COUNTS.items(): self.rule_selection_state[category] = [selected] * total
+        self.selected_rule_categories = set(CATEGORY_COUNTS) if selected else set(); self._refresh_rule_summary()
 
     def refresh_rule_summary(self):
         if not hasattr(self, "rule_selection_state"):
-            current = sum(
-                CATEGORY_COUNTS[name]
-                for name in getattr(self, "selected_rule_categories", set())
-                if name in CATEGORY_COUNTS
-            )
+            current = sum(CATEGORY_COUNTS[name] for name in getattr(self, "selected_rule_categories", set()) if name in CATEGORY_COUNTS)
         else:
             current = sum(sum(1 for checked in states if checked) for states in self.rule_selection_state.values())
-
-        total = sum(CATEGORY_COUNTS.values())
-        sync_rule_rows(self)
-
-        summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
-        summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
-        if len(summary_values) > 1:
-            summary_values[1].setText(f"{current} / {total}개")
-        if len(summary_details) > 1:
-            summary_details[1].setText("(현재 선택된 규칙)")
+        total = sum(CATEGORY_COUNTS.values()); sync_rule_rows(self)
+        summary_values = self.findChildren(QLabel, "inspectionSummaryValue"); summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
+        if len(summary_values) > 1: summary_values[1].setText(f"{current} / {total}개")
+        if len(summary_details) > 1: summary_details[1].setText("(현재 선택된 규칙)")
 
     def selected_executable_rules(self):
-        rules = []
-        states_by_category = getattr(self, "rule_selection_state", {})
+        rules = []; states_by_category = getattr(self, "rule_selection_state", {})
         for rule in get_default_rules():
             mapping = EXECUTABLE_RULE_INDEX.get(rule.code)
             if mapping is None:
-                if rule.category in getattr(self, "selected_rule_categories", set()):
-                    rules.append(rule)
+                if rule.category in getattr(self, "selected_rule_categories", set()): rules.append(rule)
                 continue
-
-            category, index = mapping
-            states = states_by_category.get(category)
+            category, index = mapping; states = states_by_category.get(category)
             if states is None:
-                if category in getattr(self, "selected_rule_categories", set()):
-                    rules.append(rule)
-            elif 0 <= index < len(states) and states[index]:
-                rules.append(rule)
+                if category in getattr(self, "selected_rule_categories", set()): rules.append(rule)
+            elif 0 <= index < len(states) and states[index]: rules.append(rule)
         return rules
 
     def open_rule_category_dialog(self, category):
         if not hasattr(self, "rule_selection_state"):
-            self.rule_selection_state = {
-                name: [True] * total for name, total in CATEGORY_COUNTS.items()
-            }
-
-        dialog = InspectionRulesDialog(self)
-        total = CATEGORY_COUNTS.get(category, 0)
-        working = list(self.rule_selection_state[category])
-
-        title = dialog.findChild(QLabel, "rulesDialogTitle")
-        count = dialog.findChild(QLabel, "rulesDialogCount")
-        header_icon = dialog.findChild(QLabel, "rulesDialogShieldIcon")
-        if title:
-            title.setText(category)
-        if count:
-            count.setText(f"{total}개 규칙")
-
-        # 검사기준 선택 카드에서 실제 렌더링된 아이콘을 그대로 사용하되,
-        # 모달 타이틀과 균형이 맞도록 이전보다 한 단계 크게 표시한다.
+            self.rule_selection_state = {name: [True] * total for name, total in CATEGORY_COUNTS.items()}
+        dialog = InspectionRulesDialog(self); total = CATEGORY_COUNTS.get(category, 0); working = list(self.rule_selection_state[category])
+        title = dialog.findChild(QLabel, "rulesDialogTitle"); count = dialog.findChild(QLabel, "rulesDialogCount"); header_icon = dialog.findChild(QLabel, "rulesDialogShieldIcon")
+        if title: title.setText(category)
+        if count: count.setText(f"{total}개 규칙")
         source_icon = None
         for row in self.findChildren(QFrame, "inspectionRuleRow"):
             if row.property("ruleCategory") == category:
-                source_icon = row.findChild(QLabel, "inspectionRuleIcon")
-                break
+                source_icon = row.findChild(QLabel, "inspectionRuleIcon"); break
         if header_icon is not None and source_icon is not None:
             captured = source_icon.grab()
             if not captured.isNull():
-                header_icon.clear()
-                header_icon.setPixmap(
-                    captured.scaled(
-                        QSize(40, 34),
-                        Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation,
-                    )
-                )
-                header_icon.setAlignment(Qt.AlignCenter)
-                header_icon.setFixedSize(44, 36)
-                header_icon.show()
-
+                header_icon.clear(); header_icon.setPixmap(captured.scaled(QSize(40, 34), Qt.KeepAspectRatio, Qt.SmoothTransformation)); header_icon.setAlignment(Qt.AlignCenter); header_icon.setFixedSize(44, 36); header_icon.show()
         header_labels = dialog.findChildren(QLabel, "rulesTableHeaderText")
         for label in header_labels:
-            if label.text() == "항목명":
-                label.setText("규칙명")
-                label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            elif label.text() == "설명":
-                label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            elif label.text() == "상태":
-                label.setAlignment(Qt.AlignCenter)
-
+            if label.text() == "항목명": label.setText("규칙명"); label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            elif label.text() == "설명": label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            elif label.text() == "상태": label.setAlignment(Qt.AlignCenter)
         for label in dialog.findChildren(QLabel):
-            if label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.":
-                label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
-
-        # 데이터는 규칙명/설명은 좌측 정렬, 상태만 중앙 정렬하여
-        # 헤더와 각 컬럼의 실제 내용 위치가 자연스럽게 일치하도록 한다.
-        for label in dialog.findChildren(QLabel, "rulesRowText"):
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        for label in dialog.findChildren(QLabel, "rulesRowDescription"):
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        for label in dialog.findChildren(QLabel, "rulesRowState"):
-            label.setAlignment(Qt.AlignCenter)
-
+            if label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.": label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
+        for label in dialog.findChildren(QLabel, "rulesRowText"): label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        for label in dialog.findChildren(QLabel, "rulesRowDescription"): label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        for label in dialog.findChildren(QLabel, "rulesRowState"): label.setAlignment(Qt.AlignCenter)
         try:
             from ui.inspection_runtime import CATEGORY_DIALOG_ROWS
             samples = CATEGORY_DIALOG_ROWS.get(category, [])
-        except Exception:
-            samples = []
-
+        except Exception: samples = []
         rows = dialog.findChildren(QFrame, "rulesTableRow")
         for index, row in enumerate(rows):
-            labels = [
-                label for label in row.findChildren(QLabel)
-                if label.objectName() in {"rulesRowText", "rulesRowDescription"}
-            ]
-            if index < len(samples) and len(labels) >= 2:
-                labels[0].setText(samples[index][0])
-                labels[1].setText(samples[index][1])
-
-        checkboxes = list(dialog.rule_checkboxes)
-        state_labels = list(dialog.state_labels)
-
+            labels = [label for label in row.findChildren(QLabel) if label.objectName() in {"rulesRowText", "rulesRowDescription"}]
+            if index < len(samples) and len(labels) >= 2: labels[0].setText(samples[index][0]); labels[1].setText(samples[index][1])
+        checkboxes = list(dialog.rule_checkboxes); state_labels = list(dialog.state_labels)
         for checkbox in checkboxes:
-            try:
-                checkbox.stateChanged.disconnect()
-            except (RuntimeError, TypeError):
-                pass
-
-        def update_count_label():
-            selected = sum(1 for checked in working if checked)
-            dialog.selected_count.setText(f"선택됨 {selected} / {total}개 규칙")
-
+            try: checkbox.stateChanged.disconnect()
+            except (RuntimeError, TypeError): pass
+        def update_count_label(): dialog.selected_count.setText(f"선택됨 {sum(1 for checked in working if checked)} / {total}개 규칙")
         def set_visible_state(index, checked):
-            if index < len(working):
-                working[index] = checked
-            if index < len(state_labels):
-                state_labels[index].setText("활성" if checked else "비활성")
-                state_labels[index].setAlignment(Qt.AlignCenter)
+            if index < len(working): working[index] = checked
+            if index < len(state_labels): state_labels[index].setText("활성" if checked else "비활성"); state_labels[index].setAlignment(Qt.AlignCenter)
             update_count_label()
-
         for index, checkbox in enumerate(checkboxes):
-            checked = working[index] if index < len(working) else False
-            checkbox.blockSignals(True)
-            checkbox.setChecked(checked)
-            checkbox.blockSignals(False)
-            if index < len(state_labels):
-                state_labels[index].setText("활성" if checked else "비활성")
-                state_labels[index].setAlignment(Qt.AlignCenter)
-            checkbox.stateChanged.connect(
-                lambda state, idx=index: set_visible_state(idx, state == Qt.Checked.value)
-            )
-
+            checked = working[index] if index < len(working) else False; checkbox.blockSignals(True); checkbox.setChecked(checked); checkbox.blockSignals(False)
+            if index < len(state_labels): state_labels[index].setText("활성" if checked else "비활성"); state_labels[index].setAlignment(Qt.AlignCenter)
+            checkbox.stateChanged.connect(lambda state, idx=index: set_visible_state(idx, state == Qt.Checked.value))
         def set_all(checked):
-            for i in range(len(working)):
-                working[i] = checked
+            for i in range(len(working)): working[i] = checked
             for index, checkbox in enumerate(checkboxes):
-                checkbox.blockSignals(True)
-                checkbox.setChecked(checked)
-                checkbox.blockSignals(False)
-                if index < len(state_labels):
-                    state_labels[index].setText("활성" if checked else "비활성")
-                    state_labels[index].setAlignment(Qt.AlignCenter)
+                checkbox.blockSignals(True); checkbox.setChecked(checked); checkbox.blockSignals(False)
+                if index < len(state_labels): state_labels[index].setText("활성" if checked else "비활성"); state_labels[index].setAlignment(Qt.AlignCenter)
             update_count_label()
-
         for button in dialog.findChildren(QPushButton, "rulesDialogSmallButton"):
-            try:
-                button.clicked.disconnect()
-            except (RuntimeError, TypeError):
-                pass
-            if button.text() == "전체 선택":
-                button.clicked.connect(lambda _checked=False: set_all(True))
-            elif button.text() == "전체 해제":
-                button.clicked.connect(lambda _checked=False: set_all(False))
-
+            try: button.clicked.disconnect()
+            except (RuntimeError, TypeError): pass
+            if button.text() == "전체 선택": button.clicked.connect(lambda _checked=False: set_all(True))
+            elif button.text() == "전체 해제": button.clicked.connect(lambda _checked=False: set_all(False))
         update_count_label()
-
         if dialog.exec() == QDialog.Accepted:
-            self.rule_selection_state[category] = working
-            current = sum(1 for checked in working if checked)
-            if current > 0:
-                self.selected_rule_categories.add(category)
-            else:
-                self.selected_rule_categories.discard(category)
+            self.rule_selection_state[category] = working; current = sum(1 for checked in working if checked)
+            if current > 0: self.selected_rule_categories.add(category)
+            else: self.selected_rule_categories.discard(category)
             self._refresh_rule_summary()
 
     def refresh_file_table(self):
-        original_refresh_file_table(self)
-        trash_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
+        original_refresh_file_table(self); trash_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
         for button in self.findChildren(QPushButton, "inspectionFileDeleteButton"):
-            button.setText("")
-            button.setIcon(trash_icon)
-            button.setIconSize(QSize(12, 12))
+            button.setText(""); button.setIcon(trash_icon); button.setIconSize(QSize(12, 12))
 
     InspectionPage.__init__ = patched_init
     InspectionPage.set_rule_category = set_rule_category
