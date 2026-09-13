@@ -1,19 +1,14 @@
 import os
 
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import QLabel, QPushButton, QFrame
 
 from ui.inspection_rules_dialog import InspectionRulesDialog
 
 
 def apply_inspection_visual_polish(InspectionPage):
-    """Inspection UI의 확정된 잔여 시각 보정만 적용한다.
-
-    모달 아이콘은 inspection_rule_ui_patch에서 처리하고,
-    여기서는 휴지통, 검사기준 행 간격/체크박스 크기,
-    모달 표의 실제 컬럼 정렬 보정을 유지한다.
-    """
+    """Inspection UI의 확정된 잔여 시각 보정만 적용한다."""
 
     original_init = InspectionPage.__init__
     original_refresh_file_table = InspectionPage._refresh_file_table
@@ -27,18 +22,38 @@ def apply_inspection_visual_polish(InspectionPage):
             if row.layout() is not None:
                 row.layout().setSpacing(11)
 
+            name_label = row.findChild(QLabel, "inspectionRuleName")
             count_label = row.findChild(QLabel, "inspectionRuleCount")
+            desc_label = row.findChild(QLabel, "inspectionRuleDescription")
+
             if count_label is not None:
                 count_label.setFixedWidth(122)
 
+            # 규칙수/설명은 QSS 숫자로 추정하지 않고,
+            # 실제 구분명 QLabel의 폰트를 그대로 복사해 크기를 완전히 동일하게 맞춘다.
+            if name_label is not None:
+                name_font = QFont(name_label.font())
+                if count_label is not None:
+                    count_font = QFont(name_font)
+                    count_font.setWeight(QFont.Medium)
+                    count_label.setFont(count_font)
+                if desc_label is not None:
+                    desc_font = QFont(name_font)
+                    desc_font.setWeight(QFont.Medium)
+                    desc_label.setFont(desc_font)
+
             toggle = row.findChild(QPushButton, "inspectionCheck")
             if toggle is not None:
-                # 박스 크기는 작게 유지하되, 체크 표시는 더 굵고 선명하게 보이도록 한다.
+                # 작은 박스는 유지하고, 더 굵은 체크 문자(✔)를 사용해 식별성을 높인다.
                 toggle.setFixedSize(14, 14)
+                toggle.setText("✔" if toggle.isChecked() else "")
+                check_font = QFont(toggle.font())
+                check_font.setPixelSize(10)
+                check_font.setWeight(QFont.Black)
+                toggle.setFont(check_font)
                 toggle.setStyleSheet(
                     "QPushButton#inspectionCheck {"
-                    "font-size:10px; font-weight:900; padding:0;"
-                    "min-width:14px; max-width:14px; min-height:14px; max-height:14px;"
+                    "padding:0; min-width:14px; max-width:14px; min-height:14px; max-height:14px;"
                     "border-radius:3px;"
                     "}"
                     "QPushButton#inspectionCheck:checked {"
@@ -48,26 +63,6 @@ def apply_inspection_visual_polish(InspectionPage):
                     "color:transparent; background:transparent; border:1px solid #64748b;"
                     "}"
                 )
-
-        # 구분명 / 규칙수 / 설명의 실제 글자 크기를 동일하게 맞춘다.
-        # 구분명은 굵기만 더 높이고, 크기는 세 항목 모두 11px로 통일한다.
-        self.setStyleSheet(
-            self.styleSheet()
-            + """
-            #inspectionRuleName,
-            #inspectionRuleCount,
-            #inspectionRuleDescription {
-                font-size: 11px;
-            }
-            #inspectionRuleName {
-                font-weight: 600;
-            }
-            #inspectionRuleCount,
-            #inspectionRuleDescription {
-                font-weight: 500;
-            }
-            """
-        )
 
     def apply_trash_icon(self):
         for button in self.findChildren(QPushButton, "inspectionSmallButton"):
