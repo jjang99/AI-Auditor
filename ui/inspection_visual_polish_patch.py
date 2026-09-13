@@ -1,7 +1,7 @@
 import os
 
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QLabel, QPushButton, QFrame
 
 from ui.inspection_rules_dialog import InspectionRulesDialog
@@ -29,32 +29,30 @@ def apply_inspection_visual_polish(InspectionPage):
             if count_label is not None:
                 count_label.setFixedWidth(122)
 
-            # 규칙수/설명은 QSS 숫자로 추정하지 않고,
-            # 실제 구분명 QLabel의 폰트를 그대로 복사해 크기를 완전히 동일하게 맞춘다.
+            # 부모 QSS의 기존 font-size가 setFont보다 우선 적용될 수 있으므로,
+            # 세 텍스트에 인라인 QSS를 직접 지정해 실제 렌더링 크기를 확실히 통일한다.
             if name_label is not None:
-                name_font = QFont(name_label.font())
-                if count_label is not None:
-                    count_font = QFont(name_font)
-                    count_font.setWeight(QFont.Medium)
-                    count_label.setFont(count_font)
-                if desc_label is not None:
-                    desc_font = QFont(name_font)
-                    desc_font.setWeight(QFont.Medium)
-                    desc_label.setFont(desc_font)
+                name_label.setStyleSheet(
+                    "color:#f1f5f9; font-size:11px; font-weight:600;"
+                )
+            if count_label is not None:
+                count_label.setStyleSheet(
+                    "color:#aebaca; font-size:11px; font-weight:600;"
+                )
+            if desc_label is not None:
+                desc_label.setStyleSheet(
+                    "color:#aebaca; font-size:11px; font-weight:600;"
+                )
 
             toggle = row.findChild(QPushButton, "inspectionCheck")
             if toggle is not None:
-                # 작은 박스는 유지하고, 더 굵은 체크 문자(✔)를 사용해 식별성을 높인다.
-                toggle.setFixedSize(14, 14)
-                toggle.setText("✔" if toggle.isChecked() else "")
-                check_font = QFont(toggle.font())
-                check_font.setPixelSize(10)
-                check_font.setWeight(QFont.Black)
-                toggle.setFont(check_font)
+                # 박스는 기존 17px보다 작게 유지하되, 체크 문자는 거의 박스를 채우도록 키운다.
+                toggle.setFixedSize(15, 15)
+                toggle.setText("✓" if toggle.isChecked() else "")
                 toggle.setStyleSheet(
                     "QPushButton#inspectionCheck {"
-                    "padding:0; min-width:14px; max-width:14px; min-height:14px; max-height:14px;"
-                    "border-radius:3px;"
+                    "padding:0; min-width:15px; max-width:15px; min-height:15px; max-height:15px;"
+                    "border-radius:3px; font-family:'Segoe UI Symbol'; font-size:12px; font-weight:900;"
                     "}"
                     "QPushButton#inspectionCheck:checked {"
                     "color:#ffffff; background:#2563eb; border:1px solid #2563eb;"
