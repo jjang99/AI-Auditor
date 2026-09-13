@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QPushButton, QStyle
 
 from rules.definitions.default_rules import get_default_rules
@@ -22,11 +22,11 @@ CATEGORY_ICONS = {
 # 현재 화면에 정의되어 있는 대표 규칙 8개는 각 카테고리의 앞쪽 규칙으로 취급한다.
 # 실제 102개 규칙 목록은 추후 Rule 정의가 완성되는 시점에 이 UI 데이터와 연결한다.
 EXECUTABLE_RULE_INDEX = {
-    "SEC-001": ("보안 취약점", 3),   # Hard Coding (민감정보)
-    "SEC-002": ("보안 취약점", 0),   # SQL Injection 계열
-    "QUAL-001": ("코드 품질", 0),    # TODO/FIXME 잔존
-    "QUAL-002": ("코드 품질", 1),    # 디버그 출력 잔존
-    "PERF-001": ("성능 및 효율성", 0),  # 무한 반복문
+    "SEC-001": ("보안 취약점", 3),
+    "SEC-002": ("보안 취약점", 0),
+    "QUAL-001": ("코드 품질", 0),
+    "QUAL-002": ("코드 품질", 1),
+    "PERF-001": ("성능 및 효율성", 0),
 }
 
 
@@ -39,29 +39,25 @@ def apply_inspection_rule_ui_patch(InspectionPage):
     def patched_init(self):
         original_init(self)
 
-        # 102개 Rule의 선택 상태를 UI 기준으로 관리한다.
-        # 현재 상세 모달에 실제 명칭이 정의된 것은 앞쪽 8개이며,
-        # 나머지는 Rule 목록 확정 시 상세 데이터와 연결한다.
         self.rule_selection_state = {
             category: [True] * total
             for category, total in CATEGORY_COUNTS.items()
         }
         self.selected_rule_categories = set(CATEGORY_COUNTS)
 
-        # 업로드 안내 앞의 장식 아이콘 제거
         upload_text = self.findChild(QLabel, "inspectionUploadText")
         if upload_text:
             upload_text.setText("파일을 드래그 앤 드롭하거나")
 
-        # 전체 삭제 버튼: 문자 기호 대신 OS/Qt 표준 휴지통 아이콘 사용
+        # 전체 삭제: 텍스트보다 튀지 않도록 작은 표준 휴지통 아이콘 사용
         trash_icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_TrashIcon)
         for button in self.findChildren(QPushButton, "inspectionSmallButton"):
             if "전체 삭제" in button.text():
                 button.setText("전체 삭제")
                 button.setIcon(trash_icon)
+                button.setIconSize(QSize(12, 12))
                 button.setToolTip("등록된 파일 전체 삭제")
 
-        # 카테고리 체크 버튼을 일반적인 체크박스 형태로 보이도록 스타일 보강
         self.setStyleSheet(
             self.styleSheet()
             + """
@@ -87,7 +83,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
                 background: transparent;
                 border: none;
                 border-radius: 4px;
-                padding: 2px;
+                padding: 4px;
             }
             QPushButton#inspectionFileDeleteButton:hover {
                 background: #263747;
@@ -150,7 +146,6 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         self._refresh_rule_summary()
 
     def refresh_rule_summary(self):
-        # runtime __init__ 안에서 이 함수가 먼저 호출될 수 있으므로 fallback 처리
         if not hasattr(self, "rule_selection_state"):
             current = sum(
                 CATEGORY_COUNTS[name]
@@ -171,7 +166,6 @@ def apply_inspection_rule_ui_patch(InspectionPage):
             summary_details[1].setText("(현재 선택된 규칙)")
 
     def selected_executable_rules(self):
-        """현재 실제 구현된 5개 Rule은 상세 선택 상태까지 반영해서 실행한다."""
         rules = []
         states_by_category = getattr(self, "rule_selection_state", {})
         for rule in get_default_rules():
@@ -208,19 +202,22 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         if count:
             count.setText(f"{total}개 규칙")
         if header_icon:
-            header_icon.setPixmap(header_icon.pixmap().__class__()) if header_icon.pixmap() else None
+            # 메인 검사기준 카드와 동일한 문자 아이콘을 그대로 사용한다.
             header_icon.clear()
             header_icon.setText(CATEGORY_ICONS.get(category, ""))
             header_icon.setAlignment(Qt.AlignCenter)
+            header_icon.setStyleSheet(
+                "color:#60a5fa; background:transparent; border:none; "
+                "font-size:13px; font-weight:700;"
+            )
+            header_icon.setFixedSize(30, 30)
 
-        # 문구를 '항목'이 아닌 '규칙' 기준으로 통일
         for label in dialog.findChildren(QLabel):
             if label.text() == "항목명":
                 label.setText("규칙명")
             elif label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.":
                 label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
 
-        # runtime에서 사용하던 카테고리별 대표 규칙 명칭/설명 반영
         try:
             from ui.inspection_runtime import CATEGORY_DIALOG_ROWS
             samples = CATEGORY_DIALOG_ROWS.get(category, [])
@@ -240,8 +237,6 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         checkboxes = list(dialog.rule_checkboxes)
         state_labels = list(dialog.state_labels)
 
-        # 기존 '32 - 화면의 8개 미선택' 계산 로직 연결을 제거하고
-        # 실제 카테고리 전체 선택 상태를 기준으로 계산한다.
         for checkbox in checkboxes:
             try:
                 checkbox.stateChanged.disconnect()
@@ -308,7 +303,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         for button in self.findChildren(QPushButton, "inspectionFileDeleteButton"):
             button.setText("")
             button.setIcon(trash_icon)
-            button.setIconSize(button.size() * 0.62)
+            button.setIconSize(QSize(12, 12))
 
     InspectionPage.__init__ = patched_init
     InspectionPage.set_rule_category = set_rule_category
