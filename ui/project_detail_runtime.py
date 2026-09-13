@@ -65,7 +65,12 @@ def apply_project_detail_runtime(ProjectDetailPage):
         if project_name:
             project_name.setText(project["name"])
 
-        date_label = self.findChild(QLabel, "detailDate")
+        # Final UI refinements rename the original detailDate label to
+        # detailLastInspectionDate.  Support both names so the runtime binding
+        # remains compatible with the frozen UI and older layouts.
+        date_label = self.findChild(QLabel, "detailLastInspectionDate")
+        if date_label is None:
+            date_label = self.findChild(QLabel, "detailDate")
         if date_label:
             date_label.setText(f"▣   {_format_datetime(latest['inspected_at'])}")
 
@@ -117,11 +122,6 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 bars[0].setRange(0, max_count)
                 bars[0].setValue(counts.get(level, 0))
         small_labels = card.findChildren(QLabel, "detailSmallText")
-        for label in small_labels:
-            text = label.text()
-            if text in {"Critical", "High", "Medium", "Low"}:
-                continue
-        # Count labels are the narrow right-aligned labels in each row.
         numeric_labels = [label for label in small_labels if label.width() <= 20]
         for label, (level, _) in zip(numeric_labels, level_keys):
             label.setText(str(counts.get(level, 0)))
@@ -137,7 +137,6 @@ def apply_project_detail_runtime(ProjectDetailPage):
         button = card.findChild(QPushButton, "detailHistoryButton")
         if button is not None:
             layout.removeWidget(button)
-        # Remove all existing history row widgets/layouts except title and button.
         while layout.count() > 1:
             item = layout.takeAt(1)
             widget = item.widget()
