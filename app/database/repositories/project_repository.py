@@ -83,3 +83,31 @@ def get_project_by_id(project_id):
         return None
 
     return dict(row)
+
+
+def get_project_by_name(name):
+    connection = get_connection()
+
+    row = connection.execute(
+        """
+        SELECT
+            id,
+            name,
+            department,
+            note,
+            created_at,
+            updated_at
+        FROM projects
+        WHERE name = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (name,),
+    ).fetchone()
+
+    connection.close()
+
+    if row is None:
+        return None
+
+    return dict(row)
