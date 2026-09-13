@@ -1,7 +1,7 @@
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup, QDialog, QFrame, QHBoxLayout, QLabel, QPushButton,
-    QRadioButton, QScrollArea, QVBoxLayout, QWidget,
+    QScrollArea, QVBoxLayout, QWidget,
 )
 
 
@@ -23,6 +23,7 @@ class ExistingProjectDialog(QDialog):
             {"name": "AI Auditor Backend", "department": "운영본부", "type": "유지보수", "date": "2026.07.10"},
         ]
         self.radio_group = QButtonGroup(self)
+        self.radio_group.setExclusive(True)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -59,8 +60,6 @@ class ExistingProjectDialog(QDialog):
         layout.addWidget(description)
         layout.addSpacing(5)
 
-        # Balanced column grid: slightly wider gaps than the previous pass,
-        # while shifting the whole grid left to remove excess empty space.
         table_header = QHBoxLayout()
         table_header.setContentsMargins(4, 0, 12, 0)
         table_header.setSpacing(12)
@@ -140,10 +139,12 @@ class ExistingProjectDialog(QDialog):
         row_layout.setContentsMargins(6, 5, 14, 5)
         row_layout.setSpacing(12)
 
-        radio = QRadioButton()
-        radio.setCursor(Qt.PointingHandCursor)
-        radio.setFixedSize(18, 18)
-        self.radio_group.addButton(radio, index)
+        selector = QPushButton("✓")
+        selector.setObjectName("existingProjectSelector")
+        selector.setCheckable(True)
+        selector.setCursor(Qt.PointingHandCursor)
+        selector.setFixedSize(17, 17)
+        self.radio_group.addButton(selector, index)
 
         name = QLabel(project["name"])
         department = QLabel(project["department"])
@@ -157,9 +158,10 @@ class ExistingProjectDialog(QDialog):
         selector_cell.setObjectName("existingProjectSelectorCell")
         selector_layout = QHBoxLayout(selector_cell)
         selector_layout.setContentsMargins(0, 0, 0, 0)
-        selector_layout.setSpacing(5)
+        selector_layout.setSpacing(0)
         selector_layout.addStretch()
-        selector_layout.addWidget(radio)
+        selector_layout.addWidget(selector)
+        selector_layout.addSpacing(12)
         selector_layout.addWidget(name)
         selector_layout.addStretch()
         selector_cell.setFixedWidth(210)
@@ -201,11 +203,16 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
                 #existingProjectScroll QScrollBar::handle:vertical { background:#60758a; min-height:28px; border-radius:4px; }
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
-                QRadioButton { background:transparent; spacing:0px; }
-                QRadioButton::indicator { width:12px; height:12px; }
-                QRadioButton::indicator:unchecked { background:transparent; border:1px solid #9eb4c7; border-radius:6px; }
-                QRadioButton::indicator:unchecked:hover { border:2px solid #60a5fa; }
-                QRadioButton::indicator:checked { background:#3b82f6; border:2px solid #b8d8ff; border-radius:6px; }
+                QPushButton#existingProjectSelector {
+                    color:transparent; background:transparent;
+                    border:1px solid #64748b; border-radius:4px;
+                    font-size:11px; font-weight:800; padding:0;
+                }
+                QPushButton#existingProjectSelector:hover { border:1px solid #3b82f6; }
+                QPushButton#existingProjectSelector:checked {
+                    color:#ffffff; background:#2563eb;
+                    border:1px solid #2563eb;
+                }
             """)
         else:
             self.setStyleSheet("""
@@ -230,11 +237,16 @@ class ExistingProjectDialog(QDialog):
                 #existingProjectScroll QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
                 #existingProjectScroll QScrollBar::handle:vertical { background:#8998aa; min-height:28px; border-radius:4px; }
                 #existingProjectScroll QScrollBar::add-line:vertical, #existingProjectScroll QScrollBar::sub-line:vertical { height:0px; }
-                QRadioButton { background:transparent; spacing:0px; }
-                QRadioButton::indicator { width:12px; height:12px; }
-                QRadioButton::indicator:unchecked { background:#ffffff; border:1px solid #8296aa; border-radius:6px; }
-                QRadioButton::indicator:unchecked:hover { border:2px solid #3b82f6; }
-                QRadioButton::indicator:checked { background:#2563eb; border:2px solid #bfdbfe; border-radius:6px; }
+                QPushButton#existingProjectSelector {
+                    color:transparent; background:transparent;
+                    border:1px solid #8296aa; border-radius:4px;
+                    font-size:11px; font-weight:800; padding:0;
+                }
+                QPushButton#existingProjectSelector:hover { border:1px solid #3b82f6; }
+                QPushButton#existingProjectSelector:checked {
+                    color:#ffffff; background:#2563eb;
+                    border:1px solid #2563eb;
+                }
             """)
 
     def eventFilter(self, watched, event):
