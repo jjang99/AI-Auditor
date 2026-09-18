@@ -160,10 +160,9 @@ def apply_inspection_runtime(InspectionPage):
             )
             warning.setStandardButtons(QMessageBox.Ok)
             warning.setStyleSheet(
-                "QMessageBox { min-width: 520px; }"
-                "QLabel { min-width: 440px; font-size: 13px; }"
-                "QLabel#qt_msgbox_label { font-size: 15px; font-weight: 700; }"
-                "QPushButton { min-width: 72px; min-height: 28px; font-size: 12px; font-weight: 600; }"
+                "QLabel { font-size: 12px; }"
+                "QLabel#qt_msgbox_label { font-size: 13px; font-weight: 700; }"
+                "QPushButton { min-width: 72px; min-height: 28px; font-size: 11px; font-weight: 600; }"
             )
             warning.exec()
 
