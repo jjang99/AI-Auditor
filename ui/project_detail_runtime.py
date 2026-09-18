@@ -193,7 +193,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
             )
             # Runtime-created rows are added after the initial UI refinement pass,
             # so apply the same final sizing here as the frozen Project Detail UI.
-            row.setFixedHeight(72)
+            row.setFixedHeight(78)
             badge = next(
                 (label for label in row.findChildren(QLabel)
                  if label.objectName().startswith("detailBadge_")),
@@ -212,7 +212,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
             description = row.findChild(QLabel, "detailIssueDescription")
             if description:
                 description.setWordWrap(True)
-                description.setMinimumHeight(34)
+                description.setMinimumHeight(38)
                 description.setMinimumWidth(0)
             row.setCursor(Qt.PointingHandCursor)
             row.setProperty("issueSelectable", True)
