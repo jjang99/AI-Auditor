@@ -208,7 +208,7 @@ class AdministrationRulesDialog(QDialog):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{code} - Rule Detail")
         dialog.setModal(True)
-        dialog.setFixedSize(500, 500)
+        dialog.setFixedSize(500, 455)
         dialog.setWindowIcon(self.windowIcon())
 
         root = QVBoxLayout(dialog)
@@ -225,11 +225,11 @@ class AdministrationRulesDialog(QDialog):
             value = QLabel(value_text)
             value.setObjectName("adminDetailValue")
             value.setWordWrap(True)
-            value.setFixedHeight(36)
+            value.setFixedHeight(32)
             value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             root.addWidget(label)
             root.addWidget(value)
-            root.addSpacing(6)
+            root.addSpacing(3)
 
         add_field("Code", code)
         add_field("규칙 제목", name)
@@ -241,7 +241,7 @@ class AdministrationRulesDialog(QDialog):
         severity_title.setObjectName("adminDetailLabel")
         severity_badge = QLabel(severity)
         severity_badge.setObjectName(f"severity{severity}")
-        severity_badge.setFixedSize(82, 36)
+        severity_badge.setFixedSize(82, 32)
         severity_badge.setAlignment(Qt.AlignCenter)
         severity_row.addWidget(severity_title)
         severity_row.addStretch()
@@ -256,7 +256,7 @@ class AdministrationRulesDialog(QDialog):
         status_toggle.setObjectName("adminRuleToggle")
         status_toggle.setCheckable(True)
         status_toggle.setChecked(source_toggle.isChecked())
-        status_toggle.setFixedSize(82, 36)
+        status_toggle.setFixedSize(82, 32)
         status_toggle.setCursor(Qt.PointingHandCursor)
         status_toggle.toggled.connect(lambda state: status_toggle.setText("ON" if state else "OFF"))
         status_row.addWidget(status_label)
@@ -286,12 +286,14 @@ class AdministrationRulesDialog(QDialog):
                 #adminDetailTitle { color:#ffffff; font-size:20px; font-weight:900; }
                 #adminDetailLabel { color:#d9e5ef; font-size:12px; font-weight:900; }
                 #adminDetailValue { color:#ffffff; background:#111f2c; border:1px solid #587086; border-radius:7px; padding:0 12px; font-size:13px; font-weight:850; }
+                #severityHigh, #severityCritical, #severityMedium, #severityLow, #adminRuleToggle { font-size:12px; font-weight:900; }
             """
         else:
             detail_style = """
                 #adminDetailTitle { color:#142435; font-size:20px; font-weight:900; }
                 #adminDetailLabel { color:#304a63; font-size:12px; font-weight:900; }
                 #adminDetailValue { color:#10283f; background:#ffffff; border:1px solid #8fa8bd; border-radius:7px; padding:0 12px; font-size:13px; font-weight:850; }
+                #severityHigh, #severityCritical, #severityMedium, #severityLow, #adminRuleToggle { font-size:12px; font-weight:900; }
             """
         dialog.setStyleSheet(base_style + detail_style)
         dialog.exec()
