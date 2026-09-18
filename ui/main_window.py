@@ -19,7 +19,7 @@ from ui.inspection_runtime import apply_inspection_runtime
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
-from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES
+from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES, LIGHT_TEXT_HIERARCHY_FINAL
 
 apply_project_detail_refinements(ProjectDetailPage)
 apply_project_detail_runtime(ProjectDetailPage)
@@ -225,7 +225,7 @@ class MainWindow(QMainWindow):
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
         else:
-            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS)
+            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS + LIGHT_TEXT_HIERARCHY_FINAL)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
         self.home_page.set_wave_theme(self.is_dark_mode)
