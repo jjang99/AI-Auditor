@@ -185,3 +185,70 @@ LIGHT_TEXT_HIERARCHY_FINAL = r"""
 #inspectionViewButton { color:#0f172a; background:#ffffff; border:1px solid #94a3b8; font-weight:600; }
 #inspectionBlueNote { color:#2563eb; font-weight:600; }
 """
+
+
+# Shared visual standard for frozen screens.
+# Visual-only: no geometry, margins, fixed sizes, layout or behavior.
+DARK_SHARED_VISUAL_FINAL = r"""
+/* Administration border language */
+#homeCard, #whyFrame, #projectCard,
+#detailSummaryCard, #detailStatCard, #detailBodyCard,
+#inspectionCard {
+    border:1px solid #3e586d;
+    border-radius:9px;
+}
+#projectSearchInput, #detailHistoryButton, #detailSortButton,
+#detailActionButton, #inspectionInput, #inspectionUploadBox,
+#inspectionFileTable, #inspectionRuleRow, #inspectionSummaryBox,
+#inspectionInfoBox, #inspectionProgressInfoBox, #inspectionCompleteInfoBox {
+    border-color:#476174;
+    border-radius:7px;
+}
+
+/* Reports readability hierarchy without changing font geometry */
+#pageDescription, #homeDescription { color:#c7d3dd; font-weight:600; }
+#homeCardTitle, #whyTitle, #whyItemTitle, #projectName,
+#detailBodyTitle, #detailTextLabel, #inspectionSectionTitle,
+#inspectionFieldLabel, #inspectionFileCount, #inspectionSummaryTitle {
+    color:#f3f7fb; font-weight:800;
+}
+#homeCardDescription, #whyItemBody, #projectMeta,
+#detailMuted, #detailSmallText, #detailIssueDescription,
+#detailTextBody, #inspectionDescription, #inspectionUploadText,
+#inspectionTableMuted, #inspectionSummaryDetail, #inspectionInfoText {
+    color:#c7d3dd; font-weight:600;
+}
+#inspectionInput { color:#f8fbfd; }
+"""
+
+LIGHT_SHARED_VISUAL_FINAL = r"""
+/* Administration border language */
+#homeCard, #whyFrame, #projectCard,
+#detailSummaryCard, #detailStatCard, #detailBodyCard,
+#inspectionCard {
+    border:1px solid #afc1cf;
+    border-radius:9px;
+}
+#projectSearchInput, #detailHistoryButton, #detailSortButton,
+#detailActionButton, #inspectionInput, #inspectionUploadBox,
+#inspectionFileTable, #inspectionRuleRow, #inspectionSummaryBox,
+#inspectionInfoBox, #inspectionProgressInfoBox, #inspectionCompleteInfoBox {
+    border-color:#a9bac8;
+    border-radius:7px;
+}
+
+/* Reports readability hierarchy without changing font geometry */
+#pageDescription, #homeDescription { color:#4f687b; font-weight:600; }
+#homeCardTitle, #whyTitle, #whyItemTitle, #projectName,
+#detailBodyTitle, #detailTextLabel, #inspectionSectionTitle,
+#inspectionFieldLabel, #inspectionFileCount, #inspectionSummaryTitle {
+    color:#172d3f; font-weight:800;
+}
+#homeCardDescription, #whyItemBody, #projectMeta,
+#detailMuted, #detailSmallText, #detailIssueDescription,
+#detailTextBody, #inspectionDescription, #inspectionUploadText,
+#inspectionTableMuted, #inspectionSummaryDetail, #inspectionInfoText {
+    color:#4f687b; font-weight:600;
+}
+#inspectionInput { color:#203648; }
+"""
