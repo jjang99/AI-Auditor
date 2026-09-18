@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
 class ExistingProjectDialog(QDialog):
     project_selected = Signal(dict)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, projects=None):
         super().__init__(parent)
         self.setWindowTitle("기존 프로젝트 확인")
         self.setModal(True)
@@ -17,7 +17,7 @@ class ExistingProjectDialog(QDialog):
         self.setAttribute(Qt.WA_TranslucentBackground)
         self._drag_offset = None
 
-        self.projects = [
+        self.projects = projects or [
             {"name": "AI Auditor Backend", "department": "개발본부", "type": "신규 구축", "date": "2026.08.01"},
             {"name": "AI Auditor Backend", "department": "정보화기획실", "type": "고도화", "date": "2026.07.25"},
             {"name": "AI Auditor Backend", "department": "운영본부", "type": "유지보수", "date": "2026.07.10"},
