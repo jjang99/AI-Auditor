@@ -52,8 +52,13 @@ DARK_UI_OVERRIDES = """
 """
 
 LIGHT_UI_OVERRIDES = """
+/* Soft Light foundation */
+QMainWindow { background-color: #f1f5f9; }
+#content, #projectsContent, #projectDetailContent { background-color: #f1f5f9; }
+#sidebar { background-color: #f8fafc; border-right: 1px solid #d7e0ea; }
+#header { background-color: #f8fafc; border-bottom: 1px solid #d7e0ea; }
 /* Projects */
-#projectsContent { background-color: #f8fafc; }
+#projectsContent { background-color: #f1f5f9; }
 #pageTitle { color: #0f172a; font-size: 28px; font-weight: 700; }
 #pageDescription { color: #475569; font-size: 13px; }
 #projectSearchInput { color: #0f172a; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 7px; padding: 0 14px; font-size: 12px; }
@@ -92,7 +97,7 @@ LIGHT_UI_OVERRIDES = """
 #paginationCurrentButton { color: #ffffff; background-color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; font-size: 12px; font-weight: 700; }
 
 /* Sidebar */
-#sidebar { background-color: #ffffff; border-right: 1px solid #dbe3ee; }
+#sidebar { background-color: #f8fafc; border-right: 1px solid #d7e0ea; }
 #sidebarHelpFrame { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; }
 #sidebarHelpTitle { color: #0f172a; font-size: 12px; font-weight: 700; }
 #sidebarGradeText { color: #334155; font-size: 10px; }
@@ -104,7 +109,7 @@ LIGHT_UI_OVERRIDES = """
 #sidebarFooterText { color: #475569; font-size: 10px; }
 
 /* Project Detail */
-#projectDetailContent { background-color: #f8fafc; }
+#projectDetailContent { background-color: #f1f5f9; }
 #detailBreadcrumb { color: #334155; font-size: 12px; font-weight: 600; }
 #detailSummaryCard, #detailStatCard, #detailBodyCard { background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 9px; }
 #detailProjectName { color: #0f172a; font-size: 25px; font-weight: 700; }
