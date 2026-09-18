@@ -40,7 +40,8 @@ LIGHT_INSPECTION_READABILITY_V2 = r'''
 #inspectionTableMuted { color:#475569; font-size:10px; }
 #inspectionBlueNote { color:#1d4ed8; font-size:10px; }
 #inspectionRuleName { color:#0f172a; font-size:12px; font-weight:700; }
-#inspectionRuleCount, #inspectionRuleDescription { color:#334155; font-size:10px; }
+#inspectionRuleCount { color:#1e293b; font-size:10px; font-weight:600; }
+#inspectionRuleDescription { color:#334155; font-size:10px; font-weight:500; }
 #inspectionHelpButton, #inspectionSmallButton, #inspectionViewButton { color:#1e293b; font-size:10px; font-weight:700; }
 #inspectionSummaryTitle, #inspectionProgressInfoTitle, #inspectionCompleteInfoTitle { color:#334155; font-size:11px; }
 #inspectionSummaryValue, #inspectionCompleteInfoValue { color:#0f172a; font-size:16px; font-weight:700; }
