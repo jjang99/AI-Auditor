@@ -5,7 +5,7 @@ from PySide6.QtCore import QObject, QThread, Signal, Qt
 from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_name
-from app.services.inspection_service import InspectionService
+from app.services.inspection_service import InspectionService, SUPPORTED_TEXT_EXTENSIONS
 from rules.core.engine import InspectionCancelled
 from rules.definitions.default_rules import get_default_rules
 from ui.inspection_rules_dialog import InspectionRulesDialog
@@ -137,9 +137,26 @@ def apply_inspection_runtime(InspectionPage):
         paths, _ = QFileDialog.getOpenFileNames(self, "검사 대상 파일 선택", "", "텍스트/소스 파일 (*.py *.java *.js *.ts *.yml *.yaml *.xml *.json *.md *.txt *.properties *.sql);;모든 파일 (*.*)")
         if not paths: return
         existing = set(self.selected_files)
+        unsupported = []
         for path in paths:
-            if path not in existing: self.selected_files.append(path); existing.add(path)
+            suffix = Path(path).suffix.lower()
+            if suffix not in SUPPORTED_TEXT_EXTENSIONS:
+                unsupported.append(Path(path).name)
+                continue
+            if path not in existing:
+                self.selected_files.append(path)
+                existing.add(path)
         self._refresh_file_view()
+        if unsupported:
+            names = "\n".join(f"• {name}" for name in unsupported[:8])
+            more = f"\n외 {len(unsupported) - 8}개" if len(unsupported) > 8 else ""
+            QMessageBox.information(
+                self,
+                "지원하지 않는 파일 형식",
+                "현재 검사에서 지원하지 않는 파일은 등록에서 제외했습니다.\n\n"
+                f"{names}{more}\n\n"
+                "지원 형식: .py, .java, .js, .ts, .yml, .yaml, .xml, .json, .md, .txt, .properties, .sql",
+            )
 
     def clear_inspection_files(self): self.selected_files.clear(); self._refresh_file_view()
     def remove_inspection_file(self, file_path):
