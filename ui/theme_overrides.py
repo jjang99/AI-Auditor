@@ -219,6 +219,18 @@ DARK_SHARED_VISUAL_FINAL = r"""
     color:#c7d3dd; font-weight:600;
 }
 #inspectionInput { color:#f8fbfd; }
+
+/* Shared hover feedback: clickable controls only */
+#inspectionHelpButton:hover, #inspectionSmallButton:hover, #inspectionViewButton:hover {
+    background:#27465e; border-color:#6f91a9;
+}
+#inspectionFileButton:hover, #inspectionStartButton:hover, #inspectionResultButton:hover {
+    background:#2c82f3;
+}
+#inspectionDuplicateButton:hover { color:#fcd34d; }
+#inspectionCheck:hover { border:1px solid #93c5fd; }
+#inspectionFileDeleteButton:hover { background:#24394b; border-radius:6px; }
+#inspectionCancelButton:hover { background:#2a171b; border-color:#ef6b6b; }
 """
 
 LIGHT_SHARED_VISUAL_FINAL = r"""
@@ -251,4 +263,16 @@ LIGHT_SHARED_VISUAL_FINAL = r"""
     color:#4f687b; font-weight:600;
 }
 #inspectionInput { color:#203648; }
+
+/* Shared hover feedback: clickable controls only */
+#inspectionHelpButton:hover, #inspectionSmallButton:hover, #inspectionViewButton:hover {
+    background:#e0eaf2; border-color:#7f9bad;
+}
+#inspectionFileButton:hover, #inspectionStartButton:hover, #inspectionResultButton:hover {
+    background:#0f63d6;
+}
+#inspectionDuplicateButton:hover { color:#c2410c; }
+#inspectionCheck:hover { border:1px solid #2563eb; }
+#inspectionFileDeleteButton:hover { background:#e8eef4; border-radius:6px; }
+#inspectionCancelButton:hover { background:#fff1f2; border-color:#dc2626; }
 """
