@@ -165,3 +165,18 @@ QProgressBar#detailDistribution_low::chunk { background-color: #3b82f6; border-r
 #detailActionButton { color: #0f172a; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 600; }
 #detailActionButton:hover { border: 1px solid #7c3aed; background-color: #f8fafc; }
 """
+
+# Final light-mode text hierarchy. Kept last in the composed stylesheet so
+# page-specific legacy refinements cannot wash these colors out.
+LIGHT_TEXT_HIERARCHY_FINAL = r"""
+#homeDescription { color:#334155; font-weight:500; }
+#homeCardDescription { color:#475569; font-weight:500; }
+#whyItemTitle { color:#1e293b; font-weight:700; }
+#whyItemBody { color:#475569; font-weight:500; }
+#footerText { color:#64748b; }
+
+#inspectionRuleName { color:#0f172a; font-weight:700; }
+#inspectionRuleCount { color:#1e293b; font-weight:700; }
+#inspectionRuleDescription { color:#334155; font-weight:600; }
+#inspectionBlueNote { color:#1d4ed8; font-weight:600; }
+"""
