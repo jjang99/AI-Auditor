@@ -36,10 +36,15 @@
 # 4. Project Detail
 - 기본 정보: Project Name, Department, Last Inspection Date
 - 결과: Score + Grade, Issues 전체 건수, Resolved 조치완료/전체, Progress Bar
-- Issues는 기본 10개 표시 후 `더 보기`
+- Issues는 기본 8개 표시 후 `더 보기`
 - 액션 순서: `Re-Inspect | New Inspection | Export Report`
 - Re-Inspect는 기존 Inspection 당시 사용한 검사기준을 사용한다.
-- 실제 검사결과 DB 조회 구조는 연결된 상태이며, 전체 UI Freeze 전 최종 가독성/UI 점검을 수행한다.
+- 실제 검사결과 DB 조회 구조 연결 완료
+- 2026-09-18 최종 UI 점검 완료 및 Project Detail UI Freeze
+- Issue Distribution은 Critical / High / Medium / Low 4단계 유지
+- Issues 목록은 기본 8개 표시 후 `더 보기`, 설명 자동 줄바꿈, 스크롤바는 내용이 넘칠 때만 표시
+- Issues 심각도 배지는 Issue Detail의 심각도 배지와 동일한 높이/형태를 기준으로 유지
+- Issue Detail의 제목 / 설명 / 근거 / 영향 / AI 권고 항목 간격은 2026-09-18 최종 보정 상태를 유지
 
 ---
 
@@ -129,9 +134,10 @@
 
 ---
 
-# 9. 현재 재개 지점 — 2026-09-13
+# 9. 현재 재개 지점 — 2026-09-18
 - Inspection 실제 기능 및 Rule Engine 기본 구조 구현 완료
-- Inspection 관련 최종 UI 보정 완료 및 해당 영역 Freeze
-- 다음 작업은 Project Detail 최종 UI 점검
-- 이후 Reports → Administration → 공통 UI/화면 이동 최종 점검
+- Inspection UI Freeze 완료
+- Project Detail 최종 UI 보정 및 UI Freeze 완료
+- 다음 작업은 Reports 최종 UI 점검
+- 이후 Administration → 공통 UI/화면 이동 최종 점검
 - 전체 UI Freeze 후 실제 MVP Rule 약 20개 구현 단계로 이동
