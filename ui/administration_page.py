@@ -242,7 +242,7 @@ class AdministrationPage(QWidget):
                 #adminSummaryActive { color:#22c55e; }
                 #adminSummaryInactive { color:#ff5a36; }
                 #adminSummaryText { color:#f8fafc; font-size:13px; font-weight:750; }
-                #adminSectionCard { background:#18293a; border:1px solid #21394d; border-radius:8px; }
+                #adminSectionCard { background:#101b25; border:1px solid #2f4659; border-radius:8px; }
                 #adminSectionTitle { color:#ffffff; font-size:16px; font-weight:850; }
                 #adminRulesTable, #adminSettingsBody { background:#0d1b27; border:1px solid #21384a; border-radius:7px; }
                 #adminRulesHeader { background:#162b3c; border-bottom:1px solid #476174; }
