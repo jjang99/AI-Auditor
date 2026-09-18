@@ -1,7 +1,7 @@
 from collections import Counter
 from datetime import datetime
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QProgressBar, QPushButton, QVBoxLayout, QWidget
 
 from app.database.repositories.inspection_repository import (
@@ -39,6 +39,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
         original_init(self)
         self.current_project_id = None
         self.current_inspection_id = None
+        self._issue_row_data = {}
 
     def load_project(self, project_id, inspection_id=None):
         project = get_project_by_id(project_id)
@@ -213,6 +214,10 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 description.setWordWrap(True)
                 description.setMinimumHeight(34)
                 description.setMinimumWidth(0)
+            row.setCursor(Qt.PointingHandCursor)
+            row.setProperty("issueSelectable", True)
+            self._issue_row_data[row] = issue
+            row.installEventFilter(self)
             if index >= 8:
                 row.hide()
             layout.addWidget(row)
@@ -223,6 +228,14 @@ def apply_project_detail_runtime(ProjectDetailPage):
             more_button.clicked.connect(lambda: self.show_all_issue_rows(container, more_button))
             layout.addWidget(more_button)
         layout.addStretch()
+
+    def event_filter(self, watched, event):
+        if watched.property("issueSelectable") and event.type() == QEvent.MouseButtonRelease:
+            issue = self._issue_row_data.get(watched)
+            if issue is not None:
+                self._runtime_update_issue_detail(issue)
+                return True
+        return False
 
     def _runtime_update_issue_detail(self, issue):
         cards = self.findChildren(QFrame, "detailBodyCard")
@@ -283,8 +296,18 @@ def apply_project_detail_runtime(ProjectDetailPage):
         layout.addWidget(rule)
 
     ProjectDetailPage.__init__ = runtime_init
+    original_event_filter = getattr(ProjectDetailPage, "eventFilter", None)
+
+    def project_detail_event_filter(self, watched, event):
+        if event_filter(self, watched, event):
+            return True
+        if original_event_filter is not None:
+            return original_event_filter(self, watched, event)
+        return False
+
     ProjectDetailPage.load_project = load_project
     ProjectDetailPage._runtime_update_distribution = _runtime_update_distribution
     ProjectDetailPage._runtime_update_history = _runtime_update_history
     ProjectDetailPage._runtime_update_issues = _runtime_update_issues
     ProjectDetailPage._runtime_update_issue_detail = _runtime_update_issue_detail
+    ProjectDetailPage.eventFilter = project_detail_event_filter
