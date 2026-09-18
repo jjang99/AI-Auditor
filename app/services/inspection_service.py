@@ -31,14 +31,14 @@ class InspectionService:
 
         return valid_paths, errors
 
-    def run(self, file_paths, project_id=None, inspection_type="전체 검사"):
+    def run(self, file_paths, project_id=None, inspection_type="전체 검사", cancel_requested=None):
         valid_paths, errors = self.validate_files(file_paths)
         if errors:
             raise ValueError("\n".join(errors))
         if not valid_paths:
             raise ValueError("검사할 파일이 없습니다.")
 
-        summary = self.engine.inspect_files(valid_paths)
+        summary = self.engine.inspect_files(valid_paths, cancel_requested=cancel_requested)
         inspection_id = None
         if project_id is not None:
             inspection_id = save_inspection_result(
