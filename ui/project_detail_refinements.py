@@ -166,7 +166,7 @@ def _refine_history(card):
 
 
 def _refine_issue_row(row):
-    row.setFixedHeight(64)
+    row.setFixedHeight(72)
 
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
@@ -187,7 +187,7 @@ def _refine_issue_row(row):
             label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             label.setMinimumWidth(0)
             label.setWordWrap(True)
-            label.setMinimumHeight(22)
+            label.setMinimumHeight(34)
 
 
 def _refine_detail_header(detail_card):
