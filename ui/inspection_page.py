@@ -177,6 +177,25 @@ class InspectionPage(QWidget):
     def open_existing_projects(self):
         dialog=ExistingProjectDialog(self); dialog.project_selected.connect(self.existing_project_selected.emit); dialog.exec()
 
+    def apply_theme(self, is_dark):
+        """Apply page-local theme overrides.
+
+        InspectionPage owns a stylesheet, so main-window QSS cannot reliably
+        override its child labels. Keep light readability rules here.
+        """
+        if is_dark:
+            self.setStyleSheet(self.inspection_style())
+            return
+        light_readability = r"""
+        #inspectionRuleRow { background:#ffffff; border:1px solid #b9c9dc; }
+        #inspectionRuleName { color:#0f172a; font-size:10px; font-weight:700; }
+        #inspectionRuleCount { color:#334155; font-size:9px; font-weight:600; }
+        #inspectionRuleDescription { color:#475569; font-size:9px; font-weight:500; }
+        #inspectionViewButton { color:#0f172a; background:#ffffff; border:1px solid #94a3b8; font-weight:600; }
+        #inspectionBlueNote { color:#2563eb; font-weight:600; }
+        """
+        self.setStyleSheet(self.inspection_style() + light_readability)
+
     def inspection_style(self):
         return """
         #inspectionContent, #inspectionScroll { background:#09090b; border:none; }
