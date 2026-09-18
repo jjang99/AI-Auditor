@@ -175,8 +175,13 @@ LIGHT_TEXT_HIERARCHY_FINAL = r"""
 #whyItemBody { color:#475569; font-weight:500; }
 #footerText { color:#64748b; }
 
-#inspectionRuleName { color:#0f172a; font-weight:700; }
-#inspectionRuleCount { color:#1e293b; font-weight:700; }
-#inspectionRuleDescription { color:#334155; font-weight:600; }
-#inspectionBlueNote { color:#1d4ed8; font-weight:600; }
+/* Inspection: selected rows must stay fully readable in light mode.
+   Keep the same information hierarchy as dark mode instead of fading
+   enabled rule text toward the background. */
+#inspectionRuleRow { background:#ffffff; border:1px solid #b9c9dc; }
+#inspectionRuleName { color:#0f172a; font-size:10px; font-weight:700; }
+#inspectionRuleCount { color:#334155; font-size:9px; font-weight:600; }
+#inspectionRuleDescription { color:#475569; font-size:9px; font-weight:500; }
+#inspectionViewButton { color:#0f172a; background:#ffffff; border:1px solid #94a3b8; font-weight:600; }
+#inspectionBlueNote { color:#2563eb; font-weight:600; }
 """
