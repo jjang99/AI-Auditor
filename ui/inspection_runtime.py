@@ -150,13 +150,22 @@ def apply_inspection_runtime(InspectionPage):
         if unsupported:
             names = "\n".join(f"• {name}" for name in unsupported[:8])
             more = f"\n외 {len(unsupported) - 8}개" if len(unsupported) > 8 else ""
-            QMessageBox.warning(
-                self,
-                "지원하지 않는 파일 형식",
-                "현재 검사에서 지원하지 않는 파일은 등록에서 제외했습니다.\n\n"
+            warning = QMessageBox(self)
+            warning.setIcon(QMessageBox.Warning)
+            warning.setWindowTitle("지원하지 않는 파일 형식")
+            warning.setText("지원하지 않는 파일은 등록에서 제외했습니다.")
+            warning.setInformativeText(
                 f"{names}{more}\n\n"
-                "지원 형식: .py, .java, .js, .ts, .yml, .yaml, .xml, .json, .md, .txt, .properties, .sql",
+                "지원 형식: .py, .java, .js, .ts, .yml, .yaml, .xml, .json, .md, .txt, .properties, .sql"
             )
+            warning.setStandardButtons(QMessageBox.Ok)
+            warning.setStyleSheet(
+                "QMessageBox { min-width: 520px; }"
+                "QLabel { min-width: 440px; font-size: 13px; }"
+                "QLabel#qt_msgbox_label { font-size: 15px; font-weight: 700; }"
+                "QPushButton { min-width: 72px; min-height: 28px; font-size: 12px; font-weight: 600; }"
+            )
+            warning.exec()
 
     def clear_inspection_files(self): self.selected_files.clear(); self._refresh_file_view()
     def remove_inspection_file(self, file_path):
