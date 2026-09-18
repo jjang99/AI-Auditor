@@ -208,7 +208,7 @@ class AdministrationRulesDialog(QDialog):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{code} - Rule Detail")
         dialog.setModal(True)
-        dialog.setFixedSize(480, 390)
+        dialog.setFixedSize(500, 455)
         dialog.setWindowIcon(self.windowIcon())
 
         root = QVBoxLayout(dialog)
@@ -219,19 +219,35 @@ class AdministrationRulesDialog(QDialog):
         title.setObjectName("adminDetailTitle")
         root.addWidget(title)
 
-        def add_field(label_text, value_text, value_object="adminDetailValue"):
+        def add_field(label_text, value_text):
             label = QLabel(label_text)
             label.setObjectName("adminDetailLabel")
             value = QLabel(value_text)
-            value.setObjectName(value_object)
+            value.setObjectName("adminDetailValue")
             value.setWordWrap(True)
+            value.setMinimumHeight(34)
+            value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             root.addWidget(label)
             root.addWidget(value)
+            root.addSpacing(3)
 
         add_field("Code", code)
         add_field("규칙 제목", name)
         add_field("설명", description)
-        add_field("심각도", severity, f"severity{severity}")
+
+        severity_row = QHBoxLayout()
+        severity_row.setSpacing(10)
+        severity_title = QLabel("심각도")
+        severity_title.setObjectName("adminDetailLabel")
+        severity_badge = QLabel(severity)
+        severity_badge.setObjectName(f"severity{severity}")
+        severity_badge.setFixedSize(82, 28)
+        severity_badge.setAlignment(Qt.AlignCenter)
+        severity_row.addWidget(severity_title)
+        severity_row.addStretch()
+        severity_row.addWidget(severity_badge)
+        root.addLayout(severity_row)
+        root.addSpacing(4)
 
         status_row = QHBoxLayout()
         status_label = QLabel("상태")
@@ -248,7 +264,7 @@ class AdministrationRulesDialog(QDialog):
         status_row.addWidget(status_toggle)
         root.addLayout(status_row)
 
-        root.addStretch()
+        root.addSpacing(4)
         notice = QLabel("ⓘ 규칙을 비활성화하면 기본 검사에서 제외됩니다.")
         notice.setObjectName("adminDialogNotice")
         root.addWidget(notice)
