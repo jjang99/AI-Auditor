@@ -267,7 +267,6 @@ class ReportsPage(QWidget):
                 #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard {
                     background:#101d29; border:1px solid #3e586d; border-radius:9px;
                 }
-                #reportSummaryCard:hover { background:#142636; border-color:#52748d; }
                 #reportMetricIcon { background:transparent; border:none; }
                 #reportMetricLabel { color:#f3f7fb; font-size:13px; font-weight:900; }
                 #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple {
@@ -288,6 +287,7 @@ class ReportsPage(QWidget):
                     background:#132433;
                 }
                 QComboBox#reportCombo::down-arrow { width:9px; height:9px; }
+                QComboBox#reportCombo::drop-down:hover { background:#dfeaf2; }
                 #reportSearchButton, #reportPrimaryButton {
                     background:#1672ef; color:#ffffff; border:none; border-radius:7px;
                     font-size:13px; font-weight:900;
@@ -320,7 +320,6 @@ class ReportsPage(QWidget):
                 #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard {
                     background:#ffffff; border:1px solid #afc1cf; border-radius:9px;
                 }
-                #reportSummaryCard:hover { background:#f5f9fc; border-color:#8fa8ba; }
                 #reportMetricIcon { background:transparent; border:none; }
                 #reportMetricLabel { color:#294256; font-size:13px; font-weight:900; }
                 #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple {
