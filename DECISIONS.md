@@ -160,11 +160,25 @@
 - 환경 설정 3개 항목은 현재 확정된 글자 크기와 위·아래 균형 배치를 유지한다.
 - 이후 기능 구현에서 Administration UI 구조·크기·간격을 임의 변경하지 않는다.
 
-# 9. 현재 재개 지점 — 2026-09-18
-- Inspection 실제 기능 및 Rule Engine 기본 구조 구현 완료
-- Inspection UI Freeze 완료
-- Project Detail 최종 UI 보정 및 UI Freeze 완료
-- Reports 최종 UI 보정 및 다크/라이트 화면 확인 완료
-- 다음 작업은 Administration 최종 UI 점검
-- 이후 공통 UI/화면 이동 최종 점검
-- 전체 UI Freeze 후 실제 MVP Rule 약 20개 구현 단계로 이동
+# 9. 전체 UI 최종 Freeze — 2026-09-18
+- Home / Projects / Inspection / Project Detail / Reports / Administration 전체 다크·라이트 UI 최종 회귀 점검 완료.
+- 2026-09-18 사용자 최종 확인 상태를 전체 UI 기준점으로 고정한다.
+- 이후 기능 개발에서는 Freeze된 화면의 구조, 크기, 위치, 간격, 색상, 폰트, 테두리, 버튼/배지 형태를 임의 변경하지 않는다.
+- 기능 구현상 UI 변경이 불가피한 경우 기존 코드·DECISIONS.md·확정 대화를 먼저 확인하고 사용자와 협의 후 변경한다.
+- 공통 시각 기준:
+  - 카드 외곽선은 Administration에서 확정한 표현을 기준으로 통일한다.
+  - 텍스트 가독성/정보 위계는 Reports에서 확정한 수준을 기준으로 통일한다.
+  - 카드 내부 입력/선택/정보 네모 영역의 테두리·라운드 표현은 Administration 기준으로 통일한다.
+  - 위 공통화는 시각 스타일에 한정하며 Freeze된 카드 크기·화면 비율·배치·간격을 변경하지 않는다.
+- Light Mode는 2026-09-18 확정한 Soft Light(옅은 블루그레이 바탕 + 흰 카드) 톤을 유지한다.
+- Projects의 검사 전 빈 Score 원형은 Light Mode에서 연한 중성 회색, 얇은 테두리의 현재 상태를 유지한다.
+- Administration 검사기준 관리의 마지막 'AI 특화 검증' 하단은 중복 구분선을 제거한 현재 단일 외곽선 상태를 유지한다.
+- Inspection 검사기준 선택 영역은 현재 확정된 텍스트 크기/굵기/명암을 유지하며, 테마 또는 후속 패치가 이를 다시 덮어쓰지 않도록 한다.
+
+# 10. 현재 재개 지점 — 2026-09-18
+- 전체 화면 최종 UI 점검 완료 및 UI Freeze 최종 확정.
+- Home / Projects / Inspection / Project Detail / Reports / Administration 모두 현재 상태 PASS.
+- UI를 다시 설계·보정하는 단계는 종료한다.
+- 다음 개발 단계는 Freeze된 UI 위에 실제 MVP 기능을 확장하는 단계이다.
+- 우선순위는 MVP 실행 Rule을 약 20개로 확장하고 AI 특화 Rule을 포함하는 작업이다.
+- 이후 UI 규칙 목록과 실제 Rule Engine 기준 데이터 통합, 검사 취소, DB 기반 프로젝트 중복 확인/이동, Score/Grade 산정, E2E 검증, 폐쇄망 Windows EXE 패키징 순으로 진행한다.
