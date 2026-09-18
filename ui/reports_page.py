@@ -174,6 +174,7 @@ class ReportsPage(QWidget):
         self.report_table.viewport().setMouseTracking(True)
         self.report_table.viewport().installEventFilter(self)
         self._report_hover_row = -1
+        self.report_table.setCursor(Qt.PointingHandCursor)
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -235,20 +236,30 @@ class ReportsPage(QWidget):
 
     def eventFilter(self, watched, event):
         if watched is getattr(self, "report_table", None).viewport():
-            hover_row = self.report_table.rowAt(event.position().toPoint().y()) if event.type() == QEvent.MouseMove else -1
-            if event.type() in (QEvent.MouseMove, QEvent.Leave) and hover_row != self._report_hover_row:
+            if event.type() == QEvent.MouseMove:
+                hover_row = self.report_table.indexAt(event.position().toPoint()).row()
+            elif event.type() == QEvent.Leave:
+                hover_row = -1
+            else:
+                return super().eventFilter(watched, event)
+
+            if hover_row != self._report_hover_row:
                 old_row = self._report_hover_row
                 self._report_hover_row = hover_row
                 is_dark = getattr(self, "_is_dark_theme", True)
-                normal = QColor("transparent")
-                hover = QColor("#142536" if is_dark else "#f6f9fc")
+                normal = QColor("#0b1620" if is_dark else "#ffffff")
+                hover = QColor("#1a3143" if is_dark else "#e7f0f6")
+                selected_rows = {index.row() for index in self.report_table.selectionModel().selectedRows()}
+                selected = QColor("#142c3f" if is_dark else "#edf4f9")
+
                 for row in {old_row, hover_row}:
                     if row < 0:
                         continue
+                    background = hover if row == hover_row else selected if row in selected_rows else normal
                     for column in range(self.report_table.columnCount()):
                         item = self.report_table.item(row, column)
                         if item is not None:
-                            item.setBackground(hover if row == hover_row else normal)
+                            item.setBackground(background)
                 self.report_table.viewport().update()
         return super().eventFilter(watched, event)
 
