@@ -30,20 +30,9 @@ def apply_inspection_visual_polish(InspectionPage):
             if count_label is not None:
                 count_label.setFixedWidth(122)
 
-            # 검사기준 행은 작은 보조문구가 아니라 실제 선택 대상이므로 한 단계 크게 표시한다.
-            if name_label is not None:
-                name_label.setStyleSheet(
-                    "color:#f1f5f9; font-size:12px; font-weight:700;"
-                )
-            if count_label is not None:
-                count_label.setStyleSheet(
-                    "color:#cbd5e1; font-size:11px; font-weight:600;"
-                )
-            if desc_label is not None:
-                desc_label.setStyleSheet(
-                    "color:#cbd5e1; font-size:11px; font-weight:500;"
-                )
-
+            # 규칙 행의 색상/폰트는 InspectionPage.apply_rule_text_theme()에서
+            # 현재 Dark/Light 테마에 맞춰 관리한다. 여기서 색상을 다시 지정하면
+            # 선택 상태 갱신 후 Light Mode가 어두운 테마 색으로 되돌아갈 수 있다.
             toggle = row.findChild(QPushButton, "inspectionCheck")
             if toggle is not None:
                 # 선택 상태가 바뀐 뒤에도 동일한 크기/체크 표시가 유지되도록 항상 재적용한다.
