@@ -202,3 +202,18 @@
 - 실제 클릭/선택 동작이 있는 요소에만 Hover 피드백을 적용하고, 단순 정보 표시 카드·장식 아이콘·상태 표시 요소에는 적용하지 않는다.
 - 기존에 정상 적용된 Projects / Administration의 Hover 기준은 유지한다.
 - Hover 공통화는 평상시 UI의 구조·크기·위치·간격·폰트 등을 변경하지 않는 인터랙션 보정으로 처리한다.
+
+
+# 13. MVP 기능 연결 및 E2E 확정 — 2026-09-18
+- Inspection의 적용 규칙 수는 개념상 102개가 아니라 현재 실제 실행 가능한 Rule 선택 수를 표시하며, 현재 전체 선택 시 20 / 20개로 표시한다.
+- 실제 검사 취소는 Worker, InspectionService, Rule Engine까지 cooperative cancellation 방식으로 연결한다. 강제 Thread 종료 방식은 사용하지 않는다.
+- 취소된 검사는 완료 결과로 DB에 저장하지 않고 Inspection 검사 준비 상태로 복귀한다.
+- 현재 Rule Engine 미지원 파일 형식은 검사 등록 단계에서 제외하고 사용자에게 명확히 안내한다. PDF/DOCX 등 문서 파싱 지원은 별도 후속 확장 범위로 둔다.
+- 동일 프로젝트명이 DB에 존재하면 새 검사 프로젝트로 조용히 재사용하지 않고 기존 프로젝트 확인 Modal을 표시한다.
+- MVP Score/Grade는 검사 결과의 Issue severity를 기반으로 deterministic하게 산정한다.
+  - 시작점 100점
+  - Critical -20 / High -10 / Medium -5 / Low -2
+  - A: 90 이상 / B: 80 이상 / C: 70 이상 / D: 60 이상 / F: 60 미만
+- 위 Score/Grade 산식은 MVP 기준이며 향후 검사기준 고도화 시 조정할 수 있다.
+- 신규 프로젝트 생성부터 Inspection, Rule Engine, DB 저장, Project Detail, Projects, Reports까지 전체 E2E 사용자 검증을 완료했다.
+- 다음 핵심 개발 단계는 폐쇄망 Windows EXE 패키징 및 최종 실행/회귀 테스트이다.
