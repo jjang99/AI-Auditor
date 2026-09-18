@@ -169,7 +169,7 @@ class ReportsPage(QWidget):
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
-        self.report_table.setFixedHeight(380)
+        self.report_table.setFixedHeight(350)
 
         header = self.report_table.horizontalHeader()
         header.setFixedHeight(44)
@@ -294,11 +294,11 @@ class ReportsPage(QWidget):
                 #reportSectionDescription { color:#c7d3dd; font-size:12px; font-weight:750; }
                 QTableWidget#reportTable {
                     background:#0b1620; color:#f6f9fc; border:1px solid #455f73; border-radius:6px;
-                    selection-background-color:#18364f; selection-color:#ffffff;
+                    selection-background-color:#142c3f; selection-color:#ffffff;
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #354e61; padding:7px; }
-                QTableWidget#reportTable::item:selected { background:#18364f; }
+                QTableWidget#reportTable::item:selected { background:#142c3f; }
                 QHeaderView::section {
                     background:#1d384e; color:#ffffff; border:none; border-bottom:1px solid #698195;
                     padding:8px; font-size:13px; font-weight:900;
@@ -347,11 +347,11 @@ class ReportsPage(QWidget):
                 #reportSectionDescription { color:#4f687b; font-size:12px; font-weight:750; }
                 QTableWidget#reportTable {
                     background:#ffffff; color:#203648; border:1px solid #a8bac8; border-radius:6px;
-                    selection-background-color:#e2eff9; selection-color:#112a3e;
+                    selection-background-color:#edf4f9; selection-color:#112a3e;
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #c8d6e0; padding:7px; }
-                QTableWidget#reportTable::item:selected { background:#e2eff9; }
+                QTableWidget#reportTable::item:selected { background:#edf4f9; }
                 QHeaderView::section {
                     background:#dce9f2; color:#193348; border:none; border-bottom:1px solid #96adbe;
                     padding:8px; font-size:13px; font-weight:900;
