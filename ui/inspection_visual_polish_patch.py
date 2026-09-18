@@ -30,18 +30,18 @@ def apply_inspection_visual_polish(InspectionPage):
             if count_label is not None:
                 count_label.setFixedWidth(122)
 
-            # 세 텍스트는 실제 렌더링 크기를 11px로 통일한다.
+            # 검사기준 행은 작은 보조문구가 아니라 실제 선택 대상이므로 한 단계 크게 표시한다.
             if name_label is not None:
                 name_label.setStyleSheet(
-                    "color:#f1f5f9; font-size:11px; font-weight:600;"
+                    "color:#f1f5f9; font-size:12px; font-weight:700;"
                 )
             if count_label is not None:
                 count_label.setStyleSheet(
-                    "color:#aebaca; font-size:11px; font-weight:600;"
+                    "color:#cbd5e1; font-size:11px; font-weight:600;"
                 )
             if desc_label is not None:
                 desc_label.setStyleSheet(
-                    "color:#aebaca; font-size:11px; font-weight:600;"
+                    "color:#cbd5e1; font-size:11px; font-weight:500;"
                 )
 
             toggle = row.findChild(QPushButton, "inspectionCheck")
