@@ -164,13 +164,13 @@ class ReportsPage(QWidget):
                 self.report_table.setItem(row, column, item)
 
         self.report_table.verticalHeader().setVisible(False)
-        self.report_table.verticalHeader().setDefaultSectionSize(61)
+        self.report_table.verticalHeader().setDefaultSectionSize(56)
         self.report_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.report_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
-        self.report_table.setFixedHeight(411)
+        self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -193,7 +193,7 @@ class ReportsPage(QWidget):
 
         action_frame = QFrame()
         action_frame.setObjectName("reportActionCard")
-        action_frame.setFixedHeight(118)
+        action_frame.setFixedHeight(128)
         action_layout = QHBoxLayout(action_frame)
         action_layout.setContentsMargins(16, 14, 14, 14)
 
