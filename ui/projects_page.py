@@ -27,7 +27,10 @@ class CircularScore(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = QRectF(6, 6, 60, 60)
-        background_pen = QPen(QColor("#334155"), 5)
+        # Light mode uses a softer neutral ring so an empty score does not dominate the card.
+        is_light = self.palette().color(self.backgroundRole()).lightness() > 128
+        ring_color = QColor("#cbd5e1") if is_light else QColor("#334155")
+        background_pen = QPen(ring_color, 5)
         background_pen.setCapStyle(Qt.RoundCap)
         painter.setPen(background_pen)
         painter.drawArc(rect, 0, 360 * 16)
@@ -50,7 +53,7 @@ class CircularScore(QWidget):
             painter.setPen(QColor("#ffffff"))
             score_text = str(self.score)
         else:
-            painter.setPen(QColor("#94a3b8"))
+            painter.setPen(QColor("#64748b") if is_light else QColor("#94a3b8"))
             score_text = "-"
         font = painter.font()
         font.setPointSize(15)
