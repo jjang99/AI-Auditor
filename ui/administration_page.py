@@ -163,18 +163,18 @@ class AdministrationPage(QWidget):
         settings_card = QFrame()
         settings_card.setObjectName("adminSectionCard")
         settings_layout = QVBoxLayout(settings_card)
-        settings_layout.setContentsMargins(16, 13, 16, 12)
+        settings_layout.setContentsMargins(16, 10, 16, 12)
         settings_layout.setSpacing(0)
 
         settings_title = QLabel("2. 환경 설정")
         settings_title.setObjectName("adminSectionTitle")
         settings_layout.addWidget(settings_title)
-        settings_layout.addSpacing(10)
+        settings_layout.addSpacing(6)
 
         settings_body = QFrame()
         settings_body.setObjectName("adminSettingsBody")
         body_layout = QVBoxLayout(settings_body)
-        body_layout.setContentsMargins(12, 2, 12, 2)
+        body_layout.setContentsMargins(12, 0, 12, 6)
         body_layout.setSpacing(0)
 
         path_controls = QWidget()
@@ -190,13 +190,13 @@ class AdministrationPage(QWidget):
         browse.setFixedSize(82, 34)
         path_layout.addWidget(path, 1)
         path_layout.addWidget(browse)
-        body_layout.addLayout(self.setting_row("결과 저장 경로", path_controls, 44))
+        body_layout.addLayout(self.setting_row("결과 저장 경로", path_controls, 48))
 
         save_logs = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 44))
+        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 48))
 
         auto_save = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("검사 결과 자동 저장", auto_save, 44))
+        body_layout.addLayout(self.setting_row("검사 결과 자동 저장", auto_save, 48))
 
         settings_layout.addWidget(settings_body)
         main_layout.addWidget(settings_card, 1)
@@ -249,12 +249,12 @@ class AdministrationPage(QWidget):
                 #adminViewButton, #adminBrowseButton { background:#1b3347; color:#ffffff; border:1px solid #46647b; border-radius:6px; font-size:12px; font-weight:850; }
                 #adminViewButton:hover, #adminBrowseButton:hover { background:#27465e; }
                 #adminNote { color:#d7e1eb; font-size:11px; font-weight:700; }
-                #adminSettingLabel { color:#ffffff; font-size:12px; font-weight:800; }
+                #adminSettingLabel { color:#ffffff; font-size:13px; font-weight:850; }
                 #adminPath { background:#102331; color:#ffffff; border:1px solid #476174; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
                 QComboBox#adminThemeCombo { background:#102331; color:#ffffff; border:1px solid #557187; border-radius:7px; padding:0 10px; font-size:12px; font-weight:700; }
                 QComboBox#adminThemeCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #405a6e; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#132433; }
                 QComboBox#adminThemeCombo::down-arrow { width:9px; height:9px; }
-                QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:14px; font-size:10px; font-weight:850; padding:0; }
+                QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:14px; font-size:11px; font-weight:900; padding:0; }
                 QPushButton#adminToggle:checked { background:#20c967; color:#ffffff; }
             """)
         else:
@@ -280,7 +280,7 @@ class AdministrationPage(QWidget):
                 #adminViewButton, #adminBrowseButton { background:#edf3f8; color:#17324a; border:1px solid #a9bac8; border-radius:6px; font-size:12px; font-weight:850; }
                 #adminViewButton:hover, #adminBrowseButton:hover { background:#e0eaf2; }
                 #adminNote { color:#4a5e72; font-size:11px; font-weight:700; }
-                #adminSettingLabel { color:#243648; font-size:12px; font-weight:800; }
+                #adminSettingLabel { color:#142435; font-size:13px; font-weight:850; }
                 #adminPath { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
                 QComboBox#adminThemeCombo { background:#ffffff; color:#172a3c; border:1px solid #97adbd; border-radius:7px; padding:0 10px; font-size:12px; font-weight:700; }
                 QComboBox#adminThemeCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #b3c3cf; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#edf3f7; }
