@@ -190,6 +190,29 @@ def apply_project_detail_runtime(ProjectDetailPage):
             row = self.create_issue_row(
                 issue["severity"], issue["rule_code"], issue["title"], issue["status"]
             )
+            # Runtime-created rows are added after the initial UI refinement pass,
+            # so apply the same final sizing here as the frozen Project Detail UI.
+            row.setFixedHeight(72)
+            badge = next(
+                (label for label in row.findChildren(QLabel)
+                 if label.objectName().startswith("detailBadge_")),
+                None,
+            )
+            if badge:
+                badge.setFixedSize(38, 20)
+                badge.setAlignment(Qt.AlignCenter)
+            status = next(
+                (label for label in row.findChildren(QLabel)
+                 if label.objectName() in ("detailStatusResolved", "detailStatusOpen")),
+                None,
+            )
+            if status:
+                status.setFixedWidth(38)
+            description = row.findChild(QLabel, "detailIssueDescription")
+            if description:
+                description.setWordWrap(True)
+                description.setMinimumHeight(34)
+                description.setMinimumWidth(0)
             if index >= 8:
                 row.hide()
             layout.addWidget(row)
