@@ -120,6 +120,7 @@ class InspectionPage(QWidget):
 
         self.progress_card=self.create_progress_card(); self.progress_card.hide(); main.addWidget(self.progress_card)
         self.complete_card=self.create_complete_card(); self.complete_card.hide(); main.addWidget(self.complete_card)
+        self._rule_text_widgets = []
         self.demo_timer=QTimer(self); self.demo_timer.setSingleShot(True); self.demo_timer.timeout.connect(self.show_complete)
         main.addStretch(); self.setStyleSheet(self.inspection_style())
 
@@ -164,6 +165,7 @@ class InspectionPage(QWidget):
         checked=QLabel("✓"); checked.setObjectName("inspectionCheck"); checked.setAlignment(Qt.AlignCenter); checked.setFixedSize(20,20)
         icon_label=QLabel(icon); icon_label.setObjectName("inspectionRuleIcon"); icon_label.setFixedWidth(28); name_label=QLabel(name); name_label.setObjectName("inspectionRuleName"); name_label.setFixedWidth(145); count_label=QLabel(count); count_label.setObjectName("inspectionRuleCount"); count_label.setFixedWidth(95); desc_label=QLabel(description); desc_label.setObjectName("inspectionRuleDescription")
         view=QPushButton("보기"); view.setObjectName("inspectionViewButton"); view.setFixedSize(58,27)
+        self._rule_text_widgets.append((name_label, count_label, desc_label, view))
         if open_dialog: view.clicked.connect(self.open_security_rules)
         layout.addWidget(checked); layout.addWidget(icon_label); layout.addWidget(name_label); layout.addWidget(count_label); layout.addWidget(desc_label,1); layout.addWidget(view); return row
 
@@ -177,6 +179,29 @@ class InspectionPage(QWidget):
     def open_existing_projects(self):
         dialog=ExistingProjectDialog(self); dialog.project_selected.connect(self.existing_project_selected.emit); dialog.exec()
 
+
+
+    def apply_rule_text_theme(self, is_dark):
+        """Set rule-row text directly so later/global QSS cannot wash it out."""
+        if is_dark:
+            styles = (
+                "color:#f1f5f9; font-size:10px; font-weight:600;",
+                "color:#aebaca; font-size:9px;",
+                "color:#aebaca; font-size:9px;",
+                "color:#e2e8f0; background:#10161c; border:1px solid #334155; border-radius:6px; font-size:9px;"
+            )
+        else:
+            styles = (
+                "color:#0f172a; font-size:10px; font-weight:700;",
+                "color:#334155; font-size:9px; font-weight:600;",
+                "color:#475569; font-size:9px; font-weight:500;",
+                "color:#0f172a; background:#ffffff; border:1px solid #94a3b8; border-radius:6px; font-size:9px; font-weight:600;"
+            )
+        for name_label, count_label, desc_label, view in self._rule_text_widgets:
+            name_label.setStyleSheet(styles[0])
+            count_label.setStyleSheet(styles[1])
+            desc_label.setStyleSheet(styles[2])
+            view.setStyleSheet(styles[3])
 
     def inspection_style(self):
         return """
