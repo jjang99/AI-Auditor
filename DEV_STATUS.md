@@ -6,11 +6,11 @@
 ## 현재 개발 단계
 - Home, Projects, Inspection, Project Detail, Reports, Administration 기본 화면 구현 상태
 - Inspection 실제 동작 연결 완료
-- Rule Engine 기본 구조 및 기본 실행 Rule 5개 구현 완료
+- Rule Engine 기본 구조 및 MVP 실행 Rule 20개 구현 완료(보안 6 / 코드 품질 6 / 성능 4 / AI 특화 4)
 - Inspection 검사 실행 → 결과 DB 저장 → Project Detail 조회 흐름 연결
 - Inspection UI 최종 보정 완료 및 해당 영역 Freeze
 - 전체 화면 최종 UI 점검 완료 및 UI Freeze 최종 확정
-- 다음 작업: MVP 실행 Rule 약 20개로 확장(방향상 AI 특화 Rule 포함)
+- MVP 실행 Rule 20개 구현 및 자동 fixture 검증 완료\n- Inspection 규칙 선택/해제 → 실제 Rule Engine 실행 연동 검증 진행 중
 
 ## 2026-09-13까지 주요 구현 내용
 ### Inspection
@@ -100,3 +100,22 @@
 - DECISIONS.md에 최종 Freeze 기준 기록 완료
 - 다음 개발 시작점: MVP 실제 실행 Rule 약 20개 선정 및 구현
 - 다음 세션에서는 UI를 다시 수정하지 않고 최신 GitHub 코드, DECISIONS.md, DEV_STATUS.md 확인 후 Rule 단계부터 재개
+
+
+## 2026-09-18 MVP Rule 및 Inspection 연동 진행
+- MVP 실제 실행 Rule 20개 구현 완료
+  - 보안 취약점 6개
+  - 코드 품질 6개
+  - 성능 및 효율성 4개
+  - AI 특화 검증 4개
+- `tests/test_mvp_rules.py` 자동 fixture 검증을 사용자 PC에서 실행하여 4개 테스트 메서드 모두 PASS
+- Rule 공통 모델에 UI 선택 위치 메타데이터(`selection_index`)를 추가하고, Inspection의 별도 하드코딩 매핑을 제거하여 Rule 정의 데이터를 사용하도록 연결
+- 공통 데이터 연결 변경 후 자동 테스트 재실행 PASS
+- 실제 GUI 연동 검증:
+  - SEC-002 ON 상태에서 테스트 파일의 SQL 문자열 직접 조합 이슈 검출 확인
+  - SEC-002 OFF 상태에서 동일 파일 재검사 시 SEC-002 미검출 확인
+  - 따라서 Inspection 개별 규칙 선택/해제가 실제 Rule Engine 실행 여부에 반영됨을 확인
+- 검사 완료 후 Project Detail 이동 뒤 Inspection 메뉴로 재진입하면 완료 카드가 남아 새 검사를 시작할 수 없던 상태관리 문제 발견
+- Inspection 재진입 시 검사 준비 상태로 복원하도록 수정하고 사용자 화면에서 `검사 시작` 버튼 재표시 확인
+- UI Freeze의 구조/크기/스타일은 변경하지 않았으며 기능 상태 및 데이터 연동만 수정
+- 현재 다음 작업: 20개 Rule 공통 데이터 연결의 남은 부분 점검 및 Inspection 표시 수량(개념상 102개 / 실제 실행 20개) 정합성 검토
