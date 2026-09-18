@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QFrame, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QVBoxLayout, QWidget,
 )
 
@@ -177,12 +177,6 @@ class AdministrationPage(QWidget):
         body_layout.setContentsMargins(12, 2, 12, 2)
         body_layout.setSpacing(0)
 
-        self.theme_combo = QComboBox()
-        self.theme_combo.setObjectName("adminThemeCombo")
-        self.theme_combo.addItems(["다크", "라이트"])
-        self.theme_combo.setFixedSize(240, 34)
-        body_layout.addLayout(self.setting_row("테마", self.theme_combo, 44))
-
         path_controls = QWidget()
         path_controls.setFixedWidth(240)
         path_layout = QHBoxLayout(path_controls)
@@ -233,7 +227,6 @@ class AdministrationPage(QWidget):
         return row
 
     def apply_theme(self, is_dark):
-        self.theme_combo.setCurrentText("다크" if is_dark else "라이트")
         if is_dark:
             self.setStyleSheet("""
                 #adminAccentLabel { color:#46a3ff; font-size:13px; font-weight:800; }
