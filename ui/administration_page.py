@@ -249,6 +249,7 @@ class AdministrationPage(QWidget):
                 QComboBox#adminThemeCombo { background:#102331; color:#ffffff; border:1px solid #557187; border-radius:7px; padding:0 10px; font-size:12px; font-weight:700; }
                 QComboBox#adminThemeCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #405a6e; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#132433; }
                 QComboBox#adminThemeCombo::down-arrow { width:9px; height:9px; }
+                QComboBox#adminThemeCombo::drop-down:hover { background:#dfeaf2; }
                 QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:14px; font-size:11px; font-weight:900; padding:0; }
                 QPushButton#adminToggle:checked { background:#20c967; color:#ffffff; }
             """)
