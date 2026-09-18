@@ -14,13 +14,10 @@ CATEGORY_COUNTS = {
 
 # 현재 화면에 정의되어 있는 대표 규칙 8개는 각 카테고리의 앞쪽 규칙으로 취급한다.
 # 실제 102개 규칙 목록은 추후 Rule 정의가 완성되는 시점에 이 UI 데이터와 연결한다.
-EXECUTABLE_RULE_INDEX = {
-    "SEC-001": ("보안 취약점", 3),
-    "SEC-002": ("보안 취약점", 0),
-    "QUAL-001": ("코드 품질", 0),
-    "QUAL-002": ("코드 품질", 1),
-    "PERF-001": ("성능 및 효율성", 0),
-}
+def executable_rule_index(rule):
+    """실행 Rule 자체에 정의된 UI 선택 위치를 사용한다."""
+    return (rule.category, rule.selection_index) if rule.selection_index is not None else None
+
 
 
 def apply_inspection_rule_ui_patch(InspectionPage):
@@ -156,7 +153,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
     def selected_executable_rules(self):
         rules = []; states_by_category = getattr(self, "rule_selection_state", {})
         for rule in get_default_rules():
-            mapping = EXECUTABLE_RULE_INDEX.get(rule.code)
+            mapping = executable_rule_index(rule)
             if mapping is None:
                 if rule.category in getattr(self, "selected_rule_categories", set()): rules.append(rule)
                 continue
