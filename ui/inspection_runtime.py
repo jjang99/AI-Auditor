@@ -150,7 +150,7 @@ def apply_inspection_runtime(InspectionPage):
         if unsupported:
             names = "\n".join(f"• {name}" for name in unsupported[:8])
             more = f"\n외 {len(unsupported) - 8}개" if len(unsupported) > 8 else ""
-            QMessageBox.information(
+            QMessageBox.warning(
                 self,
                 "지원하지 않는 파일 형식",
                 "현재 검사에서 지원하지 않는 파일은 등록에서 제외했습니다.\n\n"
