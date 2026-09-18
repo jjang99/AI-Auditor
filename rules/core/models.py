@@ -13,6 +13,7 @@ class Rule:
     file_extensions: tuple[str, ...] = field(default_factory=tuple)
     enabled: bool = True
     recommendation: str = ""
+    selection_index: int | None = None
 
 
 @dataclass(frozen=True)
