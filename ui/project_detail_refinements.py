@@ -144,6 +144,9 @@ def _card_by_prefix(cards, prefix):
 
 
 def _refine_distribution(card):
+    layout = card.layout()
+    if layout:
+        layout.setSpacing(13)
     for label in card.findChildren(QLabel, "detailSmallText"):
         label.setMinimumHeight(17)
         if label.text().isdigit():
@@ -170,7 +173,8 @@ def _refine_issue_row(row):
 
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
-        badge.setFixedWidth(38)
+        badge.setMinimumWidth(38)
+        badge.setMaximumWidth(54)
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
 
