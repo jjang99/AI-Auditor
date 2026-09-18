@@ -59,7 +59,7 @@ def apply_project_detail_refinements(ProjectDetailPage):
             issues.setFixedWidth(230)
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
             if scroll:
-                scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+                scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
                 scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                 scroll.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         if detail:
