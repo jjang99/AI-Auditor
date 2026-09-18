@@ -174,7 +174,7 @@ class AdministrationPage(QWidget):
         settings_body = QFrame()
         settings_body.setObjectName("adminSettingsBody")
         body_layout = QVBoxLayout(settings_body)
-        body_layout.setContentsMargins(12, 0, 12, 6)
+        body_layout.setContentsMargins(12, 8, 12, 0)
         body_layout.setSpacing(0)
 
         path_controls = QWidget()
