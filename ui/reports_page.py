@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import QEvent, Qt, QSize
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QHBoxLayout, QHeaderView,
@@ -172,8 +172,6 @@ class ReportsPage(QWidget):
         self.report_table.setAlternatingRowColors(False)
         self.report_table.setMouseTracking(True)
         self.report_table.viewport().setMouseTracking(True)
-        self.report_table.viewport().installEventFilter(self)
-        self._report_hover_row = -1
         self.report_table.setCursor(Qt.PointingHandCursor)
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -233,35 +231,6 @@ class ReportsPage(QWidget):
         main_layout.addStretch(1)
 
         self.apply_theme(True)
-
-    def eventFilter(self, watched, event):
-        if watched is getattr(self, "report_table", None).viewport():
-            if event.type() == QEvent.MouseMove:
-                hover_row = self.report_table.indexAt(event.position().toPoint()).row()
-            elif event.type() == QEvent.Leave:
-                hover_row = -1
-            else:
-                return super().eventFilter(watched, event)
-
-            if hover_row != self._report_hover_row:
-                old_row = self._report_hover_row
-                self._report_hover_row = hover_row
-                is_dark = getattr(self, "_is_dark_theme", True)
-                normal = QColor("#0b1620" if is_dark else "#ffffff")
-                hover = QColor("#1a3143" if is_dark else "#e7f0f6")
-                selected_rows = {index.row() for index in self.report_table.selectionModel().selectedRows()}
-                selected = QColor("#142c3f" if is_dark else "#edf4f9")
-
-                for row in {old_row, hover_row}:
-                    if row < 0:
-                        continue
-                    background = hover if row == hover_row else selected if row in selected_rows else normal
-                    for column in range(self.report_table.columnCount()):
-                        item = self.report_table.item(row, column)
-                        if item is not None:
-                            item.setBackground(background)
-                self.report_table.viewport().update()
-        return super().eventFilter(watched, event)
 
     def update_selected_report(self):
         selected = self.report_table.selectionModel().selectedRows()
@@ -336,6 +305,7 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #354e61; padding:7px; }
+                QTableWidget#reportTable::item:hover { background:#1a3143; }
                 QTableWidget#reportTable::item:selected { background:#142c3f; }
                 QHeaderView::section {
                     background:#1d384e; color:#ffffff; border:none; border-bottom:1px solid #698195;
@@ -389,6 +359,7 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #c8d6e0; padding:7px; }
+                QTableWidget#reportTable::item:hover { background:#e7f0f6; }
                 QTableWidget#reportTable::item:selected { background:#edf4f9; }
                 QHeaderView::section {
                     background:#dce9f2; color:#193348; border:none; border-bottom:1px solid #96adbe;
