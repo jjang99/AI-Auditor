@@ -966,6 +966,13 @@ QLabel {
 }
 
 
+/* Home - light readability hierarchy */
+#homeDescription { color: #334155; }
+#homeCardDescription { color: #475569; font-weight: 500; }
+#whyItemTitle { color: #1e293b; font-weight: 700; }
+#whyItemBody { color: #475569; font-weight: 500; }
+#footerText { color: #64748b; }
+
 /* Home */
 
 #homeTitle {
