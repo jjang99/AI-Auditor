@@ -178,7 +178,7 @@ class AdministrationPage(QWidget):
         body_layout.setSpacing(0)
 
         path_controls = QWidget()
-        path_controls.setFixedWidth(240)
+        path_controls.setFixedWidth(400)
         path_layout = QHBoxLayout(path_controls)
         path_layout.setContentsMargins(0, 0, 0, 0)
         path_layout.setSpacing(7)
@@ -187,7 +187,7 @@ class AdministrationPage(QWidget):
         path.setFixedHeight(34)
         browse = QPushButton("찾아보기")
         browse.setObjectName("adminBrowseButton")
-        browse.setFixedSize(74, 34)
+        browse.setFixedSize(82, 34)
         path_layout.addWidget(path, 1)
         path_layout.addWidget(browse)
         body_layout.addLayout(self.setting_row("결과 저장 경로", path_controls, 44))
@@ -199,8 +199,7 @@ class AdministrationPage(QWidget):
         body_layout.addLayout(self.setting_row("검사 결과 자동 저장", auto_save, 44))
 
         settings_layout.addWidget(settings_body)
-        main_layout.addWidget(settings_card)
-        main_layout.addStretch(1)
+        main_layout.addWidget(settings_card, 1)
 
         self.apply_theme(True)
 
@@ -210,7 +209,7 @@ class AdministrationPage(QWidget):
         toggle.setCheckable(True)
         toggle.setChecked(checked)
         toggle.setCursor(Qt.PointingHandCursor)
-        toggle.setFixedSize(44, 22)
+        toggle.setFixedSize(82, 28)
         toggle.toggled.connect(lambda state, button=toggle: button.setText("ON" if state else "OFF"))
         return toggle
 
@@ -255,7 +254,7 @@ class AdministrationPage(QWidget):
                 QComboBox#adminThemeCombo { background:#102331; color:#ffffff; border:1px solid #557187; border-radius:7px; padding:0 10px; font-size:12px; font-weight:700; }
                 QComboBox#adminThemeCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #405a6e; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#132433; }
                 QComboBox#adminThemeCombo::down-arrow { width:9px; height:9px; }
-                QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:11px; font-size:9px; font-weight:850; padding:0; }
+                QPushButton#adminToggle { background:#40566a; color:#edf2f7; border:none; border-radius:14px; font-size:10px; font-weight:850; padding:0; }
                 QPushButton#adminToggle:checked { background:#20c967; color:#ffffff; }
             """)
         else:
