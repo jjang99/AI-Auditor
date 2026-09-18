@@ -173,6 +173,8 @@ class ReportsPage(QWidget):
         self.report_table.setMouseTracking(True)
         self.report_table.viewport().setMouseTracking(True)
         self.report_table.setCursor(Qt.PointingHandCursor)
+        self._report_hover_row = -1
+        self.report_table.cellEntered.connect(self._set_report_hover_row)
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -231,6 +233,13 @@ class ReportsPage(QWidget):
         main_layout.addStretch(1)
 
         self.apply_theme(True)
+
+    def _set_report_hover_row(self, row, _column):
+        if row == self._report_hover_row:
+            return
+        self._report_hover_row = row
+        self.report_table.setCurrentCell(row, 0, QAbstractItemView.NoEditTriggers)
+        self.report_table.selectRow(row)
 
     def update_selected_report(self):
         selected = self.report_table.selectionModel().selectedRows()
@@ -305,7 +314,6 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #354e61; padding:7px; }
-                QTableWidget#reportTable::item:hover { background:#1a3143; }
                 QTableWidget#reportTable::item:selected { background:#142c3f; }
                 QHeaderView::section {
                     background:#1d384e; color:#ffffff; border:none; border-bottom:1px solid #698195;
@@ -359,7 +367,6 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #c8d6e0; padding:7px; }
-                QTableWidget#reportTable::item:hover { background:#e7f0f6; }
                 QTableWidget#reportTable::item:selected { background:#edf4f9; }
                 QHeaderView::section {
                     background:#dce9f2; color:#193348; border:none; border-bottom:1px solid #96adbe;
