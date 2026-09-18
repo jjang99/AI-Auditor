@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import QEvent, Qt, QSize
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QHBoxLayout, QHeaderView,
@@ -170,6 +170,10 @@ class ReportsPage(QWidget):
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
+        self.report_table.setMouseTracking(True)
+        self.report_table.viewport().setMouseTracking(True)
+        self.report_table.viewport().installEventFilter(self)
+        self._report_hover_row = -1
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -229,6 +233,25 @@ class ReportsPage(QWidget):
 
         self.apply_theme(True)
 
+    def eventFilter(self, watched, event):
+        if watched is getattr(self, "report_table", None).viewport():
+            hover_row = self.report_table.rowAt(event.position().toPoint().y()) if event.type() == QEvent.MouseMove else -1
+            if event.type() in (QEvent.MouseMove, QEvent.Leave) and hover_row != self._report_hover_row:
+                old_row = self._report_hover_row
+                self._report_hover_row = hover_row
+                is_dark = getattr(self, "_is_dark_theme", True)
+                normal = QColor("transparent")
+                hover = QColor("#142536" if is_dark else "#f6f9fc")
+                for row in {old_row, hover_row}:
+                    if row < 0:
+                        continue
+                    for column in range(self.report_table.columnCount()):
+                        item = self.report_table.item(row, column)
+                        if item is not None:
+                            item.setBackground(hover if row == hover_row else normal)
+                self.report_table.viewport().update()
+        return super().eventFilter(watched, event)
+
     def update_selected_report(self):
         selected = self.report_table.selectionModel().selectedRows()
         if not selected:
@@ -262,6 +285,7 @@ class ReportsPage(QWidget):
                 self.report_table.item(row, 5).setForeground(QColor("#ff6464" if is_dark else "#c93636"))
 
     def apply_theme(self, is_dark):
+        self._is_dark_theme = is_dark
         if is_dark:
             self.setStyleSheet("""
                 #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard {
@@ -301,7 +325,6 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #354e61; padding:7px; }
-                QTableWidget#reportTable::item:hover { background:#142536; }
                 QTableWidget#reportTable::item:selected { background:#142c3f; }
                 QHeaderView::section {
                     background:#1d384e; color:#ffffff; border:none; border-bottom:1px solid #698195;
@@ -355,7 +378,6 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #c8d6e0; padding:7px; }
-                QTableWidget#reportTable::item:hover { background:#f6f9fc; }
                 QTableWidget#reportTable::item:selected { background:#edf4f9; }
                 QHeaderView::section {
                     background:#dce9f2; color:#193348; border:none; border-bottom:1px solid #96adbe;
