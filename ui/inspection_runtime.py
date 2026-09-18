@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdi
 
 from app.database.repositories.project_repository import create_project, get_project_by_name
 from app.services.inspection_service import InspectionService
+from rules.core.engine import InspectionCancelled
 from rules.definitions.default_rules import get_default_rules
 from ui.inspection_rules_dialog import InspectionRulesDialog
 
@@ -28,16 +29,30 @@ CATEGORY_DIALOG_ROWS = {
 class InspectionWorker(QObject):
     finished = Signal(object, object, float)
     failed = Signal(str)
+    cancelled = Signal()
 
     def __init__(self, file_paths, project_id, inspection_type, rules):
-        super().__init__(); self.file_paths = file_paths; self.project_id = project_id; self.inspection_type = inspection_type; self.rules = rules
+        super().__init__(); self.file_paths = file_paths; self.project_id = project_id; self.inspection_type = inspection_type; self.rules = rules; self._cancel_requested = False
+
+    def request_cancel(self):
+        self._cancel_requested = True
+
+    def is_cancel_requested(self):
+        return self._cancel_requested
 
     def run(self):
         started = time.perf_counter()
         try:
             service = InspectionService(rules=self.rules)
-            inspection_id, summary = service.run(self.file_paths, project_id=self.project_id, inspection_type=self.inspection_type)
+            inspection_id, summary = service.run(
+                self.file_paths,
+                project_id=self.project_id,
+                inspection_type=self.inspection_type,
+                cancel_requested=self.is_cancel_requested,
+            )
             self.finished.emit(inspection_id, summary, time.perf_counter() - started)
+        except InspectionCancelled:
+            self.cancelled.emit()
         except Exception as exc:
             self.failed.emit(str(exc))
 
@@ -65,7 +80,13 @@ def apply_inspection_runtime(InspectionPage):
         self._wire_rule_rows()
         try: self.start_button.clicked.disconnect()
         except RuntimeError: pass
-        self.start_button.clicked.connect(self.start_real_inspection); self._refresh_file_view(); self._refresh_rule_summary()
+        self.start_button.clicked.connect(self.start_real_inspection)
+        cancel_button = self.progress_card.findChild(QPushButton, "inspectionCancelButton")
+        if cancel_button:
+            try: cancel_button.clicked.disconnect()
+            except (RuntimeError, TypeError): pass
+            cancel_button.clicked.connect(self.cancel_real_inspection)
+        self._refresh_file_view(); self._refresh_rule_summary()
 
     def _wire_rule_rows(self):
         for row in self.findChildren(QFrame, "inspectionRuleRow"):
@@ -161,13 +182,27 @@ def apply_inspection_runtime(InspectionPage):
         selected_rules = self._selected_executable_rules()
         if not selected_rules: QMessageBox.warning(self, "검사 기준 확인", "실행할 검사 기준을 하나 이상 선택해 주세요."); return
         inputs = self.findChildren(QLineEdit, "inspectionInput"); note = inputs[1].text().strip() if len(inputs) > 1 else None; department = inputs[2].text().strip() if len(inputs) > 2 else None; project = get_project_by_name(name); project_id = create_project(name, department=department or None, note=note or None) if project is None else project["id"]; self.last_project_id = project_id
-        self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
+        self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
 
     def _set_progress_state(self, status):
         self.runtime_progress_percent.setText("…"); self.runtime_progress_bar.setRange(0, 0); self.runtime_progress_count.setText("실행 중"); self.runtime_progress_rule.setText("로컬 Rule Engine 검사"); self.runtime_progress_time.setText("측정 중"); self.runtime_progress_status.setText(status)
 
     def _inspection_succeeded(self, inspection_id, summary, elapsed):
         self.last_inspection_id = inspection_id; self.progress_card.hide(); self.summary_card.hide(); self.complete_card.show(); self.runtime_complete_rules.setText(f"{summary.rule_count} / {summary.rule_count}개"); self.runtime_complete_issues.setText(f"{summary.total_issues}개"); self.runtime_complete_time.setText(f"{elapsed:.2f}초"); self.runtime_complete_files.setText(f"{summary.file_count}개"); self._inspection_thread = None; self._inspection_worker = None
+
+    def cancel_real_inspection(self):
+        if self._inspection_worker is None or self._inspection_thread is None:
+            return
+        self._set_progress_state("검사 취소 중")
+        self._inspection_worker.request_cancel()
+
+    def _inspection_cancelled(self):
+        self.progress_card.hide()
+        self.complete_card.hide()
+        self.summary_card.show()
+        self._inspection_thread = None
+        self._inspection_worker = None
+        self._refresh_file_view()
 
     def _inspection_failed(self, message):
         self.progress_card.hide(); self.complete_card.hide(); self.summary_card.show(); self._inspection_thread = None; self._inspection_worker = None; QMessageBox.critical(self, "검사 실행 오류", message)
@@ -192,4 +227,4 @@ def apply_inspection_runtime(InspectionPage):
     InspectionPage.__init__ = runtime_init; InspectionPage.create_progress_card = runtime_progress_card; InspectionPage.create_complete_card = runtime_complete_card
     InspectionPage._wire_rule_rows = _wire_rule_rows; InspectionPage.set_rule_category = set_rule_category; InspectionPage.set_all_rule_categories = set_all_rule_categories; InspectionPage._sync_rule_toggle_buttons = _sync_rule_toggle_buttons; InspectionPage._selected_executable_rules = _selected_executable_rules; InspectionPage._refresh_rule_summary = _refresh_rule_summary; InspectionPage.open_rule_category_dialog = open_rule_category_dialog
     InspectionPage.select_inspection_files = select_inspection_files; InspectionPage.clear_inspection_files = clear_inspection_files; InspectionPage.remove_inspection_file = remove_inspection_file; InspectionPage._refresh_file_table = _refresh_file_table; InspectionPage._refresh_file_view = _refresh_file_view
-    InspectionPage.start_real_inspection = start_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
+    InspectionPage.start_real_inspection = start_real_inspection; InspectionPage.cancel_real_inspection = cancel_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_cancelled = _inspection_cancelled; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
