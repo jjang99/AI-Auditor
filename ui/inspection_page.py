@@ -185,17 +185,17 @@ class InspectionPage(QWidget):
         """Set rule-row text directly so later/global QSS cannot wash it out."""
         if is_dark:
             styles = (
-                "color:#f1f5f9; font-size:10px; font-weight:600;",
-                "color:#aebaca; font-size:9px;",
-                "color:#aebaca; font-size:9px;",
-                "color:#e2e8f0; background:#10161c; border:1px solid #334155; border-radius:6px; font-size:9px;"
+                "color:#f1f5f9; font-size:12px; font-weight:700;",
+                "color:#cbd5e1; font-size:11px; font-weight:600;",
+                "color:#cbd5e1; font-size:11px; font-weight:500;",
+                "color:#f1f5f9; background:#10161c; border:1px solid #475569; border-radius:6px; font-size:11px; font-weight:600;"
             )
         else:
             styles = (
-                "color:#0f172a; font-size:10px; font-weight:700;",
-                "color:#334155; font-size:9px; font-weight:600;",
-                "color:#475569; font-size:9px; font-weight:500;",
-                "color:#0f172a; background:#ffffff; border:1px solid #94a3b8; border-radius:6px; font-size:9px; font-weight:600;"
+                "color:#0f172a; font-size:12px; font-weight:700;",
+                "color:#334155; font-size:11px; font-weight:600;",
+                "color:#475569; font-size:11px; font-weight:500;",
+                "color:#0f172a; background:#ffffff; border:1px solid #94a3b8; border-radius:6px; font-size:11px; font-weight:600;"
             )
         for name_label, count_label, desc_label, view in self._rule_text_widgets:
             name_label.setStyleSheet(styles[0])
