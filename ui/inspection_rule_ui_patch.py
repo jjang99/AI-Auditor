@@ -141,14 +141,17 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         self.selected_rule_categories = set(CATEGORY_COUNTS) if selected else set(); self._refresh_rule_summary()
 
     def refresh_rule_summary(self):
-        if not hasattr(self, "rule_selection_state"):
-            current = sum(CATEGORY_COUNTS[name] for name in getattr(self, "selected_rule_categories", set()) if name in CATEGORY_COUNTS)
-        else:
-            current = sum(sum(1 for checked in states if checked) for states in self.rule_selection_state.values())
-        total = sum(CATEGORY_COUNTS.values()); sync_rule_rows(self)
-        summary_values = self.findChildren(QLabel, "inspectionSummaryValue"); summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
-        if len(summary_values) > 1: summary_values[1].setText(f"{current} / {total}개")
-        if len(summary_details) > 1: summary_details[1].setText("(현재 선택된 규칙)")
+        # 카테고리 행은 향후 전체 검사기준 체계(102개)를 그대로 보여주되,
+        # '적용 규칙'은 현재 실제 Rule Engine에서 실행 가능한 MVP Rule 기준으로 표시한다.
+        sync_rule_rows(self)
+        executable_rules = self._selected_executable_rules()
+        total_executable = len(get_default_rules())
+        summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
+        summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
+        if len(summary_values) > 1:
+            summary_values[1].setText(f"{len(executable_rules)} / {total_executable}개")
+        if len(summary_details) > 1:
+            summary_details[1].setText("(실제 실행 규칙)")
 
     def selected_executable_rules(self):
         rules = []; states_by_category = getattr(self, "rule_selection_state", {})
