@@ -1,7 +1,7 @@
 # AI Auditor 개발 현황
 
 ## 기준일
-- 2026-09-13
+- 2026-09-18
 
 ## 현재 개발 단계
 - Home, Projects, Inspection, Project Detail, Reports, Administration 기본 화면 구현 상태
@@ -9,7 +9,8 @@
 - Rule Engine 기본 구조 및 기본 실행 Rule 5개 구현 완료
 - Inspection 검사 실행 → 결과 DB 저장 → Project Detail 조회 흐름 연결
 - Inspection UI 최종 보정 완료 및 해당 영역 Freeze
-- 다음 작업: Project Detail부터 전체 화면 최종 UI 점검 계속 진행 → 전체 UI Freeze
+- 전체 화면 최종 UI 점검 완료 및 UI Freeze 최종 확정
+- 다음 작업: MVP 실행 Rule 약 20개로 확장(방향상 AI 특화 Rule 포함)
 
 ## 2026-09-13까지 주요 구현 내용
 ### Inspection
@@ -57,10 +58,14 @@
 - 검사 완료 결과 DB 저장 정상
 - Project Detail 결과 연결 확인
 
+## 2026-09-18 전체 UI 최종 확정
+- Home / Projects / Inspection / Project Detail / Reports / Administration 다크·라이트 최종 점검 완료
+- 전체 UI Freeze 최종 확정
+- 카드 외곽선/내부 네모 요소는 Administration 기준, 텍스트 가독성은 Reports 기준으로 공통화
+- Light Mode Soft Light 톤 최종 확정
+- Freeze된 UI의 구조·크기·위치·간격·색상·폰트·테두리를 이후 기능 개발에서 임의 변경하지 않음
+
 ## 아직 남은 주요 작업
-- 전체 화면 최종 UI 점검 완료 및 UI Freeze
-- Project Detail 최종 가독성/UI 점검
-- Reports / Administration 최종 UI 점검
 - MVP 실행 Rule 약 20개로 확장 및 AI 특화 Rule 포함
 - UI 규칙 목록과 실제 Rule Engine을 하나의 기준 데이터로 연결
 - 실제 worker 검사 취소 기능
@@ -72,10 +77,11 @@
 ## 다음 작업 시작점
 1. GitHub `main` 최신 소스 확인
 2. `DEV_STATUS.md`, `DECISIONS.md` 확인
-3. Inspection은 확정 상태이므로 임의 수정하지 않음
-4. Project Detail 화면 최종 UI 점검부터 재개
-5. Project Detail → Reports → Administration → 공통 UI/화면 이동 점검
-6. 전체 UI Freeze 확정 후 MVP Rule 20개 구현 단계로 이동
+3. 전체 UI는 2026-09-18 최종 Freeze 상태이므로 임의 수정하지 않음
+4. MVP 실행 Rule을 약 20개로 확장하고 AI 특화 Rule 포함
+5. UI 규칙 목록과 실제 Rule Engine 기준 데이터 통합
+6. 검사 취소 / DB 기반 프로젝트 중복 확인 / Score·Grade / E2E 검증 순으로 진행
+7. 폐쇄망 Windows EXE 패키징 및 최종 테스트
 
 ## 개발 진행 원칙
 - 기존 파일과 실제 코드를 먼저 확인한 후 수정한다.
