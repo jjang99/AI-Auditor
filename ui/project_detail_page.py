@@ -674,7 +674,7 @@ class ProjectDetailPage(QWidget):
 
         layout.addWidget(title_label)
         layout.addWidget(body)
-        layout.addSpacing(12)
+        layout.addSpacing(16)
 
     # =========================================================
     # ReInspect 팝업
