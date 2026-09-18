@@ -9,6 +9,7 @@ from app.services.inspection_service import InspectionService, SUPPORTED_TEXT_EX
 from rules.core.engine import InspectionCancelled
 from rules.definitions.default_rules import get_default_rules
 from ui.inspection_rules_dialog import InspectionRulesDialog
+from ui.existing_project_dialog import ExistingProjectDialog
 
 
 CATEGORY_COUNTS = {
@@ -200,13 +201,30 @@ def apply_inspection_runtime(InspectionPage):
         if len(summary_details) > 2: summary_details[2].setText("(로컬 Rule Engine)")
         self._refresh_rule_summary()
 
+    def _show_existing_project_dialog(self, project):
+        dialog_project = {
+            "id": project["id"],
+            "name": project["name"],
+            "department": project.get("department") or "-",
+            "type": "기존 프로젝트",
+            "date": (project.get("updated_at") or project.get("created_at") or "-")[:10].replace("-", "."),
+        }
+        dialog = ExistingProjectDialog(self, projects=[dialog_project])
+        dialog.exec()
+
     def start_real_inspection(self):
         name = self.project_name.text().strip()
         if not name: QMessageBox.warning(self, "프로젝트 정보 확인", "Project Name을 입력해 주세요."); return
         if not self.selected_files: QMessageBox.warning(self, "검사 대상 확인", "검사할 파일을 먼저 선택해 주세요."); return
         selected_rules = self._selected_executable_rules()
         if not selected_rules: QMessageBox.warning(self, "검사 기준 확인", "실행할 검사 기준을 하나 이상 선택해 주세요."); return
-        inputs = self.findChildren(QLineEdit, "inspectionInput"); note = inputs[1].text().strip() if len(inputs) > 1 else None; department = inputs[2].text().strip() if len(inputs) > 2 else None; project = get_project_by_name(name); project_id = create_project(name, department=department or None, note=note or None) if project is None else project["id"]; self.last_project_id = project_id
+        inputs = self.findChildren(QLineEdit, "inspectionInput"); note = inputs[1].text().strip() if len(inputs) > 1 else None; department = inputs[2].text().strip() if len(inputs) > 2 else None
+        project = get_project_by_name(name)
+        if project is not None:
+            self._show_existing_project_dialog(project)
+            return
+        project_id = create_project(name, department=department or None, note=note or None)
+        self.last_project_id = project_id
         self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
 
     def _set_progress_state(self, status):
@@ -252,4 +270,4 @@ def apply_inspection_runtime(InspectionPage):
     InspectionPage.__init__ = runtime_init; InspectionPage.create_progress_card = runtime_progress_card; InspectionPage.create_complete_card = runtime_complete_card
     InspectionPage._wire_rule_rows = _wire_rule_rows; InspectionPage.set_rule_category = set_rule_category; InspectionPage.set_all_rule_categories = set_all_rule_categories; InspectionPage._sync_rule_toggle_buttons = _sync_rule_toggle_buttons; InspectionPage._selected_executable_rules = _selected_executable_rules; InspectionPage._refresh_rule_summary = _refresh_rule_summary; InspectionPage.open_rule_category_dialog = open_rule_category_dialog
     InspectionPage.select_inspection_files = select_inspection_files; InspectionPage.clear_inspection_files = clear_inspection_files; InspectionPage.remove_inspection_file = remove_inspection_file; InspectionPage._refresh_file_table = _refresh_file_table; InspectionPage._refresh_file_view = _refresh_file_view
-    InspectionPage.start_real_inspection = start_real_inspection; InspectionPage.cancel_real_inspection = cancel_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_cancelled = _inspection_cancelled; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
+    InspectionPage._show_existing_project_dialog = _show_existing_project_dialog; InspectionPage.start_real_inspection = start_real_inspection; InspectionPage.cancel_real_inspection = cancel_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_cancelled = _inspection_cancelled; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
