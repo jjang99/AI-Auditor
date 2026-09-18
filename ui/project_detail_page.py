@@ -340,7 +340,7 @@ class ProjectDetailPage(QWidget):
     def create_distribution_card(self):
         card = QFrame()
         card.setObjectName("detailBodyCard")
-        card.setFixedHeight(188)
+        card.setFixedHeight(164)
 
         layout = QVBoxLayout(card)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -530,7 +530,7 @@ class ProjectDetailPage(QWidget):
     def create_issue_row(self, severity, code, description, status):
         row = QFrame()
         row.setObjectName("detailIssueListRow")
-        row.setFixedHeight(62)
+        row.setFixedHeight(72)
 
         layout = QHBoxLayout(row)
         layout.setContentsMargins(2, 6, 2, 6)
@@ -538,7 +538,7 @@ class ProjectDetailPage(QWidget):
 
         badge = QLabel(severity)
         badge.setObjectName(f"detailBadge_{severity.lower()}")
-        badge.setFixedWidth(52)
+        badge.setFixedWidth(38)
         badge.setAlignment(Qt.AlignCenter)
 
         text = QVBoxLayout()
@@ -549,6 +549,8 @@ class ProjectDetailPage(QWidget):
 
         desc_label = QLabel(description)
         desc_label.setObjectName("detailIssueDescription")
+        desc_label.setWordWrap(True)
+        desc_label.setMinimumWidth(0)
 
         text.addWidget(code_label)
         text.addWidget(desc_label)
@@ -557,6 +559,7 @@ class ProjectDetailPage(QWidget):
         status_label.setObjectName(
             "detailStatusResolved" if status == "조치완료" else "detailStatusOpen"
         )
+        status_label.setFixedWidth(38)
         status_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         layout.addWidget(badge)
@@ -671,6 +674,7 @@ class ProjectDetailPage(QWidget):
 
         layout.addWidget(title_label)
         layout.addWidget(body)
+        layout.addSpacing(8)
 
     # =========================================================
     # ReInspect 팝업
