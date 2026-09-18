@@ -487,7 +487,7 @@ class ProjectDetailPage(QWidget):
         container = QWidget()
         container.setObjectName("detailIssueContainer")
         container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(4, 0, 4, 0)
+        container_layout.setContentsMargins(8, 0, 8, 0)
         container_layout.setSpacing(0)
 
         issues = [
@@ -533,8 +533,8 @@ class ProjectDetailPage(QWidget):
         row.setFixedHeight(72)
 
         layout = QHBoxLayout(row)
-        layout.setContentsMargins(2, 6, 2, 6)
-        layout.setSpacing(8)
+        layout.setContentsMargins(8, 7, 8, 7)
+        layout.setSpacing(10)
 
         badge = QLabel(severity)
         badge.setObjectName(f"detailBadge_{severity.lower()}")
