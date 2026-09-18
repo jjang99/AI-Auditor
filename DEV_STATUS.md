@@ -119,3 +119,23 @@
 - Inspection 재진입 시 검사 준비 상태로 복원하도록 수정하고 사용자 화면에서 `검사 시작` 버튼 재표시 확인
 - UI Freeze의 구조/크기/스타일은 변경하지 않았으며 기능 상태 및 데이터 연동만 수정
 - 현재 다음 작업: 20개 Rule 공통 데이터 연결의 남은 부분 점검 및 Inspection 표시 수량(개념상 102개 / 실제 실행 20개) 정합성 검토
+
+
+## 2026-09-18 MVP 기능 및 E2E 검증 추가 완료
+- Inspection 적용 규칙 표시를 실제 실행 Rule 기준 20 / 20개로 연결하고 사용자 화면 확인 PASS
+- 실제 검사 취소 기능 구현: QThread Worker → InspectionService → Rule Engine cooperative cancellation 연결
+- 검사 취소 시 완료 결과를 저장하지 않고 검사 준비 상태로 복귀하도록 처리, 사용자 화면 확인 PASS
+- 미지원 파일(PDF/DOCX 등)은 검사 등록 단계에서 제외하고 경고 안내하도록 처리
+- DB 기반 동일 프로젝트명 확인 연결: 동일 이름 존재 시 기존 프로젝트 확인 Modal에 실제 DB 프로젝트 표시, 사용자 확인 PASS
+- 신규 검사 완료 시 MVP Score/Grade 산정 및 DB 저장 연결, Project Detail 표시 사용자 확인 PASS
+- E2E 검증 PASS:
+  - 신규 프로젝트 → 파일 등록 → 20개 Rule → 검사 실행 → Issue 검출 → Score/Grade → DB 저장
+  - 검사 결과 보기 → Project Detail → Issue Detail → Projects → Reports 결과 반영까지 전체 흐름 확인
+- 현재 MVP 핵심 기능 흐름은 E2E 기준 정상 동작 확인
+
+## 다음 작업 시작점
+1. 최신 GitHub 코드 및 본 문서/DECISIONS.md 확인
+2. UI Freeze 상태 유지
+3. 폐쇄망 Windows EXE 패키징 준비
+4. EXE 실행 및 SQLite/리소스/경로 동작 점검
+5. 최종 회귀 테스트 및 제출 준비
