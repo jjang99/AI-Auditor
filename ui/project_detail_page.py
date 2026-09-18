@@ -487,7 +487,7 @@ class ProjectDetailPage(QWidget):
         container = QWidget()
         container.setObjectName("detailIssueContainer")
         container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(8, 0, 8, 0)
+        container_layout.setContentsMargins(4, 0, 4, 0)
         container_layout.setSpacing(0)
 
         issues = [
