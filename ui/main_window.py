@@ -229,6 +229,7 @@ class MainWindow(QMainWindow):
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
         self.home_page.set_wave_theme(self.is_dark_mode)
+        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
         self._apply_shared_combo_style()
