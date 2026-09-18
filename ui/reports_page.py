@@ -169,7 +169,9 @@ class ReportsPage(QWidget):
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
-        self.report_table.setFixedHeight(350)
+        self.report_table.setFixedHeight(365)
+        self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         header = self.report_table.horizontalHeader()
         header.setFixedHeight(44)
@@ -180,7 +182,7 @@ class ReportsPage(QWidget):
         self.report_table.setColumnWidth(2, 58)
         self.report_table.setColumnWidth(3, 58)
         self.report_table.setColumnWidth(4, 64)
-        self.report_table.setColumnWidth(5, 90)
+        self.report_table.setColumnWidth(5, 78)
 
         self.report_table.selectRow(0)
         self.report_table.itemSelectionChanged.connect(self.update_selected_report)
@@ -190,7 +192,7 @@ class ReportsPage(QWidget):
 
         action_frame = QFrame()
         action_frame.setObjectName("reportActionCard")
-        action_frame.setFixedHeight(118)
+        action_frame.setFixedHeight(128)
         action_layout = QHBoxLayout(action_frame)
         action_layout.setContentsMargins(16, 14, 14, 14)
 
@@ -222,6 +224,7 @@ class ReportsPage(QWidget):
         action_layout.addSpacing(7)
         action_layout.addWidget(export_button)
         main_layout.addWidget(action_frame)
+        main_layout.addSpacing(18)
         main_layout.addStretch(1)
 
         self.apply_theme(True)
