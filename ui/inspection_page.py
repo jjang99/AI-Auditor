@@ -216,6 +216,7 @@ class InspectionPage(QWidget):
         QComboBox#inspectionCombo { color:#e5e7eb; background:#0c141c; border:1px solid #557187; border-radius:7px; padding:0 10px; font-size:10px; font-weight:600; }
         QComboBox#inspectionCombo::drop-down { subcontrol-origin:padding; subcontrol-position:top right; width:30px; border-left:1px solid #405a6e; border-top-right-radius:7px; border-bottom-right-radius:7px; background:#132433; }
         QComboBox#inspectionCombo::down-arrow { width:9px; height:9px; }
+        QComboBox#inspectionCombo::drop-down:hover { background:#23445b; }
         #inspectionDuplicate { color:#f59e0b; font-size:8px; }
         #inspectionDuplicateButton { color:#f59e0b; background:transparent; border:none; padding:0; font-size:8px; font-weight:600; text-decoration:underline; }
         #inspectionDuplicateButton:hover { color:#fbbf24; }
