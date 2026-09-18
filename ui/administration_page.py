@@ -147,11 +147,6 @@ class AdministrationPage(QWidget):
             row_layout.addWidget(view)
             table_layout.addWidget(row)
 
-        bottom_separator = QFrame()
-        bottom_separator.setObjectName("adminRulesBottomSeparator")
-        bottom_separator.setFixedHeight(1)
-        table_layout.addWidget(bottom_separator)
-
         rules_layout.addWidget(table)
         rules_layout.addSpacing(9)
         note = QLabel("ⓘ  카테고리별 전체/활성/비활성 규칙 현황을 실시간으로 반영합니다.")
