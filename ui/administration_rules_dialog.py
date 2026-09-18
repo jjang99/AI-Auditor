@@ -208,12 +208,12 @@ class AdministrationRulesDialog(QDialog):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{code} - Rule Detail")
         dialog.setModal(True)
-        dialog.setFixedSize(500, 455)
+        dialog.setFixedSize(500, 500)
         dialog.setWindowIcon(self.windowIcon())
 
         root = QVBoxLayout(dialog)
         root.setContentsMargins(22, 20, 22, 18)
-        root.setSpacing(12)
+        root.setSpacing(10)
 
         title = QLabel("Rule Detail")
         title.setObjectName("adminDetailTitle")
@@ -225,11 +225,11 @@ class AdministrationRulesDialog(QDialog):
             value = QLabel(value_text)
             value.setObjectName("adminDetailValue")
             value.setWordWrap(True)
-            value.setMinimumHeight(34)
+            value.setFixedHeight(36)
             value.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             root.addWidget(label)
             root.addWidget(value)
-            root.addSpacing(3)
+            root.addSpacing(6)
 
         add_field("Code", code)
         add_field("규칙 제목", name)
@@ -241,7 +241,7 @@ class AdministrationRulesDialog(QDialog):
         severity_title.setObjectName("adminDetailLabel")
         severity_badge = QLabel(severity)
         severity_badge.setObjectName(f"severity{severity}")
-        severity_badge.setFixedSize(82, 28)
+        severity_badge.setFixedSize(82, 36)
         severity_badge.setAlignment(Qt.AlignCenter)
         severity_row.addWidget(severity_title)
         severity_row.addStretch()
@@ -256,15 +256,14 @@ class AdministrationRulesDialog(QDialog):
         status_toggle.setObjectName("adminRuleToggle")
         status_toggle.setCheckable(True)
         status_toggle.setChecked(source_toggle.isChecked())
-        status_toggle.setFixedSize(50, 24)
+        status_toggle.setFixedSize(82, 36)
         status_toggle.setCursor(Qt.PointingHandCursor)
         status_toggle.toggled.connect(lambda state: status_toggle.setText("ON" if state else "OFF"))
         status_row.addWidget(status_label)
         status_row.addStretch()
         status_row.addWidget(status_toggle)
         root.addLayout(status_row)
-
-        root.addSpacing(4)
+        root.addSpacing(6)
         notice = QLabel("ⓘ 규칙을 비활성화하면 기본 검사에서 제외됩니다.")
         notice.setObjectName("adminDialogNotice")
         root.addWidget(notice)
@@ -285,14 +284,14 @@ class AdministrationRulesDialog(QDialog):
         if "#101820" in base_style:
             detail_style = """
                 #adminDetailTitle { color:#ffffff; font-size:20px; font-weight:900; }
-                #adminDetailLabel { color:#9fb0c0; font-size:11px; font-weight:800; }
-                #adminDetailValue { color:#ffffff; background:#111f2c; border:1px solid #3b5368; border-radius:7px; padding:8px 10px; font-size:12px; font-weight:750; }
+                #adminDetailLabel { color:#d9e5ef; font-size:12px; font-weight:900; }
+                #adminDetailValue { color:#ffffff; background:#111f2c; border:1px solid #587086; border-radius:7px; padding:0 12px; font-size:13px; font-weight:850; }
             """
         else:
             detail_style = """
                 #adminDetailTitle { color:#142435; font-size:20px; font-weight:900; }
-                #adminDetailLabel { color:#5d7185; font-size:11px; font-weight:800; }
-                #adminDetailValue { color:#172a3c; background:#ffffff; border:1px solid #aebfce; border-radius:7px; padding:8px 10px; font-size:12px; font-weight:750; }
+                #adminDetailLabel { color:#304a63; font-size:12px; font-weight:900; }
+                #adminDetailValue { color:#10283f; background:#ffffff; border:1px solid #8fa8bd; border-radius:7px; padding:0 12px; font-size:13px; font-weight:850; }
             """
         dialog.setStyleSheet(base_style + detail_style)
         dialog.exec()
