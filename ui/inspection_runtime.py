@@ -172,6 +172,17 @@ def apply_inspection_runtime(InspectionPage):
     def _inspection_failed(self, message):
         self.progress_card.hide(); self.complete_card.hide(); self.summary_card.show(); self._inspection_thread = None; self._inspection_worker = None; QMessageBox.critical(self, "검사 실행 오류", message)
 
+    def prepare_new_inspection(self):
+        """Inspection 메뉴로 다시 진입할 때 새 검사를 시작할 수 있는 상태로 복원한다."""
+        if self._inspection_thread is not None:
+            return
+        self.progress_card.hide()
+        self.complete_card.hide()
+        self.summary_card.show()
+        self.last_inspection_id = None
+        self.last_project_id = None
+        self._refresh_file_view()
+
     def runtime_progress_card(self):
         card = original_progress(self); self.runtime_progress_percent = card.findChild(QLabel, "inspectionProgressPercent"); self.runtime_progress_bar = card.findChild(QProgressBar, "inspectionProgressBar"); values = card.findChildren(QLabel, "inspectionProgressInfoValue"); self.runtime_progress_count, self.runtime_progress_rule, self.runtime_progress_time, self.runtime_progress_status = values[:4]; return card
 
@@ -181,4 +192,4 @@ def apply_inspection_runtime(InspectionPage):
     InspectionPage.__init__ = runtime_init; InspectionPage.create_progress_card = runtime_progress_card; InspectionPage.create_complete_card = runtime_complete_card
     InspectionPage._wire_rule_rows = _wire_rule_rows; InspectionPage.set_rule_category = set_rule_category; InspectionPage.set_all_rule_categories = set_all_rule_categories; InspectionPage._sync_rule_toggle_buttons = _sync_rule_toggle_buttons; InspectionPage._selected_executable_rules = _selected_executable_rules; InspectionPage._refresh_rule_summary = _refresh_rule_summary; InspectionPage.open_rule_category_dialog = open_rule_category_dialog
     InspectionPage.select_inspection_files = select_inspection_files; InspectionPage.clear_inspection_files = clear_inspection_files; InspectionPage.remove_inspection_file = remove_inspection_file; InspectionPage._refresh_file_table = _refresh_file_table; InspectionPage._refresh_file_view = _refresh_file_view
-    InspectionPage.start_real_inspection = start_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_failed = _inspection_failed
+    InspectionPage.start_real_inspection = start_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
