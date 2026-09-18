@@ -154,6 +154,7 @@ class ReportsPage(QWidget):
             ("데이터 분석 플랫폼", "2026.07.10 16:05", "73", "C", "21", "검사 완료"),
             ("모바일 서비스 플랫폼", "2026.06.28 09:40", "88", "B", "9", "검사 완료"),
             ("통합관리시스템", "-", "-", "-", "-", "검사 실패"),
+            ("AI Auditor Backend", "2026.09.13 19:35", "-", "-", "0", "검사 완료"),
         ]
         self.report_table.setRowCount(len(self.sample_reports))
         for row, report in enumerate(self.sample_reports):
@@ -169,7 +170,7 @@ class ReportsPage(QWidget):
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
-        self.report_table.setFixedHeight(365)
+        self.report_table.setFixedHeight(411)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -192,7 +193,7 @@ class ReportsPage(QWidget):
 
         action_frame = QFrame()
         action_frame.setObjectName("reportActionCard")
-        action_frame.setFixedHeight(128)
+        action_frame.setFixedHeight(118)
         action_layout = QHBoxLayout(action_frame)
         action_layout.setContentsMargins(16, 14, 14, 14)
 
@@ -224,7 +225,6 @@ class ReportsPage(QWidget):
         action_layout.addSpacing(7)
         action_layout.addWidget(export_button)
         main_layout.addWidget(action_frame)
-        main_layout.addSpacing(18)
         main_layout.addStretch(1)
 
         self.apply_theme(True)
