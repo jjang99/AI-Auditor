@@ -135,6 +135,7 @@ class AdministrationRulesDialog(QDialog):
             row = QFrame()
             row.setObjectName("adminRuleRow")
             row.setFixedHeight(66)
+            row.setCursor(Qt.PointingHandCursor)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(12, 6, 10, 6)
             row_layout.setSpacing(column_spacing)
@@ -173,6 +174,13 @@ class AdministrationRulesDialog(QDialog):
             row_layout.addWidget(desc_label, 1)
             row_layout.addWidget(severity_label, 0, Qt.AlignCenter)
             row_layout.addWidget(toggle, 0, Qt.AlignCenter)
+            # Click anywhere on a rule row to open the frozen MVP Rule Detail dialog.
+            detail_args = (code_text, name, description, severity, toggle)
+            row.mousePressEvent = lambda event, args=detail_args: self.open_rule_detail(*args)
+            for child in (code_label, name_label, desc_label, severity_label):
+                child.setCursor(Qt.PointingHandCursor)
+                child.mousePressEvent = lambda event, args=detail_args: self.open_rule_detail(*args)
+
             rows.addWidget(row)
             self.rule_rows.append((row, code_text.lower(), name.lower()))
 
@@ -195,6 +203,87 @@ class AdministrationRulesDialog(QDialog):
         layout.addLayout(footer)
 
         self.apply_theme()
+
+    def open_rule_detail(self, code, name, description, severity, source_toggle):
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"{code} - Rule Detail")
+        dialog.setModal(True)
+        dialog.setFixedSize(480, 390)
+        dialog.setWindowIcon(self.windowIcon())
+
+        root = QVBoxLayout(dialog)
+        root.setContentsMargins(22, 20, 22, 18)
+        root.setSpacing(12)
+
+        title = QLabel("Rule Detail")
+        title.setObjectName("adminDetailTitle")
+        root.addWidget(title)
+
+        def add_field(label_text, value_text, value_object="adminDetailValue"):
+            label = QLabel(label_text)
+            label.setObjectName("adminDetailLabel")
+            value = QLabel(value_text)
+            value.setObjectName(value_object)
+            value.setWordWrap(True)
+            root.addWidget(label)
+            root.addWidget(value)
+
+        add_field("Code", code)
+        add_field("규칙 제목", name)
+        add_field("설명", description)
+        add_field("심각도", severity, f"severity{severity}")
+
+        status_row = QHBoxLayout()
+        status_label = QLabel("상태")
+        status_label.setObjectName("adminDetailLabel")
+        status_toggle = QPushButton("ON" if source_toggle.isChecked() else "OFF")
+        status_toggle.setObjectName("adminRuleToggle")
+        status_toggle.setCheckable(True)
+        status_toggle.setChecked(source_toggle.isChecked())
+        status_toggle.setFixedSize(50, 24)
+        status_toggle.setCursor(Qt.PointingHandCursor)
+        status_toggle.toggled.connect(lambda state: status_toggle.setText("ON" if state else "OFF"))
+        status_row.addWidget(status_label)
+        status_row.addStretch()
+        status_row.addWidget(status_toggle)
+        root.addLayout(status_row)
+
+        root.addStretch()
+        notice = QLabel("ⓘ 규칙을 비활성화하면 기본 검사에서 제외됩니다.")
+        notice.setObjectName("adminDialogNotice")
+        root.addWidget(notice)
+
+        buttons = QHBoxLayout()
+        buttons.addStretch()
+        close = QPushButton("닫기")
+        close.setObjectName("adminDialogPrimaryButton")
+        close.setFixedSize(88, 34)
+        close.setCursor(Qt.PointingHandCursor)
+        close.clicked.connect(dialog.accept)
+        buttons.addWidget(close)
+        root.addLayout(buttons)
+
+        # Reuse the list dialog theme, adding only Rule Detail-specific typography.
+        self.apply_theme()
+        base_style = self.styleSheet()
+        if "#101820" in base_style:
+            detail_style = """
+                #adminDetailTitle { color:#ffffff; font-size:20px; font-weight:900; }
+                #adminDetailLabel { color:#9fb0c0; font-size:11px; font-weight:800; }
+                #adminDetailValue { color:#ffffff; background:#111f2c; border:1px solid #3b5368; border-radius:7px; padding:8px 10px; font-size:12px; font-weight:750; }
+            """
+        else:
+            detail_style = """
+                #adminDetailTitle { color:#142435; font-size:20px; font-weight:900; }
+                #adminDetailLabel { color:#5d7185; font-size:11px; font-weight:800; }
+                #adminDetailValue { color:#172a3c; background:#ffffff; border:1px solid #aebfce; border-radius:7px; padding:8px 10px; font-size:12px; font-weight:750; }
+            """
+        dialog.setStyleSheet(base_style + detail_style)
+        dialog.exec()
+
+        # The MVP decision is immediate ON/OFF reflection.
+        source_toggle.setChecked(status_toggle.isChecked())
+        source_toggle.setText("ON" if status_toggle.isChecked() else "OFF")
 
     def filter_rows(self, text):
         keyword = text.strip().lower()
