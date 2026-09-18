@@ -14,6 +14,7 @@ class InspectionPage(QWidget):
     inspection_result_requested = Signal()
 
     def __init__(self):
+        self._rule_text_widgets = []
         super().__init__()
         page_layout = QHBoxLayout(self)
         page_layout.setContentsMargins(0, 0, 0, 0)
@@ -120,7 +121,6 @@ class InspectionPage(QWidget):
 
         self.progress_card=self.create_progress_card(); self.progress_card.hide(); main.addWidget(self.progress_card)
         self.complete_card=self.create_complete_card(); self.complete_card.hide(); main.addWidget(self.complete_card)
-        self._rule_text_widgets = []
         self.demo_timer=QTimer(self); self.demo_timer.setSingleShot(True); self.demo_timer.timeout.connect(self.show_complete)
         main.addStretch(); self.setStyleSheet(self.inspection_style())
 
