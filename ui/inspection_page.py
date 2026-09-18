@@ -188,14 +188,14 @@ class InspectionPage(QWidget):
                 "color:#f1f5f9; font-size:12px; font-weight:700;",
                 "color:#cbd5e1; font-size:11px; font-weight:600;",
                 "color:#cbd5e1; font-size:11px; font-weight:500;",
-                "color:#f1f5f9; background:#10161c; border:1px solid #475569; border-radius:6px; font-size:11px; font-weight:600;"
+                "QPushButton#inspectionViewButton { color:#f1f5f9; background:#10161c; border:1px solid #475569; border-radius:6px; font-size:11px; font-weight:600; } QPushButton#inspectionViewButton:hover { background:#27465e; border-color:#6f91a9; }"
             )
         else:
             styles = (
                 "color:#0f172a; font-size:12px; font-weight:700;",
                 "color:#334155; font-size:11px; font-weight:600;",
                 "color:#475569; font-size:11px; font-weight:500;",
-                "color:#0f172a; background:#ffffff; border:1px solid #94a3b8; border-radius:6px; font-size:11px; font-weight:600;"
+                "QPushButton#inspectionViewButton { color:#0f172a; background:#ffffff; border:1px solid #94a3b8; border-radius:6px; font-size:11px; font-weight:600; } QPushButton#inspectionViewButton:hover { background:#e0eaf2; border-color:#7f9bad; }"
             )
         for name_label, count_label, desc_label, view in self._rule_text_widgets:
             name_label.setStyleSheet(styles[0])
