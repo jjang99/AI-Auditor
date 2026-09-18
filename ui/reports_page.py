@@ -238,7 +238,6 @@ class ReportsPage(QWidget):
         if row == self._report_hover_row:
             return
         self._report_hover_row = row
-        self.report_table.setCurrentCell(row, 0, QAbstractItemView.NoEditTriggers)
         self.report_table.selectRow(row)
 
     def update_selected_report(self):
