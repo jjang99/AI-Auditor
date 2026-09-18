@@ -287,7 +287,7 @@ class ReportsPage(QWidget):
                     background:#132433;
                 }
                 QComboBox#reportCombo::down-arrow { width:9px; height:9px; }
-                QComboBox#reportCombo::drop-down:hover { background:#dfeaf2; }
+                QComboBox#reportCombo::drop-down:hover { background:#23445b; }
                 #reportSearchButton, #reportPrimaryButton {
                     background:#1672ef; color:#ffffff; border:none; border-radius:7px;
                     font-size:13px; font-weight:900;
@@ -301,6 +301,7 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #354e61; padding:7px; }
+                QTableWidget#reportTable::item:hover { background:#142536; }
                 QTableWidget#reportTable::item:selected { background:#142c3f; }
                 QHeaderView::section {
                     background:#1d384e; color:#ffffff; border:none; border-bottom:1px solid #698195;
@@ -340,6 +341,7 @@ class ReportsPage(QWidget):
                     background:#edf3f7;
                 }
                 QComboBox#reportCombo::down-arrow { width:9px; height:9px; }
+                QComboBox#reportCombo::drop-down:hover { background:#dfeaf2; }
                 #reportSearchButton, #reportPrimaryButton {
                     background:#1672ef; color:#ffffff; border:none; border-radius:7px;
                     font-size:13px; font-weight:900;
@@ -353,6 +355,7 @@ class ReportsPage(QWidget):
                     font-size:13px; font-weight:800; outline:0;
                 }
                 QTableWidget#reportTable::item { border-bottom:1px solid #c8d6e0; padding:7px; }
+                QTableWidget#reportTable::item:hover { background:#f6f9fc; }
                 QTableWidget#reportTable::item:selected { background:#edf4f9; }
                 QHeaderView::section {
                     background:#dce9f2; color:#193348; border:none; border-bottom:1px solid #96adbe;
