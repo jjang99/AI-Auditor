@@ -31,7 +31,8 @@ DARK_UI_OVERRIDES = """
 #detailHistoryInactive { color: #64748b; font-size: 12px; }
 #detailIssuesHeader { background-color: transparent; border-bottom: 1px solid #2b3949; }
 #detailIssueScroll, #detailIssueContainer { background-color: transparent; border: none; }
-#detailIssueListRow { background-color: transparent; border-bottom: 1px solid #2a3542; }
+#detailIssueListRow { background-color: transparent; border-bottom: 1px solid #2a3542; border-radius:7px; }
+#detailIssueListRow:hover { background-color:#172635; border:1px solid #52748d; }
 #detailIssueCode { color: #ffffff; font-size: 12px; font-weight: 700; }
 #detailIssueDescription { color: #e3eaf2; font-size: 11px; font-weight: 500; }
 #detailIssueDetailCode { color: #ffffff; font-size: 15px; font-weight: 700; }
@@ -142,7 +143,8 @@ QProgressBar#detailDistribution_low::chunk { background-color: #3b82f6; border-r
 #detailHistoryButton, #detailSortButton { color: #334155; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 9px; }
 #detailIssuesHeader { background-color: transparent; border-bottom: 1px solid #dbe3ee; }
 #detailIssueScroll, #detailIssueContainer { background-color: transparent; border: none; }
-#detailIssueListRow { background-color: transparent; border-bottom: 1px solid #e2e8f0; }
+#detailIssueListRow { background-color: transparent; border-bottom: 1px solid #e2e8f0; border-radius:7px; }
+#detailIssueListRow:hover { background-color:#f1f6fa; border:1px solid #8fa8ba; }
 #detailIssueCode { color: #0f172a; font-size: 12px; font-weight: 700; }
 #detailIssueDescription { color: #334155; font-size: 11px; font-weight: 500; }
 #detailBadge_critical { color: #991b1b; background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 6px; font-size: 10px; font-weight: 700; }
