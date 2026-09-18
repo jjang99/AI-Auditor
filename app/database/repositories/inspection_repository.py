@@ -4,10 +4,29 @@ from app.database.database import get_connection
 from rules.core.models import InspectionSummary
 
 
+def calculate_score_grade(summary: InspectionSummary):
+    """Return a deterministic MVP quality score and grade from issue severity."""
+    weights = {"Critical": 20, "High": 10, "Medium": 5, "Low": 2}
+    deduction = sum(weights.get(issue.severity, 0) for issue in summary.issues)
+    score = max(0, 100 - deduction)
+    if score >= 90:
+        grade = "A"
+    elif score >= 80:
+        grade = "B"
+    elif score >= 70:
+        grade = "C"
+    elif score >= 60:
+        grade = "D"
+    else:
+        grade = "F"
+    return score, grade
+
+
 def save_inspection_result(project_id: int, summary: InspectionSummary, inspection_type="전체 검사") -> int:
     inspected_at = datetime.now().isoformat(timespec="seconds")
     connection = get_connection()
     cursor = connection.cursor()
+    score, grade = calculate_score_grade(summary)
 
     cursor.execute(
         """
@@ -21,8 +40,8 @@ def save_inspection_result(project_id: int, summary: InspectionSummary, inspecti
             project_id,
             inspection_type,
             inspected_at,
-            None,
-            None,
+            score,
+            grade,
             "AI 검사완료",
             summary.rule_count,
             summary.total_issues,
