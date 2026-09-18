@@ -188,6 +188,9 @@ class MainWindow(QMainWindow):
                     width:9px;
                     height:9px;
                 }
+                QComboBox::drop-down:hover {
+                    background:#23445b;
+                }
             """
         else:
             combo_style = """
@@ -212,6 +215,9 @@ class MainWindow(QMainWindow):
                 QComboBox::down-arrow {
                     width:9px;
                     height:9px;
+                }
+                QComboBox::drop-down:hover {
+                    background:#dfeaf2;
                 }
             """
 
