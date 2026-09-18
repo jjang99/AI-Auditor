@@ -199,7 +199,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 None,
             )
             if badge:
-                badge.setFixedSize(38, 20)
+                badge.setFixedSize(54, 20)
                 badge.setAlignment(Qt.AlignCenter)
             status = next(
                 (label for label in row.findChildren(QLabel)
