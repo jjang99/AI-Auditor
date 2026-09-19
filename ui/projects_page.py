@@ -110,7 +110,7 @@ class ProjectsPage(QWidget):
         new_project_button = QPushButton("＋  New Project")
         new_project_button.setObjectName("newProjectButton")
         new_project_button.setCursor(Qt.PointingHandCursor)
-        new_project_button.setFixedSize(136, 44)
+        new_project_button.setFixedSize(150, 44)
         header_layout.addLayout(title_area)
         header_layout.addStretch()
         header_layout.addWidget(new_project_button, 0, Qt.AlignTop)
@@ -229,17 +229,16 @@ class ProjectsPage(QWidget):
         available_name_width = 195
         probe_font = QFont("Malgun Gothic")
         probe_font.setBold(True)
-        chosen_px = 16
-        for px in (16, 15, 14, 13, 12):
+        chosen_px = 17
+        for px in (17, 16, 15, 14, 13, 12):
             probe_font.setPixelSize(px)
             if QFontMetrics(probe_font).horizontalAdvance(project["name"]) <= available_name_width:
                 chosen_px = px
                 break
-            chosen_px = px
         project_name.setStyleSheet(
             f'font-family:"Malgun Gothic"; font-size:{chosen_px}px; font-weight:900;'
         )
-        project_name.setMinimumWidth(available_name_width)
+        project_name.setFixedWidth(available_name_width)
 
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
@@ -310,8 +309,8 @@ class ProjectsPage(QWidget):
             issues_value.setObjectName("projectIssueGood" if project["issues"] <= 6 else "projectIssueWarning")
             issues_suffix = QLabel("개 이슈")
             issues_suffix.setObjectName("projectResultTitle")
-        issues_row.addWidget(issues_value)
-        issues_row.addWidget(issues_suffix)
+        issues_row.addWidget(issues_value, 0, Qt.AlignBottom)
+        issues_row.addWidget(issues_suffix, 0, Qt.AlignBottom)
         issues_row.addStretch()
         result_layout.addLayout(issues_row)
         if project["status"] in ("검사 실패", "검사 전") or not project["issues"]:
