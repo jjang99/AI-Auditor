@@ -179,13 +179,16 @@ class ReportsPage(QWidget):
         header = self.report_table.horizontalHeader()
         header.setFixedHeight(44)
         header.setSectionResizeMode(0, QHeaderView.Stretch)
-        for column in range(1, 6):
+        for column in range(1, 5):
             header.setSectionResizeMode(column, QHeaderView.Fixed)
+        # Keep the final Status column attached to the viewport edge. When the
+        # vertical scrollbar appears (7+ rows), this column absorbs the viewport
+        # width change instead of leaving a blank strip before the scrollbar.
+        header.setSectionResizeMode(5, QHeaderView.Stretch)
         self.report_table.setColumnWidth(1, 128)
         self.report_table.setColumnWidth(2, 58)
         self.report_table.setColumnWidth(3, 58)
         self.report_table.setColumnWidth(4, 64)
-        self.report_table.setColumnWidth(5, 78)
 
         self.report_table.itemSelectionChanged.connect(self.update_selected_report)
         report_layout.addWidget(self.report_table)
