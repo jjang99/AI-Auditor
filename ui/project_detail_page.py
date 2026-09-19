@@ -484,13 +484,7 @@ class ProjectDetailPage(QWidget):
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.verticalScrollBar().setFixedWidth(3)
-        scroll.verticalScrollBar().setStyleSheet("""
-            QScrollBar:vertical { width:3px; margin:0; padding:0; border:none; background:transparent; }
-            QScrollBar::handle:vertical { min-height:36px; border:none; border-radius:1px; background:#94a3b8; }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { width:0; height:0; border:none; background:transparent; }
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { border:none; background:transparent; }
-        """)
+        scroll.verticalScrollBar().setFixedWidth(2)
 
         container = QWidget()
         container.setObjectName("detailIssueContainer")
