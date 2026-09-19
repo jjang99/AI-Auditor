@@ -487,7 +487,7 @@ class ProjectDetailPage(QWidget):
         scroll.verticalScrollBar().setFixedWidth(3)
         scroll.verticalScrollBar().setStyleSheet("""
             QScrollBar:vertical { width:3px; margin:0; padding:0; border:none; background:transparent; }
-            QScrollBar::handle:vertical { min-height:36px; border:none; border-radius:1px; background:#64748b; }
+            QScrollBar::handle:vertical { min-height:36px; border:none; border-radius:1px; background:#94a3b8; }
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { width:0; height:0; border:none; background:transparent; }
             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { border:none; background:transparent; }
         """)
