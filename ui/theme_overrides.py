@@ -8,6 +8,33 @@ DARK_UI_OVERRIDES = """
 #sidebarFooterText { color: #cbd5e1; font-size: 10px; }
 #projectSeparator { background-color: #273445; border: none; }
 
+/* Projects final readability */
+#pageTitle { color:#ffffff; font-size:28px; font-weight:800; }
+#pageDescription { color:#d8e2ec; font-size:13px; font-weight:650; }
+#projectSearchInput { color:#f4f8fb; background-color:#0d1822; border:1px solid #557187; border-radius:7px; padding:0 14px; font-size:12px; }
+#newProjectButton { color:#ffffff; background-color:#1672ef; border:none; border-radius:8px; font-size:12px; font-weight:750; }
+#projectCard { background-color:#101d29; border:1px solid #3e586d; border-radius:9px; }
+#projectName { color:#ffffff; font-size:15px; font-weight:800; }
+#projectDepartment { color:#e5eef6; background-color:#173149; border-radius:4px; padding:2px 5px; font-size:10px; font-weight:650; }
+#projectMeta { color:#d7e2eb; font-size:11px; font-weight:650; }
+#projectStatus { color:#32dc83; font-size:11px; font-weight:750; }
+#projectPendingStatus { color:#d2dce5; font-size:11px; font-weight:700; }
+#projectFailedStatus { color:#ff6868; font-size:11px; font-weight:750; }
+#projectGradeA, #projectGradeB { color:#22c55e; font-size:21px; font-weight:800; }
+#projectGradeC { color:#fbbf24; font-size:21px; font-weight:800; }
+#projectGradeD { color:#f97316; font-size:21px; font-weight:800; }
+#projectGradeE { color:#ef4444; font-size:21px; font-weight:800; }
+#projectGradeNone { color:#94a3b8; font-size:21px; font-weight:800; }
+#projectGradeText { color:#f1f5f9; font-size:11px; font-weight:700; }
+#projectResultTitle { color:#e1e9f0; font-size:10px; font-weight:700; }
+#projectIssueWarning { color:#ff5d68; font-size:15px; font-weight:800; }
+#projectIssueGood { color:#2bd46f; font-size:15px; font-weight:800; }
+#projectIssueNone { color:#a9b8c5; font-size:15px; font-weight:750; }
+#projectResolvedText { color:#f5f8fb; font-size:12px; font-weight:750; }
+#projectProgressPercent { color:#eef4f8; font-size:11px; font-weight:650; }
+#projectMore { color:#dbe5ed; font-size:18px; font-weight:800; }
+#projectTotal { color:#ffffff; font-size:12px; font-weight:750; }
+
 /* Project Detail */
 #projectDetailContent { background-color: #09090b; }
 #detailBreadcrumb { color: #dbe5f1; font-size: 12px; font-weight: 600; }
