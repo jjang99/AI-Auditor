@@ -141,12 +141,71 @@ class Sidebar(QFrame):
         main_layout.addWidget(footer_frame)
 
     def set_theme(self, is_dark_mode):
+        """Apply the sidebar palette directly so page-level styles cannot override it."""
         if is_dark_mode:
             self.theme_button.setText("☀  Light Mode")
             self.theme_button.setToolTip("라이트 모드로 전환")
+            self.setStyleSheet("""
+                QFrame#sidebar {
+                    background:#0d1117;
+                    border-right:1px solid #1f2937;
+                }
+                QLabel#sidebarTitle { color:#ffffff; font-size:16px; font-weight:700; }
+                QPushButton#sidebarMenuButton {
+                    color:#94a3b8; background:transparent; border:none; border-radius:7px;
+                    padding:10px 12px; text-align:left; font-size:12px; font-weight:600;
+                }
+                QPushButton#sidebarMenuButton:hover { color:#ffffff; background:#151b23; }
+                QPushButton#sidebarMenuButton:checked {
+                    color:#60a5fa; background:#162033; border-left:3px solid #3b82f6;
+                }
+                QFrame#sidebarHelpFrame { background:#0b131c; border:1px solid #334155; border-radius:8px; }
+                QLabel#sidebarHelpTitle { color:#f8fafc; font-size:12px; font-weight:700; }
+                QLabel#sidebarGradeText { color:#dbe3ee; font-size:10px; }
+                QLabel#sidebarGradeA, QLabel#sidebarGradeB { color:#22c55e; font-size:11px; font-weight:700; }
+                QLabel#sidebarGradeC { color:#fbbf24; font-size:11px; font-weight:700; }
+                QLabel#sidebarGradeD { color:#f97316; font-size:11px; font-weight:700; }
+                QLabel#sidebarGradeE { color:#ef4444; font-size:11px; font-weight:700; }
+                QPushButton#sidebarThemeButton {
+                    color:#e2e8f0; background:#171c22; border:1px solid #2d3742;
+                    border-radius:6px; font-size:11px; font-weight:600;
+                }
+                QPushButton#sidebarThemeButton:hover { background:#222a33; border-color:#475569; }
+                QFrame#sidebarFooterFrame { background:transparent; border-top:1px solid #243041; }
+                QLabel#sidebarFooterText { color:#cbd5e1; font-size:10px; }
+            """)
         else:
             self.theme_button.setText("☾  Dark Mode")
             self.theme_button.setToolTip("다크 모드로 전환")
+            self.setStyleSheet("""
+                QFrame#sidebar {
+                    background:#f8fafc;
+                    border-right:1px solid #d7e0ea;
+                }
+                QLabel#sidebarTitle { color:#0f172a; font-size:16px; font-weight:700; }
+                QPushButton#sidebarMenuButton {
+                    color:#64748b; background:transparent; border:none; border-radius:7px;
+                    padding:10px 12px; text-align:left; font-size:12px; font-weight:600;
+                }
+                QPushButton#sidebarMenuButton:hover { color:#0f172a; background:#f1f5f9; }
+                QPushButton#sidebarMenuButton:checked {
+                    color:#2563eb; background:#eff6ff; border-left:3px solid #2563eb;
+                }
+                QFrame#sidebarHelpFrame { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
+                QLabel#sidebarHelpTitle { color:#0f172a; font-size:12px; font-weight:700; }
+                QLabel#sidebarGradeText { color:#334155; font-size:10px; }
+                QLabel#sidebarGradeA, QLabel#sidebarGradeB { color:#16a34a; font-size:11px; font-weight:700; }
+                QLabel#sidebarGradeC { color:#ca8a04; font-size:11px; font-weight:700; }
+                QLabel#sidebarGradeD { color:#ea580c; font-size:11px; font-weight:700; }
+                QLabel#sidebarGradeE { color:#dc2626; font-size:11px; font-weight:700; }
+                QPushButton#sidebarThemeButton {
+                    color:#334155; background:#f8fafc; border:1px solid #cbd5e1;
+                    border-radius:6px; font-size:11px; font-weight:600;
+                }
+                QPushButton#sidebarThemeButton:hover { background:#eef2f7; border-color:#94a3b8; }
+                QFrame#sidebarFooterFrame { background:transparent; border-top:1px solid #dbe3ee; }
+                QLabel#sidebarFooterText { color:#475569; font-size:10px; }
+            """)
 
     def select_menu(self, selected_name):
         for menu_name, button in self.menu_buttons.items():
