@@ -528,29 +528,7 @@ class ReportsPage(QWidget):
         # already fixed separately; only the light palette is allowed to change
         # in later theme work.
         self._apply_item_colors(is_dark)
-        if not is_dark:
-            light_card = "background:#ffffff; border:1px solid #afc1cf; border-radius:9px;"
-            for name in ("reportSummaryCard", "reportFilterCard", "reportListCard", "reportActionCard"):
-                for widget in self.findChildren(QFrame, name):
-                    widget.setStyleSheet(light_card)
-            self.report_table.setStyleSheet("""
-                QTableWidget {
-                    background:#ffffff; color:#203648; border:1px solid #a8bac8;
-                    border-radius:6px; selection-background-color:#edf4f9;
-                    selection-color:#112a3e; font-size:13px; font-weight:800; outline:0;
-                }
-                QTableWidget::item { border-bottom:1px solid #c8d6e0; padding:7px; }
-                QTableWidget::item:selected { background:#edf4f9; }
-                QHeaderView::section {
-                    background:#dce9f2; color:#193348; border:none;
-                    border-bottom:1px solid #96adbe; padding:8px;
-                    font-size:13px; font-weight:900;
-                }
-            """)
-        else:
-            # Remove direct Light overrides before the verified dark page palette
-            # is applied on the next theme switch.
-            for name in ("reportSummaryCard", "reportFilterCard", "reportListCard", "reportActionCard"):
-                for widget in self.findChildren(QFrame, name):
-                    widget.setStyleSheet("")
-            self.report_table.setStyleSheet("")
+        # Do not attach a generic stylesheet directly to each card. A direct
+        # card stylesheet becomes the cascade root for its children and can wipe
+        # button/combo styling. The page-level palette above is sufficient.
+        self.report_table.setStyleSheet("")
