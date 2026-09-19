@@ -18,9 +18,10 @@ from app.database.repositories.project_repository import get_projects_with_lates
 
 
 class CircularScore(QWidget):
-    def __init__(self, score=None, parent=None):
+    def __init__(self, score=None, grade=None, parent=None):
         super().__init__(parent)
         self.score = score
+        self.grade = grade
         self.setFixedSize(72, 72)
 
     def paintEvent(self, event):
@@ -36,14 +37,14 @@ class CircularScore(QWidget):
         painter.setPen(background_pen)
         painter.drawArc(rect, 0, 360 * 16)
         if self.score is not None:
-            if self.score >= 80:
-                score_color = QColor("#22c55e")
-            elif self.score >= 70:
-                score_color = QColor("#fbbf24")
-            elif self.score >= 60:
-                score_color = QColor("#f97316")
-            else:
-                score_color = QColor("#ef4444")
+            grade_colors = {
+                "A": "#22c55e",
+                "B": "#22c55e",
+                "C": "#fbbf24",
+                "D": "#f97316",
+                "E": "#ef4444",
+            }
+            score_color = QColor(grade_colors.get(self.grade, "#94a3b8"))
             score_pen = QPen(score_color, 5)
             score_pen.setCapStyle(Qt.RoundCap)
             painter.setPen(score_pen)
@@ -170,7 +171,7 @@ class ProjectsPage(QWidget):
                 "department": row.get("department") or "-",
                 "date": date,
                 "score": row.get("score"),
-                "grade": row.get("grade") or "-",
+                "grade": self.display_grade(row.get("score")),
                 "issues": row.get("total_issues") or 0,
                 "resolved": row.get("resolved_issues") or 0,
                 "status": row.get("status") or "검사 전",
@@ -183,6 +184,21 @@ class ProjectsPage(QWidget):
 
         self.total_label.setText(f"총 {len(db_projects)}개 프로젝트")
         self.filter_projects(self.search_input.text())
+
+    @staticmethod
+    def display_grade(score):
+        """Frozen UI grade standard: A 90-100, B 80-89, C 70-79, D 60-69, E 0-59."""
+        if score is None:
+            return "-"
+        if score >= 90:
+            return "A"
+        if score >= 80:
+            return "B"
+        if score >= 70:
+            return "C"
+        if score >= 60:
+            return "D"
+        return "E"
 
     def create_project_card(self, project):
         card = QFrame()
@@ -233,7 +249,7 @@ class ProjectsPage(QWidget):
         score_layout = QVBoxLayout(score_widget)
         score_layout.setContentsMargins(2, 0, 2, 0)
         score_layout.setAlignment(Qt.AlignCenter)
-        score_area = CircularScore(project["score"])
+        score_area = CircularScore(project["score"], project["grade"])
         score_layout.addWidget(score_area, 0, Qt.AlignCenter)
         card_layout.addWidget(score_widget, 0)
         grade_widget = QWidget()
