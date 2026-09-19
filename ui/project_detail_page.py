@@ -541,34 +541,7 @@ class ProjectDetailPage(QWidget):
         for label, key in (("심각도", "severity"), ("상태", "status"), ("규칙", "rule")):
             action = sort_menu.addAction(label)
             action.triggered.connect(lambda _checked=False, sort_key=key, text=label: self.set_issue_sort(sort_key, text))
-        sort_menu.setStyleSheet("""
-            QMenu {
-                padding: 3px;
-                border: 1px solid #64748b;
-                border-radius: 6px;
-            }
-            QMenu::item {
-                min-height: 22px;
-                padding: 1px 18px 1px 10px;
-                border-radius: 4px;
-            }
-            QMenu::item:selected {
-                background: #334155;
-            }
-        """)
-        sort_button.setStyleSheet("""
-            QPushButton#detailSortButton {
-                padding: 0 10px;
-                text-align: left;
-            }
-            QPushButton#detailSortButton::menu-indicator {
-                subcontrol-origin: padding;
-                subcontrol-position: center right;
-                right: 7px;
-                width: 8px;
-                height: 8px;
-            }
-        """)
+        sort_menu.setObjectName("detailSortMenu")
         sort_button.setMenu(sort_menu)
 
         header_layout.addWidget(title)
