@@ -357,9 +357,17 @@ class ProjectsPage(QWidget):
 
     def set_light_mode(self, is_light):
         self._light_mode = bool(is_light)
+        live_score_widgets = []
         for score_widget in getattr(self, "score_widgets", []):
-            score_widget.light_mode = self._light_mode
-            score_widget.update()
+            try:
+                score_widget.light_mode = self._light_mode
+                score_widget.update()
+                live_score_widgets.append(score_widget)
+            except RuntimeError:
+                # refresh_projects() deletes old card widgets; never keep stale
+                # PySide wrappers in the theme-update list.
+                continue
+        self.score_widgets = live_score_widgets
 
     def filter_projects(self, text):
         keyword = text.strip().lower()
