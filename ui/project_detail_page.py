@@ -532,15 +532,43 @@ class ProjectDetailPage(QWidget):
         title = QLabel("Issues (14)")
         title.setObjectName("detailBodyTitle")
 
-        sort_button = QPushButton("정렬 : 심각도⌄")
+        sort_button = QPushButton("정렬 : 심각도")
         sort_button.setObjectName("detailSortButton")
-        sort_button.setFixedHeight(28)
+        sort_button.setFixedHeight(26)
         sort_button.setCursor(Qt.PointingHandCursor)
         self.issue_sort_button = sort_button
         sort_menu = QMenu(sort_button)
         for label, key in (("심각도", "severity"), ("상태", "status"), ("규칙", "rule")):
             action = sort_menu.addAction(label)
             action.triggered.connect(lambda _checked=False, sort_key=key, text=label: self.set_issue_sort(sort_key, text))
+        sort_menu.setStyleSheet("""
+            QMenu {
+                padding: 3px;
+                border: 1px solid #64748b;
+                border-radius: 6px;
+            }
+            QMenu::item {
+                min-height: 22px;
+                padding: 1px 18px 1px 10px;
+                border-radius: 4px;
+            }
+            QMenu::item:selected {
+                background: #334155;
+            }
+        """)
+        sort_button.setStyleSheet("""
+            QPushButton#detailSortButton {
+                padding: 0 10px;
+                text-align: left;
+            }
+            QPushButton#detailSortButton::menu-indicator {
+                subcontrol-origin: padding;
+                subcontrol-position: center right;
+                right: 7px;
+                width: 8px;
+                height: 8px;
+            }
+        """)
         sort_button.setMenu(sort_menu)
 
         header_layout.addWidget(title)
@@ -603,7 +631,7 @@ class ProjectDetailPage(QWidget):
     def set_issue_sort(self, sort_key, label):
         self.issue_sort_key = sort_key
         if hasattr(self, "issue_sort_button"):
-            self.issue_sort_button.setText(f"정렬 : {label}⌄")
+            self.issue_sort_button.setText(f"정렬 : {label}")
         issues = getattr(self, "_current_issues", None)
         if issues is not None and hasattr(self, "_runtime_update_issues"):
             self._runtime_update_issues(issues)
