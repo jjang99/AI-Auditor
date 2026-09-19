@@ -550,4 +550,7 @@ class ReportsPage(QWidget):
                 }
                 #reportSecondaryButton:hover { background:#dfeaf2; border-color:#7f9bad; }
             """)
+        # Keep the verified dark Reports appearance intact. The scrollbar is
+        # already fixed separately; only the light palette is allowed to change
+        # in later theme work.
         self._apply_item_colors(is_dark)
