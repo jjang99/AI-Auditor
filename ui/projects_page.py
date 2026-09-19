@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from ui.sidebar import Sidebar
-from app.database.repositories.project_repository import get_all_projects
+from app.database.repositories.project_repository import get_projects_with_latest_inspection
 
 
 class CircularScore(QWidget):
@@ -126,22 +126,14 @@ class ProjectsPage(QWidget):
         search_row.addStretch()
         main_layout.addLayout(search_row)
         main_layout.addSpacing(14)
-        db_projects = get_all_projects()
-        sample_projects = []
-        for project in db_projects:
-            sample_projects.append({"id": project["id"], "name": project["name"], "department": project["department"] or "-", "date": "", "score": None, "grade": "-", "issues": 0, "resolved": 0, "status": "검사 전"})
         self.projects_layout = QVBoxLayout()
         self.projects_layout.setSpacing(8)
-        for project in sample_projects:
-            card = self.create_project_card(project)
-            self.projects_layout.addWidget(card)
-            self.project_cards.append((card, project["name"].lower(), project["department"].lower()))
         main_layout.addLayout(self.projects_layout)
         main_layout.addStretch(1)
         bottom_layout = QHBoxLayout()
         bottom_layout.setContentsMargins(0, 8, 0, 0)
-        total_label = QLabel(f"총 {len(sample_projects)}개 프로젝트")
-        total_label.setObjectName("projectTotal")
+        self.total_label = QLabel("총 0개 프로젝트")
+        self.total_label.setObjectName("projectTotal")
         previous_button = QPushButton("‹")
         previous_button.setObjectName("paginationButton")
         page_button = QPushButton("1")
@@ -150,12 +142,47 @@ class ProjectsPage(QWidget):
         next_button.setObjectName("paginationButton")
         for button in (previous_button, page_button, next_button):
             button.setFixedSize(34, 32)
-        bottom_layout.addWidget(total_label)
+        bottom_layout.addWidget(self.total_label)
         bottom_layout.addStretch()
         bottom_layout.addWidget(previous_button)
         bottom_layout.addWidget(page_button)
         bottom_layout.addWidget(next_button)
         main_layout.addLayout(bottom_layout)
+        self.refresh_projects()
+
+    def refresh_projects(self):
+        while self.projects_layout.count():
+            item = self.projects_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        self.project_cards = []
+        db_projects = get_projects_with_latest_inspection()
+
+        for row in db_projects:
+            inspected_at = row.get("inspected_at")
+            date = inspected_at[:16].replace("T", " ") if inspected_at else ""
+            project = {
+                "id": row["id"],
+                "inspection_id": row.get("inspection_id"),
+                "name": row["name"],
+                "department": row.get("department") or "-",
+                "date": date,
+                "score": row.get("score"),
+                "grade": row.get("grade") or "-",
+                "issues": row.get("total_issues") or 0,
+                "resolved": row.get("resolved_issues") or 0,
+                "status": row.get("status") or "검사 전",
+            }
+            card = self.create_project_card(project)
+            self.projects_layout.addWidget(card)
+            self.project_cards.append(
+                (card, project["name"].lower(), project["department"].lower())
+            )
+
+        self.total_label.setText(f"총 {len(db_projects)}개 프로젝트")
+        self.filter_projects(self.search_input.text())
 
     def create_project_card(self, project):
         card = QFrame()
