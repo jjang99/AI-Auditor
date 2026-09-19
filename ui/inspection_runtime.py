@@ -303,6 +303,14 @@ def apply_inspection_runtime(InspectionPage):
         project_type_combo = self.findChild(QComboBox, "inspectionCombo")
         if project_type_combo is not None:
             saved_type = str(project.get("project_type") or "").strip()
+            if not saved_type:
+                QMessageBox.information(
+                    self,
+                    "프로젝트 구분 확인",
+                    "기존 프로젝트에 저장된 프로젝트 구분 값이 없습니다.\n"
+                    f"프로젝트: {project.get('name') or project_id}\n"
+                    "확인 후 이 진단 메시지는 제거합니다."
+                )
             normalized_type = {
                 "신규": "신규 구축",
                 "신규구축": "신규 구축",
