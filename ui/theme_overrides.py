@@ -311,72 +311,64 @@ LIGHT_SHARED_VISUAL_FINAL = r"""
 # Appended last so both dark/light composed themes keep the frozen Projects hierarchy.
 PROJECTS_DARK_FINAL = r"""
 #projectsContent { background:#09090b; }
-#pageTitle { color:#ffffff; font-size:29px; font-weight:900; }
-#pageDescription { color:#f0f4f8; font-size:13px; font-weight:700; }
-#projectSearchInput { color:#eef4f8; background:#0b151e; border:1px solid #5b7184; border-radius:7px; padding:0 14px; font-size:12px; }
-#newProjectButton { color:#ffffff; background:#0b6cff; border:2px solid #4f94ff; border-radius:9px; font-size:13px; font-weight:900; padding:0 4px; }
-#newProjectButton:hover { background:#1d72f2; border-color:#72a7ff; }
-#sidebarHelpFrame { background:#0b151f; border:1px solid #526b7f; border-radius:8px; }
-#sidebarHelpTitle { color:#ffffff; font-size:12px; font-weight:900; }
-#sidebarGradeText { color:#f2f6f9; font-size:10px; font-weight:800; }
-#sidebarGradeA, #sidebarGradeB, #sidebarGradeC, #sidebarGradeD, #sidebarGradeE { font-size:11px; font-weight:900; }
-#projectCard { background:#101d29; border:1px solid #476174; border-radius:9px; }
-#projectCard:hover { background:#122333; border:1px solid #3b82f6; }
-#projectName { color:#ffffff; font-size:17px; font-weight:900; }
-#projectDepartment { color:#f4f8fb; background:#173149; border:none; border-radius:4px; padding:0 6px; font-size:11px; font-weight:800; }
-#projectMeta { color:#f0f4f8; font-size:12px; font-weight:800; }
-#projectStatus { color:#35e38a; font-size:12px; font-weight:850; }
-#projectPendingStatus { color:#f0f4f8; font-size:12px; font-weight:800; }
-#projectFailedStatus { color:#ff626d; font-size:12px; font-weight:850; }
-#projectGradeA, #projectGradeB { color:#22d879; font-size:25px; font-weight:900; }
-#projectGradeC { color:#ffc52c; font-size:25px; font-weight:900; }
-#projectGradeD { color:#ff842c; font-size:25px; font-weight:900; }
-#projectGradeE { color:#ff4f5e; font-size:25px; font-weight:900; }
-#projectGradeNone { color:#b6c3ce; font-size:25px; font-weight:900; }
-#projectGradeText { color:#ffffff; font-size:12px; font-weight:850; }
-#projectResultTitle { color:#f4f7fa; font-size:11px; font-weight:800; }
-#projectIssueCount { color:#ffffff; font-size:14px; font-weight:900; }
-#projectIssueSuffix { color:#f4f7fa; font-size:11px; font-weight:800; padding-bottom:3px; }
-#projectIssueWarning { color:#ff5260; font-size:23px; font-weight:900; }
-#projectIssueGood { color:#2de17f; font-size:23px; font-weight:900; }
-#projectIssueNone { color:#d0d8df; font-size:23px; font-weight:900; }
-#projectResolvedText { color:#ffffff; font-size:11px; font-weight:800; }
-#projectProgressPercent { color:#ffffff; font-size:12px; font-weight:800; }
-#projectTotal { color:#ffffff; font-size:13px; font-weight:850; }
+#projectsContent #pageTitle { color:#ffffff; font-size:29px; font-weight:900; }
+#projectsContent #pageDescription { color:#f0f4f8; font-size:13px; font-weight:700; }
+#projectsContent #projectSearchInput { color:#eef4f8; background:#0b151e; border:1px solid #5b7184; border-radius:7px; padding:0 14px; font-size:12px; }
+#projectsContent #newProjectButton { color:#ffffff; background:#0b6cff; border:2px solid #4f94ff; border-radius:9px; font-size:13px; font-weight:900; padding:0 4px; }
+#projectsContent #newProjectButton:hover { background:#1d72f2; border-color:#72a7ff; }
+#projectsContent #projectCard { background:#101d29; border:1px solid #476174; border-radius:9px; }
+#projectsContent #projectCard:hover { background:#122333; border:1px solid #3b82f6; }
+#projectsContent #projectName { color:#ffffff; font-size:17px; font-weight:900; }
+#projectsContent #projectDepartment { color:#f4f8fb; background:#173149; border:none; border-radius:4px; padding:0 6px; font-size:11px; font-weight:800; }
+#projectsContent #projectMeta { color:#f0f4f8; font-size:12px; font-weight:800; }
+#projectsContent #projectStatus { color:#35e38a; font-size:12px; font-weight:850; }
+#projectsContent #projectPendingStatus { color:#f0f4f8; font-size:12px; font-weight:800; }
+#projectsContent #projectFailedStatus { color:#ff626d; font-size:12px; font-weight:850; }
+#projectsContent #projectGradeA, #projectGradeB { color:#22d879; font-size:25px; font-weight:900; }
+#projectsContent #projectGradeC { color:#ffc52c; font-size:25px; font-weight:900; }
+#projectsContent #projectGradeD { color:#ff842c; font-size:25px; font-weight:900; }
+#projectsContent #projectGradeE { color:#ff4f5e; font-size:25px; font-weight:900; }
+#projectsContent #projectGradeNone { color:#b6c3ce; font-size:25px; font-weight:900; }
+#projectsContent #projectGradeText { color:#ffffff; font-size:12px; font-weight:850; }
+#projectsContent #projectResultTitle { color:#f4f7fa; font-size:11px; font-weight:800; }
+#projectsContent #projectIssueCount { color:#ffffff; font-size:14px; font-weight:900; }
+#projectsContent #projectIssueSuffix { color:#f4f7fa; font-size:11px; font-weight:800; padding-bottom:3px; }
+#projectsContent #projectIssueWarning { color:#ff5260; font-size:23px; font-weight:900; }
+#projectsContent #projectIssueGood { color:#2de17f; font-size:23px; font-weight:900; }
+#projectsContent #projectIssueNone { color:#d0d8df; font-size:23px; font-weight:900; }
+#projectsContent #projectResolvedText { color:#ffffff; font-size:11px; font-weight:800; }
+#projectsContent #projectProgressPercent { color:#ffffff; font-size:12px; font-weight:800; }
+#projectsContent #projectTotal { color:#ffffff; font-size:13px; font-weight:850; }
 """
 
 PROJECTS_LIGHT_FINAL = r"""
 #projectsContent { background:#f1f5f9; }
-#pageTitle { color:#0b1f31; font-size:29px; font-weight:900; }
-#pageDescription { color:#29475f; font-size:13px; font-weight:700; }
-#projectSearchInput { color:#102b40; background:#ffffff; border:1px solid #8fa6b9; border-radius:7px; padding:0 14px; font-size:12px; }
-#newProjectButton { color:#ffffff; background:#075fd7; border:2px solid #034cae; border-radius:9px; font-size:13px; font-weight:900; padding:0 4px; }
-#newProjectButton:hover { background:#084fb9; border-color:#063f94; }
-#sidebarHelpFrame { background:#ffffff; border:1px solid #8fa6b9; border-radius:8px; }
-#sidebarHelpTitle { color:#0b1f31; font-size:12px; font-weight:900; }
-#sidebarGradeText { color:#183247; font-size:10px; font-weight:800; }
-#sidebarGradeA, #sidebarGradeB, #sidebarGradeC, #sidebarGradeD, #sidebarGradeE { font-size:11px; font-weight:900; }
-#projectCard { background:#ffffff; border:1px solid #7893a9; border-radius:9px; }
-#projectCard:hover { background:#f8fbfd; border:1px solid #2563eb; }
-#projectName { color:#081c2c; font-size:17px; font-weight:900; }
-#projectDepartment { color:#153b58; background:#dceaf6; border:none; border-radius:4px; padding:0 6px; font-size:11px; font-weight:800; }
-#projectMeta { color:#15364f; font-size:12px; font-weight:850; }
-#projectStatus { color:#067b45; font-size:12px; font-weight:850; }
-#projectPendingStatus { color:#334f65; font-size:12px; font-weight:800; }
-#projectFailedStatus { color:#bd2432; font-size:12px; font-weight:850; }
-#projectGradeA, #projectGradeB { color:#006f3b; font-size:26px; font-weight:900; }
-#projectGradeC { color:#8a5700; font-size:26px; font-weight:900; }
-#projectGradeD { color:#a83d00; font-size:26px; font-weight:900; }
-#projectGradeE { color:#b31226; font-size:26px; font-weight:900; }
-#projectGradeNone { color:#344f66; font-size:26px; font-weight:900; }
-#projectGradeText { color:#071b2b; font-size:12px; font-weight:900; }
-#projectResultTitle { color:#24445d; font-size:11px; font-weight:800; }
-#projectIssueCount { color:#081c2c; font-size:14px; font-weight:900; }
-#projectIssueSuffix { color:#183247; font-size:11px; font-weight:800; padding-bottom:3px; }
-#projectIssueWarning { color:#b8172a; font-size:23px; font-weight:900; }
-#projectIssueGood { color:#006b39; font-size:23px; font-weight:900; }
-#projectIssueNone { color:#354f64; font-size:23px; font-weight:900; }
-#projectResolvedText { color:#071b2b; font-size:11px; font-weight:800; }
-#projectProgressPercent { color:#15364f; font-size:12px; font-weight:850; }
-#projectTotal { color:#081c2c; font-size:13px; font-weight:850; }
+#projectsContent #pageTitle { color:#0b1f31; font-size:29px; font-weight:900; }
+#projectsContent #pageDescription { color:#29475f; font-size:13px; font-weight:700; }
+#projectsContent #projectSearchInput { color:#102b40; background:#ffffff; border:1px solid #8fa6b9; border-radius:7px; padding:0 14px; font-size:12px; }
+#projectsContent #newProjectButton { color:#ffffff; background:#075fd7; border:2px solid #034cae; border-radius:9px; font-size:13px; font-weight:900; padding:0 4px; }
+#projectsContent #newProjectButton:hover { background:#084fb9; border-color:#063f94; }
+#projectsContent #projectCard { background:#ffffff; border:1px solid #7893a9; border-radius:9px; }
+#projectsContent #projectCard:hover { background:#f8fbfd; border:1px solid #2563eb; }
+#projectsContent #projectName { color:#081c2c; font-size:17px; font-weight:900; }
+#projectsContent #projectDepartment { color:#153b58; background:#dceaf6; border:none; border-radius:4px; padding:0 6px; font-size:11px; font-weight:800; }
+#projectsContent #projectMeta { color:#15364f; font-size:12px; font-weight:850; }
+#projectsContent #projectStatus { color:#067b45; font-size:12px; font-weight:850; }
+#projectsContent #projectPendingStatus { color:#334f65; font-size:12px; font-weight:800; }
+#projectsContent #projectFailedStatus { color:#bd2432; font-size:12px; font-weight:850; }
+#projectsContent #projectGradeA, #projectsContent #projectGradeB { color:#00652f; font-size:27px; font-weight:900; }
+#projectsContent #projectGradeC { color:#7a4b00; font-size:27px; font-weight:900; }
+#projectsContent #projectGradeD { color:#963400; font-size:27px; font-weight:900; }
+#projectsContent #projectGradeE { color:#a80f21; font-size:27px; font-weight:900; }
+#projectsContent #projectGradeNone { color:#344f66; font-size:26px; font-weight:900; }
+#projectsContent #projectGradeText { color:#071521; font-size:13px; font-weight:900; }
+#projectsContent #projectResultTitle { color:#24445d; font-size:11px; font-weight:800; }
+#projectsContent #projectIssueCount { color:#081c2c; font-size:14px; font-weight:900; }
+#projectsContent #projectIssueSuffix { color:#183247; font-size:11px; font-weight:800; padding-bottom:3px; }
+#projectsContent #projectIssueWarning { color:#b8172a; font-size:23px; font-weight:900; }
+#projectsContent #projectIssueGood { color:#006b39; font-size:23px; font-weight:900; }
+#projectsContent #projectIssueNone { color:#354f64; font-size:23px; font-weight:900; }
+#projectsContent #projectResolvedText { color:#071b2b; font-size:11px; font-weight:800; }
+#projectsContent #projectProgressPercent { color:#15364f; font-size:12px; font-weight:850; }
+#projectsContent #projectTotal { color:#081c2c; font-size:13px; font-weight:850; }
 """
