@@ -227,12 +227,23 @@ def apply_inspection_runtime(InspectionPage):
             warning.setWindowTitle("프로젝트 정보 확인")
             warning.setText("Project Name을 입력해 주세요.")
             warning.setStandardButtons(QMessageBox.Ok)
-            warning.setStyleSheet(
-                "QMessageBox { background:#ffffff; }"
-                "QLabel { color:#172a3c; font-size:12px; font-weight:600; }"
-                "QPushButton { min-width:72px; min-height:28px; color:#172a3c; background:#ffffff; border:1px solid #97adbd; border-radius:6px; padding:2px 10px; }"
-                "QPushButton:hover { background:#edf3f7; }"
-            )
+            main_window = self.window()
+            is_dark = getattr(main_window, "is_dark_mode", True)
+            if is_dark:
+                warning.setStyleSheet(
+                    "QMessageBox { background:#111a23; }"
+                    "QLabel#qt_msgbox_label { color:#f1f5f9; font-size:13px; font-weight:700; padding:8px 6px 6px 4px; }"
+                    "QPushButton { min-width:58px; max-width:58px; min-height:26px; max-height:26px; color:#f1f5f9; background:#1b2a38; border:1px solid #526b80; border-radius:6px; padding:0; font-size:11px; font-weight:600; }"
+                    "QPushButton:hover { background:#27465e; border-color:#6f91a9; }"
+                )
+            else:
+                warning.setStyleSheet(
+                    "QMessageBox { background:#ffffff; }"
+                    "QLabel#qt_msgbox_label { color:#172a3c; font-size:13px; font-weight:700; padding:8px 6px 6px 4px; }"
+                    "QPushButton { min-width:58px; max-width:58px; min-height:26px; max-height:26px; color:#172a3c; background:#f8fafc; border:1px solid #97adbd; border-radius:6px; padding:0; font-size:11px; font-weight:600; }"
+                    "QPushButton:hover { background:#edf3f7; border-color:#7f9bad; }"
+                )
+            warning.setFixedWidth(340)
             warning.exec()
             return
         if not self.selected_files: QMessageBox.warning(self, "검사 대상 확인", "검사할 파일을 먼저 선택해 주세요."); return
