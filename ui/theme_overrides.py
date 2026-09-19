@@ -332,7 +332,7 @@ PROJECTS_DARK_FINAL = r"""
 #projectsContent #projectGradeText { color:#ffffff; font-size:12px; font-weight:850; }
 #projectsContent #projectResultTitle { color:#f4f7fa; font-size:11px; font-weight:800; }
 #projectsContent #projectIssueCount { color:#ffffff; font-size:14px; font-weight:900; }
-#projectsContent #projectIssueCountValue { color:#cbd5e1; font-size:23px; font-weight:900; }
+#projectsContent #projectIssueCountValue { color:#d6a84b; font-size:23px; font-weight:900; }
 #projectsContent #projectIssueSuffix { color:#f4f7fa; font-size:13px; font-weight:850; padding-bottom:2px; }
 #projectsContent #projectIssueWarning { color:#ff5260; font-size:23px; font-weight:900; }
 #projectsContent #projectIssueGood { color:#2de17f; font-size:23px; font-weight:900; }
@@ -365,7 +365,7 @@ PROJECTS_LIGHT_FINAL = r"""
 #projectsContent #projectGradeText { color:#071521; font-size:13px; font-weight:900; }
 #projectsContent #projectResultTitle { color:#24445d; font-size:11px; font-weight:800; }
 #projectsContent #projectIssueCount { color:#081c2c; font-size:14px; font-weight:900; }
-#projectsContent #projectIssueCountValue { color:#334155; font-size:23px; font-weight:900; }
+#projectsContent #projectIssueCountValue { color:#9a6700; font-size:23px; font-weight:900; }
 #projectsContent #projectIssueSuffix { color:#183247; font-size:13px; font-weight:850; padding-bottom:2px; }
 #projectsContent #projectIssueWarning { color:#b8172a; font-size:23px; font-weight:900; }
 #projectsContent #projectIssueGood { color:#006b39; font-size:23px; font-weight:900; }
