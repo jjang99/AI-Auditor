@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import datetime
 
 from PySide6.QtCore import QEvent, Qt
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QProgressBar, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QProgressBar, QPushButton, QVBoxLayout, QWidget
 
 from app.database.repositories.inspection_repository import (
     get_inspection_history,
@@ -69,6 +69,15 @@ def apply_project_detail_runtime(ProjectDetailPage):
         self.issue_sort_key = "severity"
 
     def load_project(self, project_id, inspection_id=None):
+        # Sorting is a view preference for the currently opened detail only.
+        # Reset it whenever another Project Detail is opened.
+        self.issue_sort_key = "severity"
+        sort_combo = self.findChild(QComboBox, "detailSortCombo")
+        if sort_combo is not None:
+            sort_combo.blockSignals(True)
+            sort_combo.setCurrentIndex(0)
+            sort_combo.blockSignals(False)
+
         project = get_project_by_id(project_id)
         if project is None:
             return
