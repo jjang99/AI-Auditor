@@ -142,7 +142,6 @@ class AdministrationRulesDialog(QDialog):
             row = QFrame()
             row.setObjectName("adminRuleRow")
             row.setFixedHeight(66)
-            row.setCursor(Qt.PointingHandCursor)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(12, 6, 10, 6)
             row_layout.setSpacing(column_spacing)
