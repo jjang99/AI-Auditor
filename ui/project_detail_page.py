@@ -685,5 +685,17 @@ class ProjectDetailPage(QWidget):
     # ReInspect 팝업
     # =========================================================
     def open_reinspect_dialog(self):
-        dialog = ReInspectDialog(self)
+        rule_count = None
+        current_inspection_id = getattr(self, "current_inspection_id", None)
+        if current_inspection_id is not None:
+            try:
+                from app.database.repositories.inspection_repository import get_inspection_history
+                current_project_id = getattr(self, "current_project_id", None)
+                history = get_inspection_history(current_project_id, 100) if current_project_id is not None else []
+                current = next((item for item in history if item["id"] == current_inspection_id), None)
+                if current is not None:
+                    rule_count = current["rule_count"]
+            except Exception:
+                rule_count = None
+        dialog = ReInspectDialog(self, rule_count=rule_count)
         dialog.exec()
