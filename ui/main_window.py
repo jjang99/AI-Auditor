@@ -249,6 +249,43 @@ class MainWindow(QMainWindow):
         self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
+
+        # These pages own local QSS. Re-apply the common shell locally so the
+        # sidebar/content background follows the selected theme as well.
+        # Without this, Qt gives the child stylesheet precedence and produces
+        # the mixed dark-shell/light-card state seen after theme switching.
+        shell_dark = """
+            QWidget#projectsContent, QFrame#inspectionContent, QScrollArea#inspectionScroll {
+                background:#09090b;
+            }
+            QFrame#sidebar { background:#0d1117; border-right:1px solid #1f2937; }
+            QLabel#sidebarTitle { color:#ffffff; }
+            QPushButton#sidebarMenuButton { color:#94a3b8; background:transparent; }
+            QPushButton#sidebarMenuButton:hover { color:#ffffff; background:#151b23; }
+            QPushButton#sidebarMenuButton:checked { color:#60a5fa; background:#162033; border-left:3px solid #3b82f6; }
+            QFrame#sidebarHelpFrame { background:#0b131c; border:1px solid #334155; }
+            QLabel#sidebarHelpTitle { color:#f8fafc; }
+            QLabel#sidebarGradeText { color:#dbe3ee; }
+            QLabel#sidebarFooterText { color:#cbd5e1; }
+        """
+        shell_light = """
+            QWidget#projectsContent, QFrame#inspectionContent, QScrollArea#inspectionScroll {
+                background:#f1f5f9;
+            }
+            QFrame#sidebar { background:#f8fafc; border-right:1px solid #d7e0ea; }
+            QLabel#sidebarTitle { color:#0f172a; }
+            QPushButton#sidebarMenuButton { color:#64748b; background:transparent; }
+            QPushButton#sidebarMenuButton:hover { color:#0f172a; background:#f1f5f9; }
+            QPushButton#sidebarMenuButton:checked { color:#2563eb; background:#eff6ff; border-left:3px solid #2563eb; }
+            QFrame#sidebarHelpFrame { background:#f8fafc; border:1px solid #cbd5e1; }
+            QLabel#sidebarHelpTitle { color:#0f172a; }
+            QLabel#sidebarGradeText { color:#334155; }
+            QLabel#sidebarFooterText { color:#475569; }
+        """
+        shell = shell_dark if self.is_dark_mode else shell_light
+        for page in (self.inspection_page, self.reports_page, self.administration_page):
+            page.setStyleSheet(page.styleSheet() + shell)
+
         self._apply_shared_combo_style()
         for sidebar in self.sidebars:
             sidebar.set_theme(self.is_dark_mode)
