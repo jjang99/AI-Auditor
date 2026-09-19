@@ -141,13 +141,28 @@ class MainWindow(QMainWindow):
         elif selected_name == "Inspection":
             self.header.hide()
             self.inspection_page.prepare_new_inspection()
+            if self.is_dark_mode:
+                self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
+            else:
+                self.inspection_page.setStyleSheet(
+                    LIGHT_UI_OVERRIDES
+                    + LIGHT_INSPECTION_REFINEMENTS
+                    + LIGHT_INSPECTION_READABILITY_V2
+                    + LIGHT_INSPECTION_FINAL
+                    + LIGHT_INSPECTION_PROGRESS
+                    + LIGHT_TEXT_HIERARCHY_FINAL
+                    + LIGHT_SHARED_VISUAL_FINAL
+                )
+            self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
             self.page_stack.setCurrentWidget(self.inspection_page)
         elif selected_name == "Reports":
             self.header.hide()
             self.reports_page.refresh_reports()
+            self.reports_page.apply_theme(self.is_dark_mode)
             self.page_stack.setCurrentWidget(self.reports_page)
         elif selected_name == "Administration":
             self.header.hide()
+            self.administration_page.apply_theme(self.is_dark_mode)
             self.page_stack.setCurrentWidget(self.administration_page)
 
     def open_latest_inspection_result(self):
@@ -256,7 +271,15 @@ class MainWindow(QMainWindow):
         if self.is_dark_mode:
             self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
         else:
-            self.inspection_page.setStyleSheet("")
+            self.inspection_page.setStyleSheet(
+                LIGHT_UI_OVERRIDES
+                + LIGHT_INSPECTION_REFINEMENTS
+                + LIGHT_INSPECTION_READABILITY_V2
+                + LIGHT_INSPECTION_FINAL
+                + LIGHT_INSPECTION_PROGRESS
+                + LIGHT_TEXT_HIERARCHY_FINAL
+                + LIGHT_SHARED_VISUAL_FINAL
+            )
 
         # Reports and Administration use page-local palettes.  Re-apply them
         # after the global theme and after clearing Inspection's legacy sheet so
