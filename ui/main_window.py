@@ -256,5 +256,9 @@ class MainWindow(QMainWindow):
 
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
+
+        # Reports owns a complete page-local palette. Apply it before other
+        # downstream page hooks so its light palette cannot be skipped.
         self.reports_page.apply_theme(self.is_dark_mode)
+
         self.administration_page.apply_theme(self.is_dark_mode)
