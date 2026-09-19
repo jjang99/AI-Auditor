@@ -110,7 +110,7 @@ class ProjectsPage(QWidget):
         new_project_button = QPushButton("＋  New Project")
         new_project_button.setObjectName("newProjectButton")
         new_project_button.setCursor(Qt.PointingHandCursor)
-        new_project_button.setFixedSize(150, 44)
+        new_project_button.setFixedSize(122, 40)
         header_layout.addLayout(title_area)
         header_layout.addStretch()
         header_layout.addWidget(new_project_button, 0, Qt.AlignTop)
@@ -227,17 +227,15 @@ class ProjectsPage(QWidget):
         # Use one visual size for normal names. Shrink only when the rendered
         # width would exceed the available first-column width.
         available_name_width = 195
-        probe_font = QFont("Malgun Gothic")
-        probe_font.setBold(True)
-        chosen_px = 17
-        for px in (17, 16, 15, 14, 13, 12):
-            probe_font.setPixelSize(px)
-            if QFontMetrics(probe_font).horizontalAdvance(project["name"]) <= available_name_width:
-                chosen_px = px
-                break
-        project_name.setStyleSheet(
-            f'font-family:"Malgun Gothic"; font-size:{chosen_px}px; font-weight:900;'
-        )
+        name_font = QFont("Malgun Gothic")
+        name_font.setBold(True)
+        name_font.setPixelSize(17)
+        while (
+            name_font.pixelSize() > 12
+            and QFontMetrics(name_font).horizontalAdvance(project["name"]) > available_name_width
+        ):
+            name_font.setPixelSize(name_font.pixelSize() - 1)
+        project_name.setFont(name_font)
         project_name.setFixedWidth(available_name_width)
 
         department = QLabel(project["department"])
@@ -308,7 +306,7 @@ class ProjectsPage(QWidget):
             issues_value = QLabel(str(project["issues"]))
             issues_value.setObjectName("projectIssueGood" if project["issues"] <= 6 else "projectIssueWarning")
             issues_suffix = QLabel("개 이슈")
-            issues_suffix.setObjectName("projectResultTitle")
+            issues_suffix.setObjectName("projectIssueSuffix")
         issues_row.addWidget(issues_value, 0, Qt.AlignBottom)
         issues_row.addWidget(issues_suffix, 0, Qt.AlignBottom)
         issues_row.addStretch()
@@ -342,8 +340,11 @@ class ProjectsPage(QWidget):
         percent_label.setObjectName("projectProgressPercent")
         percent_label.setFixedWidth(28)
         percent_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        progress_row.addWidget(progress, 1)
-        progress_row.addWidget(percent_label)
+        progress.setFixedWidth(120)
+        progress_row.addStretch()
+        progress_row.addWidget(progress, 0, Qt.AlignVCenter)
+        progress_row.addWidget(percent_label, 0, Qt.AlignVCenter)
+        progress_row.addStretch()
         result_layout.addLayout(progress_row)
         card_layout.addWidget(result_widget, 3)
         card.mousePressEvent = lambda event, p=project: self.project_selected.emit(p)
