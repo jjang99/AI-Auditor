@@ -19,7 +19,11 @@ from ui.inspection_runtime import apply_inspection_runtime
 from ui.reports_page import ReportsPage
 from ui.administration_page import AdministrationPage
 from ui.theme import DARK_THEME, LIGHT_THEME
-from ui.theme_overrides import DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES, LIGHT_TEXT_HIERARCHY_FINAL, DARK_SHARED_VISUAL_FINAL, LIGHT_SHARED_VISUAL_FINAL
+from ui.theme_overrides import (
+    DARK_UI_OVERRIDES, LIGHT_UI_OVERRIDES, LIGHT_TEXT_HIERARCHY_FINAL,
+    DARK_SHARED_VISUAL_FINAL, LIGHT_SHARED_VISUAL_FINAL,
+    PROJECTS_DARK_FINAL, PROJECTS_LIGHT_FINAL,
+)
 
 apply_project_detail_refinements(ProjectDetailPage)
 apply_project_detail_runtime(ProjectDetailPage)
@@ -229,11 +233,11 @@ class MainWindow(QMainWindow):
 
     def apply_theme(self):
         if self.is_dark_mode:
-            self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES + DETAIL_DARK_REFINEMENTS + DARK_INSPECTION_REFINEMENTS + DARK_INSPECTION_READABILITY_V2 + DARK_INSPECTION_FINAL + DARK_INSPECTION_PROGRESS + DARK_SHARED_VISUAL_FINAL)
+            self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES + DETAIL_DARK_REFINEMENTS + DARK_INSPECTION_REFINEMENTS + DARK_INSPECTION_READABILITY_V2 + DARK_INSPECTION_FINAL + DARK_INSPECTION_PROGRESS + DARK_SHARED_VISUAL_FINAL + PROJECTS_DARK_FINAL)
             self.theme_button.setText("☀")
             self.theme_button.setToolTip("Light Mode")
         else:
-            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS + LIGHT_TEXT_HIERARCHY_FINAL + LIGHT_SHARED_VISUAL_FINAL)
+            self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS + LIGHT_TEXT_HIERARCHY_FINAL + LIGHT_SHARED_VISUAL_FINAL + PROJECTS_LIGHT_FINAL)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
         self.home_page.set_wave_theme(self.is_dark_mode)
