@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 
 
 class AdministrationRulesDialog(QDialog):
-    def __init__(self, category_name, total, active, inactive, parent=None, icon_file=None):
+    def __init__(self, category_name, total, active, inactive, parent=None, icon_file=None, rule_states=None):
         super().__init__(parent)
         self.setWindowTitle(f"{category_name} - 규칙 목록")
         self.setModal(True)
@@ -45,6 +45,7 @@ class AdministrationRulesDialog(QDialog):
         total_label.setObjectName("adminSummaryTotal")
         self.active_count = active
         self.inactive_count = inactive
+        self.rule_states = dict(rule_states or {})
         active_label = QLabel(f"활성 {active}개")
         active_label.setObjectName("adminSummaryActive")
         inactive_label = QLabel(f"비활성 {inactive}개")
@@ -170,11 +171,11 @@ class AdministrationRulesDialog(QDialog):
             toggle = QPushButton("ON" if checked else "OFF")
             toggle.setObjectName("adminRuleToggle")
             toggle.setCheckable(True)
-            toggle.setChecked(checked)
+            toggle.setChecked(self.rule_states.get(code_text, checked))
             toggle.setCursor(Qt.PointingHandCursor)
             toggle.setFixedSize(50, 24)
             toggle.toggled.connect(
-                lambda state, button=toggle: self._rule_toggled(state, button)
+                lambda state, button=toggle, rule_code=code_text: self._rule_toggled(state, button, rule_code)
             )
 
             row_layout.addWidget(code_label)
@@ -206,8 +207,9 @@ class AdministrationRulesDialog(QDialog):
 
         self.apply_theme()
 
-    def _rule_toggled(self, state, button):
+    def _rule_toggled(self, state, button, rule_code):
         button.setText("ON" if state else "OFF")
+        self.rule_states[rule_code] = state
         if state:
             self.active_count += 1
             self.inactive_count = max(0, self.inactive_count - 1)
@@ -338,7 +340,6 @@ class AdministrationRulesDialog(QDialog):
                 #adminRuleHeaderText { color:#ffffff; font-size:12px; font-weight:900; }
                 #adminRuleScroll, #adminRuleContent { background:transparent; border:none; }
                 #adminRuleRow { background:#0d1721; border-bottom:1px solid #31475a; }
-                #adminRuleRow:hover { background:#15293a; }
                 #adminRuleCode { color:#e6f0ff; font-size:12px; font-weight:900; }
                 #adminRuleName { color:#ffffff; font-size:12px; font-weight:900; }
                 #adminRuleDescription { color:#edf2f7; font-size:12px; font-weight:700; }
@@ -370,7 +371,6 @@ class AdministrationRulesDialog(QDialog):
                 #adminRuleHeaderText { color:#203346; font-size:12px; font-weight:900; }
                 #adminRuleScroll, #adminRuleContent { background:transparent; border:none; }
                 #adminRuleRow { background:#ffffff; border-bottom:1px solid #cfd9e2; }
-                #adminRuleRow:hover { background:#eef4f8; }
                 #adminRuleCode { color:#1749b5; font-size:12px; font-weight:900; }
                 #adminRuleName { color:#142435; font-size:12px; font-weight:900; }
                 #adminRuleDescription { color:#2f4356; font-size:12px; font-weight:700; }
