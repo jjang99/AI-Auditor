@@ -1,7 +1,7 @@
 import os
 
 from PySide6.QtCore import Qt, QRectF, QSize, Signal
-from PySide6.QtGui import QColor, QIcon, QPainter, QPen
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QIcon, QPainter, QPen
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -110,7 +110,7 @@ class ProjectsPage(QWidget):
         new_project_button = QPushButton("＋  New Project")
         new_project_button.setObjectName("newProjectButton")
         new_project_button.setCursor(Qt.PointingHandCursor)
-        new_project_button.setFixedSize(122, 40)
+        new_project_button.setFixedSize(136, 44)
         header_layout.addLayout(title_area)
         header_layout.addStretch()
         header_layout.addWidget(new_project_button, 0, Qt.AlignTop)
@@ -163,7 +163,7 @@ class ProjectsPage(QWidget):
 
         for row in db_projects:
             inspected_at = row.get("inspected_at")
-            date = inspected_at[:16].replace("T", " ") if inspected_at else ""
+            date = inspected_at[:16].replace("T", " ") if inspected_at else "-"
             project = {
                 "id": row["id"],
                 "inspection_id": row.get("inspection_id"),
@@ -222,6 +222,18 @@ class ProjectsPage(QWidget):
         text_layout.setContentsMargins(0, 1, 0, 1)
         project_name = QLabel(project["name"])
         project_name.setObjectName("projectName")
+        project_name.setWordWrap(False)
+        project_name.setToolTip(project["name"])
+        name_font = QFont(project_name.font())
+        name_font.setBold(True)
+        name_font.setPointSize(12)
+        available_name_width = 195
+        metrics = QFontMetrics(name_font)
+        while name_font.pointSize() > 9 and metrics.horizontalAdvance(project["name"]) > available_name_width:
+            name_font.setPointSize(name_font.pointSize() - 1)
+            metrics = QFontMetrics(name_font)
+        project_name.setFont(name_font)
+        project_name.setMinimumWidth(available_name_width)
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
         department.setMaximumWidth(105)
