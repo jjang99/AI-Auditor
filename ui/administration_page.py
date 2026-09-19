@@ -162,8 +162,8 @@ class AdministrationPage(QWidget):
         note = QLabel("ⓘ  카테고리별 전체/활성/비활성 규칙 현황을 실시간으로 반영합니다.")
         note.setObjectName("adminNote")
         rules_layout.addWidget(note)
-        rules_layout.addStretch(1)
-        main_layout.addWidget(rules_card, 1)
+        rules_card.setFixedHeight(500)
+        main_layout.addWidget(rules_card)
         main_layout.addSpacing(14)
 
         settings_card = QFrame()
@@ -187,7 +187,8 @@ class AdministrationPage(QWidget):
         body_layout.addLayout(self.setting_row("로그 저장", save_logs, 48))
 
         settings_layout.addWidget(settings_body)
-        main_layout.addWidget(settings_card, 1)
+        settings_card.setFixedHeight(126)
+        main_layout.addWidget(settings_card)
 
         self.apply_theme(True)
 
