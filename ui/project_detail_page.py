@@ -538,7 +538,7 @@ class ProjectDetailPage(QWidget):
         sort_button.addItem("심각도", "severity")
         sort_button.addItem("상태", "status")
         sort_button.addItem("규칙", "rule")
-        sort_button.setFixedHeight(31)
+        sort_button.setFixedHeight(26)
         sort_button.setFixedWidth(88)
         self.issue_sort_button = sort_button
         sort_button.currentIndexChanged.connect(
