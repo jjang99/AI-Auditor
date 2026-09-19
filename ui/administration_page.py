@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QFrame, QHBoxLayout, QLabel,
     QPushButton, QVBoxLayout, QWidget,
 )
 
@@ -162,7 +162,8 @@ class AdministrationPage(QWidget):
         note = QLabel("ⓘ  카테고리별 전체/활성/비활성 규칙 현황을 실시간으로 반영합니다.")
         note.setObjectName("adminNote")
         rules_layout.addWidget(note)
-        main_layout.addWidget(rules_card)
+        rules_layout.addStretch(1)
+        main_layout.addWidget(rules_card, 1)
         main_layout.addSpacing(14)
 
         settings_card = QFrame()
@@ -182,45 +183,13 @@ class AdministrationPage(QWidget):
         body_layout.setContentsMargins(12, 8, 12, 0)
         body_layout.setSpacing(0)
 
-        path_controls = QWidget()
-        path_controls.setFixedWidth(400)
-        path_layout = QHBoxLayout(path_controls)
-        path_layout.setContentsMargins(0, 0, 0, 0)
-        path_layout.setSpacing(7)
-        self.result_path = QLineEdit(r"C:\AI_Auditor\Results")
-        self.result_path.setObjectName("adminPath")
-        self.result_path.setFixedHeight(34)
-        browse = QPushButton("찾아보기")
-        browse.setObjectName("adminBrowseButton")
-        browse.setFixedSize(82, 34)
-        browse.setCursor(Qt.PointingHandCursor)
-        browse.clicked.connect(self.browse_result_path)
-        path_layout.addWidget(self.result_path, 1)
-        path_layout.addWidget(browse)
-        body_layout.addLayout(self.setting_row("결과 저장 경로", path_controls, 48))
-
         save_logs = self.create_toggle(True)
         body_layout.addLayout(self.setting_row("로그 저장", save_logs, 48))
-
-        auto_save = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("검사 결과 자동 저장", auto_save, 48))
 
         settings_layout.addWidget(settings_body)
         main_layout.addWidget(settings_card, 1)
 
         self.apply_theme(True)
-
-    def browse_result_path(self):
-        current_path = self.result_path.text().strip()
-        start_path = current_path if current_path and os.path.isdir(current_path) else os.path.expanduser("~")
-        selected_path = QFileDialog.getExistingDirectory(
-            self,
-            "결과 저장 경로 선택",
-            start_path,
-            QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
-        )
-        if selected_path:
-            self.result_path.setText(os.path.normpath(selected_path))
 
     def create_toggle(self, checked):
         toggle = QPushButton("ON" if checked else "OFF")
