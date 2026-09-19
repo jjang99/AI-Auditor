@@ -315,9 +315,10 @@ PROJECTS_DARK_FINAL = r"""
 #projectsContent #pageDescription { color:#f0f4f8; font-size:13px; font-weight:700; }
 #projectsContent #projectSearchInput { color:#eef4f8; background:#0b151e; border:1px solid #5b7184; border-radius:7px; padding:0 14px; font-size:12px; }
 #projectsContent #newProjectButton { color:#ffffff; background:#0b6cff; border:2px solid #4f94ff; border-radius:9px; font-size:13px; font-weight:900; padding:0 4px; }
+#projectsContent #newProjectButton:hover { background:#2680ff; border-color:#73adff; }
 #projectsContent #projectCard { background:#101d29; border:1px solid #476174; border-radius:9px; }
 #projectsContent #projectCard:hover { background:#122333; border:1px solid #3b82f6; }
-#projectsContent #projectName { color:#ffffff; font-size:17px; font-weight:900; }
+#projectsContent #projectName { color:#ffffff; font-weight:900; }
 #projectsContent #projectDepartment { color:#f4f8fb; background:#173149; border:none; border-radius:4px; padding:0 6px; font-size:11px; font-weight:800; }
 #projectsContent #projectMeta { color:#f0f4f8; font-size:12px; font-weight:800; }
 #projectsContent #projectStatus { color:#35e38a; font-size:12px; font-weight:850; }
@@ -346,9 +347,10 @@ PROJECTS_LIGHT_FINAL = r"""
 #projectsContent #pageDescription { color:#29475f; font-size:13px; font-weight:700; }
 #projectsContent #projectSearchInput { color:#102b40; background:#ffffff; border:1px solid #8fa6b9; border-radius:7px; padding:0 14px; font-size:12px; }
 #projectsContent #newProjectButton { color:#ffffff; background:#075fd7; border:2px solid #034cae; border-radius:9px; font-size:13px; font-weight:900; padding:0 4px; }
+#projectsContent #newProjectButton:hover { background:#0b6ff0; border-color:#0755bd; }
 #projectsContent #projectCard { background:#ffffff; border:1px solid #7893a9; border-radius:9px; }
 #projectsContent #projectCard:hover { background:#f8fbfd; border:1px solid #2563eb; }
-#projectsContent #projectName { color:#081c2c; font-size:17px; font-weight:900; }
+#projectsContent #projectName { color:#081c2c; font-weight:900; }
 #projectsContent #projectDepartment { color:#153b58; background:#dceaf6; border:none; border-radius:4px; padding:0 6px; font-size:11px; font-weight:800; }
 #projectsContent #projectMeta { color:#15364f; font-size:12px; font-weight:850; }
 #projectsContent #projectStatus { color:#067b45; font-size:12px; font-weight:850; }
