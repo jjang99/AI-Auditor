@@ -176,7 +176,6 @@ class MainWindow(QMainWindow):
         self.inspection_page.set_all_rule_categories(True)
         self.inspection_page._refresh_file_view()
         self.page_stack.setCurrentWidget(self.inspection_page)
-        self.inspection_page.start_real_inspection()
 
     def open_new_inspection_for_current_project(self):
         project_id = self.project_detail_page.current_project_id
