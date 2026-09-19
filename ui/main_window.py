@@ -252,9 +252,9 @@ class MainWindow(QMainWindow):
         # immediately after the sidebar state so they cannot be skipped if a
         # later page-specific theme hook fails.
         self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
+        self._apply_shared_combo_style()
 
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
-        self._apply_shared_combo_style()
