@@ -1,5 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -15,6 +16,7 @@ from ui.reinspect_dialog import ReInspectDialog
 
 class ProjectDetailPage(QWidget):
     new_inspection_requested = Signal()
+    reinspect_requested = Signal(list, int, int)
 
     def __init__(self):
         super().__init__()
@@ -698,4 +700,9 @@ class ProjectDetailPage(QWidget):
             except Exception:
                 rule_count = None
         dialog = ReInspectDialog(self, rule_count=rule_count)
-        dialog.exec()
+        if dialog.exec() == QDialog.Accepted and dialog.selected_files:
+            self.reinspect_requested.emit(
+                list(dialog.selected_files),
+                int(self.current_project_id),
+                int(rule_count or 0),
+            )
