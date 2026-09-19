@@ -2,7 +2,7 @@ import os
 
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QMainWindow, QPushButton, QScrollArea, QStackedWidget, QVBoxLayout, QWidget
 
 from ui.home_page import HomePage
 from ui.projects_page import ProjectsPage
@@ -233,6 +233,23 @@ class MainWindow(QMainWindow):
         for combo in self.administration_page.findChildren(QComboBox, "adminThemeCombo"):
             combo.setStyleSheet(combo_style)
 
+    def _apply_shared_scrollbar_style(self):
+        handle = "#526170" if self.is_dark_mode else "#c3cdd6"
+        style = f"""
+            QScrollBar:vertical {{ width:2px; margin:0; padding:0; border:none; background:transparent; }}
+            QScrollBar::handle:vertical {{ min-height:32px; border:none; border-radius:1px; background:{handle}; }}
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ width:0; height:0; border:none; background:transparent; }}
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ border:none; background:transparent; }}
+        """
+        detail_scroll = self.project_detail_page.findChild(QScrollArea, "detailIssueScroll")
+        if detail_scroll is not None:
+            detail_scroll.setViewportMargins(0, 0, 0, 0)
+            detail_scroll.verticalScrollBar().setFixedWidth(2)
+            detail_scroll.verticalScrollBar().setStyleSheet(style)
+        self.reports_page.report_table.setViewportMargins(0, 0, 0, 0)
+        self.reports_page.report_table.verticalScrollBar().setFixedWidth(2)
+        self.reports_page.report_table.verticalScrollBar().setStyleSheet(style)
+
     def apply_theme(self):
         if self.is_dark_mode:
             self.setStyleSheet(DARK_THEME + DARK_UI_OVERRIDES + DETAIL_DARK_REFINEMENTS + DARK_INSPECTION_REFINEMENTS + DARK_INSPECTION_READABILITY_V2 + DARK_INSPECTION_FINAL + DARK_INSPECTION_PROGRESS + DARK_SHARED_VISUAL_FINAL + PROJECTS_DARK_FINAL)
@@ -253,6 +270,7 @@ class MainWindow(QMainWindow):
         # later page-specific theme hook fails.
         self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self._apply_shared_combo_style()
+        self._apply_shared_scrollbar_style()
 
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
