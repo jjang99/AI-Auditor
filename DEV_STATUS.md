@@ -160,9 +160,9 @@
 6. 이상 없으면 제출용 빌드 및 최종 정리
 
 ## 2026-09-19 최종 회귀 미해결 기능 목록
-- [ ] Projects > + New Project 클릭 무반응
+- [x] Projects > + New Project 클릭 무반응 — 수정 및 사용자 확인 PASS
 - [ ] Project Detail > Re-Inspect 모달 내부 기능 무반응
-- [ ] Project Detail > New Inspection 클릭 무반응
+- [x] Project Detail > New Inspection 클릭 무반응 — 기존 프로젝트 정보 유지 방식까지 수정 및 사용자 확인 PASS
 - [ ] Project Detail > Export Report 클릭 무반응
 - [ ] Reports > 보고서 내보내기 클릭 무반응
 - [ ] Inspection > Light Mode > 프로젝트명 미입력 후 검사 시작 시 경고 Modal 내용 미표시
