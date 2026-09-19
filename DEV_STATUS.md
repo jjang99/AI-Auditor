@@ -168,5 +168,6 @@
 - [x] Project Detail > Issues 정렬 버튼 무반응 — 한글화, 심각도/상태/규칙 정렬, 테마 연동, 프로젝트 전환 시 초기화, 스크롤 기반 목록으로 사용자 확인 PASS
 - [x] Reports > 보고서 내보내기 클릭 무반응 — 선택 Inspection 기준 TXT 검사보고서 저장 사용자 확인 PASS
 - [ ] Inspection > Light Mode > 프로젝트명 미입력 후 검사 시작 시 경고 Modal 내용 미표시
+- [x] Administration > 검사 기준 관리 회귀 — ON/OFF 수량 반영, 재진입 상태 유지, 카테고리 아이콘 복구, 중복 Rule Detail 제거, 행 Hover 제거 사용자 확인 PASS
 - [ ] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응
 - 처리 원칙: 각 항목을 개별 수정 → 사용자 확인 PASS → 체크 완료 후 다음 항목 진행
