@@ -166,7 +166,7 @@
 - [x] Project Detail > New Inspection 클릭 무반응 — 기존 프로젝트 정보 유지 방식까지 수정 및 사용자 확인 PASS
 - [x] Project Detail > Export Report 클릭 무반응 — TXT 검사보고서 저장 사용자 확인 PASS
 - [x] Project Detail > Issues 정렬 버튼 무반응 — 한글화, 심각도/상태/규칙 정렬, 테마 연동, 프로젝트 전환 시 초기화, 스크롤 기반 목록으로 사용자 확인 PASS
-- [ ] Reports > 보고서 내보내기 클릭 무반응
+- [x] Reports > 보고서 내보내기 클릭 무반응 — 선택 Inspection 기준 TXT 검사보고서 저장 사용자 확인 PASS
 - [ ] Inspection > Light Mode > 프로젝트명 미입력 후 검사 시작 시 경고 Modal 내용 미표시
 - [ ] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응
 - 처리 원칙: 각 항목을 개별 수정 → 사용자 확인 PASS → 체크 완료 후 다음 항목 진행
