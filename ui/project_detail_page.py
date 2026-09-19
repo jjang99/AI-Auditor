@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QProgressBar,
     QPushButton,
+    QMenu,
     QScrollArea,
     QVBoxLayout,
     QWidget,
@@ -531,10 +532,16 @@ class ProjectDetailPage(QWidget):
         title = QLabel("Issues (14)")
         title.setObjectName("detailBodyTitle")
 
-        sort_button = QPushButton("Sort : Severity⌄")
+        sort_button = QPushButton("정렬 : 심각도⌄")
         sort_button.setObjectName("detailSortButton")
         sort_button.setFixedHeight(28)
         sort_button.setCursor(Qt.PointingHandCursor)
+        self.issue_sort_button = sort_button
+        sort_menu = QMenu(sort_button)
+        for label, key in (("심각도", "severity"), ("상태", "status"), ("규칙", "rule")):
+            action = sort_menu.addAction(label)
+            action.triggered.connect(lambda _checked=False, sort_key=key, text=label: self.set_issue_sort(sort_key, text))
+        sort_button.setMenu(sort_menu)
 
         header_layout.addWidget(title)
         header_layout.addStretch()
@@ -592,6 +599,14 @@ class ProjectDetailPage(QWidget):
         scroll.setWidget(container)
         layout.addWidget(scroll, 1)
         return card
+
+    def set_issue_sort(self, sort_key, label):
+        self.issue_sort_key = sort_key
+        if hasattr(self, "issue_sort_button"):
+            self.issue_sort_button.setText(f"정렬 : {label}⌄")
+        issues = getattr(self, "_current_issues", None)
+        if issues is not None and hasattr(self, "_runtime_update_issues"):
+            self._runtime_update_issues(issues)
 
     def create_issue_row(self, severity, code, description, status):
         row = QFrame()
