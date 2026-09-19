@@ -53,7 +53,13 @@ class CircularScore(QWidget):
             span_angle = int(360 * 16 * (self.score / 100))
             painter.drawArc(rect, start_angle, span_angle)
         if self.score is not None:
-            painter.setPen(QColor("#0f172a") if is_light else QColor("#ffffff"))
+            # Paint a theme-specific center field so score text has guaranteed contrast.
+            center_fill = QColor("#ffffff") if is_light else QColor("#101d29")
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(center_fill)
+            painter.drawEllipse(QRectF(18, 18, 46, 46))
+            painter.setBrush(Qt.NoBrush)
+            painter.setPen(QColor("#0b1f31") if is_light else QColor("#ffffff"))
             score_text = str(self.score)
         else:
             painter.setPen(QColor("#64748b") if is_light else QColor("#94a3b8"))
