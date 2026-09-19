@@ -29,8 +29,10 @@ class CircularScore(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = QRectF(6, 6, 70, 70)
-        # Light mode uses a softer neutral ring so an empty score does not dominate the card.
-        is_light = self.light_mode
+        # Read the authoritative app theme directly from MainWindow.
+        # Avoid duplicated widget theme state getting stale after a theme toggle.
+        main_window = self.window()
+        is_light = not getattr(main_window, "is_dark_mode", True)
         ring_color = QColor("#e2e8f0") if is_light else QColor("#334155")
         ring_width = 5
         background_pen = QPen(ring_color, ring_width)
