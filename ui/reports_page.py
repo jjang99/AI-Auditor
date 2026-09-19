@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QHBoxLayout, QHeaderView,
@@ -8,9 +8,11 @@ from PySide6.QtWidgets import (
 )
 
 from ui.sidebar import Sidebar
+from app.database.repositories.inspection_repository import get_report_rows
 
 
 class ReportsPage(QWidget):
+    report_selected = Signal(dict)
     def __init__(self):
         super().__init__()
         page_layout = QHBoxLayout(self)
@@ -43,11 +45,12 @@ class ReportsPage(QWidget):
         summary_layout = QHBoxLayout()
         summary_layout.setSpacing(10)
         summary_data = [
-            ("inspection.svg", "전체 검사", "12", "건", "reportMetricBlue"),
-            ("detail_score.svg", "평균 점수", "84", "점", "reportMetricGreen"),
-            ("detail_issues.svg", "발견 이슈", "96", "건", "reportMetricOrange"),
-            ("detail_resolved.svg", "조치 완료", "71", "건", "reportMetricPurple"),
+            ("inspection.svg", "전체 검사", "0", "건", "reportMetricBlue"),
+            ("detail_score.svg", "평균 점수", "0", "점", "reportMetricGreen"),
+            ("detail_issues.svg", "발견 이슈", "0", "건", "reportMetricOrange"),
+            ("detail_resolved.svg", "조치 완료", "0", "건", "reportMetricPurple"),
         ]
+        self.summary_values = []
         for icon_file, label_text, value_text, suffix, value_object in summary_data:
             card = QFrame()
             card.setObjectName("reportSummaryCard")
@@ -74,6 +77,7 @@ class ReportsPage(QWidget):
             value_row.setSpacing(6)
             value = QLabel(value_text)
             value.setObjectName(value_object)
+            self.summary_values.append(value)
             unit = QLabel(suffix)
             unit.setObjectName("reportMetricUnit")
             value_row.addStretch()
@@ -99,9 +103,7 @@ class ReportsPage(QWidget):
 
         self.project_combo = QComboBox()
         self.project_combo.setObjectName("reportCombo")
-        self.project_combo.addItems([
-            "전체 프로젝트", "국방 건축행정시스템 재구축", "차세대 업무시스템", "통합관리시스템"
-        ])
+        self.project_combo.addItem("전체 프로젝트")
         self.project_combo.setFixedWidth(196)
 
         self.period_combo = QComboBox()
@@ -118,6 +120,7 @@ class ReportsPage(QWidget):
         search_button.setObjectName("reportSearchButton")
         search_button.setCursor(Qt.PointingHandCursor)
         search_button.setFixedSize(72, 40)
+        search_button.clicked.connect(self.apply_filters)
 
         filter_layout.addWidget(filter_title)
         filter_layout.addSpacing(2)
@@ -148,20 +151,9 @@ class ReportsPage(QWidget):
         self.report_table.setObjectName("reportTable")
         self.report_table.setColumnCount(6)
         self.report_table.setHorizontalHeaderLabels(["프로젝트", "검사일시", "Score", "Grade", "Issues", "상태"])
-        self.sample_reports = [
-            ("국방 건축행정시스템 재구축", "2026.07.25 14:32", "82", "B", "14", "검사 완료"),
-            ("차세대 업무시스템", "2026.07.18 10:15", "91", "A", "6", "검사 완료"),
-            ("데이터 분석 플랫폼", "2026.07.10 16:05", "73", "C", "21", "검사 완료"),
-            ("모바일 서비스 플랫폼", "2026.06.28 09:40", "88", "B", "9", "검사 완료"),
-            ("통합관리시스템", "-", "-", "-", "-", "검사 실패"),
-            ("AI Auditor Backend", "2026.09.13 19:35", "-", "-", "0", "검사 완료"),
-        ]
-        self.report_table.setRowCount(len(self.sample_reports))
-        for row, report in enumerate(self.sample_reports):
-            for column, value in enumerate(report):
-                item = QTableWidgetItem(value)
-                item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter if column == 0 else Qt.AlignCenter)
-                self.report_table.setItem(row, column, item)
+        self.report_rows = []
+        self.sample_reports = []
+        self.report_table.setRowCount(0)
 
         self.report_table.verticalHeader().setVisible(False)
         self.report_table.verticalHeader().setDefaultSectionSize(56)
@@ -190,7 +182,6 @@ class ReportsPage(QWidget):
         self.report_table.setColumnWidth(4, 64)
         self.report_table.setColumnWidth(5, 78)
 
-        self.report_table.selectRow(0)
         self.report_table.itemSelectionChanged.connect(self.update_selected_report)
         report_layout.addWidget(self.report_table)
         main_layout.addWidget(report_card)
@@ -206,9 +197,9 @@ class ReportsPage(QWidget):
         selected_area.setSpacing(7)
         selected_caption = QLabel("선택한 검사 결과")
         selected_caption.setObjectName("reportSelectedCaption")
-        self.selected_project = QLabel(self.sample_reports[0][0])
+        self.selected_project = QLabel("-")
         self.selected_project.setObjectName("reportSelectedProject")
-        self.selected_meta = QLabel("2026.07.25 14:32   ·   Score 82   ·   Grade B   ·   Issues 14")
+        self.selected_meta = QLabel("검사 결과를 선택해 주세요.")
         self.selected_meta.setObjectName("reportSelectedMeta")
         selected_area.addWidget(selected_caption)
         selected_area.addWidget(self.selected_project)
@@ -218,6 +209,7 @@ class ReportsPage(QWidget):
         detail_button.setObjectName("reportSecondaryButton")
         detail_button.setCursor(Qt.PointingHandCursor)
         detail_button.setFixedSize(100, 42)
+        detail_button.clicked.connect(self.open_selected_report)
 
         export_button = QPushButton("보고서 내보내기")
         export_button.setObjectName("reportPrimaryButton")
@@ -233,6 +225,7 @@ class ReportsPage(QWidget):
         main_layout.addStretch(1)
 
         self.apply_theme(True)
+        self.refresh_reports()
 
     def _set_report_hover_row(self, row, _column):
         if row == self._report_hover_row:
@@ -240,11 +233,117 @@ class ReportsPage(QWidget):
         self._report_hover_row = row
         self.report_table.selectRow(row)
 
+    @staticmethod
+    def _display_grade(score):
+        if score is None:
+            return "-"
+        if score >= 90:
+            return "A"
+        if score >= 80:
+            return "B"
+        if score >= 70:
+            return "C"
+        if score >= 60:
+            return "D"
+        return "E"
+
+    @staticmethod
+    def _display_status(status):
+        if status in {"검사 실패", "failed", "FAILED"}:
+            return "검사 실패"
+        return "검사 완료"
+
+    def refresh_reports(self):
+        self.report_rows = get_report_rows()
+
+        current_project = self.project_combo.currentText() if self.project_combo.count() else "전체 프로젝트"
+        names = []
+        for row in self.report_rows:
+            name = row["project_name"]
+            if name not in names:
+                names.append(name)
+        self.project_combo.blockSignals(True)
+        self.project_combo.clear()
+        self.project_combo.addItem("전체 프로젝트")
+        self.project_combo.addItems(names)
+        index = self.project_combo.findText(current_project)
+        self.project_combo.setCurrentIndex(index if index >= 0 else 0)
+        self.project_combo.blockSignals(False)
+
+        count = len(self.report_rows)
+        scores = [row["score"] for row in self.report_rows if row["score"] is not None]
+        avg_score = round(sum(scores) / len(scores)) if scores else 0
+        total_issues = sum(row.get("total_issues") or 0 for row in self.report_rows)
+        total_resolved = sum(row.get("resolved_issues") or 0 for row in self.report_rows)
+        values = [count, avg_score, total_issues, total_resolved]
+        for label, value in zip(self.summary_values, values):
+            label.setText(str(value))
+
+        self.apply_filters()
+
+    def apply_filters(self):
+        from datetime import datetime, timedelta
+
+        project_filter = self.project_combo.currentText()
+        status_filter = self.status_combo.currentText()
+        period_filter = self.period_combo.currentText()
+        cutoff = None
+        days = {"최근 1개월": 30, "최근 3개월": 90, "최근 6개월": 180}.get(period_filter)
+        if days:
+            cutoff = datetime.now() - timedelta(days=days)
+
+        filtered = []
+        for row in self.report_rows:
+            if project_filter != "전체 프로젝트" and row["project_name"] != project_filter:
+                continue
+            display_status = self._display_status(row.get("status"))
+            if status_filter != "전체 상태" and display_status != status_filter:
+                continue
+            if cutoff is not None:
+                try:
+                    inspected = datetime.fromisoformat(row["inspected_at"])
+                    if inspected < cutoff:
+                        continue
+                except (TypeError, ValueError):
+                    continue
+            filtered.append(row)
+
+        self.sample_reports = []
+        self.report_table.setRowCount(len(filtered))
+        for table_row, row in enumerate(filtered):
+            date = (row.get("inspected_at") or "-")[:16].replace("T", " ").replace("-", ".")
+            score = row.get("score")
+            grade = self._display_grade(score)
+            report = (
+                row["project_name"],
+                date,
+                "-" if score is None else str(score),
+                grade,
+                str(row.get("total_issues") or 0),
+                self._display_status(row.get("status")),
+                row["project_id"],
+                row["inspection_id"],
+            )
+            self.sample_reports.append(report)
+            for column, value in enumerate(report[:6]):
+                item = QTableWidgetItem(value)
+                item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter if column == 0 else Qt.AlignCenter)
+                self.report_table.setItem(table_row, column, item)
+
+        if self.sample_reports:
+            self.report_table.selectRow(0)
+        else:
+            self.selected_project.setText("-")
+            self.selected_meta.setText("조회된 검사 결과가 없습니다.")
+        self._apply_item_colors(getattr(self, "_is_dark_theme", True))
+
     def update_selected_report(self):
         selected = self.report_table.selectionModel().selectedRows()
         if not selected:
             return
         row = selected[0].row()
+        if row >= len(self.sample_reports):
+            return
         report = self.sample_reports[row]
         self.selected_project.setText(report[0])
         if report[2] == "-":
@@ -253,6 +352,16 @@ class ReportsPage(QWidget):
             self.selected_meta.setText(
                 f"{report[1]}   ·   Score {report[2]}   ·   Grade {report[3]}   ·   Issues {report[4]}"
             )
+
+    def open_selected_report(self):
+        selected = self.report_table.selectionModel().selectedRows()
+        if not selected:
+            return
+        row = selected[0].row()
+        if row >= len(self.sample_reports):
+            return
+        report = self.sample_reports[row]
+        self.report_selected.emit({"id": report[6], "inspection_id": report[7]})
 
     def _apply_item_colors(self, is_dark):
         score_colors = {"A": "#22c55e", "B": "#55a7ff", "C": "#f5b942", "D": "#f97316", "E": "#ef4444"}
