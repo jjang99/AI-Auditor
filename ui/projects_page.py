@@ -29,7 +29,8 @@ class CircularScore(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
         rect = QRectF(6, 6, 70, 70)
         # Light mode uses a softer neutral ring so an empty score does not dominate the card.
-        is_light = self.palette().color(self.backgroundRole()).lightness() > 128
+        window_bg = self.palette().color(self.palette().Window)
+        is_light = window_bg.lightness() > 128
         ring_color = QColor("#e2e8f0") if is_light else QColor("#334155")
         ring_width = 5
         background_pen = QPen(ring_color, ring_width)
@@ -226,22 +227,17 @@ class ProjectsPage(QWidget):
         project_name.setToolTip(project["name"])
         # Use one visual size for normal names. Shrink only when the rendered
         # width would exceed the available first-column width.
-        available_name_width = 205
+        available_name_width = 215
         name_font = QFont("Malgun Gothic")
         name_font.setBold(True)
         name_font.setPixelSize(17)
         while (
-            name_font.pixelSize() > 12
+            name_font.pixelSize() > 9
             and QFontMetrics(name_font).horizontalAdvance(project["name"]) > available_name_width
         ):
             name_font.setPixelSize(name_font.pixelSize() - 1)
         project_name.setFont(name_font)
         project_name.setFixedWidth(available_name_width)
-        project_name.setText(
-            QFontMetrics(name_font).elidedText(
-                project["name"], Qt.ElideRight, available_name_width
-            )
-        )
 
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
