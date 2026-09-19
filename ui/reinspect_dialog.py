@@ -213,7 +213,8 @@ class ReInspectDialog(QDialog):
         self.file_summary_value = self.create_summary_item("등록 파일", "0개")
         summary_layout.addLayout(self.file_summary_value, 1)
         summary_layout.addLayout(self.create_summary_item("적용 규칙", f"{self.rule_count if self.rule_count is not None else '-'}개"), 1)
-        summary_layout.addLayout(self.create_summary_item("예상 검사 시간", "약 2분 20초"), 1)
+        self.time_summary_value = self.create_summary_item("예상 검사 시간", "-")
+        summary_layout.addLayout(self.time_summary_value, 1)
 
         main_layout.addLayout(summary_layout)
         panel_layout.addWidget(content, 1)
@@ -427,6 +428,24 @@ class ReInspectDialog(QDialog):
             value_label = self.file_summary_value.itemAt(1).widget()
             if value_label is not None:
                 value_label.setText(f"{len(self.selected_files)}개")
+
+        if hasattr(self, "time_summary_value"):
+            value_label = self.time_summary_value.itemAt(1).widget()
+            if value_label is not None:
+                if not self.selected_files:
+                    value_label.setText("-")
+                else:
+                    total_bytes = sum(
+                        Path(file_path).stat().st_size
+                        for file_path in self.selected_files
+                        if Path(file_path).is_file()
+                    )
+                    rule_count = self.rule_count or 0
+                    estimated_seconds = max(
+                        1,
+                        round(1.0 + len(self.selected_files) * 0.35 + rule_count * 0.04 + total_bytes / (1024 * 1024) * 0.15),
+                    )
+                    value_label.setText(f"약 {estimated_seconds}초")
 
     def select_files(self):
         files, _ = QFileDialog.getOpenFileNames(
