@@ -158,3 +158,13 @@
 4. EXE에서 SQLite/data 경로, 아이콘/리소스, 핵심 E2E 재확인
 5. 인터넷 차단/폐쇄망 조건의 독립 실행 검증
 6. 이상 없으면 제출용 빌드 및 최종 정리
+
+## 2026-09-19 최종 회귀 미해결 기능 목록
+- [ ] Projects > + New Project 클릭 무반응
+- [ ] Project Detail > Re-Inspect 모달 내부 기능 무반응
+- [ ] Project Detail > New Inspection 클릭 무반응
+- [ ] Project Detail > Export Report 클릭 무반응
+- [ ] Reports > 보고서 내보내기 클릭 무반응
+- [ ] Inspection > Light Mode > 프로젝트명 미입력 후 검사 시작 시 경고 Modal 내용 미표시
+- [ ] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응
+- 처리 원칙: 각 항목을 개별 수정 → 사용자 확인 PASS → 체크 완료 후 다음 항목 진행
