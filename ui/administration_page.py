@@ -45,6 +45,7 @@ class AdministrationPage(QWidget):
         summary_layout = QHBoxLayout(summary_frame)
         summary_layout.setContentsMargins(22, 10, 22, 10)
         summary_layout.setSpacing(0)
+        self.summary_value_labels = {}
         for value, label, object_name in [
             ("100", "전체 규칙", "adminSummaryValue"),
             ("92", "활성 규칙", "adminSummaryActive"),
@@ -57,6 +58,7 @@ class AdministrationPage(QWidget):
             value_label = QLabel(value)
             value_label.setObjectName(object_name)
             value_label.setAlignment(Qt.AlignCenter)
+            self.summary_value_labels[object_name] = value_label
             text_label = QLabel(label)
             text_label.setObjectName("adminSummaryText")
             text_label.setAlignment(Qt.AlignCenter)
@@ -105,6 +107,7 @@ class AdministrationPage(QWidget):
             ("코드 품질", 16, 14, 2, "detail_resolved.svg"),
             ("AI 특화 검증", 10, 8, 2, "administration.svg"),
         ]
+        self.category_counts = {}
         for name, total, active, inactive, icon_file in categories:
             row = QFrame()
             row.setObjectName("adminCategoryRow")
@@ -132,12 +135,15 @@ class AdministrationPage(QWidget):
             category_layout.addWidget(name_label, 1)
             row_layout.addWidget(category)
 
+            row_counts = {}
             for value, object_name in [(total, "adminCount"), (active, "adminActiveCount"), (inactive, "adminInactiveCount")]:
                 count = QLabel(str(value))
                 count.setObjectName(object_name)
                 count.setFixedWidth(78)
                 count.setAlignment(Qt.AlignCenter)
                 row_layout.addWidget(count)
+                row_counts[object_name] = count
+            self.category_counts[name] = row_counts
 
             view = QPushButton("보기")
             view.setObjectName("adminViewButton")
@@ -291,3 +297,11 @@ class AdministrationPage(QWidget):
     def open_rules(self, name, total, active, inactive, icon_file):
         dialog = AdministrationRulesDialog(name, total, active, inactive, self, icon_file)
         dialog.exec()
+        counts = self.category_counts.get(name, {})
+        if counts:
+            counts["adminActiveCount"].setText(str(dialog.active_count))
+            counts["adminInactiveCount"].setText(str(dialog.inactive_count))
+        total_active = sum(int(values["adminActiveCount"].text()) for values in self.category_counts.values())
+        total_inactive = sum(int(values["adminInactiveCount"].text()) for values in self.category_counts.values())
+        self.summary_value_labels["adminSummaryActive"].setText(str(total_active))
+        self.summary_value_labels["adminSummaryInactive"].setText(str(total_inactive))
