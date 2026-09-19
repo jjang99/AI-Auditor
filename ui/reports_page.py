@@ -1,10 +1,11 @@
+from pathlib import Path
 import os
 
 from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QColor, QIcon, QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QHBoxLayout, QHeaderView,
-    QLabel, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QFileDialog, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ui.sidebar import Sidebar
@@ -226,6 +227,7 @@ class ReportsPage(QWidget):
         export_button.setObjectName("reportPrimaryButton")
         export_button.setCursor(Qt.PointingHandCursor)
         export_button.setFixedSize(126, 42)
+        export_button.clicked.connect(self.export_selected_report)
 
         action_layout.addLayout(selected_area)
         action_layout.addStretch()
@@ -370,6 +372,66 @@ class ReportsPage(QWidget):
             return
         report = self.sample_reports[row]
         self.report_selected.emit({"id": report[6], "inspection_id": report[7]})
+
+    def export_selected_report(self):
+        selected = self.report_table.selectionModel().selectedRows()
+        if not selected:
+            return
+        row_index = selected[0].row()
+        if row_index >= len(self.sample_reports):
+            return
+
+        report = self.sample_reports[row_index]
+        project_id, inspection_id = report[6], report[7]
+
+        from app.database.repositories.project_repository import get_project_by_id
+        from app.database.repositories.inspection_repository import get_inspection_history, get_issues_for_inspection
+
+        project = get_project_by_id(project_id)
+        history = get_inspection_history(project_id, 100)
+        inspection = next((item for item in history if item["id"] == inspection_id), None)
+        if project is None or inspection is None:
+            return
+
+        issues = get_issues_for_inspection(inspection_id)
+        safe_name = "".join(ch if ch not in '\\/:*?"<>|' else "_" for ch in project["name"])
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "검사 보고서 내보내기",
+            f"{safe_name}_검사보고서.txt",
+            "텍스트 파일 (*.txt)",
+        )
+        if not file_path:
+            return
+
+        lines = [
+            "AI Auditor 검사 보고서",
+            "=" * 48,
+            f"프로젝트명: {project['name']}",
+            f"부서명(기관명): {project.get('department') or '-'}",
+            f"프로젝트 구분: {project.get('project_type') or '-'}",
+            f"검사일시: {inspection.get('inspected_at') or '-'}",
+            f"검사유형: {inspection.get('inspection_type') or '-'}",
+            f"Score / Grade: {inspection.get('score') if inspection.get('score') is not None else '-'} / {inspection.get('grade') or '-'}",
+            f"적용 규칙: {inspection.get('rule_count') or 0}개",
+            f"전체 이슈: {inspection.get('total_issues') or 0}개",
+            "",
+            "[Issues]",
+        ]
+        if not issues:
+            lines.append("이슈 없음")
+        else:
+            for index, issue in enumerate(issues, 1):
+                lines.extend([
+                    f"{index}. [{issue.get('severity') or '-'}] {issue.get('rule_code') or '-'} - {issue.get('title') or '-'}",
+                    f"   상태: {issue.get('status') or '-'}",
+                    f"   설명: {issue.get('description') or '-'}",
+                    f"   근거: {issue.get('evidence') or '-'}",
+                    f"   영향: {issue.get('impact') or '-'}",
+                    f"   권고: {issue.get('ai_recommendation') or '-'}",
+                    "",
+                ])
+        Path(file_path).write_text("\n".join(lines), encoding="utf-8-sig")
 
     def _apply_item_colors(self, is_dark):
         grade_colors = {
