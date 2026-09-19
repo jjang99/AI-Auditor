@@ -162,11 +162,9 @@ class ReportsPage(QWidget):
         self.report_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.report_table.setShowGrid(False)
         self.report_table.setAlternatingRowColors(False)
-        self.report_table.setMouseTracking(True)
-        self.report_table.viewport().setMouseTracking(True)
+        self.report_table.setMouseTracking(False)
+        self.report_table.viewport().setMouseTracking(False)
         self.report_table.setCursor(Qt.PointingHandCursor)
-        self._report_hover_row = -1
-        self.report_table.cellEntered.connect(self._set_report_hover_row)
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -226,12 +224,6 @@ class ReportsPage(QWidget):
 
         self.apply_theme(True)
         self.refresh_reports()
-
-    def _set_report_hover_row(self, row, _column):
-        if row == self._report_hover_row:
-            return
-        self._report_hover_row = row
-        self.report_table.selectRow(row)
 
     @staticmethod
     def _display_grade(score):
@@ -364,19 +356,25 @@ class ReportsPage(QWidget):
         self.report_selected.emit({"id": report[6], "inspection_id": report[7]})
 
     def _apply_item_colors(self, is_dark):
-        score_colors = {"A": "#22c55e", "B": "#55a7ff", "C": "#f5b942", "D": "#f97316", "E": "#ef4444"}
+        grade_colors = {
+            "A": "#22c55e" if is_dark else "#16a34a",
+            "B": "#22c55e" if is_dark else "#16a34a",
+            "C": "#fbbf24" if is_dark else "#ca8a04",
+            "D": "#f97316" if is_dark else "#ea580c",
+            "E": "#ef4444" if is_dark else "#dc2626",
+        }
         normal = QColor("#f6f9fc" if is_dark else "#203648")
         muted = QColor("#9aabba" if is_dark else "#708394")
+        issue_color = QColor("#d6a84b" if is_dark else "#9a6700")
         for row, report in enumerate(self.sample_reports):
             for column in range(6):
                 item = self.report_table.item(row, column)
                 if item:
                     item.setForeground(normal if report[5] != "검사 실패" else muted)
             if report[2] != "-":
-                self.report_table.item(row, 2).setForeground(QColor("#72b9ff" if is_dark else "#176bc6"))
-                self.report_table.item(row, 3).setForeground(QColor(score_colors.get(report[3], "#ffffff")))
-                issues = int(report[4])
-                self.report_table.item(row, 4).setForeground(QColor("#ff9b45" if issues >= 10 else "#2bd46f"))
+                self.report_table.item(row, 2).setForeground(QColor("#ffffff" if is_dark else "#0f172a"))
+                self.report_table.item(row, 3).setForeground(QColor(grade_colors.get(report[3], "#ffffff" if is_dark else "#0f172a")))
+                self.report_table.item(row, 4).setForeground(issue_color)
                 self.report_table.item(row, 5).setForeground(QColor("#2bd46f" if is_dark else "#15934a"))
             else:
                 self.report_table.item(row, 5).setForeground(QColor("#ff6464" if is_dark else "#c93636"))
@@ -391,12 +389,12 @@ class ReportsPage(QWidget):
                 #reportMetricIcon { background:transparent; border:none; }
                 #reportMetricLabel { color:#f3f7fb; font-size:13px; font-weight:900; }
                 #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple {
-                    color:#55a7ff; font-size:30px; font-weight:900;
+                    color:#60a5fa; font-size:30px; font-weight:900;
                 }
-                #reportMetricGreen { color:#2bd46f; }
-                #reportMetricOrange { color:#ff9b45; }
-                #reportMetricPurple { color:#b985ff; }
-                #reportMetricUnit { color:#edf3f8; font-size:13px; font-weight:900; padding-bottom:5px; }
+                #reportMetricGreen { color:#34d399; }
+                #reportMetricOrange { color:#d6a84b; }
+                #reportMetricPurple { color:#2dd4bf; }
+                #reportMetricUnit { color:#edf3f8; font-size:15px; font-weight:900; padding-bottom:4px; }
                 #reportFilterTitle { color:#ffffff; font-size:14px; font-weight:900; }
                 QComboBox#reportCombo {
                     background:#0d1822; color:#f8fbfd; border:1px solid #557187;
@@ -444,12 +442,12 @@ class ReportsPage(QWidget):
                 #reportMetricIcon { background:transparent; border:none; }
                 #reportMetricLabel { color:#294256; font-size:13px; font-weight:900; }
                 #reportMetricBlue, #reportMetricGreen, #reportMetricOrange, #reportMetricPurple {
-                    color:#176bc6; font-size:30px; font-weight:900;
+                    color:#2563eb; font-size:30px; font-weight:900;
                 }
-                #reportMetricGreen { color:#15934a; }
-                #reportMetricOrange { color:#d96a18; }
-                #reportMetricPurple { color:#7b4ec2; }
-                #reportMetricUnit { color:#40596c; font-size:13px; font-weight:900; padding-bottom:5px; }
+                #reportMetricGreen { color:#059669; }
+                #reportMetricOrange { color:#9a6700; }
+                #reportMetricPurple { color:#0f766e; }
+                #reportMetricUnit { color:#40596c; font-size:15px; font-weight:900; padding-bottom:4px; }
                 #reportFilterTitle { color:#172d3f; font-size:14px; font-weight:900; }
                 QComboBox#reportCombo {
                     background:#ffffff; color:#203648; border:1px solid #97adbd;
