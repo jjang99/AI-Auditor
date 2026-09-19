@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import QEvent, Qt
+from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
 
@@ -38,6 +38,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.is_dark_mode = True
+        self._theme_toggle_locked = False
         self.setWindowTitle("AI Auditor")
         window_icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons", "logo.svg")
         self.setWindowIcon(QIcon(window_icon_path))
@@ -167,8 +168,19 @@ class MainWindow(QMainWindow):
         self.page_stack.setCurrentWidget(self.project_detail_page)
 
     def toggle_theme(self):
-        self.is_dark_mode = not self.is_dark_mode
-        self.apply_theme()
+        # One user click must produce exactly one theme transition.
+        # Ignore duplicate signal delivery within the same Qt event cycle.
+        if self._theme_toggle_locked:
+            return
+        self._theme_toggle_locked = True
+        try:
+            self.is_dark_mode = not self.is_dark_mode
+            self.apply_theme()
+        finally:
+            QTimer.singleShot(0, self._unlock_theme_toggle)
+
+    def _unlock_theme_toggle(self):
+        self._theme_toggle_locked = False
 
     def _apply_shared_combo_style(self):
         if self.is_dark_mode:
