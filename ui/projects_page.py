@@ -88,6 +88,9 @@ class ProjectsPage(QWidget):
         super().__init__()
         self.project_cards = []
         self.score_widgets = []
+        self.all_projects = []
+        self.current_page = 1
+        self.page_size = 5
         base_path = os.path.dirname(os.path.dirname(__file__))
         self.icon_path = os.path.join(base_path, "assets", "icons")
         page_layout = QHBoxLayout(self)
@@ -141,13 +144,18 @@ class ProjectsPage(QWidget):
         self.total_label = QLabel("총 0개 프로젝트")
         self.total_label.setObjectName("projectTotal")
         previous_button = QPushButton("‹")
+        self.previous_button = previous_button
         previous_button.setObjectName("paginationButton")
         page_button = QPushButton("1")
+        self.page_button = page_button
         page_button.setObjectName("paginationCurrentButton")
         next_button = QPushButton("›")
+        self.next_button = next_button
         next_button.setObjectName("paginationButton")
         for button in (previous_button, page_button, next_button):
             button.setFixedSize(34, 32)
+        previous_button.clicked.connect(lambda: self.change_page(-1))
+        next_button.clicked.connect(lambda: self.change_page(1))
         bottom_layout.addWidget(self.total_label)
         bottom_layout.addStretch()
         bottom_layout.addWidget(previous_button)
@@ -157,19 +165,12 @@ class ProjectsPage(QWidget):
         self.refresh_projects()
 
     def refresh_projects(self):
-        while self.projects_layout.count():
-            item = self.projects_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
-
-        self.project_cards = []
         db_projects = get_projects_with_latest_inspection()
-
+        self.all_projects = []
         for row in db_projects:
             inspected_at = row.get("inspected_at")
             date = inspected_at[:16].replace("T", " ") if inspected_at else "-"
-            project = {
+            self.all_projects.append({
                 "id": row["id"],
                 "inspection_id": row.get("inspection_id"),
                 "name": row["name"],
@@ -180,15 +181,39 @@ class ProjectsPage(QWidget):
                 "issues": row.get("total_issues") or 0,
                 "resolved": row.get("resolved_issues") or 0,
                 "status": row.get("status") or "검사 전",
-            }
+            })
+        self.current_page = 1
+        self.render_projects()
+
+    def render_projects(self):
+        while self.projects_layout.count():
+            item = self.projects_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        self.project_cards = []
+        keyword = self.search_input.text().strip().lower()
+        filtered = [
+            project for project in self.all_projects
+            if keyword in project["name"].lower() or keyword in project["department"].lower()
+        ]
+        total_pages = max(1, (len(filtered) + self.page_size - 1) // self.page_size)
+        self.current_page = min(max(1, self.current_page), total_pages)
+        start = (self.current_page - 1) * self.page_size
+        for project in filtered[start:start + self.page_size]:
             card = self.create_project_card(project)
             self.projects_layout.addWidget(card)
-            self.project_cards.append(
-                (card, project["name"].lower(), project["department"].lower())
-            )
+            self.project_cards.append((card, project["name"].lower(), project["department"].lower()))
 
-        self.total_label.setText(f"총 {len(db_projects)}개 프로젝트")
-        self.filter_projects(self.search_input.text())
+        self.total_label.setText(f"총 {len(filtered)}개 프로젝트")
+        self.page_button.setText(str(self.current_page))
+        self.previous_button.setEnabled(self.current_page > 1)
+        self.next_button.setEnabled(self.current_page < total_pages)
+
+    def change_page(self, delta):
+        self.current_page += delta
+        self.render_projects()
 
     @staticmethod
     def display_grade(score):
@@ -371,6 +396,5 @@ class ProjectsPage(QWidget):
         self.score_widgets = live_score_widgets
 
     def filter_projects(self, text):
-        keyword = text.strip().lower()
-        for card, name, department in self.project_cards:
-            card.setVisible(keyword in name or keyword in department)
+        self.current_page = 1
+        self.render_projects()
