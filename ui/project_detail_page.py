@@ -534,37 +534,17 @@ class ProjectDetailPage(QWidget):
 
         sort_button = QComboBox()
         sort_button.setObjectName("detailSortCombo")
+        sort_button.addItem("정렬", None)
         sort_button.addItem("심각도", "severity")
         sort_button.addItem("상태", "status")
         sort_button.addItem("규칙", "rule")
-        sort_button.setFixedHeight(28)
-        sort_button.setFixedWidth(82)
-        sort_button.setStyleSheet("""
-            QComboBox#detailSortCombo {
-                color:#e5e7eb;
-                background:#0c141c;
-                border:1px solid #557187;
-                border-radius:7px;
-                padding:0 8px;
-                font-size:9px;
-                font-weight:600;
-            }
-            QComboBox#detailSortCombo::drop-down {
-                subcontrol-origin:padding;
-                subcontrol-position:top right;
-                width:24px;
-                border-left:1px solid #405a6e;
-                border-top-right-radius:7px;
-                border-bottom-right-radius:7px;
-                background:#132433;
-            }
-            QComboBox#detailSortCombo::drop-down:hover { background:#23445b; }
-        """)
+        sort_button.setFixedHeight(31)
+        sort_button.setFixedWidth(88)
         self.issue_sort_button = sort_button
         sort_button.currentIndexChanged.connect(
-            lambda index: self.set_issue_sort(
-                sort_button.itemData(index),
-                sort_button.itemText(index),
+            lambda index: (
+                self.set_issue_sort(sort_button.itemData(index), sort_button.itemText(index))
+                if sort_button.itemData(index) is not None else None
             )
         )
 
