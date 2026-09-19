@@ -266,6 +266,8 @@ class MainWindow(QMainWindow):
 
         for combo in self.inspection_page.findChildren(QComboBox, "inspectionCombo"):
             combo.setStyleSheet(combo_style)
+        for combo in self.project_detail_page.findChildren(QComboBox, "detailSortCombo"):
+            combo.setStyleSheet(combo_style)
         for combo in self.administration_page.findChildren(QComboBox, "adminThemeCombo"):
             combo.setStyleSheet(combo_style)
 
