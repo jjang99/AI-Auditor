@@ -97,6 +97,7 @@ class MainWindow(QMainWindow):
             sidebar.menu_clicked.connect(self.select_menu)
             sidebar.theme_toggle_requested.connect(self.toggle_theme)
         self.projects_page.project_selected.connect(self.open_project_detail)
+        self.reports_page.report_selected.connect(self.open_project_detail)
         self.inspection_page.existing_project_selected.connect(self.open_project_detail)
         self.inspection_page.inspection_result_requested.connect(self.open_latest_inspection_result)
 
@@ -143,6 +144,7 @@ class MainWindow(QMainWindow):
             self.page_stack.setCurrentWidget(self.inspection_page)
         elif selected_name == "Reports":
             self.header.hide()
+            self.reports_page.refresh_reports()
             self.page_stack.setCurrentWidget(self.reports_page)
         elif selected_name == "Administration":
             self.header.hide()
