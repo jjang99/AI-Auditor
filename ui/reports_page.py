@@ -176,18 +176,31 @@ class ReportsPage(QWidget):
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.report_table.setViewportMargins(0, 0, 0, 0)
-        self.report_table.verticalScrollBar().setFixedWidth(6)
+        self.report_table.verticalScrollBar().setFixedWidth(5)
         self.report_table.verticalScrollBar().setStyleSheet("""
             QScrollBar:vertical {
-                width:6px; margin:0px; padding:0px; border:none; background:transparent;
+                width:5px;
+                margin:0px;
+                padding:0px;
+                border:none;
+                background:transparent;
             }
             QScrollBar::handle:vertical {
-                min-height:36px; border-radius:3px; background:#6f8495;
+                min-height:36px;
+                border:none;
+                border-radius:2px;
+                background:#64748b;
             }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                width:0px; height:0px; border:none; background:transparent;
+            QScrollBar::add-line:vertical,
+            QScrollBar::sub-line:vertical {
+                width:0px;
+                height:0px;
+                border:none;
+                background:transparent;
             }
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+            QScrollBar::add-page:vertical,
+            QScrollBar::sub-page:vertical {
+                border:none;
                 background:transparent;
             }
         """)
