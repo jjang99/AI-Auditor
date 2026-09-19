@@ -225,6 +225,8 @@ class ProjectsPage(QWidget):
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
         department.setMaximumWidth(105)
+        department.setFixedHeight(20)
+        department.setAlignment(Qt.AlignCenter)
         inspection_date = QLabel(project["date"])
         inspection_date.setObjectName("projectMeta")
         status = QLabel()
@@ -323,11 +325,6 @@ class ProjectsPage(QWidget):
         progress_row.addWidget(percent_label)
         result_layout.addLayout(progress_row)
         card_layout.addWidget(result_widget, 3)
-        more_label = QLabel("⋮")
-        more_label.setObjectName("projectMore")
-        more_label.setFixedWidth(12)
-        more_label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
-        card_layout.addWidget(more_label)
         card.mousePressEvent = lambda event, p=project: self.project_selected.emit(p)
         return card
 
