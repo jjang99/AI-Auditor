@@ -52,7 +52,7 @@ class CircularScore(QWidget):
             span_angle = int(360 * 16 * (self.score / 100))
             painter.drawArc(rect, start_angle, span_angle)
         if self.score is not None:
-            painter.setPen(QColor("#ffffff"))
+            painter.setPen(QColor("#0f172a") if is_light else QColor("#ffffff"))
             score_text = str(self.score)
         else:
             painter.setPen(QColor("#64748b") if is_light else QColor("#94a3b8"))
@@ -66,7 +66,7 @@ class CircularScore(QWidget):
             font.setPointSize(6)
             font.setBold(False)
             painter.setFont(font)
-            painter.setPen(QColor("#94a3b8"))
+            painter.setPen(QColor("#52657a") if is_light else QColor("#cbd5e1"))
             painter.drawText(QRectF(0, 47, 82, 16), Qt.AlignCenter, "/100")
 
 
@@ -224,16 +224,14 @@ class ProjectsPage(QWidget):
         project_name.setObjectName("projectName")
         project_name.setWordWrap(False)
         project_name.setToolTip(project["name"])
-        name_font = QFont(project_name.font())
-        name_font.setBold(True)
-        name_font.setPointSize(12)
-        available_name_width = 195
-        metrics = QFontMetrics(name_font)
-        while name_font.pointSize() > 9 and metrics.horizontalAdvance(project["name"]) > available_name_width:
-            name_font.setPointSize(name_font.pointSize() - 1)
-            metrics = QFontMetrics(name_font)
-        project_name.setFont(name_font)
-        project_name.setMinimumWidth(available_name_width)
+        # QSS font-size overrides QFont, so long names need an explicit local size.
+        # Keep normal names prominent and shrink only when the text is long.
+        name_length = len(project["name"])
+        if name_length >= 18:
+            project_name.setStyleSheet("font-size: 13px; font-weight: 900;")
+        elif name_length >= 14:
+            project_name.setStyleSheet("font-size: 14px; font-weight: 900;")
+        project_name.setMinimumWidth(195)
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
         department.setMaximumWidth(105)
