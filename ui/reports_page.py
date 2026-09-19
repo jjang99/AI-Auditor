@@ -169,8 +169,11 @@ class ReportsPage(QWidget):
         self.report_table.setMouseTracking(False)
         self.report_table.viewport().setMouseTracking(False)
         self.report_table.setCursor(Qt.PointingHandCursor)
+        # Six report rows fit in the frozen Reports layout. Keep the table
+        # scrollbar hidden for this normal view; it is enabled only when the
+        # filtered result exceeds the visible six rows.
         self.report_table.setFixedHeight(382)
-        self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         header = self.report_table.horizontalHeader()
@@ -305,6 +308,9 @@ class ReportsPage(QWidget):
             filtered.append(row)
 
         self.sample_reports = []
+        self.report_table.setVerticalScrollBarPolicy(
+            Qt.ScrollBarAsNeeded if len(filtered) > 6 else Qt.ScrollBarAlwaysOff
+        )
         self.report_table.setRowCount(len(filtered))
         for table_row, row in enumerate(filtered):
             date = (row.get("inspected_at") or "-")[:16].replace("T", " ").replace("-", ".")
