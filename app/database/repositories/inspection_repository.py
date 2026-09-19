@@ -133,3 +133,31 @@ def get_issues_for_inspection(inspection_id: int):
     ).fetchall()
     connection.close()
     return [dict(row) for row in rows]
+
+
+
+def get_report_rows():
+    """Return inspection history joined with project data for the Reports screen."""
+    connection = get_connection()
+    rows = connection.execute(
+        """
+        SELECT
+            i.id AS inspection_id,
+            i.project_id,
+            p.name AS project_name,
+            p.department,
+            i.inspection_type,
+            i.inspected_at,
+            i.score,
+            i.grade,
+            i.status,
+            i.rule_count,
+            i.total_issues,
+            i.resolved_issues
+        FROM inspections i
+        JOIN projects p ON p.id = i.project_id
+        ORDER BY i.inspected_at DESC, i.id DESC
+        """
+    ).fetchall()
+    connection.close()
+    return [dict(row) for row in rows]
