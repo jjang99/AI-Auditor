@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -14,6 +14,8 @@ from ui.sidebar import Sidebar
 from ui.reinspect_dialog import ReInspectDialog
 
 class ProjectDetailPage(QWidget):
+    new_inspection_requested = Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -208,6 +210,7 @@ class ProjectDetailPage(QWidget):
 
         new_inspection = QPushButton("New Inspection")
         new_inspection.setObjectName("detailActionButton")
+        new_inspection.clicked.connect(self.new_inspection_requested.emit)
 
         export_report = QPushButton("Export Report")
         export_report.setObjectName("detailActionButton")
