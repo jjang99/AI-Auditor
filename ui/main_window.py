@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
             self.page_stack.setCurrentWidget(self.home_page)
         elif selected_name == "Projects":
             self.header.hide()
+            self.projects_page.refresh_projects()
             self.page_stack.setCurrentWidget(self.projects_page)
         elif selected_name == "Inspection":
             self.header.hide()
