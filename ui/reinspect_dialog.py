@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -19,6 +21,7 @@ class ReInspectDialog(QDialog):
 
         self._drag_position = QPoint()
         self._dragging = False
+        self.selected_files = []
 
         self.setWindowTitle("Re-Inspect")
         self.setModal(True)
@@ -146,8 +149,6 @@ class ReInspectDialog(QDialog):
         self.upload_status_layout.setContentsMargins(0, 0, 4, 0)
         self.upload_status_layout.setSpacing(10)
 
-        self.add_uploaded_file("요구사항기술서.xlsx", "12.4 MB")
-        self.add_uploaded_file("요구사항추적표.xlsx", "4.8 MB")
         self.upload_status_layout.addStretch()
 
         self.upload_scroll.setWidget(upload_container)
@@ -208,7 +209,8 @@ class ReInspectDialog(QDialog):
         summary_layout = QHBoxLayout()
         summary_layout.setContentsMargins(14, 0, 14, 0)
         summary_layout.setSpacing(24)
-        summary_layout.addLayout(self.create_summary_item("등록 파일", "18개"), 1)
+        self.file_summary_value = self.create_summary_item("등록 파일", "0개")
+        summary_layout.addLayout(self.file_summary_value, 1)
         summary_layout.addLayout(self.create_summary_item("적용 규칙", "100개"), 1)
         summary_layout.addLayout(self.create_summary_item("예상 검사 시간", "약 2분 20초"), 1)
 
@@ -396,6 +398,35 @@ class ReInspectDialog(QDialog):
         layout.addWidget(value_label)
         return layout
 
+    def _refresh_uploaded_files(self):
+        while self.upload_status_layout.count() > 1:
+            item = self.upload_status_layout.takeAt(0)
+            child_layout = item.layout()
+            widget = item.widget()
+            if child_layout is not None:
+                while child_layout.count():
+                    child = child_layout.takeAt(0)
+                    if child.widget() is not None:
+                        child.widget().deleteLater()
+            elif widget is not None:
+                widget.deleteLater()
+
+        for file_path in self.selected_files:
+            path = Path(file_path)
+            size = path.stat().st_size if path.is_file() else 0
+            if size < 1024:
+                size_text = f"{size} B"
+            elif size < 1024 * 1024:
+                size_text = f"{size / 1024:.1f} KB"
+            else:
+                size_text = f"{size / (1024 * 1024):.1f} MB"
+            self.add_uploaded_file(path.name, size_text)
+
+        if hasattr(self, "file_summary_value"):
+            value_label = self.file_summary_value.itemAt(1).widget()
+            if value_label is not None:
+                value_label.setText(f"{len(self.selected_files)}개")
+
     def select_files(self):
         files, _ = QFileDialog.getOpenFileNames(
             self,
@@ -403,5 +434,11 @@ class ReInspectDialog(QDialog):
             "",
             "지원 파일 (*.xlsx *.xls *.docx *.doc *.pdf *.hwp *.hwpx);;모든 파일 (*.*)",
         )
-        if files:
-            pass
+        if not files:
+            return
+        existing = set(self.selected_files)
+        for file_path in files:
+            if file_path not in existing:
+                self.selected_files.append(file_path)
+                existing.add(file_path)
+        self._refresh_uploaded_files()
