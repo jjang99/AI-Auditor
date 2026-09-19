@@ -244,6 +244,16 @@ class MainWindow(QMainWindow):
             self.theme_button.setToolTip("Dark Mode")
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
+
+        # Page-local styles have higher precedence than MainWindow QSS.
+        # Inspection's legacy stylesheet is dark-only, so keep it only for the
+        # verified dark theme and remove it in light mode.  The approved light
+        # Inspection QSS above then becomes the single source of truth.
+        if self.is_dark_mode:
+            self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
+        else:
+            self.inspection_page.setStyleSheet("")
+
         self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
