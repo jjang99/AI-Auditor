@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QThread, Signal, Qt
-from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
+from PySide6.QtWidgets import QComboBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_id, get_project_by_name
 from app.services.inspection_service import InspectionService, SUPPORTED_TEXT_EXTENSIONS
