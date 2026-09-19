@@ -227,3 +227,17 @@
 - 테마 전환 시 삭제된 PySide 위젯 참조를 다시 update하지 않도록 하며 `CircularScore already deleted` 오류가 발생하지 않아야 한다.
 - Inspection 규칙 보기 버튼의 signal 재연결 과정에서 `Failed to disconnect ... clicked()` RuntimeWarning이 반복 출력되지 않아야 한다.
 - 위 항목은 최종 회귀 기준이며 EXE 재빌드/제출 준비 과정에서 임의로 변경하지 않는다.
+
+
+# 15. 데이터 관리 설계 확정 — 2026-09-19
+- 검사 완료 결과는 SQLite DB에 기본 저장한다. Administration의 '검사 결과 자동 저장' 및 '결과 저장 경로' 설정은 사용하지 않는다.
+- 보고서 파일 저장은 Reports의 '보고서 내보내기'로 일원화한다.
+- Project와 Inspection은 별도 데이터로 관리하며 기본 관계는 Project → Inspection → Issues이다.
+- Reports에서 개별 검사 이력을 관리한다. 개별 이력 정리 시 Project 정보는 유지한다.
+- Administration에는 별도 '데이터 관리' 영역을 둔다.
+- 데이터 관리에서는 전체 검사 이력 정리와 프로젝트 관리를 제공한다.
+- 전체 검사 이력 정리 시 등록 Project는 유지한다.
+- Project 정리 시 해당 Project에 속한 Inspection 및 Issues도 함께 정리한다.
+- 데이터 정리 동작 전에는 대상 범위와 되돌릴 수 없음을 알리는 확인 Modal을 표시한다.
+- Administration 구성 방향은 '1. 검사 기준 관리 / 2. 환경 설정(로그 저장) / 3. 데이터 관리'로 한다.
+- 위 방향은 2026-09-19 사용자 동의로 확정하며 후속 구현 기준으로 사용한다.
