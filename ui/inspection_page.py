@@ -267,10 +267,16 @@ class InspectionPage(QWidget):
                 "color:#475569; font-size:11px; font-weight:500;",
                 "QPushButton#inspectionViewButton { color:#0f172a; background:#ffffff; border:1px solid #94a3b8; border-radius:6px; font-size:11px; font-weight:600; } QPushButton#inspectionViewButton:hover { background:#e0eaf2; border-color:#7f9bad; }"
             )
-        for name_label, count_label, desc_label, view in self._rule_text_widgets:
+        # Rule UI patches can replace/refresh row widgets after __init__, so the
+        # cached list is not a reliable source of the currently visible controls.
+        # Theme the live widgets in the page every time the mode changes.
+        for name_label in self.findChildren(QLabel, "inspectionRuleName"):
             name_label.setStyleSheet(styles[0])
+        for count_label in self.findChildren(QLabel, "inspectionRuleCount"):
             count_label.setStyleSheet(styles[1])
+        for desc_label in self.findChildren(QLabel, "inspectionRuleDescription"):
             desc_label.setStyleSheet(styles[2])
+        for view in self.findChildren(QPushButton, "inspectionViewButton"):
             view.setStyleSheet(styles[3])
 
     def inspection_style(self):
