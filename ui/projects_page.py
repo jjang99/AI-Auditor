@@ -53,12 +53,6 @@ class CircularScore(QWidget):
             span_angle = int(360 * 16 * (self.score / 100))
             painter.drawArc(rect, start_angle, span_angle)
         if self.score is not None:
-            # Paint a theme-specific center field so score text has guaranteed contrast.
-            center_fill = QColor("#ffffff") if is_light else QColor("#101d29")
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(center_fill)
-            painter.drawEllipse(QRectF(18, 18, 46, 46))
-            painter.setBrush(Qt.NoBrush)
             painter.setPen(QColor("#0b1f31") if is_light else QColor("#ffffff"))
             score_text = str(self.score)
         else:
@@ -313,7 +307,7 @@ class ProjectsPage(QWidget):
             issues_suffix = QLabel("")
         else:
             issues_value = QLabel(str(project["issues"]))
-            issues_value.setObjectName("projectIssueWarning")
+            issues_value.setObjectName("projectIssueCountValue")
             issues_suffix = QLabel("개 이슈")
             issues_suffix.setObjectName("projectIssueSuffix")
         issues_row.addWidget(issues_value, 0, Qt.AlignBottom)
