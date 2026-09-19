@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import QEvent, Qt, QTimer
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget
 
@@ -38,7 +38,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.is_dark_mode = True
-        self._theme_toggle_locked = False
         self.setWindowTitle("AI Auditor")
         window_icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons", "logo.svg")
         self.setWindowIcon(QIcon(window_icon_path))
@@ -168,19 +167,8 @@ class MainWindow(QMainWindow):
         self.page_stack.setCurrentWidget(self.project_detail_page)
 
     def toggle_theme(self):
-        # One user click must produce exactly one theme transition.
-        # Ignore duplicate signal delivery within the same Qt event cycle.
-        if self._theme_toggle_locked:
-            return
-        self._theme_toggle_locked = True
-        try:
-            self.is_dark_mode = not self.is_dark_mode
-            self.apply_theme()
-        finally:
-            QTimer.singleShot(0, self._unlock_theme_toggle)
-
-    def _unlock_theme_toggle(self):
-        self._theme_toggle_locked = False
+        self.is_dark_mode = not self.is_dark_mode
+        self.apply_theme()
 
     def _apply_shared_combo_style(self):
         if self.is_dark_mode:
@@ -254,11 +242,18 @@ class MainWindow(QMainWindow):
             self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS + LIGHT_TEXT_HIERARCHY_FINAL + LIGHT_SHARED_VISUAL_FINAL + PROJECTS_LIGHT_FINAL)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
+        # Keep every page and every sidebar synchronized with the single
+        # MainWindow theme state.  Update the navigation label first so a
+        # page-specific styling failure can never leave the UI in a mixed state.
+        for sidebar in self.sidebars:
+            sidebar.set_theme(self.is_dark_mode)
+
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
-        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
         self._apply_shared_combo_style()
-        for sidebar in self.sidebars:
-            sidebar.set_theme(self.is_dark_mode)
+
+        # Inspection has direct per-widget text styling.  Keep it last so it
+        # cannot prevent Reports/Admin/sidebar theme synchronization.
+        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
