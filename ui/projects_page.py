@@ -63,10 +63,10 @@ class CircularScore(QWidget):
         painter.setFont(font)
         painter.drawText(QRectF(0, 18, 82, 30), Qt.AlignCenter, score_text)
         if self.score is not None:
-            font.setPointSize(6)
-            font.setBold(False)
+            font.setPointSize(7)
+            font.setBold(True)
             painter.setFont(font)
-            painter.setPen(QColor("#52657a") if is_light else QColor("#cbd5e1"))
+            painter.setPen(QColor("#3f556b") if is_light else QColor("#e2e8f0"))
             painter.drawText(QRectF(0, 47, 82, 16), Qt.AlignCenter, "/100")
 
 
