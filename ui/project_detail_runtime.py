@@ -258,15 +258,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
             row.setProperty("issueSelectable", True)
             self._issue_row_data[row] = issue
             row.installEventFilter(self)
-            if index >= 8:
-                row.hide()
             layout.addWidget(row)
-        if len(issues) > 8:
-            more_button = QPushButton("더 보기")
-            more_button.setObjectName("detailHistoryButton")
-            more_button.setCursor(Qt.PointingHandCursor)
-            more_button.clicked.connect(lambda: self.show_all_issue_rows(container, more_button))
-            layout.addWidget(more_button)
         layout.addStretch()
 
     def event_filter(self, watched, event):
