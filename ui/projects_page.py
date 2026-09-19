@@ -107,7 +107,7 @@ class ProjectsPage(QWidget):
         description.setObjectName("pageDescription")
         title_area.addWidget(title)
         title_area.addWidget(description)
-        new_project_button = QPushButton("＋  New Project")
+        new_project_button = QPushButton("+ New Project")
         new_project_button.setObjectName("newProjectButton")
         new_project_button.setCursor(Qt.PointingHandCursor)
         new_project_button.setFixedSize(122, 40)
@@ -226,7 +226,7 @@ class ProjectsPage(QWidget):
         project_name.setToolTip(project["name"])
         # Use one visual size for normal names. Shrink only when the rendered
         # width would exceed the available first-column width.
-        available_name_width = 195
+        available_name_width = 205
         name_font = QFont("Malgun Gothic")
         name_font.setBold(True)
         name_font.setPixelSize(17)
@@ -237,6 +237,11 @@ class ProjectsPage(QWidget):
             name_font.setPixelSize(name_font.pixelSize() - 1)
         project_name.setFont(name_font)
         project_name.setFixedWidth(available_name_width)
+        project_name.setText(
+            QFontMetrics(name_font).elidedText(
+                project["name"], Qt.ElideRight, available_name_width
+            )
+        )
 
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
