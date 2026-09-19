@@ -300,9 +300,17 @@ def apply_inspection_runtime(InspectionPage):
             inputs[2].setText(project.get("department") or "")
         project_type_combo = self.findChild(QComboBox, "inspectionCombo")
         if project_type_combo is not None and project.get("project_type"):
-            index = project_type_combo.findText(project["project_type"])
+            saved_type = str(project["project_type"]).strip()
+            index = project_type_combo.findText(saved_type)
+            if index < 0:
+                for candidate in range(project_type_combo.count()):
+                    if project_type_combo.itemText(candidate).strip() == saved_type:
+                        index = candidate
+                        break
             if index >= 0:
                 project_type_combo.setCurrentIndex(index)
+            else:
+                project_type_combo.setCurrentText(saved_type)
 
     def prepare_new_inspection(self):
         """Inspection 메뉴로 다시 진입할 때 새 검사를 시작할 수 있는 상태로 복원한다."""
