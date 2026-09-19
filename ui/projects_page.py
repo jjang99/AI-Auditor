@@ -224,31 +224,22 @@ class ProjectsPage(QWidget):
         project_name.setObjectName("projectName")
         project_name.setWordWrap(False)
         project_name.setToolTip(project["name"])
-        # QSS font-size overrides QFont, so long names need an explicit local size.
-        # Keep normal names prominent and shrink only when the text is long.
-        name_length = len(project["name"])
-        if name_length >= 18:
-            project_name.setStyleSheet("font-size: 13px; font-weight: 900;")
-        elif name_length >= 14:
-            project_name.setStyleSheet("font-size: 14px; font-weight: 900;")
-        project_name.setMinimumWidth(195)
-        department = QLabel(project["department"])
-        department.setObjectName("projectDepartment")
-        department.setMaximumWidth(105)
-        department.setFixedHeight(18)
-        department.setAlignment(Qt.AlignCenter)
-        inspection_date = QLabel(project["date"])
-        inspection_date.setObjectName("projectMeta")
-        status = QLabel()
-        if project["status"] == "검사 실패":
-            status.setText("●  검사 실패")
-            status.setObjectName("projectFailedStatus")
-        elif project["status"] == "검사 전":
-            status.setText("●  검사 전")
-            status.setObjectName("projectPendingStatus")
-        else:
-            status.setText("●  AI 검사 완료")
-            status.setObjectName("projectStatus")
+        # Use one visual size for normal names. Shrink only when the rendered
+        # width would exceed the available first-column width.
+        available_name_width = 195
+        probe_font = QFont("Malgun Gothic")
+        probe_font.setBold(True)
+        chosen_px = 16
+        for px in (16, 15, 14, 13, 12):
+            probe_font.setPixelSize(px)
+            if QFontMetrics(probe_font).horizontalAdvance(project["name"]) <= available_name_width:
+                chosen_px = px
+                break
+            chosen_px = px
+        project_name.setStyleSheet(
+            f'font-family:"Malgun Gothic"; font-size:{chosen_px}px; font-weight:900;'
+        )
+        project_name.setMinimumWidth(available_name_width)
         text_layout.addWidget(project_name)
         text_layout.addWidget(department, 0, Qt.AlignLeft)
         text_layout.addWidget(inspection_date)
