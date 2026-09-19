@@ -115,6 +115,7 @@ class ProjectsPage(QWidget):
         new_project_button.setObjectName("newProjectButton")
         new_project_button.setCursor(Qt.PointingHandCursor)
         new_project_button.setFixedSize(122, 40)
+        self.new_project_button = new_project_button
         header_layout.addLayout(title_area)
         header_layout.addStretch()
         header_layout.addWidget(new_project_button, 0, Qt.AlignTop)
