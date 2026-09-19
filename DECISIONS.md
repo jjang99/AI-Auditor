@@ -217,3 +217,13 @@
 - 위 Score/Grade 산식은 MVP 기준이며 향후 검사기준 고도화 시 조정할 수 있다.
 - 신규 프로젝트 생성부터 Inspection, Rule Engine, DB 저장, Project Detail, Projects, Reports까지 전체 E2E 사용자 검증을 완료했다.
 - 다음 핵심 개발 단계는 폐쇄망 Windows EXE 패키징 및 최종 실행/회귀 테스트이다.
+
+# 14. 2026-09-19 테마/스크롤 회귀 최종 기준
+- Reports는 Dark/Light Mode 모두 2026-09-19 사용자 확인 상태를 정상 기준으로 고정한다.
+- Reports 검사보고서 세로 스크롤은 7건 이상일 때만 표시한다.
+- Reports 검사보고서와 Project Detail Issues의 세로 스크롤은 동일한 얇은 시각 기준을 사용한다.
+- 스크롤은 주변 카드/경계선보다 튀지 않는 저대비 색상을 사용하고, 불필요한 트랙/화살표/옆 여백이 보이지 않도록 유지한다.
+- Project Detail Issues의 스크롤은 Dark/Light Mode 모두 사용자 확인 완료 상태를 유지한다.
+- 테마 전환 시 삭제된 PySide 위젯 참조를 다시 update하지 않도록 하며 `CircularScore already deleted` 오류가 발생하지 않아야 한다.
+- Inspection 규칙 보기 버튼의 signal 재연결 과정에서 `Failed to disconnect ... clicked()` RuntimeWarning이 반복 출력되지 않아야 한다.
+- 위 항목은 최종 회귀 기준이며 EXE 재빌드/제출 준비 과정에서 임의로 변경하지 않는다.
