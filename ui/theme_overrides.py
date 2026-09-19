@@ -440,38 +440,3 @@ QComboBox#inspectionCombo::drop-down:hover { background:#dfeaf2; }
     background:#edf3f7;
 }
 """
-
-/* Shared slim scrollbar: frozen visual standard for Project Detail Issues
-   and Reports. The track stays transparent so no gutter appears beside content. */
-#detailIssueScroll QScrollBar:vertical,
-QTableWidget#reportTable QScrollBar:vertical {
-    background: transparent;
-    width: 5px;
-    margin: 0px;
-    padding: 0px;
-    border: none;
-}
-#detailIssueScroll QScrollBar::handle:vertical,
-QTableWidget#reportTable QScrollBar::handle:vertical {
-    background: #64748b;
-    min-height: 36px;
-    border: none;
-    border-radius: 2px;
-}
-#detailIssueScroll QScrollBar::add-line:vertical,
-#detailIssueScroll QScrollBar::sub-line:vertical,
-QTableWidget#reportTable QScrollBar::add-line:vertical,
-QTableWidget#reportTable QScrollBar::sub-line:vertical {
-    width: 0px;
-    height: 0px;
-    border: none;
-    background: transparent;
-}
-#detailIssueScroll QScrollBar::add-page:vertical,
-#detailIssueScroll QScrollBar::sub-page:vertical,
-QTableWidget#reportTable QScrollBar::add-page:vertical,
-QTableWidget#reportTable QScrollBar::sub-page:vertical {
-    border: none;
-    background: transparent;
-}
-
