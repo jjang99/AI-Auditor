@@ -21,6 +21,31 @@ def _format_datetime(value):
         return value.replace("T", " ")
 
 
+def _display_grade(score):
+    """Frozen UI grade standard shared by Projects and Project Detail."""
+    if score is None:
+        return "-"
+    if score >= 90:
+        return "A"
+    if score >= 80:
+        return "B"
+    if score >= 70:
+        return "C"
+    if score >= 60:
+        return "D"
+    return "E"
+
+
+def _grade_color(grade):
+    return {
+        "A": "#22c55e",
+        "B": "#22c55e",
+        "C": "#fbbf24",
+        "D": "#f97316",
+        "E": "#ef4444",
+    }.get(grade, "#94a3b8")
+
+
 def _clear_layout(layout):
     while layout.count():
         item = layout.takeAt(0)
@@ -76,7 +101,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
             date_label.setText(f"▣   {_format_datetime(latest['inspected_at'])}")
 
         score_text = "-" if latest["score"] is None else str(latest["score"])
-        grade_text = "-" if not latest["grade"] else str(latest["grade"])
+        grade_text = _display_grade(latest["score"])
         total_issues = len(issues)
         resolved = sum(1 for issue in issues if issue["status"] == "조치완료")
         resolved_percent = int(round((resolved / total_issues) * 100)) if total_issues else 0
@@ -87,6 +112,9 @@ def apply_project_detail_runtime(ProjectDetailPage):
             summary_score.setText(score_text)
         if summary_grade:
             summary_grade.setText(grade_text)
+            summary_grade.setStyleSheet(
+                f"color: {_grade_color(grade_text)}; font-size: 35px; font-weight: 700;"
+            )
 
         stat_cards = self.findChildren(QFrame, "detailStatCard")
         if len(stat_cards) >= 4:
