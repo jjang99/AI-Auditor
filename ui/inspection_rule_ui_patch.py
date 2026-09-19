@@ -51,46 +51,11 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         for toggle in self.findChildren(QPushButton, "inspectionCheck"):
             toggle.setFixedSize(14, 14)
 
-        self.setStyleSheet(
-            self.styleSheet()
-            + """
-            QPushButton#inspectionCheck {
-                color: transparent;
-                background: transparent;
-                border: 1px solid #64748b;
-                border-radius: 3px;
-                font-size: 9px;
-                font-weight: 800;
-                padding: 0;
-                min-width:14px;
-                max-width:14px;
-                min-height:14px;
-                max-height:14px;
-            }
-            QPushButton#inspectionCheck:checked {
-                color: #ffffff;
-                background: #2563eb;
-                border: 1px solid #2563eb;
-            }
-            QPushButton#inspectionCheck:hover {
-                border: 1px solid #3b82f6;
-            }
-            #inspectionRuleCount,
-            #inspectionRuleDescription {
-                font-size: 10px;
-            }
-            QPushButton#inspectionFileDeleteButton {
-                color: #cbd5e1;
-                background: transparent;
-                border: none;
-                border-radius: 4px;
-                padding: 4px;
-            }
-            QPushButton#inspectionFileDeleteButton:hover {
-                background: #263747;
-            }
-            """
-        )
+        # Do not attach a page-local stylesheet here.  It overrides MainWindow's
+        # light/dark theme selectors and was the cause of the rule rows retaining
+        # dark text/buttons in Light Mode.  Visual sizing is handled below and
+        # colors remain owned by the central theme.
+
 
         self._refresh_file_table()
         self._refresh_rule_summary()
