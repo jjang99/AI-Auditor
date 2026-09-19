@@ -143,7 +143,10 @@ class AdministrationPage(QWidget):
             view.setObjectName("adminViewButton")
             view.setFixedSize(58, 34)
             view.setCursor(Qt.PointingHandCursor)
-            view.clicked.connect(lambda checked=False, n=name, t=total, a=active, i=inactive: self.open_rules(n, t, a, i))
+            view.clicked.connect(
+                lambda checked=False, n=name, t=total, a=active, i=inactive, icon_name=icon_file:
+                self.open_rules(n, t, a, i, icon_name)
+            )
             row_layout.addWidget(view)
             table_layout.addWidget(row)
 
@@ -285,6 +288,6 @@ class AdministrationPage(QWidget):
                 QPushButton#adminToggle:checked { background:#20b85f; color:#ffffff; }
             """)
 
-    def open_rules(self, name, total, active, inactive):
-        dialog = AdministrationRulesDialog(name, total, active, inactive, self)
+    def open_rules(self, name, total, active, inactive, icon_file):
+        dialog = AdministrationRulesDialog(name, total, active, inactive, self, icon_file)
         dialog.exec()
