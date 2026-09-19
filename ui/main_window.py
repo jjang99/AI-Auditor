@@ -245,14 +245,20 @@ class MainWindow(QMainWindow):
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
 
-        # Page-local styles have higher precedence than MainWindow QSS.
-        # Inspection's legacy stylesheet is dark-only, so keep it only for the
-        # verified dark theme and remove it in light mode.  The approved light
-        # Inspection QSS above then becomes the single source of truth.
+        # Inspection owns a legacy dark-only local stylesheet.  A child
+        # stylesheet has higher precedence than MainWindow QSS, so merely
+        # clearing it is not deterministic once Qt has polished the page.
+        # Preserve the verified dark page exactly; in light mode attach only
+        # the approved Inspection light rules directly to this page.
         if self.is_dark_mode:
             self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
         else:
-            self.inspection_page.setStyleSheet("")
+            self.inspection_page.setStyleSheet(
+                LIGHT_INSPECTION_REFINEMENTS
+                + LIGHT_INSPECTION_READABILITY_V2
+                + LIGHT_INSPECTION_FINAL
+                + LIGHT_INSPECTION_PROGRESS
+            )
 
         self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
