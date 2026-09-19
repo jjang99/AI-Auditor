@@ -171,3 +171,30 @@
 - [x] Administration > 검사 기준 관리 회귀 — ON/OFF 수량 반영, 재진입 상태 유지, 카테고리 아이콘 복구, 중복 Rule Detail 제거, 행 Hover 제거 사용자 확인 PASS
 - [ ] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응
 - 처리 원칙: 각 항목을 개별 수정 → 사용자 확인 PASS → 체크 완료 후 다음 항목 진행
+
+
+# 다음 개발 기준선 — 2026-09-19
+
+## 최종 개발 단계
+1. 기존 Rule 복원·재분류 — 완료
+2. 5대 영역별 전체 검사기준 확정 — 완료 (최종 105개)
+3. 실제 구현할 대표 MVP 검사기준 선정 — 완료 (20개)
+4. MVP 검사 Engine 구현 — 다음 작업
+   - 4-1 문서 Parser 기반 구현
+   - 4-2 MVP 20개 검사기준 실제 코드 정의
+   - 4-3 Rule 방식 검사 구현
+   - 4-4 AI / Hybrid 검사 실행구조 구현
+   - 4-5 MVP 20개 통합 및 단위검증
+5. Administration·Inspection 통일
+6. 데이터 관리 기능 구현
+7. 전체 E2E·회귀 검증
+8. EXE 최종화
+9. 제출 준비·최종 마무리
+
+## 현재 시작점
+- 1~3단계 완료.
+- 다음 작업은 4단계 MVP 검사 Engine 구현이며, 4-1 문서 Parser 기반 구현부터 시작한다.
+- Parser 지원범위: DOCX / XLSX / PDF / PPTX / HWPX. HWP는 PoC 후 안정적 지원범위를 판단한다.
+- 형식별 Parser → 표준화된 공통 문서 데이터 → Rule/AI/Hybrid 검사 Engine 구조를 따른다.
+- 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
+- 다음 작업 시작 시 DECISIONS.md → RULE_DESIGN.md → DEV_STATUS.md → 실제 코드 순서로 현재 상태를 확인한다.
