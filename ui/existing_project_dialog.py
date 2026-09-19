@@ -17,11 +17,7 @@ class ExistingProjectDialog(QDialog):
         self.setAttribute(Qt.WA_TranslucentBackground)
         self._drag_offset = None
 
-        self.projects = projects or [
-            {"name": "AI Auditor Backend", "department": "개발본부", "type": "신규 구축", "date": "2026.08.01"},
-            {"name": "AI Auditor Backend", "department": "정보화기획실", "type": "고도화", "date": "2026.07.25"},
-            {"name": "AI Auditor Backend", "department": "운영본부", "type": "유지보수", "date": "2026.07.10"},
-        ]
+        self.projects = projects or []
         self.radio_group = QButtonGroup(self)
         self.radio_group.setExclusive(True)
 

@@ -88,7 +88,9 @@ def get_project_by_id(project_id):
 def get_project_by_name(name):
     connection = get_connection()
 
-    row = connection.execute(
+    normalized_name = " ".join(name.strip().split()).lower()
+
+    rows = connection.execute(
         """
         SELECT
             id,
@@ -98,16 +100,16 @@ def get_project_by_name(name):
             created_at,
             updated_at
         FROM projects
-        WHERE name = ?
         ORDER BY id DESC
-        LIMIT 1
-        """,
-        (name,),
-    ).fetchone()
+        """
+    ).fetchall()
 
     connection.close()
 
-    if row is None:
-        return None
+    for row in rows:
+        saved_name = " ".join(row["name"].strip().split()).lower()
 
-    return dict(row)
+        if saved_name == normalized_name:
+            return dict(row)
+
+    return None

@@ -34,12 +34,54 @@ class HomePage(QWidget):
         description.setAlignment(Qt.AlignCenter)
         description.setStyleSheet('font-weight: 500; font-family: "Segoe UI Variable", "Malgun Gothic";')
 
-        self.inspection_button = QPushButton("Inspection 시작    →")
+        self.inspection_button = QPushButton()
         self.inspection_button.setObjectName("inspectionStartButton")
         self.inspection_button.setCursor(Qt.PointingHandCursor)
         self.inspection_button.setFixedSize(205, 46)
-        self.inspection_button.setIcon(QIcon(self.asset_path("icons", "play.svg")))
-        self.inspection_button.setIconSize(QSize(24, 24))
+
+        button_layout = QHBoxLayout(self.inspection_button)
+        button_layout.setContentsMargins(16, 0, 16, 0)
+        button_layout.setSpacing(10)
+
+        # 재생 아이콘
+        button_icon = QLabel()
+        button_icon.setFixedSize(26, 26)
+        button_icon.setAlignment(Qt.AlignCenter)
+        button_icon.setPixmap(
+            QIcon(self.asset_path("icons", "play.svg")).pixmap(QSize(26, 26))
+        )
+        button_icon.setAttribute(Qt.WA_TransparentForMouseEvents)
+
+        # 버튼 문구
+        button_text = QLabel("Inspection 시작")
+        button_text.setAlignment(Qt.AlignCenter)
+        button_text.setStyleSheet(
+            'color: #ffffff;'
+            'background: transparent;'
+            'font-size: 15px;'
+            'font-weight: 700;'
+            'font-family: "Segoe UI Variable", "Malgun Gothic";'
+        )
+        button_text.adjustSize()
+        button_text.setAttribute(Qt.WA_TransparentForMouseEvents)
+
+        # 화살표
+        button_arrow = QLabel("→")
+        button_arrow.setFixedSize(18, 26)
+        button_arrow.setAlignment(Qt.AlignCenter)
+        button_arrow.setStyleSheet(
+            'color: #ffffff;'
+            'background: transparent;'
+            'font-size: 16px;'
+            'font-weight: 700;'
+        )
+        button_arrow.setAttribute(Qt.WA_TransparentForMouseEvents)
+
+        button_layout.addStretch()
+        button_layout.addWidget(button_icon, 0, Qt.AlignVCenter)
+        button_layout.addWidget(button_text, 0, Qt.AlignVCenter)
+        button_layout.addWidget(button_arrow, 0, Qt.AlignVCenter)
+        button_layout.addStretch()
 
         hero_layout.addWidget(title)
         hero_layout.addSpacing(10)

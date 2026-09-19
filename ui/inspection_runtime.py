@@ -223,7 +223,25 @@ def apply_inspection_runtime(InspectionPage):
         if project is not None:
             self._show_existing_project_dialog(project)
             return
-        project_id = create_project(name, department=department or None, note=note or None)
+
+        project_type_combo = self.findChild(QComboBox, "inspectionCombo")
+        project_type = project_type_combo.currentText().strip() if project_type_combo else ""
+
+        if not project_type or project_type == "선택":
+            QMessageBox.warning(
+                self,
+                "프로젝트 정보 확인",
+                "프로젝트 구분을 선택해 주세요."
+            )
+            return
+        
+        project_id = create_project(
+            name,
+            department=department or None,
+            project_type=project_type,
+            note=note or None,
+        )
+            
         self.last_project_id = project_id
         self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
 

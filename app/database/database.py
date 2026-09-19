@@ -1,8 +1,15 @@
 import sqlite3
+import sys
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
+if getattr(sys, "frozen", False):
+    # PyInstaller EXE 실행 시: EXE가 있는 폴더 기준
+    BASE_DIR = Path(sys.executable).resolve().parent
+else:
+    # Python 개발환경 실행 시: 프로젝트 루트 기준
+    BASE_DIR = Path(__file__).resolve().parents[2]
+
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "ai_auditor.db"
 
@@ -26,12 +33,23 @@ def initialize_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             department TEXT,
+            project_type TEXT,
             note TEXT,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         )
         """
     )
+
+    project_columns = [
+        row["name"]
+        for row in cursor.execute("PRAGMA table_info(projects)").fetchall()
+    ]
+
+    if "project_type" not in project_columns:
+        cursor.execute(
+            "ALTER TABLE projects ADD COLUMN project_type TEXT"
+        )
 
     cursor.execute(
         """

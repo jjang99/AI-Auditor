@@ -8,6 +8,8 @@ from ui.sidebar import Sidebar
 from ui.inspection_rules_dialog import InspectionRulesDialog
 from ui.existing_project_dialog import ExistingProjectDialog
 
+from app.database.repositories.project_repository import get_project_by_name
+from app.database.repositories.inspection_repository import get_latest_inspection
 
 class InspectionPage(QWidget):
     existing_project_selected = Signal(dict)
@@ -62,19 +64,36 @@ class InspectionPage(QWidget):
         form_row.setSpacing(16)
         left = QVBoxLayout(); left.setSpacing(3)
         project_label = QLabel("Project Name *"); project_label.setObjectName("inspectionFieldLabel")
-        self.project_name = QLineEdit("AI Auditor Backend"); self.project_name.setObjectName("inspectionInput"); self.project_name.setFixedHeight(31)
-        duplicate_row = QHBoxLayout(); duplicate_row.setSpacing(4)
-        duplicate_warning = QLabel("⚠ 동일한 이름의 프로젝트가 있습니다."); duplicate_warning.setObjectName("inspectionDuplicate")
-        duplicate_button = QPushButton("기존 프로젝트 확인"); duplicate_button.setObjectName("inspectionDuplicateButton"); duplicate_button.setCursor(Qt.PointingHandCursor); duplicate_button.clicked.connect(self.open_existing_projects)
-        duplicate_row.addWidget(duplicate_warning); duplicate_row.addWidget(duplicate_button); duplicate_row.addStretch()
+        self.project_name = QLineEdit(); self.project_name.setObjectName("inspectionInput"); self.project_name.setFixedHeight(31)
+        duplicate_row = QHBoxLayout()
+        duplicate_row.setSpacing(4)
+
+        self.duplicate_warning = QLabel(
+            "프로젝트명을 입력하면 기존 프로젝트 여부를 확인합니다."
+        )
+        self.duplicate_warning.setObjectName("inspectionDuplicate")
+
+        self.duplicate_button = QPushButton("기존 프로젝트 확인")
+        self.duplicate_button.setObjectName("inspectionDuplicateButton")
+        self.duplicate_button.setCursor(Qt.PointingHandCursor)
+        self.duplicate_button.clicked.connect(self.open_existing_projects)
+        self.duplicate_button.hide()
+
+        duplicate_row.addWidget(self.duplicate_warning)
+        duplicate_row.addWidget(self.duplicate_button)
+        duplicate_row.addStretch()
+
+        self.project_name.textChanged.connect(self.check_duplicate_project)
+
+        self.project_name.textChanged.connect(self.check_duplicate_project)
         desc_label = QLabel("Description (선택)"); desc_label.setObjectName("inspectionFieldLabel")
-        description_input = QLineEdit("AI Auditor 백엔드 시스템 소스코드 검사"); description_input.setObjectName("inspectionInput"); description_input.setFixedHeight(31)
+        description_input = QLineEdit(); description_input.setObjectName("inspectionInput"); description_input.setFixedHeight(31)
         left.addWidget(project_label); left.addWidget(self.project_name); left.addLayout(duplicate_row); left.addWidget(desc_label); left.addWidget(description_input)
         right = QVBoxLayout(); right.setSpacing(4)
         dept_label = QLabel("부서명(기관명) (선택)"); dept_label.setObjectName("inspectionFieldLabel")
-        department = QLineEdit("개발본부"); department.setObjectName("inspectionInput"); department.setFixedHeight(31)
+        department = QLineEdit(); department.setObjectName("inspectionInput"); department.setFixedHeight(31)
         type_label = QLabel("프로젝트 구분"); type_label.setObjectName("inspectionFieldLabel")
-        project_type = QComboBox(); project_type.setObjectName("inspectionCombo"); project_type.addItems(["신규 구축", "고도화", "유지보수"]); project_type.setFixedHeight(31)
+        project_type = QComboBox(); project_type.setObjectName("inspectionCombo"); project_type.addItems(["선택", "신규 구축", "고도화", "유지보수"]); project_type.setCurrentIndex(0); project_type.setFixedHeight(31)
         right.addWidget(dept_label); right.addWidget(department); right.addSpacing(8); right.addWidget(type_label); right.addWidget(project_type); right.addStretch()
         form_row.addLayout(left, 1); form_row.addLayout(right, 1); project_layout.addLayout(form_row); main.addWidget(project_card)
 
@@ -176,10 +195,61 @@ class InspectionPage(QWidget):
         text.addWidget(title_label); text.addWidget(value_label); text.addWidget(detail_label); layout.addWidget(icon_label); layout.addLayout(text,1); return box
 
     def open_security_rules(self): InspectionRulesDialog(self).exec()
+
+    def check_duplicate_project(self):
+        name = self.project_name.text().strip()
+
+        if not name:
+            self.duplicate_warning.setText(
+                "프로젝트명을 입력하면 기존 프로젝트 여부를 확인합니다."
+            )
+            self.duplicate_button.hide()
+            return
+
+        existing_project = get_project_by_name(name)
+
+        if existing_project:
+            self.duplicate_warning.setText(
+                "⚠ 동일한 이름의 프로젝트가 있습니다."
+            )
+            self.duplicate_button.show()
+        else:
+            self.duplicate_warning.setText(
+                "✓ 사용 가능한 프로젝트명입니다."
+            )
+            self.duplicate_button.hide()
+
     def open_existing_projects(self):
-        dialog=ExistingProjectDialog(self); dialog.project_selected.connect(self.existing_project_selected.emit); dialog.exec()
+        name = self.project_name.text().strip()
+        project = get_project_by_name(name)
 
+        if project is None:
+            return
 
+        latest_inspection = get_latest_inspection(project["id"])
+
+        if latest_inspection:
+            inspected_at = latest_inspection.get("inspected_at", "")
+            date = inspected_at[:10].replace("-", ".") if inspected_at else "-"
+        else:
+            date = "-"
+
+        modal_project = {
+            "id": project["id"],
+            "name": project["name"],
+            "department": project.get("department") or "-",
+            "type": project.get("project_type") or "-",
+            "date": date,
+        }
+
+        dialog = ExistingProjectDialog(
+            self,
+            projects=[modal_project]
+        )
+        dialog.project_selected.connect(
+            self.existing_project_selected.emit
+        )
+        dialog.exec()
 
     def apply_rule_text_theme(self, is_dark):
         """Set rule-row text directly so later/global QSS cannot wash it out."""
