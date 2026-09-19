@@ -172,7 +172,6 @@ class ReportsPage(QWidget):
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.report_table.verticalScrollBar().setFixedWidth(10)
 
         header = self.report_table.horizontalHeader()
         header.setFixedHeight(44)
@@ -513,39 +512,4 @@ class ReportsPage(QWidget):
                 }
                 #reportSecondaryButton:hover { background:#dfeaf2; border-color:#7f9bad; }
             """)
-        # Force the active Reports palette onto the actual visible controls.
-        # These widgets can retain the constructor's dark polish even after the
-        # page stylesheet changes, so update them explicitly as the final step.
-        if is_dark:
-            card_style = "background:#101d29; border:1px solid #3e586d; border-radius:9px;"
-            combo_style = "background:#0d1822; color:#f8fbfd; border:1px solid #557187; border-radius:7px; padding:0 10px; font-size:13px; font-weight:800;"
-            table_style = """
-                QTableWidget { background:#0b1620; color:#f6f9fc; border:1px solid #455f73; border-radius:6px; selection-background-color:#142c3f; selection-color:#ffffff; font-size:13px; font-weight:800; outline:0; }
-                QTableWidget::item { border-bottom:1px solid #354e61; padding:7px; }
-                QHeaderView::section { background:#1d384e; color:#ffffff; border:none; border-bottom:1px solid #698195; padding:8px; font-size:13px; font-weight:900; }
-                QScrollBar:vertical { background:#0b1620; width:10px; margin:2px 1px; border:none; }
-                QScrollBar::handle:vertical { background:#607487; min-height:38px; border-radius:4px; }
-                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0px; }
-                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }
-            """
-        else:
-            card_style = "background:#ffffff; border:1px solid #afc1cf; border-radius:9px;"
-            combo_style = "background:#ffffff; color:#203648; border:1px solid #97adbd; border-radius:7px; padding:0 10px; font-size:13px; font-weight:800;"
-            table_style = """
-                QTableWidget { background:#ffffff; color:#203648; border:1px solid #a8bac8; border-radius:6px; selection-background-color:#edf4f9; selection-color:#112a3e; font-size:13px; font-weight:800; outline:0; }
-                QTableWidget::item { border-bottom:1px solid #c8d6e0; padding:7px; }
-                QHeaderView::section { background:#dce9f2; color:#193348; border:none; border-bottom:1px solid #96adbe; padding:8px; font-size:13px; font-weight:900; }
-                QScrollBar:vertical { background:#f3f6f9; width:10px; margin:2px 1px; border:none; }
-                QScrollBar::handle:vertical { background:#a7b7c4; min-height:38px; border-radius:4px; }
-                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0px; }
-                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }
-            """
-
-        for name in ("reportSummaryCard", "reportFilterCard", "reportListCard", "reportActionCard"):
-            for card in self.findChildren(QFrame, name):
-                card.setStyleSheet(card_style)
-        for combo in self.findChildren(QComboBox, "reportCombo"):
-            combo.setStyleSheet(combo_style)
-        self.report_table.setStyleSheet(table_style)
-
         self._apply_item_colors(is_dark)
