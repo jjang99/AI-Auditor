@@ -161,7 +161,7 @@
 
 ## 2026-09-19 최종 회귀 미해결 기능 목록
 - [x] Projects > + New Project 클릭 무반응 — 수정 및 사용자 확인 PASS
-- [ ] Project Detail > Re-Inspect 모달 내부 기능 무반응
+- [x] Project Detail > Re-Inspect 모달 내부 기능 무반응 — 파일 선택, 실제 규칙 수 표시, 기존 프로젝트 정보 복원, 재검사 실행까지 사용자 확인 PASS
 - [x] Project Detail > New Inspection 클릭 무반응 — 기존 프로젝트 정보 유지 방식까지 수정 및 사용자 확인 PASS
 - [ ] Project Detail > Export Report 클릭 무반응
 - [ ] Reports > 보고서 내보내기 클릭 무반응
