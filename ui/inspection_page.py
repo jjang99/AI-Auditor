@@ -273,18 +273,6 @@ class InspectionPage(QWidget):
             desc_label.setStyleSheet(styles[2])
             view.setStyleSheet(styles[3])
 
-        # Rule-row surfaces are also applied directly here.  This keeps the
-        # frozen light theme intact while preventing a stale light row
-        # background from surviving after switching back to dark mode.
-        row_style = (
-            "QFrame#inspectionRuleRow { background:#0d1721; border:1px solid #3a4758; border-radius:6px; }"
-            if is_dark
-            else
-            "QFrame#inspectionRuleRow { background:#ffffff; border:1px solid #b8c4d2; border-radius:6px; }"
-        )
-        for row in self.findChildren(QFrame, "inspectionRuleRow"):
-            row.setStyleSheet(row_style)
-
     def inspection_style(self):
         return """
         #inspectionContent, #inspectionScroll { background:#09090b; border:none; }
