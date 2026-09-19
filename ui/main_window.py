@@ -145,6 +145,11 @@ class MainWindow(QMainWindow):
         elif selected_name == "Reports":
             self.header.hide()
             self.reports_page.refresh_reports()
+            # refresh_reports rebuilds table content; re-apply the current
+            # Reports palette afterwards so Light Mode cannot fall back to the
+            # constructor's dark local stylesheet.
+            self.reports_page.apply_theme(self.is_dark_mode)
+            self._apply_shared_scrollbar_style()
             self.page_stack.setCurrentWidget(self.reports_page)
         elif selected_name == "Administration":
             self.header.hide()
