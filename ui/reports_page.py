@@ -175,6 +175,7 @@ class ReportsPage(QWidget):
         self.report_table.setFixedHeight(382)
         self.report_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.report_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.report_table.setViewportMargins(0, 0, 0, 0)
 
         header = self.report_table.horizontalHeader()
         header.setFixedHeight(44)
