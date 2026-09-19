@@ -65,6 +65,8 @@ def apply_project_detail_runtime(ProjectDetailPage):
         self.current_project_id = None
         self.current_inspection_id = None
         self._issue_row_data = {}
+        self._current_issues = []
+        self.issue_sort_key = "severity"
 
     def load_project(self, project_id, inspection_id=None):
         project = get_project_by_id(project_id)
@@ -196,6 +198,16 @@ def apply_project_detail_runtime(ProjectDetailPage):
             layout.addWidget(button)
 
     def _runtime_update_issues(self, issues):
+        self._current_issues = list(issues)
+        severity_order = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3}
+        sort_key = getattr(self, "issue_sort_key", "severity")
+        if sort_key == "status":
+            issues = sorted(issues, key=lambda issue: (issue.get("status") or "", severity_order.get(issue.get("severity"), 9), issue.get("rule_code") or ""))
+        elif sort_key == "rule":
+            issues = sorted(issues, key=lambda issue: (issue.get("rule_code") or "", severity_order.get(issue.get("severity"), 9)))
+        else:
+            issues = sorted(issues, key=lambda issue: (severity_order.get(issue.get("severity"), 9), issue.get("rule_code") or ""))
+
         cards = self.findChildren(QFrame, "detailBodyCard")
         if len(cards) < 3:
             return
