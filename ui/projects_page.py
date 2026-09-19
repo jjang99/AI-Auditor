@@ -307,7 +307,7 @@ class ProjectsPage(QWidget):
             issues_suffix = QLabel("")
         else:
             issues_value = QLabel(str(project["issues"]))
-            issues_value.setObjectName("projectIssueGood" if project["issues"] <= 6 else "projectIssueWarning")
+            issues_value.setObjectName("projectIssueWarning")
             issues_suffix = QLabel("개 이슈")
             issues_suffix.setObjectName("projectIssueSuffix")
         issues_row.addWidget(issues_value, 0, Qt.AlignBottom)
