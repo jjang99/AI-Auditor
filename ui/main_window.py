@@ -242,11 +242,18 @@ class MainWindow(QMainWindow):
             self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS + LIGHT_TEXT_HIERARCHY_FINAL + LIGHT_SHARED_VISUAL_FINAL + PROJECTS_LIGHT_FINAL)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
+        # Keep every page and every sidebar synchronized with the single
+        # MainWindow theme state.  Update the navigation label first so a
+        # page-specific styling failure can never leave the UI in a mixed state.
+        for sidebar in self.sidebars:
+            sidebar.set_theme(self.is_dark_mode)
+
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
-        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
         self._apply_shared_combo_style()
-        for sidebar in self.sidebars:
-            sidebar.set_theme(self.is_dark_mode)
+
+        # Inspection has direct per-widget text styling.  Keep it last so it
+        # cannot prevent Reports/Admin/sidebar theme synchronization.
+        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
