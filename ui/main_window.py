@@ -250,10 +250,20 @@ class MainWindow(QMainWindow):
 
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
+        # Inspection owns a legacy dark page stylesheet.  In light mode it must
+        # be cleared so the verified global light refinements can actually reach
+        # every Inspection card/field.  Dark mode keeps the existing frozen look.
+        if self.is_dark_mode:
+            self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
+        else:
+            self.inspection_page.setStyleSheet("")
+
+        # Reports and Administration use page-local palettes.  Re-apply them
+        # after the global theme and after clearing Inspection's legacy sheet so
+        # light mode cannot retain dark card colors from construction time.
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
         self._apply_shared_combo_style()
 
-        # Inspection has direct per-widget text styling.  Keep it last so it
-        # cannot prevent Reports/Admin/sidebar theme synchronization.
+        # Rule labels use direct widget styles and therefore must be synchronized last.
         self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
