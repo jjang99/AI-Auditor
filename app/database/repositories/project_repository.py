@@ -3,7 +3,7 @@ from datetime import datetime
 from app.database.database import get_connection
 
 
-def create_project(name, department=None, note=None):
+def create_project(name, department=None, project_type=None, note=None):
     now = datetime.now().isoformat(timespec="seconds")
 
     connection = get_connection()
@@ -14,15 +14,17 @@ def create_project(name, department=None, note=None):
         INSERT INTO projects (
             name,
             department,
+            project_type,
             note,
             created_at,
             updated_at
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?)
         """,
         (
             name,
             department,
+            project_type,
             note,
             now,
             now,
@@ -46,6 +48,7 @@ def get_all_projects():
             id,
             name,
             department,
+            project_type,
             note,
             created_at,
             updated_at
@@ -68,6 +71,7 @@ def get_project_by_id(project_id):
             id,
             name,
             department,
+            project_type,
             note,
             created_at,
             updated_at
@@ -96,6 +100,7 @@ def get_project_by_name(name):
             id,
             name,
             department,
+            project_type,
             note,
             created_at,
             updated_at
@@ -113,3 +118,42 @@ def get_project_by_name(name):
             return dict(row)
 
     return None
+
+
+def get_projects_with_latest_inspection():
+    """Return every project with its latest inspection result, newest inspection first."""
+    connection = get_connection()
+    rows = connection.execute(
+        """
+        SELECT
+            p.id,
+            p.name,
+            p.department,
+            p.project_type,
+            p.note,
+            p.created_at,
+            p.updated_at,
+            i.id AS inspection_id,
+            i.inspected_at,
+            i.score,
+            i.grade,
+            i.status,
+            i.total_issues,
+            i.resolved_issues
+        FROM projects p
+        LEFT JOIN inspections i
+          ON i.id = (
+              SELECT i2.id
+              FROM inspections i2
+              WHERE i2.project_id = p.id
+              ORDER BY i2.inspected_at DESC, i2.id DESC
+              LIMIT 1
+          )
+        ORDER BY
+            CASE WHEN i.inspected_at IS NULL THEN 1 ELSE 0 END,
+            i.inspected_at DESC,
+            p.id DESC
+        """
+    ).fetchall()
+    connection.close()
+    return [dict(row) for row in rows]
