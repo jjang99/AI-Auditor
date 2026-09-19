@@ -1,3 +1,4 @@
+import warnings
 import time
 from pathlib import Path
 
@@ -99,8 +100,14 @@ def apply_inspection_runtime(InspectionPage):
                 toggle = QPushButton("✓"); toggle.setObjectName("inspectionCheck"); toggle.setCheckable(True); toggle.setChecked(True); toggle.setCursor(Qt.PointingHandCursor); toggle.setFixedSize(15, 15)
                 toggle.clicked.connect(lambda checked, name=category: self.set_rule_category(name, checked)); row.layout().insertWidget(index, toggle)
             if view_button is not None:
-                try: view_button.clicked.disconnect()
-                except (RuntimeError, TypeError): pass
+                try:
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", RuntimeWarning)
+                        view_button.clicked.disconnect()
+                except (RuntimeError, TypeError):
+                    pass
+                except Warning:
+                    pass
                 view_button.clicked.connect(lambda _checked=False, name=category: self.open_rule_category_dialog(name))
 
     def set_rule_category(self, category, selected):
