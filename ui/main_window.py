@@ -98,6 +98,7 @@ class MainWindow(QMainWindow):
             sidebar.theme_toggle_requested.connect(self.toggle_theme)
         self.projects_page.project_selected.connect(self.open_project_detail)
         self.projects_page.new_project_button.clicked.connect(lambda: self.select_menu("Inspection"))
+        self.project_detail_page.new_inspection_requested.connect(lambda: self.select_menu("Inspection"))
         self.reports_page.report_selected.connect(self.open_project_detail)
         self.inspection_page.existing_project_selected.connect(self.open_project_detail)
         self.inspection_page.inspection_result_requested.connect(self.open_latest_inspection_result)
