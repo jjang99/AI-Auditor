@@ -9,13 +9,16 @@ from PySide6.QtWidgets import (
 
 
 class AdministrationRulesDialog(QDialog):
-    def __init__(self, category_name, total, active, inactive, parent=None):
+    def __init__(self, category_name, total, active, inactive, parent=None, icon_file=None):
         super().__init__(parent)
         self.setWindowTitle(f"{category_name} - 규칙 목록")
         self.setModal(True)
         self.setFixedSize(700, 500)
 
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons", "logo.svg")
+        icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "assets", "icons", icon_file or "logo.svg"
+        )
         self.setWindowIcon(QIcon(icon_path))
 
         layout = QVBoxLayout(self)
@@ -40,9 +43,13 @@ class AdministrationRulesDialog(QDialog):
         summary_row.setSpacing(12)
         total_label = QLabel(f"총 {total}개 규칙")
         total_label.setObjectName("adminSummaryTotal")
+        self.active_count = active
+        self.inactive_count = inactive
         active_label = QLabel(f"활성 {active}개")
         active_label.setObjectName("adminSummaryActive")
         inactive_label = QLabel(f"비활성 {inactive}개")
+        self.active_label = active_label
+        self.inactive_label = inactive_label
         inactive_label.setObjectName("adminSummaryInactive")
         for widget in (total_label, active_label, inactive_label):
             summary_row.addWidget(widget)
@@ -167,19 +174,15 @@ class AdministrationRulesDialog(QDialog):
             toggle.setChecked(checked)
             toggle.setCursor(Qt.PointingHandCursor)
             toggle.setFixedSize(50, 24)
-            toggle.toggled.connect(lambda state, button=toggle: button.setText("ON" if state else "OFF"))
+            toggle.toggled.connect(
+                lambda state, button=toggle: self._rule_toggled(state, button)
+            )
 
             row_layout.addWidget(code_label)
             row_layout.addWidget(name_label)
             row_layout.addWidget(desc_label, 1)
             row_layout.addWidget(severity_label, 0, Qt.AlignCenter)
             row_layout.addWidget(toggle, 0, Qt.AlignCenter)
-            # Click anywhere on a rule row to open the frozen MVP Rule Detail dialog.
-            detail_args = (code_text, name, description, severity, toggle)
-            row.mousePressEvent = lambda event, args=detail_args: self.open_rule_detail(*args)
-            for child in (code_label, name_label, desc_label, severity_label):
-                child.setCursor(Qt.PointingHandCursor)
-                child.mousePressEvent = lambda event, args=detail_args: self.open_rule_detail(*args)
 
             rows.addWidget(row)
             self.rule_rows.append((row, code_text.lower(), name.lower()))
@@ -203,6 +206,17 @@ class AdministrationRulesDialog(QDialog):
         layout.addLayout(footer)
 
         self.apply_theme()
+
+    def _rule_toggled(self, state, button):
+        button.setText("ON" if state else "OFF")
+        if state:
+            self.active_count += 1
+            self.inactive_count = max(0, self.inactive_count - 1)
+        else:
+            self.active_count = max(0, self.active_count - 1)
+            self.inactive_count += 1
+        self.active_label.setText(f"활성 {self.active_count}개")
+        self.inactive_label.setText(f"비활성 {self.inactive_count}개")
 
     def open_rule_detail(self, code, name, description, severity, source_toggle):
         dialog = QDialog(self)
