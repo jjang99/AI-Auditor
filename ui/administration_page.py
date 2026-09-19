@@ -108,6 +108,7 @@ class AdministrationPage(QWidget):
             ("AI 특화 검증", 10, 8, 2, "administration.svg"),
         ]
         self.category_counts = {}
+        self.category_rule_states = {}
         for name, total, active, inactive, icon_file in categories:
             row = QFrame()
             row.setObjectName("adminCategoryRow")
@@ -295,8 +296,12 @@ class AdministrationPage(QWidget):
             """)
 
     def open_rules(self, name, total, active, inactive, icon_file):
-        dialog = AdministrationRulesDialog(name, total, active, inactive, self, icon_file)
+        dialog = AdministrationRulesDialog(
+            name, total, active, inactive, self, icon_file,
+            self.category_rule_states.get(name),
+        )
         dialog.exec()
+        self.category_rule_states[name] = dict(dialog.rule_states)
         counts = self.category_counts.get(name, {})
         if counts:
             counts["adminActiveCount"].setText(str(dialog.active_count))
