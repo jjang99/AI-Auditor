@@ -413,6 +413,21 @@ QComboBox#inspectionCombo::drop-down {
 }
 QComboBox#inspectionCombo::drop-down:hover { background:#dfeaf2; }
 
+/* Inspection widgets that own direct/local dark styles need explicit light
+   recovery here. Keep this block light-only so the verified dark UI is untouched. */
+#inspectionRuleName { color:#0f172a; }
+#inspectionRuleCount { color:#334155; }
+#inspectionRuleDescription { color:#475569; }
+#inspectionHelpButton, #inspectionSmallButton, #inspectionViewButton {
+    color:#0f172a;
+    background:#ffffff;
+    border-color:#94a3b8;
+}
+#inspectionHelpButton:hover, #inspectionSmallButton:hover, #inspectionViewButton:hover {
+    background:#e0eaf2;
+    border-color:#7f9bad;
+}
+
 #detailIssuesHeader, #detailIssueScroll, #detailIssueContainer, #detailIssueListRow {
     background:transparent;
 }
