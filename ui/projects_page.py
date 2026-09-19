@@ -18,10 +18,11 @@ from app.database.repositories.project_repository import get_projects_with_lates
 
 
 class CircularScore(QWidget):
-    def __init__(self, score=None, grade=None, parent=None):
+    def __init__(self, score=None, grade=None, parent=None, light_mode=False):
         super().__init__(parent)
         self.score = score
         self.grade = grade
+        self.light_mode = light_mode
         self.setFixedSize(82, 82)
 
     def paintEvent(self, event):
@@ -29,8 +30,7 @@ class CircularScore(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
         rect = QRectF(6, 6, 70, 70)
         # Light mode uses a softer neutral ring so an empty score does not dominate the card.
-        window_bg = self.palette().color(self.palette().Window)
-        is_light = window_bg.lightness() > 128
+        is_light = self.light_mode
         ring_color = QColor("#e2e8f0") if is_light else QColor("#334155")
         ring_width = 5
         background_pen = QPen(ring_color, ring_width)
@@ -85,6 +85,7 @@ class ProjectsPage(QWidget):
     def __init__(self):
         super().__init__()
         self.project_cards = []
+        self.score_widgets = []
         base_path = os.path.dirname(os.path.dirname(__file__))
         self.icon_path = os.path.join(base_path, "assets", "icons")
         page_layout = QHBoxLayout(self)
@@ -227,12 +228,12 @@ class ProjectsPage(QWidget):
         project_name.setToolTip(project["name"])
         # Use one visual size for normal names. Shrink only when the rendered
         # width would exceed the available first-column width.
-        available_name_width = 215
+        available_name_width = 225
         name_font = QFont("Malgun Gothic")
         name_font.setBold(True)
         name_font.setPixelSize(17)
         while (
-            name_font.pixelSize() > 9
+            name_font.pixelSize() > 8
             and QFontMetrics(name_font).horizontalAdvance(project["name"]) > available_name_width
         ):
             name_font.setPixelSize(name_font.pixelSize() - 1)
@@ -271,7 +272,8 @@ class ProjectsPage(QWidget):
         score_layout = QVBoxLayout(score_widget)
         score_layout.setContentsMargins(2, 0, 2, 0)
         score_layout.setAlignment(Qt.AlignCenter)
-        score_area = CircularScore(project["score"], project["grade"])
+        score_area = CircularScore(project["score"], project["grade"], light_mode=getattr(self, "_light_mode", False))
+        self.score_widgets.append(score_area)
         score_layout.addWidget(score_area, 0, Qt.AlignCenter)
         card_layout.addWidget(score_widget, 0)
         grade_widget = QWidget()
@@ -350,6 +352,12 @@ class ProjectsPage(QWidget):
         card_layout.addWidget(result_widget, 3)
         card.mousePressEvent = lambda event, p=project: self.project_selected.emit(p)
         return card
+
+    def set_light_mode(self, is_light):
+        self._light_mode = bool(is_light)
+        for score_widget in getattr(self, "score_widgets", []):
+            score_widget.light_mode = self._light_mode
+            score_widget.update()
 
     def filter_projects(self, text):
         keyword = text.strip().lower()
