@@ -165,7 +165,7 @@
 - [x] Project Detail > Re-Inspect 모달 내부 기능 무반응 — 파일 선택, 실제 규칙 수 표시, 기존 프로젝트 정보 복원, 동적 예상 검사시간, 재검사 실행까지 사용자 확인 PASS
 - [x] Project Detail > New Inspection 클릭 무반응 — 기존 프로젝트 정보 유지 방식까지 수정 및 사용자 확인 PASS
 - [x] Project Detail > Export Report 클릭 무반응 — TXT 검사보고서 저장 사용자 확인 PASS
-- [ ] Project Detail > Issues 정렬 버튼 무반응 — 한글화 및 심각도/상태/규칙 정렬 기능 구현, 사용자 확인 대기
+- [x] Project Detail > Issues 정렬 버튼 무반응 — 한글화, 심각도/상태/규칙 정렬, 테마 연동, 프로젝트 전환 시 초기화, 스크롤 기반 목록으로 사용자 확인 PASS
 - [ ] Reports > 보고서 내보내기 클릭 무반응
 - [ ] Inspection > Light Mode > 프로젝트명 미입력 후 검사 시작 시 경고 Modal 내용 미표시
 - [ ] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응
