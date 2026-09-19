@@ -141,28 +141,13 @@ class MainWindow(QMainWindow):
         elif selected_name == "Inspection":
             self.header.hide()
             self.inspection_page.prepare_new_inspection()
-            if self.is_dark_mode:
-                self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
-            else:
-                self.inspection_page.setStyleSheet(
-                    LIGHT_UI_OVERRIDES
-                    + LIGHT_INSPECTION_REFINEMENTS
-                    + LIGHT_INSPECTION_READABILITY_V2
-                    + LIGHT_INSPECTION_FINAL
-                    + LIGHT_INSPECTION_PROGRESS
-                    + LIGHT_TEXT_HIERARCHY_FINAL
-                    + LIGHT_SHARED_VISUAL_FINAL
-                )
-            self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
             self.page_stack.setCurrentWidget(self.inspection_page)
         elif selected_name == "Reports":
             self.header.hide()
             self.reports_page.refresh_reports()
-            self.reports_page.apply_theme(self.is_dark_mode)
             self.page_stack.setCurrentWidget(self.reports_page)
         elif selected_name == "Administration":
             self.header.hide()
-            self.administration_page.apply_theme(self.is_dark_mode)
             self.page_stack.setCurrentWidget(self.administration_page)
 
     def open_latest_inspection_result(self):
@@ -257,36 +242,11 @@ class MainWindow(QMainWindow):
             self.setStyleSheet(LIGHT_THEME + LIGHT_UI_OVERRIDES + DETAIL_LIGHT_REFINEMENTS + LIGHT_INSPECTION_REFINEMENTS + LIGHT_INSPECTION_READABILITY_V2 + LIGHT_INSPECTION_FINAL + LIGHT_INSPECTION_PROGRESS + LIGHT_TEXT_HIERARCHY_FINAL + LIGHT_SHARED_VISUAL_FINAL + PROJECTS_LIGHT_FINAL)
             self.theme_button.setText("☾")
             self.theme_button.setToolTip("Dark Mode")
-        # Keep every page and every sidebar synchronized with the single
-        # MainWindow theme state.  Update the navigation label first so a
-        # page-specific styling failure can never leave the UI in a mixed state.
-        for sidebar in self.sidebars:
-            sidebar.set_theme(self.is_dark_mode)
-
         self.projects_page.set_light_mode(not self.is_dark_mode)
         self.home_page.set_wave_theme(self.is_dark_mode)
-        # Inspection owns a legacy dark page stylesheet.  In light mode it must
-        # be cleared so the verified global light refinements can actually reach
-        # every Inspection card/field.  Dark mode keeps the existing frozen look.
-        if self.is_dark_mode:
-            self.inspection_page.setStyleSheet(self.inspection_page.inspection_style())
-        else:
-            self.inspection_page.setStyleSheet(
-                LIGHT_UI_OVERRIDES
-                + LIGHT_INSPECTION_REFINEMENTS
-                + LIGHT_INSPECTION_READABILITY_V2
-                + LIGHT_INSPECTION_FINAL
-                + LIGHT_INSPECTION_PROGRESS
-                + LIGHT_TEXT_HIERARCHY_FINAL
-                + LIGHT_SHARED_VISUAL_FINAL
-            )
-
-        # Reports and Administration use page-local palettes.  Re-apply them
-        # after the global theme and after clearing Inspection's legacy sheet so
-        # light mode cannot retain dark card colors from construction time.
+        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
         self.reports_page.apply_theme(self.is_dark_mode)
         self.administration_page.apply_theme(self.is_dark_mode)
         self._apply_shared_combo_style()
-
-        # Rule labels use direct widget styles and therefore must be synchronized last.
-        self.inspection_page.apply_rule_text_theme(self.is_dark_mode)
+        for sidebar in self.sidebars:
+            sidebar.set_theme(self.is_dark_mode)
