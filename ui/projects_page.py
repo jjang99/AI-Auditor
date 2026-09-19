@@ -240,6 +240,27 @@ class ProjectsPage(QWidget):
             f'font-family:"Malgun Gothic"; font-size:{chosen_px}px; font-weight:900;'
         )
         project_name.setMinimumWidth(available_name_width)
+
+        department = QLabel(project["department"])
+        department.setObjectName("projectDepartment")
+        department.setMaximumWidth(105)
+        department.setFixedHeight(18)
+        department.setAlignment(Qt.AlignCenter)
+
+        inspection_date = QLabel(project["date"])
+        inspection_date.setObjectName("projectMeta")
+
+        status = QLabel()
+        if project["status"] == "검사 실패":
+            status.setText("●  검사 실패")
+            status.setObjectName("projectFailedStatus")
+        elif project["status"] == "검사 전":
+            status.setText("●  검사 전")
+            status.setObjectName("projectPendingStatus")
+        else:
+            status.setText("●  AI 검사 완료")
+            status.setObjectName("projectStatus")
+
         text_layout.addWidget(project_name)
         text_layout.addWidget(department, 0, Qt.AlignLeft)
         text_layout.addWidget(inspection_date)
