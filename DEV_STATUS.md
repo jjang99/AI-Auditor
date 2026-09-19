@@ -139,3 +139,22 @@
 3. 폐쇄망 Windows EXE 패키징 준비
 4. EXE 실행 및 SQLite/리소스/경로 동작 점검
 5. 최종 회귀 테스트 및 제출 준비
+
+## 2026-09-19 EXE 패키징 전 최종 회귀 보정
+- PyInstaller onedir/windowed 패키징 및 외부 data DB 경로 분리까지 확인한 뒤 전체 UI 회귀 점검 수행
+- Inspection Light Mode 테마 정상화 완료
+- Reports Dark/Light Mode 정상화 완료
+- Reports 검사보고서 목록은 7건 이상일 때만 세로 스크롤 표시하며, Project Detail Issues와 동일한 얇은 스크롤 기준으로 통일
+- Project Detail Issues 스크롤은 Dark/Light 모두 주변 경계선에 맞춘 저대비·얇은 표현으로 확정
+- 테마 전환 중 삭제된 CircularScore 참조로 발생하던 `Internal C++ object ... already deleted` 오류 제거
+- Inspection 규칙 보기 버튼 재연결 시 발생하던 `Failed to disconnect ... clicked()` RuntimeWarning 제거
+- 사용자 최종 확인: Reports Light Mode 정상, Reports/Project Detail 스크롤 정상, 위 터미널 오류/경고 재발 없음
+- 위 정상 상태를 새로운 회귀 기준점으로 고정하며, 후속 작업에서 관련 UI/테마/스크롤을 임의 변경하지 않음
+
+## 다음 작업 시작점 — 2026-09-19
+1. 현재 GitHub main 정상 기준 유지
+2. 최종 기능 회귀 테스트 1회 수행
+3. PyInstaller `--onedir --windowed` 최종 EXE 재빌드
+4. EXE에서 SQLite/data 경로, 아이콘/리소스, 핵심 E2E 재확인
+5. 인터넷 차단/폐쇄망 조건의 독립 실행 검증
+6. 이상 없으면 제출용 빌드 및 최종 정리
