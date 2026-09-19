@@ -439,4 +439,38 @@ QComboBox#inspectionCombo::drop-down:hover { background:#dfeaf2; }
 #detailHistoryButton:hover, #detailSortButton:hover, #detailActionButton:hover {
     background:#edf3f7;
 }
+
+#detailSortButton {
+    min-height:24px;
+    max-height:24px;
+    padding:0 18px 0 8px;
+    font-size:9px;
+    font-weight:600;
+    text-align:left;
+}
+#detailSortButton::menu-indicator {
+    subcontrol-origin:padding;
+    subcontrol-position:center right;
+    right:6px;
+    width:7px;
+    height:7px;
+}
+QMenu#detailSortMenu {
+    background:#ffffff;
+    color:#1d3b52;
+    border:1px solid #a9bac8;
+    border-radius:6px;
+    padding:2px;
+    font-size:9px;
+    font-weight:600;
+}
+QMenu#detailSortMenu::item {
+    min-height:18px;
+    padding:1px 12px 1px 8px;
+    border-radius:4px;
+}
+QMenu#detailSortMenu::item:selected {
+    background:#edf3f7;
+    color:#1d3b52;
+}
 """
