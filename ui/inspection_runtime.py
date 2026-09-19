@@ -5,7 +5,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, QThread, Signal, Qt
 from PySide6.QtWidgets import QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
-from app.database.repositories.project_repository import create_project, get_project_by_name
+from app.database.repositories.project_repository import create_project, get_project_by_id, get_project_by_name
 from app.services.inspection_service import InspectionService, SUPPORTED_TEXT_EXTENSIONS
 from rules.core.engine import InspectionCancelled
 from rules.definitions.default_rules import get_default_rules
@@ -69,7 +69,7 @@ def apply_inspection_runtime(InspectionPage):
     original_init = InspectionPage.__init__; original_progress = InspectionPage.create_progress_card; original_complete = InspectionPage.create_complete_card
 
     def runtime_init(self):
-        original_init(self); self.selected_files = []; self.selected_rule_categories = set(CATEGORY_COUNTS); self.last_inspection_id = None; self.last_project_id = None; self._inspection_thread = None; self._inspection_worker = None
+        original_init(self); self.selected_files = []; self.selected_rule_categories = set(CATEGORY_COUNTS); self.last_inspection_id = None; self.last_project_id = None; self.existing_project_id = None; self._inspection_thread = None; self._inspection_worker = None
         self.demo_timer.stop()
         try: self.demo_timer.timeout.disconnect()
         except RuntimeError: pass
@@ -227,9 +227,16 @@ def apply_inspection_runtime(InspectionPage):
         if not selected_rules: QMessageBox.warning(self, "검사 기준 확인", "실행할 검사 기준을 하나 이상 선택해 주세요."); return
         inputs = self.findChildren(QLineEdit, "inspectionInput"); note = inputs[1].text().strip() if len(inputs) > 1 else None; department = inputs[2].text().strip() if len(inputs) > 2 else None
         project = get_project_by_name(name)
-        if project is not None:
+        if self.existing_project_id is not None:
+            if project is None or project["id"] != self.existing_project_id:
+                QMessageBox.warning(self, "프로젝트 정보 확인", "기존 프로젝트 정보가 변경되었습니다. Project Detail에서 New Inspection을 다시 선택해 주세요.")
+                return
+            project_id = self.existing_project_id
+        elif project is not None:
             self._show_existing_project_dialog(project)
             return
+        else:
+            project_id = None
 
         project_type_combo = self.findChild(QComboBox, "inspectionCombo")
         project_type = project_type_combo.currentText().strip() if project_type_combo else ""
@@ -242,12 +249,13 @@ def apply_inspection_runtime(InspectionPage):
             )
             return
         
-        project_id = create_project(
-            name,
-            department=department or None,
-            project_type=project_type,
-            note=note or None,
-        )
+        if project_id is None:
+            project_id = create_project(
+                name,
+                department=department or None,
+                project_type=project_type,
+                note=note or None,
+            )
             
         self.last_project_id = project_id
         self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
@@ -275,6 +283,27 @@ def apply_inspection_runtime(InspectionPage):
     def _inspection_failed(self, message):
         self.progress_card.hide(); self.complete_card.hide(); self.summary_card.show(); self._inspection_thread = None; self._inspection_worker = None; QMessageBox.critical(self, "검사 실행 오류", message)
 
+    def prepare_existing_project_inspection(self, project_id):
+        """Project Detail의 New Inspection: 프로젝트 정보는 유지하고 새 Inspection만 준비한다."""
+        if self._inspection_thread is not None:
+            return
+        project = get_project_by_id(project_id)
+        if project is None:
+            return
+        self.prepare_new_inspection()
+        self.existing_project_id = project_id
+        self.project_name.setText(project.get("name") or "")
+        inputs = self.findChildren(QLineEdit, "inspectionInput")
+        if len(inputs) > 1:
+            inputs[1].setText(project.get("note") or "")
+        if len(inputs) > 2:
+            inputs[2].setText(project.get("department") or "")
+        project_type_combo = self.findChild(QComboBox, "inspectionCombo")
+        if project_type_combo is not None and project.get("project_type"):
+            index = project_type_combo.findText(project["project_type"])
+            if index >= 0:
+                project_type_combo.setCurrentIndex(index)
+
     def prepare_new_inspection(self):
         """Inspection 메뉴로 다시 진입할 때 새 검사를 시작할 수 있는 상태로 복원한다."""
         if self._inspection_thread is not None:
@@ -284,6 +313,7 @@ def apply_inspection_runtime(InspectionPage):
         self.summary_card.show()
         self.last_inspection_id = None
         self.last_project_id = None
+        self.existing_project_id = None
         self._refresh_file_view()
 
     def runtime_progress_card(self):
@@ -295,4 +325,4 @@ def apply_inspection_runtime(InspectionPage):
     InspectionPage.__init__ = runtime_init; InspectionPage.create_progress_card = runtime_progress_card; InspectionPage.create_complete_card = runtime_complete_card
     InspectionPage._wire_rule_rows = _wire_rule_rows; InspectionPage.set_rule_category = set_rule_category; InspectionPage.set_all_rule_categories = set_all_rule_categories; InspectionPage._sync_rule_toggle_buttons = _sync_rule_toggle_buttons; InspectionPage._selected_executable_rules = _selected_executable_rules; InspectionPage._refresh_rule_summary = _refresh_rule_summary; InspectionPage.open_rule_category_dialog = open_rule_category_dialog
     InspectionPage.select_inspection_files = select_inspection_files; InspectionPage.clear_inspection_files = clear_inspection_files; InspectionPage.remove_inspection_file = remove_inspection_file; InspectionPage._refresh_file_table = _refresh_file_table; InspectionPage._refresh_file_view = _refresh_file_view
-    InspectionPage._show_existing_project_dialog = _show_existing_project_dialog; InspectionPage.start_real_inspection = start_real_inspection; InspectionPage.cancel_real_inspection = cancel_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_cancelled = _inspection_cancelled; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
+    InspectionPage._show_existing_project_dialog = _show_existing_project_dialog; InspectionPage.prepare_existing_project_inspection = prepare_existing_project_inspection; InspectionPage.start_real_inspection = start_real_inspection; InspectionPage.cancel_real_inspection = cancel_real_inspection; InspectionPage._set_progress_state = _set_progress_state; InspectionPage._inspection_succeeded = _inspection_succeeded; InspectionPage._inspection_cancelled = _inspection_cancelled; InspectionPage._inspection_failed = _inspection_failed; InspectionPage.prepare_new_inspection = prepare_new_inspection
