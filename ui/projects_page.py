@@ -22,16 +22,16 @@ class CircularScore(QWidget):
         super().__init__(parent)
         self.score = score
         self.grade = grade
-        self.setFixedSize(72, 72)
+        self.setFixedSize(82, 82)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        rect = QRectF(6, 6, 60, 60)
+        rect = QRectF(6, 6, 70, 70)
         # Light mode uses a softer neutral ring so an empty score does not dominate the card.
         is_light = self.palette().color(self.backgroundRole()).lightness() > 128
         ring_color = QColor("#e2e8f0") if is_light else QColor("#334155")
-        ring_width = 3 if is_light else 5
+        ring_width = 5
         background_pen = QPen(ring_color, ring_width)
         background_pen.setCapStyle(Qt.RoundCap)
         painter.setPen(background_pen)
@@ -45,7 +45,7 @@ class CircularScore(QWidget):
                 "E": "#ef4444",
             }
             score_color = QColor(grade_colors.get(self.grade, "#94a3b8"))
-            score_pen = QPen(score_color, 5)
+            score_pen = QPen(score_color, 6)
             score_pen.setCapStyle(Qt.RoundCap)
             painter.setPen(score_pen)
             start_angle = 90 * 16
@@ -58,16 +58,16 @@ class CircularScore(QWidget):
             painter.setPen(QColor("#64748b") if is_light else QColor("#94a3b8"))
             score_text = "-"
         font = painter.font()
-        font.setPointSize(15)
+        font.setPointSize(18)
         font.setBold(True)
         painter.setFont(font)
-        painter.drawText(QRectF(0, 14, 72, 28), Qt.AlignCenter, score_text)
+        painter.drawText(QRectF(0, 18, 82, 30), Qt.AlignCenter, score_text)
         if self.score is not None:
             font.setPointSize(6)
             font.setBold(False)
             painter.setFont(font)
             painter.setPen(QColor("#94a3b8"))
-            painter.drawText(QRectF(0, 40, 72, 16), Qt.AlignCenter, "/100")
+            painter.drawText(QRectF(0, 47, 82, 16), Qt.AlignCenter, "/100")
 
 
 class VerticalSeparator(QFrame):
@@ -218,14 +218,14 @@ class ProjectsPage(QWidget):
         folder_icon.setFixedSize(44, 44)
         folder_icon.setAlignment(Qt.AlignCenter)
         text_layout = QVBoxLayout()
-        text_layout.setSpacing(4)
+        text_layout.setSpacing(5)
         text_layout.setContentsMargins(0, 1, 0, 1)
         project_name = QLabel(project["name"])
         project_name.setObjectName("projectName")
         department = QLabel(project["department"])
         department.setObjectName("projectDepartment")
         department.setMaximumWidth(105)
-        department.setFixedHeight(20)
+        department.setFixedHeight(18)
         department.setAlignment(Qt.AlignCenter)
         inspection_date = QLabel(project["date"])
         inspection_date.setObjectName("projectMeta")
@@ -255,7 +255,7 @@ class ProjectsPage(QWidget):
         score_layout.addWidget(score_area, 0, Qt.AlignCenter)
         card_layout.addWidget(score_widget, 0)
         grade_widget = QWidget()
-        grade_widget.setFixedWidth(56)
+        grade_widget.setFixedWidth(62)
         grade_layout = QVBoxLayout(grade_widget)
         grade_layout.setContentsMargins(0, 0, 0, 0)
         grade_layout.setSpacing(2)
@@ -273,7 +273,7 @@ class ProjectsPage(QWidget):
         card_layout.addWidget(grade_widget)
         card_layout.addWidget(VerticalSeparator(), 0, Qt.AlignVCenter)
         result_widget = QWidget()
-        result_widget.setMinimumWidth(145)
+        result_widget.setMinimumWidth(160)
         result_layout = QVBoxLayout(result_widget)
         result_layout.setContentsMargins(5, 3, 0, 3)
         result_layout.setSpacing(6)
