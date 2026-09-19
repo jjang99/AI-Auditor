@@ -241,7 +241,9 @@ def apply_inspection_runtime(InspectionPage):
         project_type_combo = self.findChild(QComboBox, "inspectionCombo")
         project_type = project_type_combo.currentText().strip() if project_type_combo else ""
 
-        if not project_type or project_type == "선택":
+        # Existing Project의 New Inspection / Re-Inspect는 이미 저장된 프로젝트를
+        # 재사용하므로 프로젝트 구분을 새로 검증하지 않는다.
+        if project_id is None and (not project_type or project_type == "선택"):
             QMessageBox.warning(
                 self,
                 "프로젝트 정보 확인",
