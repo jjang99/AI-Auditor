@@ -1,7 +1,7 @@
 import os
 
 from PySide6.QtCore import Qt, QSize, Signal
-from PySide6.QtGui import QColor, QIcon
+from PySide6.QtGui import QColor, QIcon, QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QHBoxLayout, QHeaderView,
     QLabel, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
@@ -51,6 +51,7 @@ class ReportsPage(QWidget):
             ("detail_resolved.svg", "조치 완료", "0", "건", "reportMetricPurple"),
         ]
         self.summary_values = []
+        self.summary_icons = []
         for icon_file, label_text, value_text, suffix, value_object in summary_data:
             card = QFrame()
             card.setObjectName("reportSummaryCard")
@@ -63,7 +64,10 @@ class ReportsPage(QWidget):
             label_row.setSpacing(8)
             icon = QLabel()
             icon.setObjectName("reportMetricIcon")
-            icon.setPixmap(QIcon(os.path.join(self.icon_dir, icon_file)).pixmap(QSize(24, 24)))
+            base_pixmap = QIcon(os.path.join(self.icon_dir, icon_file)).pixmap(QSize(24, 24))
+            icon.setProperty("basePixmap", base_pixmap)
+            icon.setPixmap(base_pixmap)
+            self.summary_icons.append(icon)
             icon.setFixedSize(26, 26)
             icon.setAlignment(Qt.AlignCenter)
             label = QLabel(label_text)
@@ -379,8 +383,29 @@ class ReportsPage(QWidget):
             else:
                 self.report_table.item(row, 5).setForeground(QColor("#ff6464" if is_dark else "#c93636"))
 
+    @staticmethod
+    def _tinted_pixmap(base_pixmap, color):
+        pixmap = base_pixmap.copy()
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.fillRect(pixmap.rect(), QColor(color))
+        painter.end()
+        return pixmap
+
+    def _apply_summary_icon_colors(self, is_dark):
+        colors = (
+            ["#60a5fa", "#34d399", "#d6a84b", "#2dd4bf"]
+            if is_dark
+            else ["#2563eb", "#059669", "#9a6700", "#0f766e"]
+        )
+        for icon, color in zip(self.summary_icons, colors):
+            base_pixmap = icon.property("basePixmap")
+            if base_pixmap is not None:
+                icon.setPixmap(self._tinted_pixmap(base_pixmap, color))
+
     def apply_theme(self, is_dark):
         self._is_dark_theme = is_dark
+        self._apply_summary_icon_colors(is_dark)
         if is_dark:
             self.setStyleSheet("""
                 #reportSummaryCard, #reportFilterCard, #reportListCard, #reportActionCard {
