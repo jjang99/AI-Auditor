@@ -221,7 +221,20 @@ def apply_inspection_runtime(InspectionPage):
 
     def start_real_inspection(self):
         name = self.project_name.text().strip()
-        if not name: QMessageBox.warning(self, "프로젝트 정보 확인", "Project Name을 입력해 주세요."); return
+        if not name:
+            warning = QMessageBox(self)
+            warning.setIcon(QMessageBox.Warning)
+            warning.setWindowTitle("프로젝트 정보 확인")
+            warning.setText("Project Name을 입력해 주세요.")
+            warning.setStandardButtons(QMessageBox.Ok)
+            warning.setStyleSheet(
+                "QMessageBox { background:#ffffff; }"
+                "QLabel { color:#172a3c; font-size:12px; font-weight:600; }"
+                "QPushButton { min-width:72px; min-height:28px; color:#172a3c; background:#ffffff; border:1px solid #97adbd; border-radius:6px; padding:2px 10px; }"
+                "QPushButton:hover { background:#edf3f7; }"
+            )
+            warning.exec()
+            return
         if not self.selected_files: QMessageBox.warning(self, "검사 대상 확인", "검사할 파일을 먼저 선택해 주세요."); return
         selected_rules = self._selected_executable_rules()
         if not selected_rules: QMessageBox.warning(self, "검사 기준 확인", "실행할 검사 기준을 하나 이상 선택해 주세요."); return
