@@ -310,13 +310,15 @@ class AdministrationPage(QWidget):
             """)
 
     def open_rules(self, name, total, active, inactive, icon_file):
+        counts = self.category_counts.get(name, {})
+        current_active = int(counts["adminActiveCount"].text()) if counts else active
+        current_inactive = int(counts["adminInactiveCount"].text()) if counts else inactive
         dialog = AdministrationRulesDialog(
-            name, total, active, inactive, self, icon_file,
+            name, total, current_active, current_inactive, self, icon_file,
             self.category_rule_states.get(name),
         )
         dialog.exec()
         self.category_rule_states[name] = dict(dialog.rule_states)
-        counts = self.category_counts.get(name, {})
         if counts:
             counts["adminActiveCount"].setText(str(dialog.active_count))
             counts["adminInactiveCount"].setText(str(dialog.inactive_count))
