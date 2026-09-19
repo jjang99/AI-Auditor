@@ -16,8 +16,9 @@ from PySide6.QtWidgets import (
 
 
 class ReInspectDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, rule_count=None):
         super().__init__(parent)
+        self.rule_count = rule_count
 
         self._drag_position = QPoint()
         self._dragging = False
@@ -178,12 +179,12 @@ class ReInspectDialog(QDialog):
         rule_label.setObjectName("reinspectMutedText")
         rule_label.setWordWrap(True)
 
-        rule_value = QLabel("전체 검사 · 100 Rules")
-        rule_value.setObjectName("reinspectRuleValue")
-        rule_value.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.rule_value = QLabel(f"전체 검사 · {self.rule_count if self.rule_count is not None else '-'} Rules")
+        self.rule_value.setObjectName("reinspectRuleValue")
+        self.rule_value.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         rule_row.addWidget(rule_label, 1)
-        rule_row.addWidget(rule_value)
+        rule_row.addWidget(self.rule_value)
 
         rule_note = QLabel(
             "※ Administration 변경과 관계없이 당시 검사규칙을 그대로 사용합니다."
@@ -211,7 +212,7 @@ class ReInspectDialog(QDialog):
         summary_layout.setSpacing(24)
         self.file_summary_value = self.create_summary_item("등록 파일", "0개")
         summary_layout.addLayout(self.file_summary_value, 1)
-        summary_layout.addLayout(self.create_summary_item("적용 규칙", "100개"), 1)
+        summary_layout.addLayout(self.create_summary_item("적용 규칙", f"{self.rule_count if self.rule_count is not None else '-'}개"), 1)
         summary_layout.addLayout(self.create_summary_item("예상 검사 시간", "약 2분 20초"), 1)
 
         main_layout.addLayout(summary_layout)
