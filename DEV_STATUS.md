@@ -357,3 +357,34 @@
 - 기존 `RuleEngine` 및 `DocumentRuleEngine` 변경 없음
 - UI Freeze 영역 변경 없음
 - 다음 작업: 4-5 MVP 20개 통합 및 단위검증
+
+
+## 2026-09-20 MVP 20개 통합 및 단위검증 완료
+
+### 4-5 MVP 20개 통합 및 단위검증
+- `tests/test_document_mvp_integration.py` 추가.
+- MVP 대표 Rule 20개 전체 구성 검증 완료.
+- 실행방식별 분류 검증 완료: Rule 3 / AI 6 / Hybrid 11.
+- 5대 검사영역별 구성 검증 완료: 감리 사전점검 4 / 요구사항 정합성 6 / 변경영향도 4 / FP 검증 2 / AI 특화 검증 4.
+- `DocumentAIEngine` 및 `DocumentHybridEngine` 실제 라우팅 검증 완료.
+- `DocumentInspectionEngine`을 통한 AI 6개 + Hybrid 11개 실제 Provider 호출 검증 완료.
+- Rule 방식 3개(AUD-001 / REQ-001 / FP-009)는 기존 `tests/test_document_rule_engine.py` 단위검증과 함께 통합 확인 완료.
+- 기존 4-4 통합 실행 테스트 재확인 PASS.
+- 전체 pytest 회귀 테스트 결과: `50 passed, 42 subtests passed`, 실패 0건.
+- 기존 `RuleEngine`, `DocumentRuleEngine` 및 UI Freeze 영역 변경 없음.
+
+### 4단계 완료 상태
+- 4-1 문서 Parser 기반 구현 — 완료
+- 4-2 MVP 20개 검사기준 실제 코드 정의 — 완료
+- 4-3 Rule 방식 검사 구현 — 완료
+- 4-4 AI / Hybrid 검사 실행구조 구현 — 완료
+- 4-5 MVP 20개 통합 및 단위검증 — 완료
+- 따라서 MVP 검사 Engine 구현 4단계 전체 완료.
+
+### 다음 개발 시작점
+1. GitHub main 최신 코드와 DECISIONS.md / RULE_DESIGN.md / DEV_STATUS.md를 먼저 확인한다.
+2. UI Freeze 상태와 기존 RuleEngine / DocumentRuleEngine 정상 구조를 유지한다.
+3. 5단계 Administration·Inspection 통일을 시작한다.
+4. Administration 및 Inspection의 검사기준 표시/선택 기준을 최종 5대 검사영역과 MVP 20개 정의에 맞춘다.
+5. 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
+6. 기능 단위 구현 → 자동 테스트 → 전체 회귀 테스트 순서를 유지한다.
