@@ -545,3 +545,18 @@
 - AI / Hybrid 검사결과에는 실행방식과 Provider 정보를 기록할 수 있도록 한다.
 - 2026-09-20 기준 AI/Hybrid 실행구조는 Fake Provider 기반으로 자동검증했으며, 실제 로컬 AI 모델 연결은 후속 단계에서 수행한다.
 - UI Freeze 및 기존 확정 UI 구조에는 영향을 주지 않는다.
+
+
+# 27. MVP 검사 Engine 4단계 완료 — 2026-09-20
+- 4-1 문서 Parser 기반 구현 완료.
+- 4-2 5대 검사영역 기준 MVP 대표 Rule 20개 실제 코드 정의 완료.
+- 4-3 Rule 방식 문서검사 3개(AUD-001 / REQ-001 / FP-009) 구현 및 단위검증 완료.
+- 4-4 AI 6개 / Hybrid 11개 실행구조와 Rule / AI / Hybrid 통합 실행 Engine 구현 완료.
+- 4-5 MVP 20개 통합 및 단위검증 완료.
+- MVP 20개 실행방식은 Rule 3개 / AI 6개 / Hybrid 11개로 확정 상태를 유지한다.
+- MVP 영역별 구성은 감리 사전점검 4 / 요구사항 정합성 6 / 변경영향도 4 / FP 검증 2 / AI 특화 검증 4로 유지한다.
+- 4-5에서 실행방식별 분류, 5대 영역별 구성, AI/Hybrid 실제 Engine 라우팅, 통합 실행, Rule 방식 기존 단위검증을 확인했다.
+- 전체 회귀 테스트는 50 passed, 42 subtests passed, 실패 0건으로 확인했다.
+- 기존 소스코드용 RuleEngine 및 DocumentRuleEngine의 정상 동작 구조는 임의 변경하지 않는다.
+- UI Freeze 영역은 변경하지 않았다.
+- 다음 개발 단계는 5단계 Administration·Inspection을 최종 5대 검사영역 및 문서 MVP 검사 Engine 기준으로 통일하는 작업이다.
