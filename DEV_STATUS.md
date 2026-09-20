@@ -198,3 +198,110 @@
 - 형식별 Parser → 표준화된 공통 문서 데이터 → Rule/AI/Hybrid 검사 Engine 구조를 따른다.
 - 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
 - 다음 작업 시작 시 DECISIONS.md → RULE_DESIGN.md → DEV_STATUS.md → 실제 코드 순서로 현재 상태를 확인한다.
+
+## 2026-09-20 문서 Parser 기반 구현 완료
+
+### 4-1 문서 Parser 기반 구현
+
+- 공통 문서 표준 모델 구현
+  - `app/parsers/models.py`
+  - `DocumentBlock`
+  - `ParsedDocument`
+- Parser 공통 인터페이스 구현
+  - `app/parsers/base.py`
+  - `BaseDocumentParser`
+- Parser Factory 및 공통 API 구현
+  - `app/parsers/parser_factory.py`
+  - `app/parsers/__init__.py`
+  - 파일 확장자에 따라 적합한 Parser 자동 선택
+- 지원 문서 형식 총 9종
+  - DOCX
+  - DOC
+  - XLSX
+  - XLS
+  - PDF
+  - PPTX
+  - PPT
+  - HWPX
+  - HWP
+
+### 문서 형식별 처리 방식
+
+- DOCX
+  - 문단 및 표 텍스트 추출
+- DOC
+  - `legacy-doc` 기반 Word 97-2003 문서 텍스트 추출
+- XLSX
+  - 시트별 행 데이터 추출
+- XLS
+  - `xlrd` 기반 구형 Excel 시트/행 데이터 추출
+- PDF
+  - 페이지별 텍스트 추출
+  - 현재 텍스트 기반 PDF 지원
+- PPTX
+  - 슬라이드 텍스트 및 표 추출
+- PPT
+  - `ppt2pptx`를 이용해 임시 PPTX로 변환
+  - 기존 `PptxParser`를 재사용하여 내용 추출
+  - 변환용 PPTX는 임시 디렉터리에서 처리 후 자동 삭제
+- HWPX
+  - ZIP/XML 구조의 section XML 기반 문단 텍스트 추출
+- HWP
+  - `olefile` 기반 HWP 5.x OLE 문서 분석
+  - 압축된 BodyText Section을 해제한 뒤 문단 텍스트 추출
+
+### 구형 문서 호환성 PoC 결과
+
+- XLS 실제 샘플 추출 PASS
+- HWP 5.x 실제 샘플 추출 PASS
+- DOC 실제 샘플 추출 PASS
+- PPT 실제 샘플 변환 및 추출 PASS
+- 구형 문서 4종 모두 Microsoft Office 또는 한컴오피스 설치 없이 독립 처리 가능성 확인
+- 폐쇄망 Windows EXE 적용 방향 유지
+
+### Parser 검증 결과
+
+- 실제 DOCX 문서 텍스트/표 추출 PASS
+- 실제 XLSX 다중 시트 데이터 추출 PASS
+- 실제 텍스트 기반 PDF 한글 추출 PASS
+- 실제 PPTX 슬라이드/표 추출 PASS
+- 실제 HWPX 문서 한글 추출 PASS
+- 실제 XLS 문서 추출 PASS
+- 실제 HWP 5.x 문서 추출 PASS
+- 실제 DOC 문서 추출 PASS
+- 실제 PPT 문서 변환 및 추출 PASS
+- `tests/test_parsers.py` 자동 테스트 총 20개 PASS
+
+### Parser 관련 패키지
+
+- `python-docx==1.2.0`
+- `openpyxl==3.1.5`
+- `pypdf==6.19.0`
+- `python-pptx==1.0.2`
+- `xlrd==2.0.2`
+- `xlwt==1.3.0`
+- `olefile==0.47`
+- `legacy-doc==0.2.1`
+- `ppt2pptx==0.4.2`
+- `pytest==9.1.1`
+
+### 현재 제한사항 및 후속 검토
+
+- 스캔 이미지 기반 PDF의 OCR은 현재 Parser 범위에서 제외
+- 현재 PDF는 텍스트 기반 PDF를 우선 지원
+- HWP는 현재 HWP 5.x 계열을 대상으로 구현
+- 다양한 실제 프로젝트 문서를 이용한 추가 호환성 검증은 후속 통합 테스트에서 계속 수행
+
+### 현재 개발 시작점
+
+- 4-1 문서 Parser 기반 구현 완료
+- 지원 문서 형식 총 9종: DOCX / DOC / XLSX / XLS / PDF / PPTX / PPT / HWPX / HWP
+- 구형 문서 DOC / XLS / PPT / HWP 실제 샘플 기반 호환성 PoC 완료
+- 공통 `ParsedDocument` / `DocumentBlock` 구조 구현 완료
+- Parser Factory 및 문서 형식별 자동 Parser 선택 구현 완료
+- `InspectionService`에서 9종 문서 형식 허용 및 공통 Parser 호출 연계 완료
+- 기존 소스코드/텍스트 기반 Rule Engine 구조는 유지
+- `tests/test_parsers.py` Parser 자동 테스트 20개 PASS
+- `tests/test_inspection_service.py` Parser 연동 테스트 3개 PASS
+- 전체 회귀 테스트 결과 `28 passed, 42 subtests passed`, 실패 0건
+- 다음 작업: 4-2 MVP 20개 검사기준 실제 코드 정의
