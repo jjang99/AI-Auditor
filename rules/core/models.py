@@ -20,6 +20,21 @@ class DocumentRule:
     enabled: bool = True
 
 @dataclass(frozen=True)
+class DocumentRuleIssue:
+    rule_code: str
+    rule_name: str
+    category: str
+    severity: str
+    file_path: str
+    block_type: str
+    evidence: str
+    description: str
+    location: str | None = None
+    page: int | None = None
+    sheet: str | None = None
+    slide: int | None = None
+
+@dataclass(frozen=True)
 class Rule:
     code: str
     name: str
