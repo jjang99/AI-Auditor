@@ -509,3 +509,14 @@
 - 기존 소스코드/텍스트 기반 Rule Engine은 유지하며, 프로젝트 문서 검사는 Parser로 표준화된 문서 데이터를 기반으로 별도 확장한다.
 - 스캔 이미지 기반 PDF OCR은 현재 범위에서 제외하며 후속 확장 기능으로 유지한다.
 - Parser 및 InspectionService 연동 구현 후 전체 자동 테스트 결과 `28 passed, 42 subtests passed`로 기존 기능에 대한 회귀 오류가 없음을 확인하였다.
+
+# 24. 문서검사용 MVP 20개 코드 정의 구조 확정 — 2026-09-20
+- 기존 Rule 모델과 정규식 기반 소스코드 정적분석 Rule Engine은 향후 확장영역으로 그대로 보존한다.
+- 프로젝트 산출물 검사용 MVP 20개는 기존 소스코드 Rule에 통합하지 않고 별도 DocumentRule 모델로 관리한다.
+- 문서검사 실행방식은 RuleExecutionType으로 Rule / AI / Hybrid를 명시적으로 구분한다.
+- RULE_DESIGN.md에서 확정한 MVP 20개 ID, 명칭, 검사영역, 주요 검사내용, 실행방식을 실제 코드 정의의 기준으로 사용한다.
+- 문서검사용 MVP 20개 정의 파일은 rules/definitions/document_mvp_rules.py로 분리한다.
+- 4-2 단계는 검사기준의 코드 정의까지로 하고, 실제 결정적 Rule 검사 로직은 4-3, AI / Hybrid 실행구조는 4-4에서 구현한다.
+- 문서검사는 4-1에서 구현한 ParsedDocument / DocumentBlock 표준 구조를 기반으로 수행한다.
+- UI Freeze 상태는 유지하며 4-2 작업으로 화면 구조, 레이아웃, 스타일을 변경하지 않는다.
+- 신규 문서검사용 Rule 정의 추가 후 기존 Rule Engine 포함 회귀 테스트 및 전체 pytest에서 실패/오류 0건을 확인한다.
