@@ -1,6 +1,23 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 
+class RuleExecutionType(str, Enum):
+    RULE = "Rule"
+    AI = "AI"
+    HYBRID = "Hybrid"
+
+
+@dataclass(frozen=True)
+class DocumentRule:
+    code: str
+    name: str
+    category: str
+    execution_type: RuleExecutionType
+    severity: str
+    description: str
+    check_points: tuple[str, ...] = field(default_factory=tuple)
+    enabled: bool = True
 
 @dataclass(frozen=True)
 class Rule:
