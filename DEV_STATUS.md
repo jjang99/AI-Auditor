@@ -305,3 +305,15 @@
 - `tests/test_inspection_service.py` Parser 연동 테스트 3개 PASS
 - 전체 회귀 테스트 결과 `28 passed, 42 subtests passed`, 실패 0건
 - 다음 작업: 4-2 MVP 20개 검사기준 실제 코드 정의
+
+## 2026-09-20 MVP 20개 검사기준 실제 코드 정의 완료
+- 4-2 MVP 20개 검사기준 실제 코드 정의 완료
+- rules/core/models.py에 RuleExecutionType(Rule / AI / Hybrid) 및 DocumentRule 모델 추가
+- 기존 Rule 및 소스코드 정적분석 Rule Engine은 변경하지 않고 유지
+- rules/definitions/document_mvp_rules.py에 RULE_DESIGN.md 기준 MVP 20개 정의
+- 감리 사전점검 4, 요구사항 정합성 6, 변경영향도 4, FP 검증 2, AI 특화 검증 4
+- tests/test_document_mvp_rules.py 추가: 20개 ID/중복, 실행방식, 필수 메타데이터 및 5대 영역 검증
+- 기존 Rule Engine 회귀 테스트와 신규 문서 MVP Rule 테스트 PASS
+- 전체 pytest 회귀 테스트 실패/오류 0건 확인
+- UI Freeze 영역 변경 없음
+- 다음 작업: 4-3 Rule 방식 검사 구현
