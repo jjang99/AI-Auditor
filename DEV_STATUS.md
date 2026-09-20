@@ -317,3 +317,21 @@
 - 전체 pytest 회귀 테스트 실패/오류 0건 확인
 - UI Freeze 영역 변경 없음
 - 다음 작업: 4-3 Rule 방식 검사 구현
+
+
+## 2026-09-20 Rule 방식 문서검사 구현 완료
+- 4-3 Rule 방식 검사 구현 완료
+- `rules/core/models.py`에 문서검사 결과 모델 `DocumentRuleIssue` 추가
+- 기존 소스코드 정적분석용 `RuleEngine`은 변경하지 않고 유지
+- `rules/core/document_engine.py`에 `DocumentRuleEngine` 구현
+- Rule 실행방식으로 확정된 문서 MVP 3개 검사 구현
+  - AUD-001: 필수 산출물 누락 점검
+  - REQ-001: 요구사항 ID 누락·중복 점검
+  - FP-009: FP 산정값 재계산 검증
+- AUD-001은 검사 대상 문서 집합의 파일명을 기준으로 필수 산출물 누락 여부를 검사
+- REQ-001은 ParsedDocument 블록에서 요구사항 ID 누락 후보와 중복 ID를 검사
+- FP-009는 문서에 명시된 FP 합산 산식의 결과값을 재계산하여 산술 불일치를 검사하며, 임의의 FP 분류/가중치 기준은 코드에 고정하지 않음
+- `tests/test_document_rule_engine.py` 자동 테스트 8개 PASS
+- 전체 pytest 회귀 테스트 PASS 확인
+- UI Freeze 영역 변경 없음
+- 다음 작업: 4-4 AI / Hybrid 검사 실행구조 구현
