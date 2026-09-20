@@ -335,3 +335,25 @@
 - 전체 pytest 회귀 테스트 PASS 확인
 - UI Freeze 영역 변경 없음
 - 다음 작업: 4-4 AI / Hybrid 검사 실행구조 구현
+
+
+## 2026-09-20 AI / Hybrid 검사 실행구조 구현 완료
+- 4-4 AI / Hybrid 검사 실행구조 구현 완료
+- `rules/core/ai_provider.py`에 AI Provider 공통 인터페이스 및 검사결과 모델 구현
+- `rules/core/ai_engine.py`에 AI 방식 Rule 실행 Engine 구현
+- AI 방식 MVP Rule 6개 선별 및 실행 구조 검증
+- `rules/core/hybrid_engine.py`에 Hybrid 검사 Engine 구현
+- Hybrid 방식 MVP Rule 11개 선별 및 실행 구조 검증
+- `HybridInspectionContext`를 통해 Rule 기반 사전분석 evidence를 AI Provider로 전달하는 구조 구현
+- REQ-003 요구사항 모호성 점검의 Rule 기반 사전분석 구현
+  - `적절히`
+  - `필요시`
+  - `필요 시`
+- AI / Hybrid 검사 결과에 실행방식 및 Provider 정보를 기록하도록 확장
+- `rules/core/inspection_engine.py`에 Rule / AI / Hybrid 통합 실행 Engine 구현
+- `tests/test_ai_provider.py`에 AI / Hybrid / 통합 실행구조 자동 테스트 추가
+- 4-4 전용 테스트 7개 PASS
+- 전체 pytest 회귀 테스트 `46 passed, 42 subtests passed`
+- 기존 `RuleEngine` 및 `DocumentRuleEngine` 변경 없음
+- UI Freeze 영역 변경 없음
+- 다음 작업: 4-5 MVP 20개 통합 및 단위검증
