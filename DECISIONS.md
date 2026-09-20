@@ -533,3 +533,15 @@
 - 자동 단위테스트 8개 및 전체 pytest 회귀 테스트 PASS를 4-3 완료 기준으로 한다.
 - UI Freeze 영역은 변경하지 않는다.
 - 다음 단계 4-4에서는 AI / Hybrid 검사 실행구조를 구현한다.
+
+
+# 18. AI / Hybrid 검사 실행구조 — 2026-09-20
+- 문서 검사 실행방식은 `Rule / AI / Hybrid` 3가지로 구분한다.
+- 기존 deterministic `RuleEngine` 및 `DocumentRuleEngine`은 AI/Hybrid 기능 구현을 위해 변경하지 않는다.
+- AI 검사는 `BaseAIProvider` 공통 인터페이스를 통해 Provider를 교체할 수 있는 구조를 사용한다.
+- 실제 AI 모델은 특정 제품에 종속시키지 않고 Provider 계층을 통해 연결한다.
+- Hybrid 검사는 Rule 기반 사전분석 결과를 `evidence`로 구성한 후 AI Provider의 판단에 전달하는 구조를 사용한다.
+- `DocumentInspectionEngine`은 Rule / AI / Hybrid 개별 Engine을 직접 재구현하지 않고 통합 실행을 조정하는 역할만 담당한다.
+- AI / Hybrid 검사결과에는 실행방식과 Provider 정보를 기록할 수 있도록 한다.
+- 2026-09-20 기준 AI/Hybrid 실행구조는 Fake Provider 기반으로 자동검증했으며, 실제 로컬 AI 모델 연결은 후속 단계에서 수행한다.
+- UI Freeze 및 기존 확정 UI 구조에는 영향을 주지 않는다.
