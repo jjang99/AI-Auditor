@@ -474,3 +474,498 @@
 
 ### 다음 작업
 - **5-2 Administration을 최종 5대 검사영역 / 105개 기준으로 통일**
+
+---
+
+## 2026-09-23 5단계 진행상태 최신화
+
+### 1. 현재 전체 개발단계
+
+- 1단계 기존 Rule 복원·재분류 — 완료
+- 2단계 5대 검사영역별 전체 검사기준 확정 — 완료
+- 3단계 대표 MVP 검사기준 20개 선정 — 완료
+- 4단계 MVP 검사 Engine 구현 — 전체 완료
+  - 4-1 문서 Parser 기반 구현 — 완료
+  - 4-2 MVP 20개 검사기준 실제 코드 정의 — 완료
+  - 4-3 Rule 방식 문서검사 구현 — 완료
+  - 4-4 AI / Hybrid 검사 실행구조 구현 — 완료
+  - 4-5 MVP 20개 통합 및 단위검증 — 완료
+- 5단계 최종 검사체계의 실제 제품 통합 — 진행 중
+
+---
+
+### 2. 최종 검사체계 현재 기준
+
+최종 제품의 검사체계는 다음 5대 검사영역 / 총 105개 Rule을 기준으로 한다.
+
+- 감리 사전점검(AUD): 24개
+- 요구사항 정합성(REQ): 28개
+- 변경영향도(CHG): 18개
+- FP 검증(FP): 12개
+- AI 특화 검증(AI): 23개
+
+총계:
+
+`24 + 28 + 18 + 12 + 23 = 105개`
+
+현재 실제 실행 대상 MVP Rule은 총 20개이다.
+
+- AUD: 4개
+- REQ: 6개
+- CHG: 4개
+- FP: 2개
+- AI: 4개
+
+실행방식 기준:
+
+- Rule: 3개
+- AI: 6개
+- Hybrid: 11개
+
+전체 105개 검사체계와 실제 실행 가능한 MVP 20개는 서로 다른 개념으로 관리한다.
+
+---
+
+### 3. 105개 Full Rule Catalog 구현 완료
+
+기존 5-1에서 정의한 5대 영역별 수량 및 MVP 연결정보를 확장하여,
+최종 105개 Rule 전체를 실제 Catalog 데이터로 정의하였다.
+
+주요 반영내용:
+
+- `rules/definitions/document_rule_catalog.py`
+  - 최종 5대 검사영역 전체 105개 Rule Catalog 구성
+  - AUD 24 / REQ 28 / CHG 18 / FP 12 / AI 23
+  - 각 Rule의 코드, 제목, 설명 등 실제 기준정보 구성
+  - MVP 20개와 전체 105개 체계를 구분하여 관리
+
+- `tests/test_document_full_rule_catalog.py`
+  - 전체 Rule 수 검증
+  - 영역별 Rule 수 검증
+  - Rule ID 중복 여부 검증
+  - Rule 누락 여부 검증
+  - Rule ID 연속성 검증
+  - MVP 20개와 전체 Catalog 정합성 검증
+
+- `tools/build_document_rule_catalog.py`
+  - Full Rule Catalog 생성·관리 보조 도구
+  - 향후 Rule Catalog 수정 또는 재생성 시 재현 가능한 개발도구로 보존
+
+최종 전체 회귀 테스트:
+
+`57 passed, 42 subtests passed`
+
+실패 0건.
+
+Full Rule Catalog 완료 GitHub main 커밋:
+
+`7f3c591`
+
+---
+
+### 4. 검사결과 판정체계 최종 확정
+
+2026-09-23 검사결과 Severity 및 감리 개선판정 구조를 최종 확정하였다.
+
+기존 방식처럼 Rule 자체에
+`Critical / High / Medium / Low`를 고정하지 않는다.
+
+역할을 다음과 같이 분리한다.
+
+`Rule`
+= 무엇을 어떤 방식으로 검사할 것인가
+
+`Issue`
+= 실제 검사 결과 무엇이 발견되었는가
+
+`Severity`
+= 발견된 문제가 얼마나 위험한가
+
+`감리 개선판정`
+= 감리 대응 관점에서 발견된 문제를 어떻게 개선할 것인가
+
+---
+
+### 5. Rule 관리방식 변경
+
+Administration의 기존 Rule Detail 구조:
+
+`Code / 규칙 제목 / 설명 / 심각도 / 상태`
+
+변경 구조:
+
+`Code / 규칙 제목 / 설명 / 검사방식 / 상태`
+
+검사방식:
+
+- Rule
+- AI
+- Hybrid
+
+따라서 Rule 자체에 고정 Severity를 저장하여
+실제 Issue Severity로 사용하는 방식은 폐기한다.
+
+2026-09-18 UI Freeze 중 Administration의
+Rule Detail `심각도` 표시 관련 결정은
+2026-09-23 판정체계 결정으로 해당 부분만 대체한다.
+
+그 외 UI 구조·레이아웃·크기·간격·색상·폰트 등의
+Freeze 사항은 가능한 한 유지한다.
+
+---
+
+### 6. Issue Severity 산정방식 확정
+
+실제 발견된 Issue의 Severity는 다음 방식으로 산정한다.
+
+`Impact × Likelihood → Severity`
+
+Impact:
+
+발견된 Issue를 조치하지 않았을 때
+사업·업무·기능·품질·데이터·보안 등에 미칠
+부정적 영향의 크기.
+
+Likelihood:
+
+발견된 Issue를 조치하지 않고 그대로 진행할 경우
+그 Issue로 인한 부정적 영향이 실제로 현실화될 가능성.
+
+주의:
+
+Likelihood는 Issue 자체가 존재할 가능성이 아니다.
+이미 발견된 Issue를 방치했을 때
+부정적인 결과가 현실화될 가능성을 의미한다.
+
+Impact와 Likelihood는 각각 다음 3단계로 판정한다.
+
+- LOW
+- MEDIUM
+- HIGH
+
+Severity는 다음 Matrix를 사용한다.
+
+| Impact \ Likelihood | LOW | MEDIUM | HIGH |
+|---|---|---|---|
+| HIGH | MEDIUM | HIGH | CRITICAL |
+| MEDIUM | LOW | MEDIUM | HIGH |
+| LOW | LOW | LOW | MEDIUM |
+
+Critical은 원칙적으로 다음 조건에서만 산정한다.
+
+`Impact == HIGH AND Likelihood == HIGH`
+
+Rule Code, Rule Category, 보안/AI/감리 영역이라는 이유만으로
+Critical을 사전 지정하지 않는다.
+
+---
+
+### 7. Severity 판정근거 관리
+
+최종적으로 Severity 값만 저장하는 구조를 지향하지 않는다.
+
+가능한 범위에서 다음 정보를 함께 관리한다.
+
+- Impact
+- Impact 판정근거
+- Likelihood
+- Likelihood 판정근거
+- Severity
+- Severity 판정근거
+
+목표는 사용자가 다음을 확인할 수 있도록 하는 것이다.
+
+`왜 이 Issue가 High인가?`
+
+즉 검사결과의 설명가능성을 확보한다.
+
+---
+
+### 8. 감리 개선판정 분리
+
+Severity와 감리 개선판정은 서로 다른 개념으로 관리한다.
+
+Severity:
+
+- Critical
+- High
+- Medium
+- Low
+
+감리 관점의 판정이 필요한 Issue에는 별도로 다음 정보를 관리한다.
+
+개선권고유형:
+
+- 필수
+- 협의
+- 권고
+
+개선시점:
+
+- 단기
+- 장기
+
+중요 여부:
+
+- O
+- -
+
+모든 Issue에 감리 개선판정을 강제로 부여하지 않는다.
+
+감리 관점의 판정이 의미 있는 Issue에 적용한다.
+
+Severity와 감리 개선판정은 서로 대체하지 않는다.
+
+---
+
+### 9. 관련 기준 검토 우선순위
+
+감리 관련 Rule·판정·검사기준 검토 시
+다음 자료 우선순위를 적용한다.
+
+1순위: 현행 정보시스템 감리기준
+
+2순위: NIA 정보시스템 감리 수행 가이드
+
+3순위: NIA 지능정보기술 감리 실무 가이드 및 분야별 감리 가이드
+
+4순위: 실제 감리에서 사용하는 지적사항·개선권고 등의 판정/조치 체계
+
+보조:
+
+- NIST
+- OWASP
+- CVSS 등
+
+국내 정보시스템 감리와 직접 관련된 판단은
+국내 감리기준과 NIA 자료를 우선한다.
+
+NIST / OWASP / CVSS 등은
+위험도·보안·AI 관련 판단 및 공통 Severity 체계를
+보완하기 위한 자료로 사용한다.
+
+상세 결정 및 설계기준은
+`DECISIONS.md`와 `RULE_DESIGN.md`를 기준으로 한다.
+
+판정체계 문서 확정 GitHub main 커밋:
+
+`a88b609`
+
+---
+
+## 10. 5단계 최신 작업구조
+
+기존 5단계의 목적은 유지한다.
+
+목표:
+
+`최종 5대 검사영역 / 105개 Rule`
++
+`MVP 20개 실제 실행 Engine`
++
+`Administration / Inspection / 검사결과 / DB`
+
+를 하나의 제품 흐름으로 통합한다.
+
+오늘 확정한 Severity 및 감리 개선판정 체계를 반영하여
+5단계의 남은 작업을 다음과 같이 세분화한다.
+
+### 5-1. 공통 검사기준 데이터 정리
+상태: 완료
+
+- 5대 영역 공통 기준정보 정의
+- 전체 105개와 MVP 20개 분리
+- Full Rule Catalog 105개 구성 완료
+- 전체 Catalog 검증 완료
+
+---
+
+### 5-2. Administration 최종 통일
+상태: 진행 중
+
+목표:
+
+Administration을 최종
+5대 검사영역 / 105개 Rule 기준으로 통일한다.
+
+주요 작업:
+
+- 105개 실제 Rule Catalog 연결
+- 기존 샘플/과거 Rule 데이터 제거 또는 대체
+- 5대 검사영역별 Rule 표시
+- MVP 여부 표시 및 데이터 정합성 확인
+- Rule 활성/비활성 상태 연결
+- 기존 `심각도` 표시를 `검사방식`으로 변경
+- Rule / AI / Hybrid 표시
+- Rule Detail 실제 데이터 연결
+- 기존 UI Freeze 최대한 유지
+
+---
+
+### 5-3. Inspection 최종 통일
+상태: 미완료
+
+목표:
+
+Inspection의 검사기준 표시 및 선택구조를
+최종 5대 검사영역 기준으로 통일한다.
+
+주요 작업:
+
+- 기존 과거 검사기준 수량/하드코딩 제거
+- 최종 5대 영역 표시
+- 전체 105개와 MVP 20개 관계 정리
+- Inspection에서 실제 실행 가능한 MVP Rule 명확화
+- 기존 UI Freeze 유지
+
+---
+
+### 5-4. MVP 20개와 문서검사 Engine 실제 연결
+상태: 미완료
+
+목표:
+
+Inspection에서 선택한 MVP Rule이
+4단계에서 구현한 문서검사 Engine으로 실제 전달되도록 연결한다.
+
+실행 흐름:
+
+`Inspection`
+→ `MVP Rule 선택`
+→ `Rule / AI / Hybrid 라우팅`
+→ `DocumentInspectionEngine`
+→ `Issue 생성`
+
+기존 4단계 Engine 구조는 실제 결함이 없는 한 임의 변경하지 않는다.
+
+---
+
+### 5-5. Issue Severity 및 감리 개선판정 구현
+상태: 미완료
+
+목표:
+
+2026-09-23 확정한 검사결과 판정체계를
+실제 코드와 데이터 구조에 적용한다.
+
+주요 작업:
+
+- Issue Impact 저장구조
+- Impact 판정근거
+- Issue Likelihood 저장구조
+- Likelihood 판정근거
+- Severity Matrix 구현
+- 최종 Severity 저장
+- Severity 판정근거 저장
+- 필요한 Issue의 감리 개선판정 구조
+- 개선권고유형
+- 개선시점
+- 중요 여부
+
+Severity는 Rule의 고정값을 그대로 복사하지 않는다.
+
+---
+
+### 5-6. 제품 전체 데이터·UI 정합성 연결
+상태: 미완료
+
+주요 작업:
+
+- Administration 활성/비활성
+  ↔ Inspection 선택상태 정합성
+
+- 검사 Engine
+  ↔ Issue 저장
+
+- Issue
+  ↔ Project Detail
+
+- Severity
+  ↔ Issue Distribution
+
+- 검사결과
+  ↔ Reports
+
+- 신규 판정정보
+  ↔ DB 저장/조회
+
+- Issue Detail에 필요한 판정정보 연결
+
+UI 세부 표현은 실제 구현 화면을 확인하면서 보정하되
+기존 UI Freeze의 전체 디자인 방향은 유지한다.
+
+---
+
+### 5-7. 5단계 통합 및 전체 회귀 테스트
+상태: 미완료
+
+검증대상:
+
+- 5대 검사영역
+- Full Rule Catalog 105개
+- MVP Rule 20개
+- Rule / AI / Hybrid 실행
+- Administration
+- Inspection
+- Issue 생성
+- Impact / Likelihood
+- Severity Matrix
+- 감리 개선판정
+- DB 저장/조회
+- Project Detail
+- Reports
+- 기존 기능 회귀
+
+기능 단위 테스트 후
+전체 `pytest` 회귀 테스트를 수행한다.
+
+---
+
+### 5-8. 5단계 최종 문서화 및 Git 기준점 확정
+상태: 미완료
+
+5단계 구현 완료 후 다음 문서를 실제 구현상태와 일치하도록 갱신한다.
+
+- `DECISIONS.md`
+- `RULE_DESIGN.md`
+- `DEV_STATUS.md`
+
+이후:
+
+- 전체 테스트 확인
+- Git status 확인
+- commit
+- GitHub main push
+- working tree clean 확인
+
+까지 완료하여 5단계 기준점을 확정한다.
+
+---
+
+## 11. 현재 정확한 다음 작업
+
+현재 다음 개발 작업은:
+
+**5-2 Administration 최종 통일**
+
+이다.
+
+시작 시 반드시 다음 순서를 따른다.
+
+1. GitHub main 최신 상태 확인
+2. Administration 관련 실제 코드 확인
+3. 현재 Administration 데이터 흐름 확인
+4. 105개 Full Rule Catalog와 기존 UI 연결구조 비교
+5. 변경 대상 확정
+6. 기능 단위로 구현
+7. 화면 확인
+8. 자동 테스트
+9. 전체 회귀 테스트
+
+기존 UI를 임의로 다시 설계하지 않는다.
+
+오늘 확정한 Severity 체계 때문에
+5단계 자체를 별도의 새로운 개발단계로 변경하지 않는다.
+
+Severity 및 감리 개선판정 구현은
+5단계 내부 세부작업으로 처리한다.
