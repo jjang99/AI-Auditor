@@ -1,6 +1,7 @@
 import os
 
 from PySide6.QtCore import Qt, QSize
+from rules.definitions.document_rule_catalog import get_document_rules_by_category
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton,
@@ -92,7 +93,7 @@ class AdministrationRulesDialog(QDialog):
             ("코드", code_width),
             ("규칙 제목", name_width),
             ("설명", 1),
-            ("심각도", severity_width),
+            ("검사방식", severity_width),
             ("상태", status_width),
         ]
         for text, width in headers:
@@ -119,27 +120,29 @@ class AdministrationRulesDialog(QDialog):
         rows.setContentsMargins(0, 0, 0, 0)
         rows.setSpacing(0)
 
-        sample_rules = [
-            ("001", "기본 규칙 1", "검사 기준에 따라 항목을 점검합니다.", "High", True),
-            ("002", "기본 규칙 2", "검사 대상의 적정성을 확인합니다.", "Critical", True),
-            ("003", "기본 규칙 3", "누락 또는 오류 가능성을 확인합니다.", "High", True),
-            ("004", "기본 규칙 4", "검사 항목의 일관성을 확인합니다.", "Medium", True),
-            ("005", "기본 규칙 5", "검사 기준 위반 여부를 확인합니다.", "Medium", False),
-        ]
+        category_code_map = {
+            "감리 사전점검": "AUD",
+            "요구사항 정합성": "REQ",
+            "변경영향도": "CHG",
+            "FP 검증": "FP",
+            "AI 특화 검증": "AI",
+        }
 
-        if "요구사항" in category_name:
-            prefix = "REQ"
-        elif "설계" in category_name:
-            prefix = "DES"
-        elif "보안" in category_name:
-            prefix = "SEC"
-        elif "코드" in category_name:
-            prefix = "COD"
-        else:
-            prefix = "AI"
+        category_code = category_code_map.get(category_name)
+        catalog_rules = (
+            get_document_rules_by_category(category_code)
+            if category_code
+            else ()
+        )
 
         self.rule_rows = []
-        for code, name, description, severity, checked in sample_rules:
+        for rule in catalog_rules:
+            code_text = rule.code
+            name = rule.name
+            description = rule.description
+            execution_type = rule.execution_type
+            checked = self.rule_states.get(code_text, True)
+
             row = QFrame()
             row.setObjectName("adminRuleRow")
             row.setFixedHeight(66)
@@ -147,7 +150,6 @@ class AdministrationRulesDialog(QDialog):
             row_layout.setContentsMargins(12, 6, 10, 6)
             row_layout.setSpacing(column_spacing)
 
-            code_text = f"{prefix}-{code}"
             code_label = QLabel(code_text)
             code_label.setObjectName("adminRuleCode")
             code_label.setFixedWidth(code_width)
@@ -156,17 +158,18 @@ class AdministrationRulesDialog(QDialog):
             name_label = QLabel(name)
             name_label.setObjectName("adminRuleName")
             name_label.setFixedWidth(name_width)
-            name_label.setAlignment(Qt.AlignCenter)
+            name_label.setWordWrap(True)
+            name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
             desc_label = QLabel(description)
             desc_label.setObjectName("adminRuleDescription")
             desc_label.setWordWrap(True)
             desc_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-            severity_label = QLabel(severity)
-            severity_label.setObjectName(f"severity{severity}")
-            severity_label.setFixedSize(severity_width, 28)
-            severity_label.setAlignment(Qt.AlignCenter)
+            execution_label = QLabel(execution_type)
+            execution_label.setObjectName("adminExecutionType")
+            execution_label.setFixedSize(severity_width, 28)
+            execution_label.setAlignment(Qt.AlignCenter)
 
             toggle = QPushButton("ON" if checked else "OFF")
             toggle.setObjectName("adminRuleToggle")
@@ -181,7 +184,7 @@ class AdministrationRulesDialog(QDialog):
             row_layout.addWidget(code_label)
             row_layout.addWidget(name_label)
             row_layout.addWidget(desc_label, 1)
-            row_layout.addWidget(severity_label, 0, Qt.AlignCenter)
+            row_layout.addWidget(execution_label, 0, Qt.AlignCenter)
             row_layout.addWidget(toggle, 0, Qt.AlignCenter)
 
             rows.addWidget(row)
@@ -219,7 +222,7 @@ class AdministrationRulesDialog(QDialog):
         self.active_label.setText(f"활성 {self.active_count}개")
         self.inactive_label.setText(f"비활성 {self.inactive_count}개")
 
-    def open_rule_detail(self, code, name, description, severity, source_toggle):
+    def open_rule_detail(self, code, name, description, execution_type, source_toggle):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"{code} - Rule Detail")
         dialog.setModal(True)
@@ -250,18 +253,22 @@ class AdministrationRulesDialog(QDialog):
         add_field("규칙 제목", name)
         add_field("설명", description)
 
-        severity_row = QHBoxLayout()
-        severity_row.setSpacing(10)
-        severity_title = QLabel("심각도")
-        severity_title.setObjectName("adminDetailLabel")
-        severity_badge = QLabel(severity)
-        severity_badge.setObjectName(f"severity{severity}")
-        severity_badge.setFixedSize(82, 32)
-        severity_badge.setAlignment(Qt.AlignCenter)
-        severity_row.addWidget(severity_title)
-        severity_row.addStretch()
-        severity_row.addWidget(severity_badge)
-        root.addLayout(severity_row)
+        execution_row = QHBoxLayout()
+        execution_row.setSpacing(10)
+
+        execution_title = QLabel("검사방식")
+        execution_title.setObjectName("adminDetailLabel")
+
+        execution_badge = QLabel(execution_type)
+        execution_badge.setObjectName("adminExecutionType")
+        execution_badge.setFixedSize(82, 32)
+        execution_badge.setAlignment(Qt.AlignCenter)
+
+        execution_row.addWidget(execution_title)
+        execution_row.addStretch()
+        execution_row.addWidget(execution_badge)
+
+        root.addLayout(execution_row)
         root.addSpacing(4)
 
         status_row = QHBoxLayout()
