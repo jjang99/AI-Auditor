@@ -451,3 +451,26 @@
 ### 현재 개발 시작점
 - 다음 작업: **5-1 최종 검사체계와 MVP 실행체계의 공통 데이터 기준 정리**
 - 코드 수정 전 실제 관련 파일과 데이터 흐름을 확인한 뒤 변경 대상을 확정한다.
+
+---
+
+## 2026-09-23 5-1 공통 검사기준 데이터 정리 완료
+
+- 최종 5대 검사영역 / 105개 전체 검사체계와 MVP 20개 실행체계의 공통 기준정보를 `rules/definitions/document_rule_catalog.py`에 정의함.
+- 영역별 기준:
+  - 감리 사전점검(AUD): 전체 24 / MVP 4
+  - 요구사항 정합성(REQ): 전체 28 / MVP 6
+  - 변경영향도(CHG): 전체 18 / MVP 4
+  - FP 검증(FP): 전체 12 / MVP 2
+  - AI 특화 검증(AI): 전체 23 / MVP 4
+- 전체 검사체계 105개와 MVP 실행 대상 20개를 별도 개념으로 유지함.
+- MVP 상세 Rule 정의는 기존 `document_mvp_rules.py`를 그대로 기준으로 사용하며 중복 정의하지 않음.
+- 기존 소스코드 정적분석 Rule 및 기존 Engine은 변경하지 않음.
+- Administration / Inspection UI 및 UI Freeze 영역 변경 없음.
+- `tests/test_document_rule_catalog.py` 추가:
+  - 5대 영역 / 전체 105개 / MVP 20개 검증
+  - 실제 MVP 20개 코드와 영역별 `4 / 6 / 4 / 2 / 4` 구성 일치 여부 검증
+- 전체 회귀 테스트 결과: `52 passed, 42 subtests passed`, 실패 0건.
+
+### 다음 작업
+- **5-2 Administration을 최종 5대 검사영역 / 105개 기준으로 통일**
