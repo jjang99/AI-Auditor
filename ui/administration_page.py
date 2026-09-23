@@ -9,11 +9,17 @@ from PySide6.QtWidgets import (
 
 from ui.sidebar import Sidebar
 from ui.administration_rules_dialog import AdministrationRulesDialog
-
+from rules.definitions.document_rule_catalog import (
+    get_document_rule_categories,
+    get_total_rule_count,
+)
 
 class AdministrationPage(QWidget):
     def __init__(self):
         super().__init__()
+
+        categories = get_document_rule_categories()
+        total_rules = get_total_rule_count()
 
         page_layout = QHBoxLayout(self)
         page_layout.setContentsMargins(0, 0, 0, 0)
@@ -47,9 +53,9 @@ class AdministrationPage(QWidget):
         summary_layout.setSpacing(0)
         self.summary_value_labels = {}
         for value, label, object_name in [
-            ("100", "전체 규칙", "adminSummaryValue"),
-            ("92", "활성 규칙", "adminSummaryActive"),
-            ("8", "비활성 규칙", "adminSummaryInactive"),
+            (str(total_rules), "전체 규칙", "adminSummaryValue"),
+            (str(total_rules), "활성 규칙", "adminSummaryActive"),
+            ("0", "비활성 규칙", "adminSummaryInactive"),
         ]:
             cell = QWidget()
             cell_layout = QVBoxLayout(cell)
@@ -100,12 +106,23 @@ class AdministrationPage(QWidget):
         table_layout.addWidget(header)
 
         icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons")
+        category_icons = {
+            "AUD": "detail_grade.svg",
+            "REQ": "detail_score.svg",
+            "CHG": "detail_issues.svg",
+            "FP": "detail_resolved.svg",
+            "AI": "administration.svg",
+        }
+
         categories = [
-            ("요구사항 정합성", 24, 22, 2, "detail_grade.svg"),
-            ("설계 품질", 18, 18, 0, "detail_score.svg"),
-            ("보안 취약점", 32, 30, 2, "detail_issues.svg"),
-            ("코드 품질", 16, 14, 2, "detail_resolved.svg"),
-            ("AI 특화 검증", 10, 8, 2, "administration.svg"),
+            (
+                category.name,
+                category.total_count,
+                category.total_count,
+                0,
+                category_icons[category.code],
+            )
+            for category in categories
         ]
         self.category_counts = {}
         self.category_rule_states = {}
