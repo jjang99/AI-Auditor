@@ -560,3 +560,46 @@
 - 기존 소스코드용 RuleEngine 및 DocumentRuleEngine의 정상 동작 구조는 임의 변경하지 않는다.
 - UI Freeze 영역은 변경하지 않았다.
 - 다음 개발 단계는 5단계 Administration·Inspection을 최종 5대 검사영역 및 문서 MVP 검사 Engine 기준으로 통일하는 작업이다.
+
+---
+
+# 2026-09-23 5단계 Administration·Inspection 통일 기준
+
+## 최종 검사체계와 MVP 범위
+- AI Auditor의 최종 제품 검사체계는 `RULE_DESIGN.md`에서 확정한 5대 검사영역 / 총 105개 Rule을 기준으로 한다.
+  - 감리 사전점검(AUD): 24개
+  - 요구사항 정합성(REQ): 28개
+  - 변경영향도(CHG): 18개
+  - FP 검증(FP): 12개
+  - AI 특화 검증(AI): 23개
+- 해커톤 MVP에서 실제 실행 대상으로 구현한 Rule은 전체 105개 중 대표 20개이다.
+  - 감리 사전점검: 4개
+  - 요구사항 정합성: 6개
+  - 변경영향도: 4개
+  - FP 검증: 2개
+  - AI 특화 검증: 4개
+- MVP 20개의 실행방식은 Rule 3개 / AI 6개 / Hybrid 11개이다.
+- `전체 검사체계 105개`와 `현재 MVP 실제 실행 Rule 20개`를 서로 다른 개념으로 관리하며 혼동하지 않는다.
+
+## Administration·Inspection 통일 원칙
+- Administration과 Inspection은 최종 5대 검사영역을 공통 분류체계로 사용한다.
+- Administration은 최종 105개 검사기준 체계를 관리하는 화면을 기준으로 한다.
+- Inspection은 최종 5대 검사영역을 기준으로 표시하며, 현재 실제 검사 실행은 구현 완료된 MVP 20개와 연결한다.
+- Administration의 활성/비활성은 Rule의 구현/미구현 여부가 아니라 검사 사용 여부를 의미한다.
+- 따라서 아직 실제 실행이 구현되지 않은 85개 Rule을 단순히 비활성 Rule로 처리하지 않는다.
+- 기존 소스코드 정적분석용 보안/코드품질/성능 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
+- 기존 `RuleEngine` 및 `DocumentRuleEngine`은 실제 결함이 확인되지 않는 한 임의 수정하지 않는다.
+
+## UI 유지 원칙
+- 2026-09-18 확정한 전체 UI Freeze 상태를 유지한다.
+- Administration과 Inspection의 확정된 구조·배치·크기·간격·색상·폰트·버튼/팝업 형태를 임의 변경하지 않는다.
+- 5단계에서는 UI 재설계가 아니라 검사기준 데이터와 실제 실행구조의 정합성 통일을 우선한다.
+
+## 5단계 진행순서
+1. 최종 105개 검사체계와 MVP 20개 실행체계의 공통 데이터 기준 정리
+2. Administration을 최종 5대 검사영역 / 105개 기준으로 통일
+3. Inspection을 최종 5대 검사영역 기준으로 통일
+4. Inspection의 MVP 20개 선택과 기존 문서검사 Engine 실행 연결
+5. Administration 활성/비활성과 Inspection 개별 선택 상태의 정합성 점검
+6. 통합 테스트 및 전체 회귀 테스트
+7. `DECISIONS.md` / `DEV_STATUS.md` 최종 업데이트 및 Git commit / push
