@@ -169,7 +169,7 @@
 - [x] Reports > 보고서 내보내기 클릭 무반응 — 선택 Inspection 기준 TXT 검사보고서 저장 사용자 확인 PASS
 - [x] Inspection > 프로젝트명 미입력 경고 Modal — Dark/Light 테마, 경고 문구/아이콘/OK 버튼 가독성 보정 사용자 확인 PASS
 - [x] Administration > 검사 기준 관리 회귀 — ON/OFF 수량 반영, 재진입 상태 유지, 카테고리 아이콘 복구, 중복 Rule Detail 제거, 행 Hover 제거 사용자 확인 PASS
-- [ ] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응
+- [x] Administration > 결과 저장 경로 > 찾아보기 클릭 무반응 — 2026-09-19 결정으로 해당 설정 자체를 사용하지 않기로 하여 폐기된 TODO
 - 처리 원칙: 각 항목을 개별 수정 → 사용자 확인 PASS → 체크 완료 후 다음 항목 진행
 
 
@@ -781,26 +781,26 @@ NIST / OWASP / CVSS 등은
 ---
 
 ### 5-2. Administration 최종 통일
-상태: 진행 중
+상태: 완료
 
-목표:
+완료 내용:
 
-Administration을 최종
-5대 검사영역 / 105개 Rule 기준으로 통일한다.
-
-주요 작업:
-
-- 105개 실제 Rule Catalog 연결
-- 기존 샘플/과거 Rule 데이터 제거 또는 대체
-- 5대 검사영역별 Rule 표시
-- MVP 여부 표시 및 데이터 정합성 확인
+- 최종 5대 검사영역 / 105개 실제 Full Rule Catalog 연결
+- AUD 24 / REQ 28 / CHG 18 / FP 12 / AI 23 구성 반영
+- 기존 샘플/과거 Rule 표시구조를 실제 Catalog 기준으로 대체
 - Rule 활성/비활성 상태 연결
 - 기존 `심각도` 표시를 `검사방식`으로 변경
-- Rule / AI / Hybrid 표시
-- Rule Detail 실제 데이터 연결
-- 기존 UI Freeze 최대한 유지
-
----
+- `Rule / AI / Hybrid` 표시
+- 규칙 제목 및 설명의 긴 내용 자동 줄바꿈
+- 규칙 제목 및 설명 좌측 정렬
+- 기존 팝업 크기 및 전체 UI Freeze 유지
+- 중복되는 별도 Rule Detail 팝업은 사용하지 않음
+- Rule 1개 OFF 시 해당 영역 활성/비활성 수치 변경 사용자 확인 PASS
+- 팝업 재진입 후 해당 Rule OFF 상태 유지 사용자 확인 PASS
+- 환경 설정은 `로그 저장`만 유지
+- `결과 저장 경로 / 검사 결과 자동 저장`은 2026-09-19 결정에 따라 사용하지 않음
+- Administration의 `3. 데이터 관리` 기능은 별도 6단계에서 구현
+- 완료 코드 기준점: `db935c2`
 
 ### 5-3. Inspection 최종 통일
 상태: 미완료
@@ -944,9 +944,11 @@ UI 세부 표현은 실제 구현 화면을 확인하면서 보정하되
 
 ## 11. 현재 정확한 다음 작업
 
+5-2 Administration 최종 통일은 완료하였다.
+
 현재 다음 개발 작업은:
 
-**5-2 Administration 최종 통일**
+**5-3 Inspection 최종 통일**
 
 이다.
 
