@@ -103,7 +103,9 @@ def apply_inspection_final_refinements(inspection_cls):
                 titles[i].setText(text)
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            for card, height in zip(cards[:4], [175, 221, 204, 190]):
+            # Keep the overall page height stable: give the five rule rows more
+            # breathing room and recover the same space from the summary card.
+            for card, height in zip(cards[:4], [175, 221, 234, 160]):
                 card.setFixedHeight(height)
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
@@ -212,7 +214,13 @@ def apply_inspection_final_refinements(inspection_cls):
             if label.text() in ('외 14개 파일', '총 12.3 MB'):
                 label.hide()
                 label.setFixedHeight(0)
-        rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
+        rule_icon_files = [
+            'inspection.svg',
+            'why_consistency.svg',
+            'why_impact.svg',
+            'why_fp.svg',
+            'rule_ai.svg',
+        ]
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
             label.setText('')
@@ -224,7 +232,7 @@ def apply_inspection_final_refinements(inspection_cls):
         for label in self.findChildren(QLabel, 'inspectionRuleCount'):
             label.setFixedWidth(70)
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(35)
+            row.setFixedHeight(40)
         if len(cards) >= 3 and cards[2].layout() is not None:
             cards[2].layout().setSpacing(6)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
@@ -239,25 +247,26 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setAlignment(Qt.AlignCenter)
             label.setFixedSize(30, 30)
         for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
-            box.setFixedHeight(60)
+            box.setFixedHeight(54)
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
-            start.setFixedSize(118, 60)
+            start.setFixedSize(118, 54)
         if len(cards) >= 4 and cards[3].layout() is not None:
-            cards[3].layout().setSpacing(11)
+            cards[3].layout().setContentsMargins(14, 8, 14, 8)
+            cards[3].layout().setSpacing(6)
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
-            box.setFixedHeight(60)
+            box.setFixedHeight(50)
             if box.layout() is not None:
                 lay = box.layout()
-                lay.setContentsMargins(12, 6, 12, 6)
-                lay.setSpacing(2)
+                lay.setContentsMargins(12, 4, 12, 4)
+                lay.setSpacing(1)
                 lay.setAlignment(Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoTitle'):
             label.setFixedHeight(14)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoText'):
             label.setWordWrap(True)
-            label.setFixedHeight(32)
+            label.setFixedHeight(28)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
