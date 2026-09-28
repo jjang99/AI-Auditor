@@ -1,7 +1,8 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QPushButton, QStyle
 
-from rules.definitions.default_rules import get_default_rules
+from rules.core.document_selection import get_selected_document_mvp_rules
+from rules.definitions.document_mvp_rules import get_document_mvp_rules
 from rules.definitions.document_rule_catalog import get_document_rule_categories
 from ui.inspection_rules_dialog import InspectionRulesDialog
 
@@ -14,8 +15,6 @@ CATEGORY_COUNTS = {
 def executable_rule_index(rule):
     """실행 Rule 자체에 정의된 UI 선택 위치를 사용한다."""
     return (rule.category, rule.selection_index) if rule.selection_index is not None else None
-
-
 
 def apply_inspection_rule_ui_patch(InspectionPage):
     """Inspection runtime 적용 이후, Rule 선택 UI/상태 표시를 보정한다."""
@@ -103,11 +102,11 @@ def apply_inspection_rule_ui_patch(InspectionPage):
         self.selected_rule_categories = set(CATEGORY_COUNTS) if selected else set(); self._refresh_rule_summary()
 
     def refresh_rule_summary(self):
-        # 카테고리 행은 향후 전체 검사기준 체계(102개)를 그대로 보여주되,
-        # '적용 규칙'은 현재 실제 Rule Engine에서 실행 가능한 MVP Rule 기준으로 표시한다.
+        # 카테고리 행은 Full Catalog 105개 선택상태를 보여주고,
+        # '적용 규칙'은 그중 실제 실행 가능한 문서 MVP 20개 기준으로 표시한다.
         sync_rule_rows(self)
         executable_rules = self._selected_executable_rules()
-        total_executable = len(get_default_rules())
+        total_executable = len(get_document_mvp_rules())
         summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
         summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
         if len(summary_values) > 1:
@@ -116,17 +115,11 @@ def apply_inspection_rule_ui_patch(InspectionPage):
             summary_details[1].setText("(실제 실행 규칙)")
 
     def selected_executable_rules(self):
-        rules = []; states_by_category = getattr(self, "rule_selection_state", {})
-        for rule in get_default_rules():
-            mapping = executable_rule_index(rule)
-            if mapping is None:
-                if rule.category in getattr(self, "selected_rule_categories", set()): rules.append(rule)
-                continue
-            category, index = mapping; states = states_by_category.get(category)
-            if states is None:
-                if category in getattr(self, "selected_rule_categories", set()): rules.append(rule)
-            elif 0 <= index < len(states) and states[index]: rules.append(rule)
-        return rules
+        return list(
+            get_selected_document_mvp_rules(
+                getattr(self, "rule_selection_state", {})
+            )
+        )
 
     def open_rule_category_dialog(self, category):
         if not hasattr(self, "rule_selection_state"):

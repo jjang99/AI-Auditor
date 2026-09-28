@@ -6,7 +6,11 @@ from PySide6.QtCore import QObject, QThread, Signal, Qt
 from PySide6.QtWidgets import QComboBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_id, get_project_by_name
-from app.services.inspection_service import InspectionService, SUPPORTED_TEXT_EXTENSIONS
+from app.services.inspection_service import (
+    InspectionService,
+    SUPPORTED_DOCUMENT_EXTENSIONS,
+    SUPPORTED_TEXT_EXTENSIONS,
+)
 from rules.core.engine import InspectionCancelled
 from rules.definitions.default_rules import get_default_rules
 from ui.inspection_rules_dialog import InspectionRulesDialog
@@ -142,13 +146,28 @@ def apply_inspection_runtime(InspectionPage):
         dialog.exec()
 
     def select_inspection_files(self):
-        paths, _ = QFileDialog.getOpenFileNames(self, "검사 대상 파일 선택", "", "텍스트/소스 파일 (*.py *.java *.js *.ts *.yml *.yaml *.xml *.json *.md *.txt *.properties *.sql);;모든 파일 (*.*)")
+        document_patterns = " ".join(
+            f"*{extension}"
+            for extension in sorted(SUPPORTED_DOCUMENT_EXTENSIONS)
+        )
+
+        paths, _ = QFileDialog.getOpenFileNames(
+            self,
+            "검사 대상 파일 선택",
+            "",
+            f"문서 파일 ({document_patterns});;"
+            "텍스트/소스 파일 (*.py *.java *.js *.ts *.yml *.yaml *.xml *.json *.md *.txt *.properties *.sql);;"
+            "모든 지원 파일 (*.*)",
+        )
         if not paths: return
         existing = set(self.selected_files)
         unsupported = []
         for path in paths:
             suffix = Path(path).suffix.lower()
-            if suffix not in SUPPORTED_TEXT_EXTENSIONS:
+            if (
+                suffix not in SUPPORTED_TEXT_EXTENSIONS
+                and suffix not in SUPPORTED_DOCUMENT_EXTENSIONS
+            ):
                 unsupported.append(Path(path).name)
                 continue
             if path not in existing:
@@ -164,7 +183,7 @@ def apply_inspection_runtime(InspectionPage):
             warning.setText("지원하지 않는 파일은 등록에서 제외했습니다.")
             warning.setInformativeText(
                 f"{names}{more}\n\n"
-                "지원 형식: .py, .java, .js, .ts, .yml, .yaml, .xml, .json, .md, .txt, .properties, .sql"
+                "지원 형식: 문서 Parser 지원 형식 및 기존 텍스트/소스 파일"
             )
             warning.setStandardButtons(QMessageBox.Ok)
             warning.setStyleSheet(
