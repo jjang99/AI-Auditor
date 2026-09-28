@@ -887,3 +887,16 @@ Rule 관리, Issue 판정, Severity 산정 및 감리 개선판정 구현의 기
 - Administration의 `3. 데이터 관리`는 최종 구성에 포함하되 기능 구현은 별도 6단계에서 진행한다.
 - 5-2 완료 코드 기준점: `db935c2`
 - 다음 개발 작업은 `5-3 Inspection 최종 통일`이다.
+
+
+## 2026-09-28 — 5-3 Administration·Inspection 통일 최종 결정
+
+- 제품 전체 검사기준의 단일 기준은 `rules/definitions/document_rule_catalog.py`의 5대 영역 / 105개 Full Rule Catalog로 유지한다.
+- Administration과 Inspection은 동일한 영역명, 영역별 규칙 수, 카테고리 아이콘 체계를 사용한다.
+- 영역별 규칙 수는 AUD 24 / REQ 28 / CHG 18 / FP 12 / AI 23으로 고정한다.
+- Inspection의 105개 표시는 제품 전체 검사기준 체계를 의미하며, 105개 전체가 현재 실행 가능한 검사 Engine이라는 의미로 사용하지 않는다.
+- 해커톤 실제 실행 범위는 확정된 문서 MVP 20개이며 Rule / AI / Hybrid 실행구조를 사용한다.
+- **5-3은 Full Rule Catalog의 Administration·Inspection UI/데이터 기준 통일까지로 완료한다.**
+- **실제 Inspection 실행 경로를 문서 MVP 20개 Engine에 연결하는 작업은 5-4 범위로 분리한다.**
+- UI Freeze 이후 화면 구조를 임의 재설계하지 않으며, 5-4에서는 실행 데이터 연결을 우선한다.
+- 5대 영역 아이콘은 Administration과 Inspection에서 동일 SVG를 사용하되 각 화면의 기존 크기·배치는 유지한다.
