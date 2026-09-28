@@ -900,3 +900,16 @@ Rule 관리, Issue 판정, Severity 산정 및 감리 개선판정 구현의 기
 - **실제 Inspection 실행 경로를 문서 MVP 20개 Engine에 연결하는 작업은 5-4 범위로 분리한다.**
 - UI Freeze 이후 화면 구조를 임의 재설계하지 않으며, 5-4에서는 실행 데이터 연결을 우선한다.
 - 5대 영역 아이콘은 Administration과 Inspection에서 동일 SVG를 사용하되 각 화면의 기존 크기·배치는 유지한다.
+
+
+## 2026-09-28 — 5-4 구현 범위 및 금지사항 고정
+
+- 5-4는 새로운 검사 Engine 개발이 아니라 4단계에서 구현한 문서검사 Engine을 Inspection 실제 실행 흐름에 연결하는 단계로 한다.
+- Inspection의 Full Catalog 105개 선택상태에서 실제 실행 대상인 문서 MVP 20개의 선택상태를 정확히 매핑하여 전달한다.
+- 실행 흐름은 `Inspection → MVP 선택 매핑 → Parser/ParsedDocument → DocumentInspectionEngine → Issue/DB → 기존 완료 UI`를 기준으로 한다.
+- MVP 20개의 기존 실행방식 Rule 3 / AI 6 / Hybrid 11을 유지한다.
+- 기존 4단계 Engine은 실제 결함이 확인되지 않는 한 임의 재설계하지 않는다.
+- UI Freeze를 유지하고 5-4에서 화면 구조를 임의 변경하지 않는다.
+- `BaseAIProvider`의 Provider 교체 구조는 유지하되, 5-4에서 Qwen / Gemma / Ollama 등 특정 로컬 AI 제품을 임의 선정하거나 탑재하지 않는다.
+- 실제 로컬 AI 모델 연결은 기존 결정대로 후속 범위에서 처리한다.
+- 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
