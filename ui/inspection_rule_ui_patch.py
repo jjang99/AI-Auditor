@@ -2,18 +2,15 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QPushButton, QStyle
 
 from rules.definitions.default_rules import get_default_rules
+from rules.definitions.document_rule_catalog import get_document_rule_categories
 from ui.inspection_rules_dialog import InspectionRulesDialog
 
 
 CATEGORY_COUNTS = {
-    "보안 취약점": 32,
-    "코드 품질": 45,
-    "AI 특화 검증": 15,
-    "성능 및 효율성": 10,
+    category.name: category.total_count
+    for category in get_document_rule_categories()
 }
 
-# 현재 화면에 정의되어 있는 대표 규칙 8개는 각 카테고리의 앞쪽 규칙으로 취급한다.
-# 실제 102개 규칙 목록은 추후 Rule 정의가 완성되는 시점에 이 UI 데이터와 연결한다.
 def executable_rule_index(rule):
     """실행 Rule 자체에 정의된 UI 선택 위치를 사용한다."""
     return (rule.category, rule.selection_index) if rule.selection_index is not None else None
