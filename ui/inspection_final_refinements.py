@@ -219,7 +219,7 @@ def apply_inspection_final_refinements(inspection_cls):
             'why_consistency.svg',
             'why_impact.svg',
             'why_fp.svg',
-            'rule_ai.svg',
+            'rule_ai_modern.svg',
         ]
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
@@ -254,6 +254,7 @@ def apply_inspection_final_refinements(inspection_cls):
         if len(cards) >= 4 and cards[3].layout() is not None:
             cards[3].layout().setContentsMargins(14, 8, 14, 8)
             cards[3].layout().setSpacing(6)
+            cards[3].layout().setAlignment(Qt.AlignTop)
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
             box.setFixedHeight(50)
             if box.layout() is not None:
