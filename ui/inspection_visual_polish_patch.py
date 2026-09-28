@@ -80,10 +80,14 @@ def apply_inspection_visual_polish(InspectionPage):
     def patched_dialog_init(dialog, *args, **kwargs):
         original_dialog_init(dialog, *args, **kwargs)
 
-        table_header = dialog.findChild(QFrame, "rulesTableHeader")
-        if table_header is not None and table_header.layout() is not None:
-            table_header.layout().setContentsMargins(12, 0, 20, 0)
+        # 5개 팝업 모두 감리 사전점검과 동일한 위치에
+        # "상태" 헤더를 고정한다.
+        for label in dialog.findChildren(QLabel, "rulesTableHeaderText"):
+            if label.text() == "상태":
+                label.setAlignment(Qt.AlignCenter)
+                label.setContentsMargins(0, 0, 0, 0)
 
+        # 활성/비활성 내용 위치는 변경하지 않는다.
         for label in dialog.findChildren(QLabel, "rulesRowState"):
             label.setAlignment(Qt.AlignCenter)
 

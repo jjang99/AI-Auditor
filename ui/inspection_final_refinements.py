@@ -174,7 +174,7 @@ def apply_inspection_final_refinements(inspection_cls):
                 if '  ' in raw_name:
                     raw_name = raw_name.split('  ', 1)[1]
                 name_label.setText(raw_name)
-                name_label.setFixedWidth(150)
+                name_label.setFixedWidth(240)
                 layout = row.layout()
                 if layout is not None:
                     file_label = QLabel()
@@ -183,6 +183,7 @@ def apply_inspection_final_refinements(inspection_cls):
                     file_label.setAlignment(Qt.AlignCenter)
                     file_label.setFixedWidth(20)
                     layout.insertWidget(0, file_label)
+                path_label.setFixedWidth(240)
                 path_label.setMinimumHeight(18)
                 path_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 size_label.setFixedWidth(50)

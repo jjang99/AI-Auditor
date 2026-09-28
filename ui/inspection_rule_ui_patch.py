@@ -3,7 +3,10 @@ from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QPushButton
 
 from rules.core.document_selection import get_selected_document_mvp_rules
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
-from rules.definitions.document_rule_catalog import get_document_rule_categories
+from rules.definitions.document_rule_catalog import (
+    get_document_rule_categories,
+    get_document_rules,
+)
 from ui.inspection_rules_dialog import InspectionRulesDialog
 
 
@@ -124,7 +127,20 @@ def apply_inspection_rule_ui_patch(InspectionPage):
     def open_rule_category_dialog(self, category):
         if not hasattr(self, "rule_selection_state"):
             self.rule_selection_state = {name: [True] * total for name, total in CATEGORY_COUNTS.items()}
-        dialog = InspectionRulesDialog(self); total = CATEGORY_COUNTS.get(category, 0); working = list(self.rule_selection_state[category])
+        category_rules = [
+            rule
+            for rule in get_document_rules()
+            if rule.category == category
+        ]
+
+        dialog = InspectionRulesDialog(
+            self,
+            category_name=category,
+            rules=category_rules,
+        )
+
+        total = CATEGORY_COUNTS.get(category, 0)
+        working = list(self.rule_selection_state[category])
         title = dialog.findChild(QLabel, "rulesDialogTitle"); count = dialog.findChild(QLabel, "rulesDialogCount"); header_icon = dialog.findChild(QLabel, "rulesDialogShieldIcon")
         if title: title.setText(category)
         if count: count.setText(f"{total}개 규칙")
@@ -136,24 +152,10 @@ def apply_inspection_rule_ui_patch(InspectionPage):
             captured = source_icon.grab()
             if not captured.isNull():
                 header_icon.clear(); header_icon.setPixmap(captured.scaled(QSize(40, 34), Qt.KeepAspectRatio, Qt.SmoothTransformation)); header_icon.setAlignment(Qt.AlignCenter); header_icon.setFixedSize(44, 36); header_icon.show()
-        header_labels = dialog.findChildren(QLabel, "rulesTableHeaderText")
-        for label in header_labels:
-            if label.text() == "항목명": label.setText("규칙명"); label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            elif label.text() == "설명": label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            elif label.text() == "상태": label.setAlignment(Qt.AlignCenter)
         for label in dialog.findChildren(QLabel):
             if label.text() == "적용할 항목을 선택하거나 제외할 수 있습니다.": label.setText("적용할 규칙을 선택하거나 제외할 수 있습니다.")
         for label in dialog.findChildren(QLabel, "rulesRowText"): label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        for label in dialog.findChildren(QLabel, "rulesRowDescription"): label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for label in dialog.findChildren(QLabel, "rulesRowState"): label.setAlignment(Qt.AlignCenter)
-        try:
-            from ui.inspection_runtime import CATEGORY_DIALOG_ROWS
-            samples = CATEGORY_DIALOG_ROWS.get(category, [])
-        except Exception: samples = []
-        rows = dialog.findChildren(QFrame, "rulesTableRow")
-        for index, row in enumerate(rows):
-            labels = [label for label in row.findChildren(QLabel) if label.objectName() in {"rulesRowText", "rulesRowDescription"}]
-            if index < len(samples) and len(labels) >= 2: labels[0].setText(samples[index][0]); labels[1].setText(samples[index][1])
         checkboxes = list(dialog.rule_checkboxes); state_labels = list(dialog.state_labels)
         for checkbox in checkboxes:
             try: checkbox.stateChanged.disconnect()

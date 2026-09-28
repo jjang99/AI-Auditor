@@ -206,10 +206,10 @@ def apply_inspection_runtime(InspectionPage):
         while layout.count():
             item = layout.takeAt(0); widget = item.widget()
             if widget is not None: widget.deleteLater()
-        visible_files = self.selected_files[:5]
+        visible_files = self.selected_files
         for raw_path in visible_files:
             path = Path(raw_path); row = QFrame(); row.setObjectName("inspectionFileRow"); row.setFixedHeight(30); row_layout = QHBoxLayout(row); row_layout.setContentsMargins(10, 2, 10, 2)
-            name_label = QLabel(path.name); name_label.setObjectName("inspectionTableText"); name_label.setFixedWidth(170); path_label = QLabel(str(path.parent)); path_label.setObjectName("inspectionTableMuted"); size_label = QLabel(_format_size(path.stat().st_size) if path.is_file() else "-"); size_label.setObjectName("inspectionTableText"); size_label.setFixedWidth(52); delete_button = QPushButton("♜"); delete_button.setObjectName("inspectionFileDeleteButton"); delete_button.setCursor(Qt.PointingHandCursor); delete_button.setToolTip(f"{path.name} 삭제"); delete_button.setFlat(True); delete_button.setFixedSize(24, 24); delete_button.clicked.connect(lambda _checked=False, file_path=raw_path: self.remove_inspection_file(file_path))
+            name_label = QLabel(path.name); name_label.setObjectName("inspectionTableText"); name_label.setFixedWidth(240); path_label = QLabel(str(path.parent)); path_label.setFixedWidth(240); path_label.setObjectName("inspectionTableMuted"); size_label = QLabel(_format_size(path.stat().st_size) if path.is_file() else "-"); size_label.setObjectName("inspectionTableText"); size_label.setFixedWidth(52); delete_button = QPushButton("♜"); delete_button.setObjectName("inspectionFileDeleteButton"); delete_button.setCursor(Qt.PointingHandCursor); delete_button.setToolTip(f"{path.name} 삭제"); delete_button.setFlat(True); delete_button.setFixedSize(24, 24); delete_button.clicked.connect(lambda _checked=False, file_path=raw_path: self.remove_inspection_file(file_path))
             row_layout.addWidget(name_label); row_layout.addWidget(path_label, 1); row_layout.addWidget(size_label); row_layout.addWidget(delete_button); layout.addWidget(row)
         needed_height = max(88, len(visible_files) * 30); table.setMinimumHeight(needed_height); table.setMaximumHeight(needed_height); scroll = self.findChild(QScrollArea, "inspectionFileScroll")
         if scroll is not None: scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if len(visible_files) <= 3 else Qt.ScrollBarAsNeeded)

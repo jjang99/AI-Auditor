@@ -4,14 +4,17 @@ from PySide6.QtCore import QEvent, Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QCheckBox, QDialog, QFrame, QHBoxLayout, QLabel, QPushButton,
-    QScrollArea, QVBoxLayout, QWidget,
+    QScrollArea, QVBoxLayout, QWidget, QSizePolicy,
 )
 
 
 class InspectionRulesDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, category_name=None, rules=None):
         super().__init__(parent)
-        self.setWindowTitle("보안 취약점")
+
+        self.category_name = category_name or "검사 기준"
+        self.rules = rules or []
+        self.setWindowTitle(self.category_name)
         self.setModal(True)
         self.setFixedSize(720, 500)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
@@ -42,10 +45,11 @@ class InspectionRulesDialog(QDialog):
         icon.setAlignment(Qt.AlignCenter)
         icon.setFixedSize(30, 30)
         icon.installEventFilter(self)
-        title = QLabel("보안 취약점")
+        title = QLabel(self.category_name)
         title.setObjectName("rulesDialogTitle")
         title.installEventFilter(self)
-        count = QLabel("32개 항목")
+
+        count = QLabel(f"{len(self.rules)}개 규칙")
         count.setObjectName("rulesDialogCount")
         count.installEventFilter(self)
         close_button = QPushButton("×")
@@ -97,16 +101,33 @@ class InspectionRulesDialog(QDialog):
         header_layout.setSpacing(8)
         check_header = QLabel("")
         check_header.setFixedWidth(22)
-        h1, h2, h3 = QLabel("항목명"), QLabel("설명"), QLabel("상태")
-        for label in (h1, h2, h3):
+
+        code_width = 70
+        name_width = 198
+        status_width = 52
+
+        code_header = QLabel("코드")
+        name_header = QLabel("규칙 제목")
+        desc_header = QLabel("설명")
+        status_header = QLabel("상태")
+
+        for label in (code_header, name_header, desc_header, status_header):
             label.setObjectName("rulesTableHeaderText")
-            label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        h1.setFixedWidth(215)
-        h3.setFixedWidth(58)
+
+        code_header.setAlignment(Qt.AlignCenter)
+        name_header.setAlignment(Qt.AlignCenter)
+        desc_header.setAlignment(Qt.AlignCenter)
+        status_header.setAlignment(Qt.AlignCenter)
+
+        code_header.setFixedWidth(code_width)
+        name_header.setFixedWidth(name_width)
+        status_header.setFixedWidth(status_width)
+
         header_layout.addWidget(check_header)
-        header_layout.addWidget(h1)
-        header_layout.addWidget(h2, 1)
-        header_layout.addWidget(h3)
+        header_layout.addWidget(code_header)
+        header_layout.addWidget(name_header)
+        header_layout.addWidget(desc_header, 1)
+        header_layout.addWidget(status_header)
         table_layout.addWidget(table_header)
 
         scroll = QScrollArea()
@@ -115,7 +136,6 @@ class InspectionRulesDialog(QDialog):
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setFixedHeight(270)
         list_content = QWidget()
         list_content.setObjectName("rulesListContent")
         list_layout = QVBoxLayout(list_content)
@@ -124,22 +144,17 @@ class InspectionRulesDialog(QDialog):
 
         self.rule_checkboxes = []
         self.state_labels = []
-        rules = [
-            ("SQL Injection", "사용자 입력값에 대한 SQL 삽입 취약점 검사", True),
-            ("Cross Site Scripting (XSS)", "웹 페이지 내 스크립트 삽입 취약점 검사", True),
-            ("Cross Site Request Forgery (CSRF)", "요청 위조 공격 가능성 검사", False),
-            ("Hard Coding (민감정보)", "소스코드 내 하드코딩된 민감정보 검사", True),
-            ("Weak Password Usage", "약한 암호 사용 여부 검사", False),
-            ("Insufficient Authentication", "인증 로직 부재 또는 우회 가능성 검사", True),
-            ("Broken Access Control", "접근 권한 검증 누락 검사", True),
-            ("Sensitive Data Exposure", "민감 데이터 노출 가능성 검사", True),
-        ]
-        for name, desc, checked in rules:
+        for rule in self.rules:
+            code = rule.code
+            name = rule.name
+            desc = rule.description
+            checked = True
+
             row = QFrame()
             row.setObjectName("rulesTableRow")
             row.setFixedHeight(36)
             row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(12, 0, 12, 0)
+            row_layout.setContentsMargins(12, 0, 4, 0)
             row_layout.setSpacing(8)
             checkbox = QCheckBox()
             checkbox.setObjectName("rulesCheckbox")
@@ -147,29 +162,41 @@ class InspectionRulesDialog(QDialog):
             checkbox.setCursor(Qt.PointingHandCursor)
             checkbox.setFixedWidth(22)
             self.rule_checkboxes.append(checkbox)
+            code_label = QLabel(code)
+            code_label.setObjectName("rulesRowCode")
+            code_label.setFixedWidth(code_width)
+            code_label.setAlignment(Qt.AlignCenter)
+
             name_label = QLabel(name)
             name_label.setObjectName("rulesRowText")
-            name_label.setFixedWidth(215)
+            name_label.setFixedWidth(name_width)
             name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
             desc_label = QLabel(desc)
             desc_label.setObjectName("rulesRowDescription")
             desc_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            # 긴 설명이 상태 열을 오른쪽으로 밀지 않도록 설명 열만 가변 축소
+            desc_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+
             state_label = QLabel("활성" if checked else "비활성")
             state_label.setObjectName("rulesRowState")
-            state_label.setFixedWidth(58)
-            state_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            state_label.setFixedWidth(status_width)
+            state_label.setAlignment(Qt.AlignCenter)
             self.state_labels.append(state_label)
             checkbox.stateChanged.connect(lambda state, label=state_label: label.setText("활성" if state == Qt.Checked.value else "비활성"))
             checkbox.stateChanged.connect(self.update_selected_count)
             row_layout.addWidget(checkbox)
+            row_layout.addWidget(code_label)
             row_layout.addWidget(name_label)
             row_layout.addWidget(desc_label, 1)
             row_layout.addWidget(state_label)
+
             list_layout.addWidget(row)
+
         list_layout.addStretch()
         scroll.setWidget(list_content)
-        table_layout.addWidget(scroll)
-        layout.addWidget(table)
+        table_layout.addWidget(scroll, 1)
+        layout.addWidget(table, 1)
 
         bottom = QHBoxLayout()
         bottom.setSpacing(10)
@@ -198,9 +225,14 @@ class InspectionRulesDialog(QDialog):
             checkbox.setChecked(checked)
 
     def update_selected_count(self):
-        selected = sum(1 for checkbox in self.rule_checkboxes if checkbox.isChecked())
-        display_count = max(0, 32 - (len(self.rule_checkboxes) - selected))
-        self.selected_count.setText(f"선택됨 {display_count} / 32 항목")
+        selected = sum(
+            1 for checkbox in self.rule_checkboxes
+            if checkbox.isChecked()
+        )
+        total = len(self.rule_checkboxes)
+        self.selected_count.setText(
+            f"선택됨 {selected} / {total} 규칙"
+        )
 
     def eventFilter(self, watched, event):
         draggable = watched is self.header_drag_area or watched.objectName() in {"rulesDialogShieldIcon", "rulesDialogTitle", "rulesDialogCount"}

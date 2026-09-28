@@ -253,16 +253,16 @@ def apply_inspection_progress_refinements(inspection_cls):
 
         if hasattr(self, 'main_layout'):
             self.main_layout.setContentsMargins(14, 9, 10, 10)
-            self.main_layout.setSpacing(10)
+            self.main_layout.setSpacing(7)
 
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            for card, height in zip(cards[:4], [175, 216, 230, 174]):
+            for card, height in zip(cards[:4], [175, 211, 225, 174]):
                 card.setFixedHeight(height)
 
         summary_card = getattr(self, 'summary_card', None)
         if summary_card is not None:
-            summary_card.setFixedHeight(174)
+            summary_card.setFixedHeight(190)
 
         for state_card in (
             getattr(self, 'progress_card', None),
