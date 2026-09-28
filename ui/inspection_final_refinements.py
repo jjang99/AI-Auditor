@@ -103,9 +103,7 @@ def apply_inspection_final_refinements(inspection_cls):
                 titles[i].setText(text)
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            # Keep the overall page height stable: give the five rule rows more
-            # breathing room and recover the same space from the summary card.
-            for card, height in zip(cards[:4], [175, 221, 246, 148]):
+            for card, height in zip(cards[:4], [175, 221, 204, 190]):
                 card.setFixedHeight(height)
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
@@ -147,7 +145,7 @@ def apply_inspection_final_refinements(inspection_cls):
                     right_col.invalidate()
                     right_col.activate()
         for label in self.findChildren(QLabel, 'inspectionDuplicate'):
-            label.setFixedHeight(28)
+            label.setFixedHeight(24)
             label.setContentsMargins(0, 5, 0, 1)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for button in self.findChildren(QPushButton, 'inspectionDuplicateButton'):
@@ -214,13 +212,7 @@ def apply_inspection_final_refinements(inspection_cls):
             if label.text() in ('외 14개 파일', '총 12.3 MB'):
                 label.hide()
                 label.setFixedHeight(0)
-        rule_icon_files = [
-            'inspection.svg',
-            'why_consistency.svg',
-            'why_impact.svg',
-            'why_fp.svg',
-            'rule_ai_modern.svg',
-        ]
+        rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
         rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
         for label, filename in zip(rule_icons, rule_icon_files):
             label.setText('')
@@ -232,7 +224,7 @@ def apply_inspection_final_refinements(inspection_cls):
         for label in self.findChildren(QLabel, 'inspectionRuleCount'):
             label.setFixedWidth(70)
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(38)
+            row.setFixedHeight(35)
         if len(cards) >= 3 and cards[2].layout() is not None:
             cards[2].layout().setSpacing(6)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
@@ -247,27 +239,25 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setAlignment(Qt.AlignCenter)
             label.setFixedSize(30, 30)
         for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
-            box.setFixedHeight(52)
+            box.setFixedHeight(60)
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
-            start.setFixedSize(118, 52)
+            start.setFixedSize(118, 60)
         if len(cards) >= 4 and cards[3].layout() is not None:
-            cards[3].layout().setContentsMargins(14, 7, 14, 7)
-            cards[3].layout().setSpacing(6)
-            cards[3].layout().setAlignment(Qt.AlignTop)
+            cards[3].layout().setSpacing(11)
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
-            box.setFixedHeight(48)
+            box.setFixedHeight(60)
             if box.layout() is not None:
                 lay = box.layout()
-                lay.setContentsMargins(12, 5, 12, 5)
-                lay.setSpacing(1)
+                lay.setContentsMargins(12, 6, 12, 6)
+                lay.setSpacing(2)
                 lay.setAlignment(Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoTitle'):
             label.setFixedHeight(14)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoText'):
             label.setWordWrap(True)
-            label.setFixedHeight(24)
+            label.setFixedHeight(32)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
