@@ -111,9 +111,9 @@ def apply_inspection_refinements(inspection_cls):
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
             cards[0].setMinimumHeight(158)   # project information
-            cards[1].setMinimumHeight(280)   # files
-            cards[2].setMinimumHeight(205)   # rules
-            cards[3].setMinimumHeight(190)   # summary
+            cards[1].setMinimumHeight(216)   # files
+            cards[2].setMinimumHeight(230)   # rules
+            cards[3].setMinimumHeight(174)   # summary
 
         # Readability first: avoid tiny fixed rows and give text breathing room.
         for row in self.findChildren(QFrame, 'inspectionFileRow'):

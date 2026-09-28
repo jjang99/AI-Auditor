@@ -125,7 +125,13 @@ class InspectionPage(QWidget):
         select_all=QPushButton("전체 선택"); select_all.setObjectName("inspectionSmallButton"); select_all.setFixedSize(75,28)
         clear_all=QPushButton("전체 해제"); clear_all.setObjectName("inspectionSmallButton"); clear_all.setFixedSize(75,28)
         rule_header.addWidget(rule_title); rule_header.addWidget(note); rule_header.addStretch(); rule_header.addWidget(select_all); rule_header.addWidget(clear_all); rules_layout.addLayout(rule_header)
-        categories=[("✓","감리 사전점검","24개 규칙","사업 산출물의 완전성 및 적정성 점검"),("↔","요구사항 정합성","28개 규칙","요구사항과 관련 산출물 간 정합성 점검"),("△","변경영향도","18개 규칙","변경사항의 영향범위 및 반영 여부 점검"),("FP","FP 검증","12개 규칙","기능점수 산정의 누락·중복·적정성 점검"),("AI","AI 특화 검증","23개 규칙","AI 적용 시스템의 품질·보안·신뢰성 점검")]
+        categories=[
+            ("✓", "감리 사전점검", "24개 규칙", "사업 산출물의 완전성 및 적정성 점검"),
+            ("↔", "요구사항 정합성", "28개 규칙", "요구사항과 관련 산출물 간 정합성 점검"),
+            ("△", "변경영향도", "18개 규칙", "변경사항의 영향범위 및 반영 여부 점검"),
+            ("FP", "FP 검증", "12개 규칙", "기능점수 산정의 누락·중복·적정성 점검"),
+            ("AI", "AI 특화 검증", "23개 규칙", "AI 적용 시스템의 품질·보안·신뢰성 점검"),
+        ]
         for index, category in enumerate(categories): rules_layout.addWidget(self.create_rule_row(*category, open_dialog=(index==0)))
         main.addWidget(rules_card)
 
@@ -180,7 +186,7 @@ class InspectionPage(QWidget):
     def section_title(self,text): label=QLabel(text); label.setObjectName("inspectionSectionTitle"); return label
 
     def create_rule_row(self,icon,name,count,description,open_dialog=False):
-        row=QFrame(); row.setObjectName("inspectionRuleRow"); row.setFixedHeight(37); layout=QHBoxLayout(row); layout.setContentsMargins(10,3,8,3); layout.setSpacing(9)
+        row=QFrame(); row.setObjectName("inspectionRuleRow"); row.setFixedHeight(37); layout=QHBoxLayout(row); layout.setContentsMargins(10,4,8,4); layout.setSpacing(9)
         checked=QLabel("✓"); checked.setObjectName("inspectionCheck"); checked.setAlignment(Qt.AlignCenter); checked.setFixedSize(20,20)
         icon_label=QLabel(icon); icon_label.setObjectName("inspectionRuleIcon"); icon_label.setFixedWidth(28); name_label=QLabel(name); name_label.setObjectName("inspectionRuleName"); name_label.setFixedWidth(145); count_label=QLabel(count); count_label.setObjectName("inspectionRuleCount"); count_label.setFixedWidth(95); desc_label=QLabel(description); desc_label.setObjectName("inspectionRuleDescription")
         view=QPushButton("보기"); view.setObjectName("inspectionViewButton"); view.setFixedSize(58,27)

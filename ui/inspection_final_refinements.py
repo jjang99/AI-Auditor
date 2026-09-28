@@ -103,7 +103,7 @@ def apply_inspection_final_refinements(inspection_cls):
                 titles[i].setText(text)
         cards = self.findChildren(QFrame, 'inspectionCard')
         if len(cards) >= 4:
-            for card, height in zip(cards[:4], [175, 221, 204, 190]):
+            for card, height in zip(cards[:4], [175, 216, 230, 174]):
                 card.setFixedHeight(height)
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
@@ -212,25 +212,43 @@ def apply_inspection_final_refinements(inspection_cls):
             if label.text() in ('외 14개 파일', '총 12.3 MB'):
                 label.hide()
                 label.setFixedHeight(0)
-        rule_icon_files = ['detail_grade.svg', 'detail_issues.svg', 'inspection.svg', 'reports.svg']
-        rule_icons = self.findChildren(QLabel, 'inspectionRuleIcon')
-        for label, filename in zip(rule_icons, rule_icon_files):
-            label.setText('')
-            label.setPixmap(QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(18, 18)))
-            label.setAlignment(Qt.AlignCenter)
-            label.setFixedWidth(26)
+                rule_icon_map = {
+            '감리 사전점검': 'rule_aud.svg',
+            '요구사항 정합성': 'rule_req.svg',
+            '변경영향도': 'rule_chg.svg',
+            'FP 검증': 'rule_fp.svg',
+            'AI 특화 검증': 'rule_ai.svg',
+        }
+
+        for row in self.findChildren(QFrame, 'inspectionRuleRow'):
+            name_label = row.findChild(QLabel, 'inspectionRuleName')
+            icon_label = row.findChild(QLabel, 'inspectionRuleIcon')
+
+            if name_label is None or icon_label is None:
+                continue
+
+            filename = rule_icon_map.get(name_label.text())
+            if filename is None:
+                continue
+
+            icon_label.setText('')
+            icon_label.setPixmap(
+                QIcon(os.path.join(icon_dir, filename)).pixmap(QSize(18, 18))
+            )
+            icon_label.setAlignment(Qt.AlignCenter)
+            icon_label.setFixedWidth(26)
         for label in self.findChildren(QLabel, 'inspectionRuleName'):
             label.setFixedWidth(120)
         for label in self.findChildren(QLabel, 'inspectionRuleCount'):
             label.setFixedWidth(70)
         for row in self.findChildren(QFrame, 'inspectionRuleRow'):
-            row.setFixedHeight(35)
+            row.setFixedHeight(34)
         if len(cards) >= 3 and cards[2].layout() is not None:
-            cards[2].layout().setSpacing(6)
+            cards[2].layout().setSpacing(10)
         for button in self.findChildren(QPushButton, 'inspectionViewButton'):
-            button.setFixedSize(66, 27)
+            button.setFixedSize(66, 24)
         for button in self.findChildren(QPushButton, 'inspectionSmallButton'):
-            button.setFixedHeight(27)
+            button.setFixedHeight(24)
         summary_icon_files = ['project.svg', 'detail_issues.svg', 'play.svg']
         summary_icons = self.findChildren(QLabel, 'inspectionSummaryIcon')
         for label, filename in zip(summary_icons, summary_icon_files):
@@ -244,7 +262,8 @@ def apply_inspection_final_refinements(inspection_cls):
         if start is not None:
             start.setFixedSize(118, 60)
         if len(cards) >= 4 and cards[3].layout() is not None:
-            cards[3].layout().setSpacing(11)
+            cards[3].layout().setContentsMargins(14, 6, 14, 6)
+            cards[3].layout().setSpacing(6)
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
             box.setFixedHeight(60)
             if box.layout() is not None:

@@ -107,13 +107,12 @@ class AdministrationPage(QWidget):
 
         icon_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icons")
         category_icons = {
-            "AUD": "detail_grade.svg",
-            "REQ": "detail_score.svg",
-            "CHG": "detail_issues.svg",
-            "FP": "detail_resolved.svg",
-            "AI": "administration.svg",
+            "AUD": "rule_aud.svg",
+            "REQ": "rule_req.svg",
+            "CHG": "rule_chg.svg",
+            "FP": "rule_fp.svg",
+            "AI": "rule_ai.svg",
         }
-
         categories = [
             (
                 category.name,
