@@ -971,3 +971,31 @@ UI 세부 표현은 실제 구현 화면을 확인하면서 보정하되
 
 Severity 및 감리 개선판정 구현은
 5단계 내부 세부작업으로 처리한다.
+
+## 2026-09-28 5-3 Inspection 최종 통일 완료
+
+- Administration과 Inspection의 검사기준 표시 기준을 `document_rule_catalog.py`의 5대 영역 / Full Rule Catalog 105개로 통일
+  - 감리 사전점검(AUD): 24개
+  - 요구사항 정합성(REQ): 28개
+  - 변경영향도(CHG): 18개
+  - FP 검증(FP): 12개
+  - AI 특화 검증(AI): 23개
+- Inspection의 카테고리명·설명·규칙 수를 Full Rule Catalog 기준으로 정리
+- Administration과 Inspection의 5대 영역 아이콘을 동일 SVG 체계로 통일
+  - `rule_aud.svg`
+  - `rule_req.svg`
+  - `rule_chg.svg`
+  - `rule_fp.svg`
+  - `rule_ai.svg`
+- Inspection의 카테고리별 선택 상태 및 전체 선택/해제 구조를 105개 카탈로그 기준으로 유지
+- 기존 UI Freeze의 전체 구조는 유지하고, 카탈로그 정합성과 가독성 보정 범위에서만 수정
+- 사용자 화면 확인 완료
+- 전체 회귀 테스트 결과: `57 passed, 42 subtests passed`, 실패 0건
+- 5-3 구현 커밋: `43db328`
+
+### 5-3 / 5-4 범위 경계
+- 5-3 완료 범위: Administration ↔ Inspection의 Full Rule Catalog 105개 UI/데이터 기준 통일
+- Inspection 화면의 Full Catalog 105개는 제품 전체 검사기준 체계를 의미함
+- 실제 문서 검사 실행은 해커톤 MVP 20개를 대상으로 하며, Full Catalog 105개 전체가 실행 Engine에 구현되었다는 의미가 아님
+- Inspection의 실제 실행 Engine 연결은 기존 실행 Rule 구조가 남아 있으므로 5-4에서 문서 MVP 20개 Rule / AI / Hybrid Engine과 연결하여 최종 통합함
+- 다음 작업: **5-4 실제 검사 실행 통합**
