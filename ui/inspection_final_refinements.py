@@ -105,7 +105,7 @@ def apply_inspection_final_refinements(inspection_cls):
         if len(cards) >= 4:
             # Keep the overall page height stable: give the five rule rows more
             # breathing room and recover the same space from the summary card.
-            for card, height in zip(cards[:4], [175, 221, 234, 160]):
+            for card, height in zip(cards[:4], [175, 221, 258, 136]):
                 card.setFixedHeight(height)
         for label in self.findChildren(QLabel, 'inspectionFieldLabel'):
             label.setFixedHeight(17)
@@ -247,16 +247,16 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setAlignment(Qt.AlignCenter)
             label.setFixedSize(30, 30)
         for box in self.findChildren(QFrame, 'inspectionSummaryBox'):
-            box.setFixedHeight(54)
+            box.setFixedHeight(48)
         start = next(iter(self.findChildren(QPushButton, 'inspectionStartButton')), None)
         if start is not None:
-            start.setFixedSize(118, 54)
+            start.setFixedSize(118, 48)
         if len(cards) >= 4 and cards[3].layout() is not None:
             cards[3].layout().setContentsMargins(14, 8, 14, 8)
             cards[3].layout().setSpacing(6)
             cards[3].layout().setAlignment(Qt.AlignTop)
         for box in self.findChildren(QFrame, 'inspectionInfoBox'):
-            box.setFixedHeight(50)
+            box.setFixedHeight(42)
             if box.layout() is not None:
                 lay = box.layout()
                 lay.setContentsMargins(12, 4, 12, 4)
@@ -267,7 +267,7 @@ def apply_inspection_final_refinements(inspection_cls):
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         for label in self.findChildren(QLabel, 'inspectionInfoText'):
             label.setWordWrap(True)
-            label.setFixedHeight(28)
+            label.setFixedHeight(24)
             label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     inspection_cls.__init__ = refined_init
     inspection_cls._final_refined = True
