@@ -803,7 +803,7 @@ NIST / OWASP / CVSS 등은
 - 완료 코드 기준점: `db935c2`
 
 ### 5-3. Inspection 최종 통일
-상태: 미완료
+상태: 완료
 
 목표:
 
@@ -999,3 +999,42 @@ Severity 및 감리 개선판정 구현은
 - 실제 문서 검사 실행은 해커톤 MVP 20개를 대상으로 하며, Full Catalog 105개 전체가 실행 Engine에 구현되었다는 의미가 아님
 - Inspection의 실제 실행 Engine 연결은 기존 실행 Rule 구조가 남아 있으므로 5-4에서 문서 MVP 20개 Rule / AI / Hybrid Engine과 연결하여 최종 통합함
 - 다음 작업: **5-4 실제 검사 실행 통합**
+
+
+## 2026-09-28 5-4 구현 기준 확정
+
+### 목적
+5-4는 새 검사 Engine을 개발하는 단계가 아니라, 4단계에서 구현·검증한 문서검사 Engine을 실제 Inspection 실행 흐름에 연결하는 단계이다.
+
+### 고정 실행 흐름
+`Inspection`
+→ `Full Catalog 105개 선택상태에서 MVP 20개 선택상태 추출`
+→ `문서 Parser / ParsedDocument`
+→ `Rule / AI / Hybrid 라우팅`
+→ `DocumentInspectionEngine`
+→ `Issue 변환·생성`
+→ `기존 DB 저장 및 UI 완료 흐름`
+
+### 구현 순서
+1. Full Catalog 105개 UI 선택상태와 MVP 20개 Rule의 정확한 매핑 기준을 연결한다.
+2. Inspection에서 지원 문서가 기존 Parser로 전달되도록 파일 선택/검증 경로를 연결한다.
+3. 기존 `get_default_rules()` 기반 실행경로를 문서 MVP 실행경로와 혼동하지 않고 분리한다.
+4. 선택된 문서 MVP Rule을 `DocumentInspectionEngine`에 전달하고 Rule 3 / AI 6 / Hybrid 11 라우팅을 유지한다.
+5. 문서검사 결과를 기존 Issue/DB 저장 구조에 연결한다.
+6. 기존 Inspection 진행/완료 UI 흐름을 유지한다.
+7. 5-4 전용 자동테스트 후 전체 `pytest` 회귀 테스트를 수행한다.
+
+### 변경 금지 / 범위 경계
+- 4단계 `DocumentInspectionEngine`, `DocumentRuleEngine`, `DocumentAIEngine`, `DocumentHybridEngine`은 실제 결함이 확인되지 않는 한 임의 재설계하지 않는다.
+- UI Freeze 상태를 유지하며 5-4에서 화면 구조를 임의 변경하지 않는다.
+- Full Catalog 105개와 실제 실행 MVP 20개를 동일 개념으로 취급하지 않는다.
+- 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
+- `BaseAIProvider`의 교체 가능한 Provider 구조를 유지한다.
+- 5-4에서 Qwen / Gemma / Ollama 등 특정 로컬 AI 제품을 임의 선정·탑재하지 않는다. 실제 로컬 AI 모델 연결은 기존 결정에 따라 후속 범위에서 다룬다.
+- Administration의 데이터 관리 기능은 기존 결정대로 별도 6단계 범위로 유지한다.
+
+### 5-4 완료 기준
+- Inspection에서 선택된 MVP 20개가 문서 Parser와 `DocumentInspectionEngine`으로 실제 전달된다.
+- Rule / AI / Hybrid 실행결과가 기존 Issue/DB 흐름으로 연결된다.
+- 기존 UI Freeze 및 기존 기능 회귀가 유지된다.
+- 5-4 기능 테스트와 전체 회귀 테스트가 모두 PASS한다.
