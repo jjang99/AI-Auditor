@@ -125,7 +125,7 @@ class InspectionPage(QWidget):
         select_all=QPushButton("전체 선택"); select_all.setObjectName("inspectionSmallButton"); select_all.setFixedSize(75,28)
         clear_all=QPushButton("전체 해제"); clear_all.setObjectName("inspectionSmallButton"); clear_all.setFixedSize(75,28)
         rule_header.addWidget(rule_title); rule_header.addWidget(note); rule_header.addStretch(); rule_header.addWidget(select_all); rule_header.addWidget(clear_all); rules_layout.addLayout(rule_header)
-        categories=[("♢","보안 취약점","32개 항목","보안 취약점 및 위협 요소 검사"),("</>","코드 품질","45개 항목","코드 품질 및 유지보수성 검사"),("AI","AI 특화 검증","15개 항목","AI 모델/데이터 특화 검증"),("◌","성능 및 효율성","10개 항목","성능 및 효율성 관련 검사")]
+        categories=[("✓","감리 사전점검","24개 규칙","사업 산출물의 완전성 및 적정성 점검"),("↔","요구사항 정합성","28개 규칙","요구사항과 관련 산출물 간 정합성 점검"),("△","변경영향도","18개 규칙","변경사항의 영향범위 및 반영 여부 점검"),("FP","FP 검증","12개 규칙","기능점수 산정의 누락·중복·적정성 점검"),("AI","AI 특화 검증","23개 규칙","AI 적용 시스템의 품질·보안·신뢰성 점검")]
         for index, category in enumerate(categories): rules_layout.addWidget(self.create_rule_row(*category, open_dialog=(index==0)))
         main.addWidget(rules_card)
 
