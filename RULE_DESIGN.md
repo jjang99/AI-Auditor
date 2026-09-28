@@ -892,3 +892,13 @@ AI Auditor 검사결과 판정체계는 다음 원칙으로 통일한다.
 본 설계를 이후 Rule Engine, AI/Hybrid 검사,
 Issue 저장구조, Project Detail, Reports 및
 감리 개선판정 기능 구현의 기준으로 사용한다.
+
+## 2026-09-28 — Full Catalog 표시와 MVP 실행 범위
+
+- Full Rule Catalog: 5대 영역 105개(AUD 24 / REQ 28 / CHG 18 / FP 12 / AI 23)
+- Administration과 Inspection의 검사기준 표시·선택 UI는 Full Rule Catalog 105개를 기준으로 한다.
+- 해커톤 실제 문서검사 실행 범위는 별도로 확정한 MVP 20개를 기준으로 한다.
+- 따라서 UI의 105개 Full Catalog와 실제 실행 대상 MVP 20개를 동일 개념으로 취급하지 않는다.
+- 5-3에서는 Administration·Inspection의 카탈로그 기준을 통일한다.
+- 5-4에서는 Inspection 실행 경로를 DocumentInspectionEngine의 Rule / AI / Hybrid MVP 20개 실행구조와 연결한다.
+- 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 유지한다.
