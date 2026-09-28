@@ -28,7 +28,7 @@ def apply_inspection_visual_polish(InspectionPage):
             desc_label = row.findChild(QLabel, "inspectionRuleDescription")
 
             if count_label is not None:
-                count_label.setFixedWidth(95)
+                count_label.setFixedWidth(122)
 
             # 규칙 행의 색상/폰트는 InspectionPage.apply_rule_text_theme()에서
             # 현재 Dark/Light 테마에 맞춰 관리한다. 여기서 색상을 다시 지정하면
