@@ -398,7 +398,6 @@ Impact는 다음 4개 요소를 종합적으로 판단한다.
 ## MEDIUM
 
 다음과 같은 경우를 기준으로 한다.
-
 - 품질·정합성·기능 등에 명확한 영향이 있다.
 - 일부 산출물·기능·후속 작업에 영향을 줄 수 있다.
 - 수정이 필요하지만 핵심 사업목표에 미치는 영향은 제한적이다.
@@ -797,7 +796,6 @@ AI 판정을 사용하는 경우에도
 
 감리 관련 Rule과 판정기준을 설계·검토할 때
 다음 우선순위를 사용한다.
-
 1. 현행 정보시스템 감리기준
 2. NIA 정보시스템 감리 수행 가이드
 3. NIA 지능정보기술 감리 실무 가이드 및 분야별 감리 가이드
@@ -902,3 +900,20 @@ Issue 저장구조, Project Detail, Reports 및
 - 5-3에서는 Administration·Inspection의 카탈로그 기준을 통일한다.
 - 5-4에서는 Inspection 실행 경로를 DocumentInspectionEngine의 Rule / AI / Hybrid MVP 20개 실행구조와 연결한다.
 - 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 유지한다.
+
+
+## 2026-09-28 — 5-4 문서검사 실행 연결 구현 기준 반영
+
+- 제품 전체 검사기준은 기존과 동일하게 5대 영역 / Full Rule Catalog 105개를 유지한다.
+- 해커톤 실제 문서검사 실행대상은 확정된 MVP 20개이며, Full Catalog 선택상태에서 Rule Code를 기준으로 MVP 실행대상을 추출한다.
+- MVP 20개의 실행방식은 기존 설계대로 Rule 3 / AI 6 / Hybrid 11을 유지한다.
+- 실제 실행 흐름은 다음을 기준으로 한다.
+
+`Inspection → Full Catalog 선택상태 → MVP 20 선택 추출 → Parser / ParsedDocument → Rule / AI / Hybrid → DocumentInspectionEngine → Issue 변환 → DB 저장 → Inspection 완료 UI`
+
+- 문서검사 결과는 기존 Issue 저장모델에 연결할 수 있도록 변환하여 기존 프로젝트/검사결과 흐름을 유지한다.
+- 기존 소스코드 정적분석 Rule 실행경로는 문서 MVP 실행경로와 분리하여 보존한다.
+- 실제 로컬 AI 모델은 본 단계에서 고정하지 않으며 `BaseAIProvider`의 교체 가능한 구조를 유지한다.
+- Inspection 검사기준 팝업은 Full Rule Catalog의 실제 Rule 정보를 표시하고, 개별 선택상태가 MVP 실행대상에 반영되도록 한다.
+- 본 연결은 검사기준 105개 전체가 실행 구현되었다는 의미가 아니며, 실제 실행 구현 범위는 MVP 20개이다.
+- 다음 설계·구현 단계는 Issue의 Impact / Likelihood / Severity 및 필요한 감리 개선판정 정보를 실제 데이터·실행 흐름에 적용하는 5-5이다.
