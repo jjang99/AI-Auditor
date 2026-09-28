@@ -111,7 +111,7 @@ class AdministrationPage(QWidget):
             "REQ": "why_consistency.svg",
             "CHG": "why_impact.svg",
             "FP": "why_fp.svg",
-            "AI": "rule_ai.svg",
+            "AI": "rule_ai_modern.svg",
         }
 
         categories = [
