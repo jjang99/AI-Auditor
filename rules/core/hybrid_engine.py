@@ -7,6 +7,7 @@ from rules.core.ai_provider import (
     AIInspectionResult,
     BaseAIProvider,
 )
+from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
 from rules.core.models import DocumentRule, RuleExecutionType
 
 
@@ -45,16 +46,61 @@ class DocumentHybridEngine:
 
         evidence: tuple[str, ...] = ()
 
+        strategy = get_ai_processing_strategy(rule.code)
+
         if rule.code == "REQ-003":
             evidence = self._build_req_003_evidence(document)
         elif rule.code == "REQ-018":
             evidence = self._build_req_018_evidence(document)
+        elif strategy in (
+            AIProcessingStrategy.CANDIDATE,
+            AIProcessingStrategy.EVIDENCE,
+        ):
+            evidence = self._build_relevant_evidence(document, rule)
 
         return HybridInspectionContext(
             document=document,
             rule=rule,
             evidence=evidence,
         )
+
+    @staticmethod
+    def _build_relevant_evidence(
+        document: ParsedDocument,
+        rule: DocumentRule,
+        max_items: int = 12,
+        max_chars: int = 4500,
+    ) -> tuple[str, ...]:
+        """후보/근거확인형 Rule에 관련성이 높은 블록만 전달한다."""
+
+        terms = []
+        for value in (rule.name, rule.description, *rule.check_points):
+            for term in re.split(r"[\\s·/,()]+", str(value)):
+                normalized = term.strip("[]{}.,:;'\"")
+                if len(normalized) >= 2 and normalized not in terms:
+                    terms.append(normalized)
+
+        ranked = []
+        for index, block in enumerate(document.blocks):
+            text = block.text.strip() if block.text else ""
+            if not text:
+                continue
+            score = sum(1 for term in terms if term.lower() in text.lower())
+            if score:
+                ranked.append((-score, index, text))
+
+        ranked.sort()
+        selected = []
+        used = 0
+        for _score, _index, text in ranked:
+            remaining = max_chars - used
+            if remaining <= 0 or len(selected) >= max_items:
+                break
+            snippet = text[: min(800, remaining)]
+            selected.append(snippet)
+            used += len(snippet) + 1
+
+        return tuple(selected)
 
     def _build_req_003_evidence(
         self,
@@ -200,13 +246,25 @@ class DocumentHybridEngine:
                         provider_name=self.provider.__class__.__name__,
                     )
             else:
-                result = self.provider.inspect(
-                    context.document,
-                    context.rule,
-                    AIInspectionContext(
-                        evidence=context.evidence,
-                    ),
-                )
+                strategy = get_ai_processing_strategy(rule.code)
+                if strategy in (
+                    AIProcessingStrategy.CANDIDATE,
+                    AIProcessingStrategy.EVIDENCE,
+                ) and not context.evidence:
+                    result = AIInspectionResult(
+                        rule_code=rule.code,
+                        findings=(),
+                        raw_response="",
+                        provider_name=self.provider.__class__.__name__,
+                    )
+                else:
+                    result = self.provider.inspect(
+                        context.document,
+                        context.rule,
+                        AIInspectionContext(
+                            evidence=context.evidence,
+                        ),
+                    )
 
             result = replace(
                 result,
