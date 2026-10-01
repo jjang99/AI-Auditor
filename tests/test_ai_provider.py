@@ -597,10 +597,28 @@ def test_req002_comparison_prefilter_selects_only_same_normalized_meaning():
     ),)
 
 
-def test_req004_comparison_prefilter_does_not_guess_conflicts():
+def test_req004_comparison_prefilter_compares_same_name_with_different_details():
     evidence = (
-        "REQ-001 | 비밀번호는 8자리 이상이어야 한다",
-        "REQ-002 | 비밀번호는 10자리 이상이어야 한다",
+        "PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내",
+        "PER-001-CT-02 | 서비스수준보장 | 응답시간은 5초 이상",
+        "PER-002-CT-01 | 처리성능 | 초당 100건 처리",
+    )
+
+    pairs = DocumentAIEngine._build_comparison_pairs(
+        evidence,
+        rule_code="REQ-004",
+    )
+
+    assert pairs == ((
+        "PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내",
+        "PER-001-CT-02 | 서비스수준보장 | 응답시간은 5초 이상",
+    ),)
+
+
+def test_req004_comparison_prefilter_does_not_compare_different_names():
+    evidence = (
+        "SFR-001-AD-01 | 이용사무 신청관리",
+        "SFR-001-AD-02 | 대법원 등기전산자료 첨부기능",
     )
 
     pairs = DocumentAIEngine._build_comparison_pairs(
@@ -609,7 +627,6 @@ def test_req004_comparison_prefilter_does_not_guess_conflicts():
     )
 
     assert pairs == ()
-
 
 def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
     document = ParsedDocument(
