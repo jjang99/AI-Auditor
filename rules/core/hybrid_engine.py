@@ -139,8 +139,38 @@ class DocumentHybridEngine:
             location = block.location or block.sheet or "위치 미상"
             evidence.append(f"{location}: {text[:600]}")
 
-        # 저사양 로컬 AI에서 문서 전체를 전달하지 않도록 근거량을 제한한다.
-        return tuple(evidence[:80])
+        return tuple(evidence)
+
+    def _inspect_req_018_in_batches(
+        self,
+        context: HybridInspectionContext,
+        batch_size: int = 10,
+    ) -> AIInspectionResult:
+        """REQ-018 근거 전체를 작은 묶음으로 검사하고 결과를 통합한다."""
+
+        findings: list[str] = []
+        raw_responses: list[str] = []
+
+        for start in range(0, len(context.evidence), batch_size):
+            batch = context.evidence[start:start + batch_size]
+            result = self.provider.inspect(
+                context.document,
+                context.rule,
+                AIInspectionContext(evidence=batch),
+            )
+            findings.extend(result.findings)
+            if result.raw_response:
+                raw_responses.append(result.raw_response)
+
+        # 동일 지적이 여러 배치에서 나온 경우 최초 1건만 유지한다.
+        unique_findings = tuple(dict.fromkeys(findings))
+
+        return AIInspectionResult(
+            rule_code=context.rule.code,
+            findings=unique_findings,
+            raw_response="\n".join(raw_responses),
+            provider_name=self.provider.__class__.__name__,
+        )
 
     def inspect_document(
         self,
@@ -154,13 +184,16 @@ class DocumentHybridEngine:
                 rule,
             )
 
-            result = self.provider.inspect(
-                context.document,
-                context.rule,
-                AIInspectionContext(
-                    evidence=context.evidence,
-                ),
-            )
+            if rule.code == "REQ-018" and context.evidence:
+                result = self._inspect_req_018_in_batches(context)
+            else:
+                result = self.provider.inspect(
+                    context.document,
+                    context.rule,
+                    AIInspectionContext(
+                        evidence=context.evidence,
+                    ),
+                )
 
             result = replace(
                 result,
