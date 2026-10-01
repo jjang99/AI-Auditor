@@ -192,10 +192,15 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
                 findings=(),
             )
 
+    from app.parsers.models import DocumentBlock
+
     document = ParsedDocument(
         file_path=Path("mvp_integration_test.txt"),
         file_type="txt",
-        blocks=(),
+        blocks=(
+            DocumentBlock(block_type="paragraph", text="REQ-001 | 로그인 기능"),
+            DocumentBlock(block_type="paragraph", text="REQ-002 | 사용자 인증 기능"),
+        ),
         metadata={},
     )
 
