@@ -632,3 +632,28 @@ def test_base_issue_assessor_batch_falls_back_to_individual_calls():
 
     assert len(results) == 3
     assert assessor.calls == 3
+
+
+def test_comparison_prefilter_selects_similar_pairs_only():
+    evidence = (
+        "SFR-001 | 사용자는 아이디와 비밀번호로 로그인한다.",
+        "SFR-002 | 사용자 ID와 비밀번호로 시스템에 로그인한다.",
+        "SFR-003 | 관리자는 월별 통계 보고서를 조회한다.",
+    )
+
+    pairs = DocumentAIEngine._build_comparison_pairs(evidence)
+
+    assert pairs
+    assert pairs[0] == (evidence[0], evidence[1])
+    assert all(evidence[2] not in pair for pair in pairs)
+
+
+def test_comparison_prefilter_returns_no_pair_for_unrelated_requirements():
+    evidence = (
+        "SFR-001 | 사용자는 로그인한다.",
+        "SFR-002 | 관리자는 통계 보고서를 출력한다.",
+    )
+
+    pairs = DocumentAIEngine._build_comparison_pairs(evidence, min_similarity=0.5)
+
+    assert pairs == ()
