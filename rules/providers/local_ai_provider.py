@@ -1,4 +1,5 @@
 import json
+import time
 from dataclasses import dataclass
 from urllib import error, request
 
@@ -42,7 +43,7 @@ class LlamaCppAIProvider(BaseAIProvider):
         overlap = 1
         groups: list[tuple[str, ...]] = []
         seen: set[tuple[str, ...]] = set()
-        self.last_requirement_conflict_diagnostics = {"evidence_count": len(evidence), "batch_count": 0, "raw_group_count": 0, "valid_group_count": 0}
+        self.last_requirement_conflict_diagnostics = {"evidence_count": len(evidence), "batch_count": 0, "raw_group_count": 0, "valid_group_count": 0, "batches": []}
 
         start = 0
         while start < len(evidence):
@@ -95,11 +96,14 @@ class LlamaCppAIProvider(BaseAIProvider):
                 },
             }
             self.last_requirement_conflict_diagnostics["batch_count"] += 1
+            batch_started = time.perf_counter()
             raw = self._complete(prompt, response_format=schema)
+            batch_seconds = round(time.perf_counter() - batch_started, 2)
             try:
                 payload = json.loads(raw)
                 raw_groups = payload["groups"]
                 self.last_requirement_conflict_diagnostics["raw_group_count"] += len(raw_groups)
+                self.last_requirement_conflict_diagnostics["batches"].append({"start": start, "items": len(batch), "seconds": batch_seconds, "raw_groups": len(raw_groups)})
             except (json.JSONDecodeError, KeyError, TypeError) as exc:
                 raise LocalAIProviderError(
                     "REQ-004 의미 구조화 응답 형식이 올바르지 않습니다."
