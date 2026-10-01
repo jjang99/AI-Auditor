@@ -20,7 +20,10 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
         self.provider = provider or LlamaCppAIProvider()
 
     def assess(self, issue: RuleIssue) -> IssueAssessment:
-        raw_response = self.provider._complete(self._build_prompt(issue))
+        raw_response = self.provider._complete(
+            self._build_prompt(issue),
+            response_format=self._assessment_response_format(),
+        )
         payload = self._parse_assessment(raw_response)
 
         impact = AssessmentLevel(payload["impact"])
@@ -35,6 +38,32 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
             severity=IssueSeverity.LOW,
             severity_reason="Impact × Likelihood Matrix로 최종 Severity를 계산한다.",
         )
+
+    @staticmethod
+    def _assessment_response_format() -> dict:
+        return {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "issue_assessment",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "impact": {"type": "string", "enum": ["Low", "Medium", "High"]},
+                        "likelihood": {"type": "string", "enum": ["Low", "Medium", "High"]},
+                        "impact_reason": {"type": "string"},
+                        "likelihood_reason": {"type": "string"},
+                    },
+                    "required": [
+                        "impact",
+                        "likelihood",
+                        "impact_reason",
+                        "likelihood_reason",
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+        }
 
     @staticmethod
     def _build_prompt(issue: RuleIssue) -> str:
