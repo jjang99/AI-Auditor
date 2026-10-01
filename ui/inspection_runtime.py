@@ -13,6 +13,8 @@ from app.services.inspection_service import (
 )
 from rules.core.engine import InspectionCancelled
 from rules.definitions.default_rules import get_default_rules
+from rules.providers.local_ai_provider import LlamaCppAIProvider
+from rules.providers.local_ai_issue_assessor import LocalAIIssueAssessor
 from ui.inspection_rules_dialog import InspectionRulesDialog
 from ui.existing_project_dialog import ExistingProjectDialog
 
@@ -37,8 +39,8 @@ class InspectionWorker(QObject):
     failed = Signal(str)
     cancelled = Signal()
 
-    def __init__(self, file_paths, project_id, inspection_type, rules):
-        super().__init__(); self.file_paths = file_paths; self.project_id = project_id; self.inspection_type = inspection_type; self.rules = rules; self._cancel_requested = False
+    def __init__(self, file_paths, project_id, inspection_type, rules, use_local_ai=False):
+        super().__init__(); self.file_paths = file_paths; self.project_id = project_id; self.inspection_type = inspection_type; self.rules = rules; self.use_local_ai = use_local_ai; self._cancel_requested = False
 
     def request_cancel(self):
         self._cancel_requested = True
@@ -49,7 +51,17 @@ class InspectionWorker(QObject):
     def run(self):
         started = time.perf_counter()
         try:
-            service = InspectionService(rules=self.rules)
+            if self.use_local_ai:
+                ai_provider = LlamaCppAIProvider()
+                issue_assessor = LocalAIIssueAssessor(ai_provider)
+                service = InspectionService(
+                    rules=self.rules,
+                    ai_provider=ai_provider,
+                    issue_assessor=issue_assessor,
+                )
+            else:
+                service = InspectionService(rules=self.rules)
+
             inspection_id, summary = service.run(
                 self.file_paths,
                 project_id=self.project_id,
@@ -303,7 +315,7 @@ def apply_inspection_runtime(InspectionPage):
             )
             
         self.last_project_id = project_id
-        self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
+        self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules, use_local_ai=True); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
 
     def _set_progress_state(self, status):
         self.runtime_progress_percent.setText("…"); self.runtime_progress_bar.setRange(0, 0); self.runtime_progress_count.setText("실행 중"); self.runtime_progress_rule.setText("로컬 Rule Engine 검사"); self.runtime_progress_time.setText("측정 중"); self.runtime_progress_status.setText(status)
