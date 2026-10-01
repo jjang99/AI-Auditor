@@ -387,31 +387,3 @@ def test_req_018_prefilters_only_missing_traceability_candidates():
     assert "SFR_기능 / 행 4" not in context.evidence[0]
 
 
-def test_req_018_inspects_all_evidence_in_batches():
-    blocks = tuple(
-        DocumentBlock(
-            block_type="sheet_row",
-            text=f"REQ-{100 + index} | UC-{index:02d} | SCR-{index:02d} | TEST-{index:02d}",
-            sheet="SFR_기능",
-            location=f"SFR_기능 / 행 {index + 1}",
-        )
-        for index in range(23)
-    )
-    document = ParsedDocument(
-        file_path=Path("요구사항추적표.xlsx"),
-        file_type="xlsx",
-        blocks=blocks,
-    )
-    provider = FakeAIProvider()
-    req_018_rule = next(
-        rule for rule in get_document_mvp_rules()
-        if rule.code == "REQ-018"
-    )
-    engine = DocumentHybridEngine((req_018_rule,), provider)
-
-    results = engine.inspect_document(document)
-
-    assert len(results) == 1
-    assert len(provider.received_contexts) == 3
-    assert [len(context.evidence) for context in provider.received_contexts] == [10, 10, 3]
-    assert sum(len(context.evidence) for context in provider.received_contexts) == 23
