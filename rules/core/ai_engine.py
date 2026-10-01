@@ -201,30 +201,10 @@ class DocumentAIEngine:
             return tuple(pairs)
 
         if rule_code == "REQ-004":
-            # 상충은 같은 상위 요구사항 아래의 세부 요구사항끼리만 비교한다.
-            # 실제 추적표의 상세 ID(SFR-016-ID-01 등)는 마지막 세부 식별자를
-            # 제거하면 동일 상위 요구사항을 결정적으로 식별할 수 있다.
-            def parent_requirement_id(text: str) -> str:
-                req_id = text.split("|", 1)[0].strip()
-                parts = req_id.split("-")
-                if len(parts) < 3:
-                    return ""
-                return "-".join(parts[:-2])
-
-            groups: dict[str, list[str]] = {}
-            for item in evidence:
-                parent_id = parent_requirement_id(item)
-                if parent_id:
-                    groups.setdefault(parent_id, []).append(item)
-
-            pairs = []
-            for items in groups.values():
-                if len(items) < 2:
-                    continue
-                for left_index in range(len(items)):
-                    for right_index in range(left_index + 1, len(items)):
-                        pairs.append((items[left_index], items[right_index]))
-            return tuple(pairs)
+            # 같은 상위 요구사항이라는 사실만으로는 상충 후보라고 볼 수 없다.
+            # 실제 추적표에서 72쌍까지 불필요한 AI 비교가 발생했으므로,
+            # 상충을 결정적으로 좁힐 구조 근거가 확보되기 전에는 추정 후보를 만들지 않는다.
+            return ()
 
         return ()
 
