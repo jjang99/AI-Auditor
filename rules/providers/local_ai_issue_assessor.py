@@ -39,6 +39,120 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
             severity_reason="Impact × Likelihood Matrix로 최종 Severity를 계산한다.",
         )
 
+    def assess_many(
+        self,
+        issues: tuple[RuleIssue, ...],
+        batch_size: int = 8,
+    ) -> tuple[IssueAssessment | None, ...]:
+        """여러 Issue를 소규모 배치로 평가해 로컬 AI 호출 횟수를 줄인다."""
+        if not issues:
+            return ()
+
+        assessments = []
+        for start in range(0, len(issues), batch_size):
+            batch = issues[start:start + batch_size]
+            raw_response = self.provider._complete(
+                self._build_batch_prompt(batch),
+                response_format=self._batch_response_format(len(batch)),
+            )
+            payload = self._parse_batch_assessment(raw_response, len(batch))
+            for item in payload["assessments"]:
+                assessments.append(
+                    IssueAssessment(
+                        impact=AssessmentLevel(item["impact"]),
+                        impact_reason=item["impact_reason"].strip(),
+                        likelihood=AssessmentLevel(item["likelihood"]),
+                        likelihood_reason=item["likelihood_reason"].strip(),
+                        severity=IssueSeverity.LOW,
+                        severity_reason="Impact × Likelihood Matrix로 최종 Severity를 계산한다.",
+                    )
+                )
+
+        return tuple(assessments)
+
+    @staticmethod
+    def _build_batch_prompt(issues: tuple[RuleIssue, ...]) -> str:
+        items = "\n".join(
+            (
+                f"[{index}] Rule={issue.rule_code} {issue.rule_name}; "
+                f"Category={issue.category}; Description={issue.description}; "
+                f"Evidence={issue.evidence}; File={issue.file_path}"
+            )
+            for index, issue in enumerate(issues)
+        )
+        return (
+            "당신은 정보시스템 프로젝트 품질점검 보조 AI입니다.\n"
+            "각 지적사항을 서로 독립적으로 평가하고 입력에 없는 사실은 추측하지 마세요.\n"
+            "Impact와 Likelihood만 Low/Medium/High로 평가합니다.\n"
+            "Impact: Low=국소적 문서/표현 문제, Medium=품질·관리·검증 영향, "
+            "High=핵심 기능·보안·중요 검증 또는 광범위한 중대 영향 근거가 있음.\n"
+            "Likelihood: Low=추가 조건 필요, Medium=후속 영향 가능성이 있으나 근거가 부분적, "
+            "High=현재 상태로 진행 시 현실화 가능성이 높거나 징후가 확인됨.\n"
+            "입력 순서와 동일한 순서로 모든 항목을 빠짐없이 반환하세요.\n\n"
+            f"{items}\n\n"
+            "각 항목의 impact_reason과 likelihood_reason은 입력에 근거한 한국어 한 문장으로 작성하세요."
+        )
+
+    @staticmethod
+    def _batch_response_format(item_count: int) -> dict:
+        item_schema = {
+            "type": "object",
+            "properties": {
+                "impact": {"type": "string", "enum": ["Low", "Medium", "High"]},
+                "likelihood": {"type": "string", "enum": ["Low", "Medium", "High"]},
+                "impact_reason": {"type": "string"},
+                "likelihood_reason": {"type": "string"},
+            },
+            "required": ["impact", "likelihood", "impact_reason", "likelihood_reason"],
+            "additionalProperties": False,
+        }
+        return {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "issue_assessments",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "assessments": {
+                            "type": "array",
+                            "minItems": item_count,
+                            "maxItems": item_count,
+                            "items": item_schema,
+                        }
+                    },
+                    "required": ["assessments"],
+                    "additionalProperties": False,
+                },
+            },
+        }
+
+    @staticmethod
+    def _parse_batch_assessment(raw_response: str, expected_count: int) -> dict:
+        try:
+            payload = json.loads(raw_response)
+        except json.JSONDecodeError as exc:
+            raise LocalAIProviderError("Issue 일괄 판정 응답이 유효한 JSON이 아닙니다.") from exc
+
+        if not isinstance(payload, dict) or set(payload) != {"assessments"}:
+            raise LocalAIProviderError("Issue 일괄 판정 JSON 구조가 올바르지 않습니다.")
+
+        items = payload["assessments"]
+        if not isinstance(items, list) or len(items) != expected_count:
+            raise LocalAIProviderError("Issue 일괄 판정 결과 수가 올바르지 않습니다.")
+
+        required = {"impact", "likelihood", "impact_reason", "likelihood_reason"}
+        allowed = {level.value for level in AssessmentLevel}
+        for item in items:
+            if not isinstance(item, dict) or set(item) != required:
+                raise LocalAIProviderError("Issue 일괄 판정 필드가 올바르지 않습니다.")
+            if item["impact"] not in allowed or item["likelihood"] not in allowed:
+                raise LocalAIProviderError("Impact/Likelihood는 Low/Medium/High만 허용됩니다.")
+            if not item["impact_reason"].strip() or not item["likelihood_reason"].strip():
+                raise LocalAIProviderError("Issue 일괄 판정근거는 비어 있을 수 없습니다.")
+
+        return payload
+
     @staticmethod
     def _assessment_response_format() -> dict:
         return {
