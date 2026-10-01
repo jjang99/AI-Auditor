@@ -68,10 +68,12 @@ class DocumentAIEngine:
 
         # 실제 추적표는 대체로
         # 상위요구사항ID | 상세요구사항ID | 요구사항명 | UC... 형태다.
-        # UC/UI/PRG/테이블/시험 추적정보는 유사도 계산에서 제외한다.
+        # ID 자체는 유사도 점수에서 제외하고 요구사항명/내용만 비교한다.
         if len(parts) >= 3 and parts[1]:
-            return " | ".join(parts[:3])
-        return " | ".join(parts[:2])
+            return parts[2] or parts[1]
+        if len(parts) >= 2:
+            return parts[1]
+        return parts[0]
 
     @classmethod
     def _build_comparison_pairs(
