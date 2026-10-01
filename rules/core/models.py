@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
-from rules.core.severity import IssueAssessment
+from rules.core.severity import AuditImprovementJudgment, IssueAssessment
 
 class RuleExecutionType(str, Enum):
     RULE = "Rule"
@@ -62,6 +62,7 @@ class RuleIssue:
     description: str
     recommendation: str = ""
     assessment: IssueAssessment | None = None
+    audit_judgment: AuditImprovementJudgment | None = None
 
     @property
     def title(self) -> str:
