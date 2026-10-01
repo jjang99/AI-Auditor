@@ -471,7 +471,7 @@ def test_ai_engine_defers_aud_024_from_raw_document_loop():
     )
 
 
-def test_comparison_ai_rules_receive_requirement_rows_only():
+def test_comparison_ai_rules_skip_when_xlsx_has_no_structured_columns():
     document = ParsedDocument(
         file_path=Path("요구사항추적표.xlsx"),
         file_type="xlsx",
@@ -479,7 +479,6 @@ def test_comparison_ai_rules_receive_requirement_rows_only():
             DocumentBlock(block_type="sheet_row", text="문서 제목 | 요구사항추적표"),
             DocumentBlock(block_type="sheet_row", text="SFR-001 | 로그인 기능 | 사용자는 로그인할 수 있다."),
             DocumentBlock(block_type="sheet_row", text="SFR-002 | 인증 기능 | 사용자는 계정으로 로그인할 수 있다."),
-            DocumentBlock(block_type="sheet_row", text="일반 설명 | 비교 대상 아님"),
         ),
     )
     provider = FakeAIProvider()
@@ -492,12 +491,7 @@ def test_comparison_ai_rules_receive_requirement_rows_only():
     results = engine.inspect_document(document)
 
     assert {result.rule_code for result in results} == {"REQ-002", "REQ-004"}
-    assert len(provider.received_contexts) == 2
-    for context in provider.received_contexts:
-        assert context is not None
-        assert len(context.evidence) == 2
-        assert all(item.startswith("SFR-") for item in context.evidence)
-        assert all("일반 설명" not in item for item in context.evidence)
+    assert provider.received_contexts == []
 
 
 def test_xlsx_comparison_evidence_uses_requirement_columns_only():
@@ -751,18 +745,19 @@ def test_base_issue_assessor_batch_falls_back_to_individual_calls():
     assert assessor.calls == 3
 
 
-def test_comparison_prefilter_selects_similar_pairs_only():
+def test_comparison_prefilter_does_not_guess_semantic_similarity():
     evidence = (
         "SFR-001 | 사용자는 아이디와 비밀번호로 로그인한다.",
         "SFR-002 | 사용자 ID와 비밀번호로 시스템에 로그인한다.",
         "SFR-003 | 관리자는 월별 통계 보고서를 조회한다.",
     )
 
-    pairs = DocumentAIEngine._build_comparison_pairs(evidence)
+    pairs = DocumentAIEngine._build_comparison_pairs(
+        evidence,
+        rule_code="REQ-002",
+    )
 
-    assert pairs
-    assert pairs[0] == (evidence[0], evidence[1])
-    # 후순위 후보 존재 여부보다 최상위 유사쌍의 정확한 우선순위를 검증한다.
+    assert pairs == ()
 
 
 def test_comparison_prefilter_returns_no_pair_for_unrelated_requirements():
