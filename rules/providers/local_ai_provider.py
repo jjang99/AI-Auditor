@@ -42,6 +42,7 @@ class LlamaCppAIProvider(BaseAIProvider):
         overlap = 1
         groups: list[tuple[str, ...]] = []
         seen: set[tuple[str, ...]] = set()
+        self.last_requirement_conflict_diagnostics = {"evidence_count": len(evidence), "batch_count": 0, "raw_group_count": 0, "valid_group_count": 0}
 
         start = 0
         while start < len(evidence):
