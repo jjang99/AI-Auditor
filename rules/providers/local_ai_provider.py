@@ -75,7 +75,7 @@ class LlamaCppAIProvider(BaseAIProvider):
             '{"findings":["구체적인 위반 내용과 문서 근거를 작성"]}'
         )
 
-    def _complete(self, prompt: str) -> str:
+    def _complete(self, prompt: str, response_format: dict | None = None) -> str:
         payload = {
             "messages": [{"role": "user", "content": prompt}],
             "temperature": self.settings.temperature,
@@ -84,22 +84,22 @@ class LlamaCppAIProvider(BaseAIProvider):
             "min_p": self.settings.min_p,
             "seed": self.settings.seed,
             "max_tokens": self.settings.max_tokens,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "inspection_findings",
-                    "strict": True,
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "findings": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                            }
-                        },
-                        "required": ["findings"],
-                        "additionalProperties": False,
+        }
+        payload["response_format"] = response_format or {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "inspection_findings",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "findings": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                        }
                     },
+                    "required": ["findings"],
+                    "additionalProperties": False,
                 },
             },
         }
