@@ -101,6 +101,18 @@ class DocumentAIEngine:
                     )
                 ]
 
+                detail_indexes = [
+                    index
+                    for index, value in enumerate(headers)
+                    if re.sub(r"\s+", "", value).lower()
+                    in ("상세내용", "세부내용", "요구내용")
+                ]
+                semantic_indexes.extend(
+                    index
+                    for index in detail_indexes
+                    if index not in semantic_indexes
+                )
+
                 if id_index is None or id_index >= len(cells):
                     continue
 
