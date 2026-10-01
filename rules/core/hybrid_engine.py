@@ -93,10 +93,18 @@ class DocumentHybridEngine:
         self,
         document: ParsedDocument,
     ) -> tuple[str, ...]:
-        """REQ-018: 추적표에서 추적정보 누락 의심행만 AI 후보로 선별한다."""
+        """REQ-018: 추적표 헤더를 기준으로 누락 의심행만 AI 후보로 선별한다."""
 
         evidence: list[str] = []
-        trace_header_seen = False
+        trace_columns: dict[str, int] | None = None
+
+        required_groups = {
+            "유스케이스": ("유스케이스id", "유스케이스"),
+            "화면": ("화면id", "화면"),
+            "프로그램": ("프로그램id", "프로그램"),
+            "테이블": ("테이블id", "테이블"),
+            "통합테스트": ("통합테스트", "시험", "테스트"),
+        }
 
         for block in document.blocks:
             if block.block_type != "sheet_row":
@@ -107,19 +115,23 @@ class DocumentHybridEngine:
                 continue
 
             columns = [value.strip() for value in text.split("|")]
-            normalized = [value.lower() for value in columns]
+            normalized = [value.lower().replace(" ", "") for value in columns]
 
             if (
-                "요구사항id" in normalized
+                any("요구사항id" in value for value in normalized)
                 and any("통합테스트" in value for value in normalized)
             ):
-                trace_header_seen = True
+                trace_columns = {}
+                for label, aliases in required_groups.items():
+                    for index, value in enumerate(normalized):
+                        if any(alias in value for alias in aliases):
+                            trace_columns[label] = index
+                            break
                 continue
 
-            if not trace_header_seen:
+            if not trace_columns:
                 continue
 
-            # 실제 추적 데이터 행은 요구사항 식별자로 시작한다.
             first_column = columns[0] if columns else ""
             if not re.match(
                 r"^[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*$",
@@ -128,23 +140,11 @@ class DocumentHybridEngine:
             ):
                 continue
 
-            # 현재 추적표 구조에서 핵심 양방향 연결정보:
-            # 요구사항 → 유스케이스 → 화면 → 프로그램 → 테이블 → 통합테스트.
-            # 인터페이스는 N/A가 정상일 수 있어 필수 누락 판정에서 제외한다.
-            expected_indexes = {
-                2: "유스케이스",
-                4: "화면",
-                7: "프로그램",
-                9: "테이블",
-                10: "통합테스트",
-            }
-            missing = [
-                label
-                for index, label in expected_indexes.items()
-                if index >= len(columns)
-                or not columns[index]
-                or columns[index].upper() == "N/A"
-            ]
+            missing = []
+            for label, index in trace_columns.items():
+                value = columns[index].strip() if index < len(columns) else ""
+                if not value or value.upper() == "N/A":
+                    missing.append(label)
 
             if not missing:
                 continue
