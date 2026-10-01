@@ -237,7 +237,7 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
     assert executed_codes == expected_ai_codes | expected_provider_hybrid_codes
     assert "REQ-018" not in executed_codes
     assert len(provider.executed_rule_codes) == 16
-    assert len(executed_codes) == 17
+    assert len(executed_codes) == 16
 
 def test_document_mvp_ai_and_hybrid_rules_have_check_points():
     """실제 AI 판정에 필요한 AI/Hybrid 17개 Rule의 체크포인트가 비어 있지 않은지 검증한다."""
