@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QFrame, QHBoxLayout, QLabel,
+    QComboBox, QFrame, QHBoxLayout, QLabel,
     QPushButton, QVBoxLayout, QWidget,
 )
 
@@ -199,11 +199,18 @@ class AdministrationPage(QWidget):
         body_layout.setContentsMargins(12, 8, 12, 0)
         body_layout.setSpacing(0)
 
+        self.ai_model_combo = QComboBox()
+        self.ai_model_combo.setObjectName("adminThemeCombo")
+        self.ai_model_combo.setFixedSize(210, 32)
+        self.ai_model_combo.addItem("Qwen3-4B (기본)", "qwen3-4b-q4_k_m")
+        self.ai_model_combo.setToolTip("AI Auditor에서 검증된 로컬 AI 모델을 선택합니다.")
+        body_layout.addLayout(self.setting_row("로컬 AI 모델", self.ai_model_combo, 42))
+
         save_logs = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 48))
+        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 42))
 
         settings_layout.addWidget(settings_body)
-        settings_card.setFixedHeight(126)
+        settings_card.setFixedHeight(166)
         main_layout.addWidget(settings_card)
 
         self.apply_theme(True)
