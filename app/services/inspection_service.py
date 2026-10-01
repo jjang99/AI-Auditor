@@ -10,6 +10,7 @@ from rules.core.document_result_adapter import (
 )
 from rules.core.inspection_engine import DocumentInspectionEngine
 from rules.core.ai_provider import AIInspectionResult
+from rules.core.issue_assessor import DeferredIssueAssessor, apply_issue_assessments
 from rules.core.models import (
     DocumentRuleIssue,
     InspectionSummary,
@@ -24,8 +25,9 @@ SUPPORTED_TEXT_EXTENSIONS = {
 SUPPORTED_DOCUMENT_EXTENSIONS = set(get_supported_extensions())
 
 class InspectionService:
-    def __init__(self, rules=None, ai_provider=None):
+    def __init__(self, rules=None, ai_provider=None, issue_assessor=None):
         self.rules = rules or get_default_rules()
+        self.issue_assessor = issue_assessor or DeferredIssueAssessor()
 
         self.is_document_inspection = bool(
             self.rules
@@ -135,6 +137,11 @@ class InspectionService:
                             rule,
                         )
                     )
+
+            all_issues = apply_issue_assessments(
+                all_issues,
+                self.issue_assessor,
+            )
 
             summary = InspectionSummary(
                 file_count=len(parsed_documents),
