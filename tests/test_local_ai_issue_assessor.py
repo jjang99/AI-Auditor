@@ -45,9 +45,11 @@ def test_matrix_overrides_assessor_placeholder_severity():
     assessor = LocalAIIssueAssessor(provider)
 
     raw = (
-        '{"impact":"High","likelihood":"High",'
+        '{"assessments":[{'
+        '"impact":"High","likelihood":"High",'
         '"impact_reason":"핵심 통제에 중대한 영향이 있다.",'
-        '"likelihood_reason":"현재 영향 징후가 확인된다."}'
+        '"likelihood_reason":"현재 영향 징후가 확인된다."'
+        '}]}'
     )
     with patch.object(provider, "_complete", return_value=raw):
         result = apply_issue_assessments([_issue()], assessor)
