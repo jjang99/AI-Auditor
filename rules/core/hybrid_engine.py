@@ -46,6 +46,8 @@ class DocumentHybridEngine:
 
         if rule.code == "REQ-003":
             evidence = self._build_req_003_evidence(document)
+        elif rule.code == "REQ-018":
+            evidence = self._build_req_018_evidence(document)
 
         return HybridInspectionContext(
             document=document,
@@ -85,6 +87,56 @@ class DocumentHybridEngine:
                 )
 
         return tuple(evidence)
+
+    def _build_req_018_evidence(
+        self,
+        document: ParsedDocument,
+    ) -> tuple[str, ...]:
+        """REQ-018: 요구사항 추적성 판단에 필요한 표 행만 선별한다."""
+
+        traceability_terms = (
+            "요구사항id",
+            "요구사항 id",
+            "관련산출물",
+            "구현내용",
+            "유스케이스",
+            "화면",
+            "인터페이스",
+            "프로그램",
+            "테이블",
+            "통합테스트",
+            "시험",
+            "테스트",
+        )
+
+        evidence: list[str] = []
+
+        for block in document.blocks:
+            text = block.text.strip()
+            if not text:
+                continue
+
+            normalized = text.lower()
+            has_traceability_term = any(
+                term in normalized
+                for term in traceability_terms
+            )
+            has_requirement_id = bool(
+                __import__("re").search(
+                    r"\\b(?:[A-Z]{2,5}|REQ)[-_]?\\d{2,}\\b",
+                    text,
+                    __import__("re").IGNORECASE,
+                )
+            )
+
+            if not (has_traceability_term or has_requirement_id):
+                continue
+
+            location = block.location or block.sheet or "위치 미상"
+            evidence.append(f"{location}: {text[:600]}")
+
+        # 저사양 로컬 AI에서 문서 전체를 전달하지 않도록 근거량을 제한한다.
+        return tuple(evidence[:80])
 
     def inspect_document(
         self,
