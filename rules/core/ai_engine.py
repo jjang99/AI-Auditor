@@ -32,15 +32,97 @@ class DocumentAIEngine:
     def _build_requirement_comparison_evidence(
         document: ParsedDocument,
     ) -> tuple[str, ...]:
-        """요구사항 비교형 Rule의 전체 요구사항 행을 추출한다.
+        """요구사항 비교형 Rule의 전체 요구사항 행을 구조적으로 추출한다.
 
-        비교 대상 자체를 임의 개수로 자르지 않는다. AI 호출량은 후속
-        후보 선별 단계에서 제어한다.
+        XLSX는 Parser가 보존한 원래 셀 위치와 헤더를 사용한다.
+        그 외 문서는 기존 텍스트 기반 식별을 사용한다.
         """
         import re
 
+        requirement_id = re.compile(
+            r"^[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*$",
+            re.IGNORECASE,
+        )
         evidence = []
         seen = set()
+
+        if document.file_type == "xlsx":
+            headers_by_sheet: dict[str, tuple[str, ...]] = {}
+
+            for block in document.blocks:
+                cells = tuple(block.metadata.get("cell_values", ()))
+                if not cells:
+                    continue
+
+                sheet = block.sheet or ""
+                normalized_headers = tuple(
+                    re.sub(r"\s+", "", str(value)).lower()
+                    for value in cells
+                )
+
+                id_indexes = [
+                    index
+                    for index, value in enumerate(normalized_headers)
+                    if "요구사항" in value and ("id" in value or "아이디" in value)
+                ]
+                name_indexes = [
+                    index
+                    for index, value in enumerate(normalized_headers)
+                    if "요구사항" in value
+                    and any(term in value for term in ("명", "내용", "설명"))
+                ]
+
+                if id_indexes and name_indexes:
+                    headers_by_sheet[sheet] = tuple(str(value) for value in cells)
+                    continue
+
+                headers = headers_by_sheet.get(sheet)
+                if not headers:
+                    continue
+
+                id_index = next(
+                    (
+                        index for index, value in enumerate(headers)
+                        if "요구사항" in re.sub(r"\s+", "", value).lower()
+                        and (
+                            "id" in re.sub(r"\s+", "", value).lower()
+                            or "아이디" in re.sub(r"\s+", "", value).lower()
+                        )
+                    ),
+                    None,
+                )
+                semantic_indexes = [
+                    index
+                    for index, value in enumerate(headers)
+                    if "요구사항" in re.sub(r"\s+", "", value).lower()
+                    and any(
+                        term in re.sub(r"\s+", "", value).lower()
+                        for term in ("명", "내용", "설명")
+                    )
+                ]
+
+                if id_index is None or id_index >= len(cells):
+                    continue
+
+                req_id = cells[id_index].strip()
+                if not requirement_id.match(req_id):
+                    continue
+
+                semantic_values = [
+                    cells[index].strip()
+                    for index in semantic_indexes
+                    if index < len(cells) and cells[index].strip()
+                ]
+                if not semantic_values:
+                    continue
+
+                normalized = " | ".join((req_id, *semantic_values))
+                if normalized in seen:
+                    continue
+                seen.add(normalized)
+                evidence.append(normalized)
+
+            return tuple(evidence)
 
         for block in document.blocks:
             text = block.text.strip() if block.text else ""
@@ -48,7 +130,7 @@ class DocumentAIEngine:
                 continue
 
             first = text.split("|", 1)[0].strip()
-            if not re.match(r"^[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*$", first, re.IGNORECASE):
+            if not requirement_id.match(first):
                 continue
 
             normalized = " ".join(text.split())
