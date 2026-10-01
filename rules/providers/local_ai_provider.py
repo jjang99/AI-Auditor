@@ -29,7 +29,12 @@ class LlamaCppAIProvider(BaseAIProvider):
 
     def inspect(self, document, rule, context: AIInspectionContext | None = None):
         prompt = self._build_prompt(document, rule, context)
-        raw_response = self._complete(prompt)
+        try:
+            raw_response = self._complete(prompt)
+        except LocalAIProviderError as exc:
+            raise LocalAIProviderError(
+                f"{rule.code} ({rule.name}) 검사 중 오류: {exc}"
+            ) from exc
         findings = self._parse_findings(raw_response)
 
         return AIInspectionResult(
