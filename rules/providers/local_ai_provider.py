@@ -84,6 +84,24 @@ class LlamaCppAIProvider(BaseAIProvider):
             "min_p": self.settings.min_p,
             "seed": self.settings.seed,
             "max_tokens": self.settings.max_tokens,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "inspection_findings",
+                    "strict": True,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "findings": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            }
+                        },
+                        "required": ["findings"],
+                        "additionalProperties": False,
+                    },
+                },
+            },
         }
         data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         req = request.Request(
