@@ -1126,3 +1126,56 @@ Severity 및 감리 개선판정 구현은
 7. 실제 AI 연결 완료 후 6단계로 이동
 
 **6단계 진입 전에 실제 AI 연결을 완료한다.**
+
+---
+
+# 2026-10-01 — Qwen3-4B 실제 검증 완료 / Local AI Provider 구현 직전
+
+## 완료
+- Administration 환경설정에 최소 로컬 AI 모델 선택 UI 추가
+  - 현재 항목: `Qwen3-4B (기본)`
+  - 임의 모델 추가/삭제/등록 UI 없음
+  - Dark/Light 화면 사용자 확인 완료
+- Qwen3-4B GGUF Q4_K_M 실제 모델 확보 및 llama.cpp Windows CPU runtime 실행 확인
+- 테스트 환경: Intel Core i5-1135G7 / RAM 8GB / Windows 11 64-bit
+- llama.cpp b11312 Windows x86_64 CPU build 실행 PASS
+- Qwen3-4B Q4_K_M 모델 로딩 PASS
+- `--reasoning off` non-thinking 한국어 응답 PASS
+- AI Auditor형 Impact/Likelihood 판정 테스트 PASS
+- Low/Medium/High 성격이 다른 사례 구분 테스트 수행
+- 동일 입력 반복에 따른 판정 변동을 발견하고 sampling/seed 고정 필요성 확인
+- Qwen 권장 non-thinking sampling + seed 고정 반복검증 PASS
+- JSON 4필드 구조화 응답 및 동일 조건 반복 재현 PASS
+
+## 검증된 기본 실행조건
+- Model: `Qwen3-4B-Q4_K_M.gguf`
+- Runtime: llama.cpp b11312
+- Reasoning: off
+- Temperature: 0.7
+- Top-P: 0.8
+- Top-K: 20
+- Min-P: 0
+- 초기 재현성 기준 Seed: 42
+- AI 출력: Impact / Likelihood / Impact Reason / Likelihood Reason
+- 최종 Severity: AI가 아닌 기존 deterministic Matrix가 계산
+
+## 현재 상태
+- **Qwen3-4B Q4_K_M을 AI Auditor의 현재 기본 로컬 AI 모델로 채택 완료**
+- 모델/runtime 실제 검증은 완료했으나, 애플리케이션용 Local AI Provider와 BaseIssueAssessor 연결 코드는 아직 구현하지 않았다.
+- 현재 `DeferredIssueAssessor`가 유지되고 있으므로 실제 제품 Inspection에서 AI 기반 Impact/Likelihood 판정은 아직 수행되지 않는다.
+- 5-5 판정 뼈대 완료 상태와 기존 전체 회귀 기준 `75 passed, 51 subtests passed`는 유지한다.
+- 이번 모델 검증은 외부 CLI 수동검증이며, Provider 구현 후 자동 테스트와 전체 회귀 테스트를 다시 수행해야 한다.
+
+## 정확한 다음 작업
+1. 기존 `BaseAIProvider`, `BaseIssueAssessor`, InspectionService 구조 재확인
+2. llama.cpp 기반 **Local AI Provider** 구현
+3. Provider의 JSON 파싱/필수필드/허용값/오류 처리 테스트
+4. 실제 Impact/Likelihood Issue Assessor와 연결
+5. 실문서 Issue 판정 및 근거 검증
+6. 5단계 제품 전체 데이터/UI 정합성 연결
+7. 전체 pytest 회귀 + 실제 UI/기능 확인
+8. 5단계 최종 문서화/학습자료/Git 기준점 확정
+9. 이후 6단계 Administration 데이터 관리로 이동
+
+**Provider 구현 전에 모델 검증을 먼저 완료한다는 순서는 완료했으며, 다음 작업부터 Provider 구현에 진입한다.**
+
