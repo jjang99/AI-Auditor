@@ -66,7 +66,10 @@ def test_local_provider_calls_llama_server_and_parses_findings():
     assert captured["payload"]["top_k"] == 20
     assert captured["payload"]["min_p"] == 0.0
     assert captured["payload"]["seed"] == 42
-    assert "사전근거" in captured["payload"]["messages"][0]["content"]
+    prompt = captured["payload"]["messages"][0]["content"]
+    assert "사전근거" in prompt
+    assert "REQ-101 사용자는 로그인할 수 있다." not in prompt
+    assert "[선별 문서근거]" in prompt
     assert result.findings == ("REQ-101의 검증기준이 확인되지 않는다.",)
     assert result.provider_name == "LlamaCppAIProvider"
 
