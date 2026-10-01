@@ -927,3 +927,22 @@ Rule 관리, Issue 판정, Severity 산정 및 감리 개선판정 구현의 기
 - 검사 준비 / 검사 진행 / 검사 완료의 4번 상태 카드는 동일 높이로 유지하고 페이지 세로 스크롤을 추가하지 않는다.
 - 5-4 완료 기준은 실제 문서 등록 → MVP 선택 반영 → 검사 실행 → Issue/DB 저장 → 검사 완료 UI 흐름과 전체 회귀 테스트 PASS로 한다.
 - 5-4 완료 후 다음 개발 작업은 **5-5 Issue Severity 및 감리 개선판정 구현**으로 한다.
+
+
+---
+
+# 2026-10-01 — 5-5 Issue Severity·감리 개선판정 뼈대 구현 결정
+
+- Issue Severity는 확정 설계대로 `Impact × Likelihood → Severity` Matrix로 계산한다.
+- `AssessmentLevel(Low/Medium/High)`, `IssueSeverity(Low/Medium/High/Critical)`, `IssueAssessment` 데이터 모델과 결정적 Severity Matrix를 구현하였다.
+- Critical은 `Impact=High AND Likelihood=High`인 경우에만 산정되는 Matrix를 유지한다.
+- Issue DB에는 기존 데이터를 삭제하지 않는 migration 방식으로 `impact_reason`, `likelihood`, `likelihood_reason`, `severity_reason`을 추가하였다.
+- 감리 개선판정은 Severity와 분리하여 `필수/협의/권고`, `단기/장기`, `O/-`를 선택적으로 저장하도록 구현하였다.
+- 감리 개선판정이 필요하지 않은 Issue는 관련 값을 NULL로 유지한다.
+- 실제 Impact/Likelihood 판정 주체는 `BaseIssueAssessor` 인터페이스로 분리하였다.
+- 현재 기본 구현은 `DeferredIssueAssessor`이며 실제 AI 판정 연결 전에는 기존 Issue 값을 임의 변경하지 않는다.
+- 판정기가 Impact/Likelihood를 반환하면 `apply_issue_assessments()`가 확정 Matrix를 적용하여 최종 Severity를 재계산하고 Issue에 반영한다.
+- 최종 계산된 Issue Severity는 기존 점수 계산 및 DB 저장 흐름의 원천값으로 사용한다.
+- 실제 로컬 AI Provider/Issue Assessor는 아직 선정·연결하지 않았다.
+- 개발 순서는 **5-5 판정 뼈대 안정화 → 실제 AI Provider/Issue Assessor 연결 및 검증 → 6단계**로 확정한다. 따라서 6단계 진입 전 실제 AI 연결을 수행한다.
+- 2026-10-01 전체 회귀 테스트: `75 passed, 51 subtests passed`, 실패 0건.
