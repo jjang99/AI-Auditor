@@ -6,7 +6,7 @@ from PySide6.QtCore import QObject, QThread, Signal, Qt
 from PySide6.QtWidgets import QComboBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_id, get_project_by_name
-from app.services.local_ai_runtime import LocalAIRuntimeManager
+from app.services.local_ai_runtime import get_local_ai_runtime
 from app.services.inspection_service import (
     InspectionService,
     SUPPORTED_DOCUMENT_EXTENSIONS,
@@ -53,7 +53,7 @@ class InspectionWorker(QObject):
         started = time.perf_counter()
         try:
             if self.use_local_ai:
-                local_ai_runtime = LocalAIRuntimeManager()
+                local_ai_runtime = get_local_ai_runtime()
                 local_ai_runtime.start()
                 ai_provider = LlamaCppAIProvider()
                 issue_assessor = LocalAIIssueAssessor(ai_provider)
