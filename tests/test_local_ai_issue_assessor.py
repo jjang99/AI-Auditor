@@ -54,6 +54,10 @@ def test_matrix_overrides_assessor_placeholder_severity():
 
     assert result[0].assessment.severity == IssueSeverity.CRITICAL
     assert result[0].severity == "Critical"
+    assert (
+        result[0].assessment.severity_reason
+        == "Impact High × Likelihood High = Severity Critical"
+    )
 
 
 @pytest.mark.parametrize(
