@@ -94,10 +94,12 @@ class LlamaCppAIProvider(BaseAIProvider):
                     },
                 },
             }
+            self.last_requirement_conflict_diagnostics["batch_count"] += 1
             raw = self._complete(prompt, response_format=schema)
             try:
                 payload = json.loads(raw)
                 raw_groups = payload["groups"]
+                self.last_requirement_conflict_diagnostics["raw_group_count"] += len(raw_groups)
             except (json.JSONDecodeError, KeyError, TypeError) as exc:
                 raise LocalAIProviderError(
                     "REQ-004 의미 구조화 응답 형식이 올바르지 않습니다."
@@ -121,6 +123,7 @@ class LlamaCppAIProvider(BaseAIProvider):
                     continue
                 seen.add(key)
                 groups.append(items)
+                self.last_requirement_conflict_diagnostics["valid_group_count"] = len(groups)
 
             if start + batch_size >= len(evidence):
                 break
