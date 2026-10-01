@@ -201,10 +201,36 @@ class DocumentAIEngine:
             return tuple(pairs)
 
         if rule_code == "REQ-004":
-            # 같은 상위 요구사항이라는 사실만으로는 상충 후보라고 볼 수 없다.
-            # 실제 추적표에서 72쌍까지 불필요한 AI 비교가 발생했으므로,
-            # 상충을 결정적으로 좁힐 구조 근거가 확보되기 전에는 추정 후보를 만들지 않는다.
-            return ()
+            # 상충은 요구사항명이 같은 경우에만 비교한다.
+            # 동일 명칭 아래 세부 요구내용/조건이 서로 다르면 AI가 양립 가능 여부를 판단한다.
+            # 이름 자체가 다른 기능까지 상충 후보로 확장하지 않는다.
+            groups: dict[str, list[str]] = {}
+            for item in evidence:
+                semantic_parts = [
+                    part.strip()
+                    for part in cls._requirement_semantic_text(item).split("|")
+                    if part.strip()
+                ]
+                if not semantic_parts:
+                    continue
+                name_key = re.sub(
+                    r"[^가-힣a-z0-9]+",
+                    "",
+                    semantic_parts[0].lower(),
+                )
+                if name_key:
+                    groups.setdefault(name_key, []).append(item)
+
+            pairs = []
+            for items in groups.values():
+                if len(items) < 2:
+                    continue
+                for left_index in range(len(items)):
+                    for right_index in range(left_index + 1, len(items)):
+                        if normalized(items[left_index]) == normalized(items[right_index]):
+                            continue
+                        pairs.append((items[left_index], items[right_index]))
+            return tuple(pairs)
 
         return ()
 
