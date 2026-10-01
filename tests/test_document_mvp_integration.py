@@ -217,12 +217,11 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
         "AI-005",
     }
 
-    expected_hybrid_codes = {
+    expected_provider_hybrid_codes = {
         "AUD-002",
         "AUD-007",
         "REQ-003",
         "REQ-009",
-        "REQ-018",
         "CHG-001",
         "CHG-012",
         "FP-005",
@@ -233,7 +232,10 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
 
     executed_codes = set(provider.executed_rule_codes)
 
-    assert executed_codes == expected_ai_codes | expected_hybrid_codes
+    # REQ-018은 구조적으로 확정 가능한 추적정보 누락을 Rule 사전분석에서
+    # 직접 지적하므로, 후보가 없는 빈 문서에서는 AI Provider를 호출하지 않는다.
+    assert executed_codes == expected_ai_codes | expected_provider_hybrid_codes
+    assert "REQ-018" not in executed_codes
     assert len(provider.executed_rule_codes) == 17
     assert len(executed_codes) == 17
 
