@@ -518,3 +518,41 @@ def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
 
     assert result.findings == ()
     assert provider.received_contexts == []
+
+
+def test_hybrid_evidence_strategy_skips_provider_without_relevant_evidence():
+    document = ParsedDocument(
+        file_path=Path("일반문서.docx"),
+        file_type="docx",
+        blocks=(DocumentBlock(block_type="paragraph", text="일반 프로젝트 설명입니다."),),
+    )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "AI-009")
+    engine = DocumentHybridEngine((rule,), provider)
+
+    result = engine.inspect_document(document)[0]
+
+    assert result.findings == ()
+    assert provider.received_contexts == []
+
+
+def test_hybrid_evidence_strategy_passes_only_relevant_blocks():
+    document = ParsedDocument(
+        file_path=Path("AI설계서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(block_type="paragraph", text="일반 프로젝트 설명입니다."),
+            DocumentBlock(block_type="paragraph", text="Prompt Injection 공격에 대비한 입력 필터링과 권한제한을 적용한다."),
+        ),
+    )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "AI-009")
+    engine = DocumentHybridEngine((rule,), provider)
+
+    engine.inspect_document(document)
+
+    assert len(provider.received_contexts) == 1
+    evidence = provider.received_contexts[0].evidence
+    assert len(evidence) == 1
+    assert "Prompt Injection" in evidence[0]
+    assert all("일반 프로젝트 설명" not in item for item in evidence)
