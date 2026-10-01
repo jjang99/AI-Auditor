@@ -211,9 +211,12 @@ def test_hybrid_engine_passes_context_to_provider():
 
     assert len(provider.received_contexts) == 11
 
-    for context in provider.received_contexts:
+    for rule, context in zip(engine.rules, provider.received_contexts):
         assert context is not None
-        assert context.evidence == ()
+        if rule.code == "REQ-018":
+            assert context.evidence == ()
+        else:
+            assert context.evidence == ()
 
 def test_req_003_builds_ambiguity_evidence_and_passes_it_to_provider():
     document = ParsedDocument(
