@@ -556,6 +556,35 @@ def test_xlsx_comparison_evidence_uses_requirement_columns_only():
     assert all("UI-" not in item and "PRG-" not in item for item in evidence)
 
 
+def test_xlsx_comparison_evidence_preserves_empty_cells_before_requirement_columns():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="구분 | 요구사항 ID | 요구사항명 | 화면 ID",
+                sheet="요구사항",
+                metadata={
+                    "cell_values": ("구분", "요구사항 ID", "요구사항명", "화면 ID"),
+                },
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="REQ-010 | 로그인 기능 | UI-010",
+                sheet="요구사항",
+                metadata={
+                    "cell_values": ("", "REQ-010", "로그인 기능", "UI-010"),
+                },
+            ),
+        ),
+    )
+
+    evidence = DocumentAIEngine._build_requirement_comparison_evidence(document)
+
+    assert evidence == ("REQ-010 | 로그인 기능",)
+
+
 def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
     document = ParsedDocument(
         file_path=Path("요구사항추적표.xlsx"),
