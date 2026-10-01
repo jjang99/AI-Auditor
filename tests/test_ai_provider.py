@@ -209,14 +209,12 @@ def test_hybrid_engine_passes_context_to_provider():
 
     engine.inspect_document(document)
 
-    assert len(provider.received_contexts) == 11
+    # REQ-018은 사전분석 후보가 없으면 Provider를 호출하지 않는다.
+    assert len(provider.received_contexts) == 10
 
-    for rule, context in zip(engine.rules, provider.received_contexts):
+    for context in provider.received_contexts:
         assert context is not None
-        if rule.code == "REQ-018":
-            assert context.evidence == ()
-        else:
-            assert context.evidence == ()
+        assert context.evidence == ()
 
 def test_req_003_builds_ambiguity_evidence_and_passes_it_to_provider():
     document = ParsedDocument(
