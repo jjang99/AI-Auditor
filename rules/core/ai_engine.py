@@ -60,23 +60,53 @@ class DocumentAIEngine:
         return tuple(evidence)
 
     @staticmethod
-    def _build_comparison_batches(
+    def _build_comparison_pairs(
         evidence: tuple[str, ...],
-        batch_size: int = 6,
-    ) -> tuple[tuple[str, ...], ...]:
-        """저사양 로컬 AI에서 비교형 Rule 입력을 작은 묶음으로 제한한다."""
-        if len(evidence) < 2:
-            return ()
+        max_pairs: int = 12,
+        min_similarity: float = 0.18,
+    ) -> tuple[tuple[str, str], ...]:
+        """Python 유사도 사전선별로 AI가 볼 비교 후보쌍만 만든다."""
+        import re
+        from difflib import SequenceMatcher
 
-        batches = []
-        step = max(2, batch_size - 1)
-        for start in range(0, len(evidence), step):
-            batch = evidence[start:start + batch_size]
-            if len(batch) >= 2:
-                batches.append(batch)
-            if start + batch_size >= len(evidence):
-                break
-        return tuple(batches)
+        def content(text: str) -> str:
+            parts = [part.strip() for part in text.split("|")]
+            return " ".join(parts[1:]) if len(parts) > 1 else text
+
+        def tokens(text: str) -> set[str]:
+            return {
+                token.lower()
+                for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", content(text))
+            }
+
+        ranked = []
+        for left_index in range(len(evidence)):
+            left = evidence[left_index]
+            left_tokens = tokens(left)
+            for right_index in range(left_index + 1, len(evidence)):
+                right = evidence[right_index]
+                right_tokens = tokens(right)
+                union = left_tokens | right_tokens
+                jaccard = (
+                    len(left_tokens & right_tokens) / len(union)
+                    if union else 0.0
+                )
+                sequence = SequenceMatcher(
+                    None,
+                    content(left).lower(),
+                    content(right).lower(),
+                ).ratio()
+                similarity = max(jaccard, sequence)
+
+                if similarity >= min_similarity:
+                    ranked.append((-similarity, left_index, right_index, left, right))
+
+        ranked.sort()
+        return tuple(
+            (left, right)
+            for _score, _left_index, _right_index, left, right
+            in ranked[:max_pairs]
+        )
 
     @staticmethod
     def _build_relevant_evidence(
@@ -138,15 +168,15 @@ class DocumentAIEngine:
                 else:
                     findings = []
                     raw_responses = []
-                    for batch in self._build_comparison_batches(evidence):
-                        batch_result = self.provider.inspect(
+                    for pair in self._build_comparison_pairs(evidence):
+                        pair_result = self.provider.inspect(
                             document,
                             rule,
-                            AIInspectionContext(evidence=batch),
+                            AIInspectionContext(evidence=pair),
                         )
-                        findings.extend(batch_result.findings)
-                        if batch_result.raw_response:
-                            raw_responses.append(batch_result.raw_response)
+                        findings.extend(pair_result.findings)
+                        if pair_result.raw_response:
+                            raw_responses.append(pair_result.raw_response)
 
                     result = AIInspectionResult(
                         rule_code=rule.code,
