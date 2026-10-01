@@ -93,51 +93,66 @@ class DocumentHybridEngine:
         self,
         document: ParsedDocument,
     ) -> tuple[str, ...]:
-        """REQ-018: 요구사항 추적성 판단에 필요한 표 행만 선별한다."""
-
-        traceability_terms = (
-            "요구사항id",
-            "요구사항 id",
-            "관련산출물",
-            "구현내용",
-            "유스케이스",
-            "화면",
-            "인터페이스",
-            "프로그램",
-            "테이블",
-            "통합테스트",
-            "시험",
-            "테스트",
-        )
+        """REQ-018: 추적표에서 추적정보 누락 의심행만 AI 후보로 선별한다."""
 
         evidence: list[str] = []
+        trace_header_seen = False
 
         for block in document.blocks:
+            if block.block_type != "sheet_row":
+                continue
+
             text = block.text.strip()
             if not text:
                 continue
 
-            normalized = text.lower()
-            has_traceability_term = (
-                block.block_type == "sheet_row"
-                and any(
-                    term in normalized
-                    for term in traceability_terms
-                )
-            )
-            has_requirement_id = bool(
-                re.search(
-                    r"\b(?:REQ[-_]?\d+|[A-Z]{2,5}[-_]\d{2,})\b",
-                    text,
-                    re.IGNORECASE,
-                )
-            )
+            columns = [value.strip() for value in text.split("|")]
+            normalized = [value.lower() for value in columns]
 
-            if not (has_traceability_term or has_requirement_id):
+            if (
+                "요구사항id" in normalized
+                and any("통합테스트" in value for value in normalized)
+            ):
+                trace_header_seen = True
+                continue
+
+            if not trace_header_seen:
+                continue
+
+            # 실제 추적 데이터 행은 요구사항 식별자로 시작한다.
+            first_column = columns[0] if columns else ""
+            if not re.match(
+                r"^[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*$",
+                first_column,
+                re.IGNORECASE,
+            ):
+                continue
+
+            # 현재 추적표 구조에서 핵심 양방향 연결정보:
+            # 요구사항 → 유스케이스 → 화면 → 프로그램 → 테이블 → 통합테스트.
+            # 인터페이스는 N/A가 정상일 수 있어 필수 누락 판정에서 제외한다.
+            expected_indexes = {
+                2: "유스케이스",
+                4: "화면",
+                7: "프로그램",
+                9: "테이블",
+                10: "통합테스트",
+            }
+            missing = [
+                label
+                for index, label in expected_indexes.items()
+                if index >= len(columns)
+                or not columns[index]
+                or columns[index].upper() == "N/A"
+            ]
+
+            if not missing:
                 continue
 
             location = block.location or block.sheet or "위치 미상"
-            evidence.append(f"{location}: {text[:600]}")
+            evidence.append(
+                f"{location}: 추적정보 누락 후보({', '.join(missing)}) | {text[:600]}"
+            )
 
         return tuple(evidence)
 
