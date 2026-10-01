@@ -156,35 +156,25 @@ class DocumentHybridEngine:
 
         return tuple(evidence)
 
-    def _inspect_req_018_in_batches(
+    def _build_req_018_findings(
         self,
         context: HybridInspectionContext,
-        batch_size: int = 10,
     ) -> AIInspectionResult:
-        """REQ-018 근거 전체를 작은 묶음으로 검사하고 결과를 통합한다."""
+        """REQ-018의 구조적으로 확정된 누락은 Rule 결과로 직접 생성한다."""
 
-        findings: list[str] = []
-        raw_responses: list[str] = []
-
-        for start in range(0, len(context.evidence), batch_size):
-            batch = context.evidence[start:start + batch_size]
-            result = self.provider.inspect(
-                context.document,
-                context.rule,
-                AIInspectionContext(evidence=batch),
+        findings = tuple(
+            (
+                "요구사항 추적정보 누락이 확인되었습니다. "
+                + evidence.replace("추적정보 누락 후보", "추적정보 누락")
             )
-            findings.extend(result.findings)
-            if result.raw_response:
-                raw_responses.append(result.raw_response)
-
-        # 동일 지적이 여러 배치에서 나온 경우 최초 1건만 유지한다.
-        unique_findings = tuple(dict.fromkeys(findings))
+            for evidence in context.evidence
+        )
 
         return AIInspectionResult(
             rule_code=context.rule.code,
-            findings=unique_findings,
-            raw_response="\n".join(raw_responses),
-            provider_name=self.provider.__class__.__name__,
+            findings=findings,
+            raw_response="",
+            provider_name="RulePreanalysis",
         )
 
     def inspect_document(
@@ -201,7 +191,7 @@ class DocumentHybridEngine:
 
             if rule.code == "REQ-018":
                 if context.evidence:
-                    result = self._inspect_req_018_in_batches(context)
+                    result = self._build_req_018_findings(context)
                 else:
                     result = AIInspectionResult(
                         rule_code=rule.code,
