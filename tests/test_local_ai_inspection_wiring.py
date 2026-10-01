@@ -31,7 +31,8 @@ def test_worker_builds_shared_local_provider_and_assessor():
     ):
         worker.run()
 
-    get_runtime.assert_called_once()\n    get_runtime.return_value.start.assert_called_once()
+    get_runtime.assert_called_once()
+    get_runtime.return_value.start.assert_called_once()
 
     assert failed_messages
 
