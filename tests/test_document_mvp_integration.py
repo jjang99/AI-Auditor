@@ -207,8 +207,10 @@ def test_document_mvp_ai_and_hybrid_rules_follow_strategy_execution():
 
     executed_codes = set(provider.executed_rule_codes)
 
-    # 비교형 REQ-002/004는 비교할 요구사항 2건이 있어 실행된다.
-    assert {"REQ-002", "REQ-004"} <= executed_codes
+    # 비교형 REQ-002/004는 확정 비교 후보가 있을 때만 Provider를 호출한다.
+    # 이 fixture의 두 요구사항은 동일 내용이 아니므로 추정 비교를 실행하지 않는다.
+    assert "REQ-002" not in executed_codes
+    assert "REQ-004" not in executed_codes
     # 후보추출/근거확인형은 실제 관련 근거가 있을 때만 실행된다.
     assert {"REQ-003", "AI-009", "AI-022"} <= executed_codes
     # REQ-018은 구조적 누락 후보가 없으면 AI를 호출하지 않는다.
