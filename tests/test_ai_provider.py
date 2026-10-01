@@ -345,28 +345,28 @@ def test_document_inspection_engine_combines_rule_ai_and_hybrid_results():
         for result in ai_results
     )
 
-def test_req_018_builds_traceability_evidence_and_limits_context():
+def test_req_018_prefilters_only_missing_traceability_candidates():
     document = ParsedDocument(
         file_path=Path("요구사항추적표.xlsx"),
         file_type="xlsx",
         blocks=(
             DocumentBlock(
                 block_type="sheet_row",
-                text="요구사항ID | 유스케이스 | 화면 | 프로그램 | 통합테스트",
+                text="요구사항 | 요구사항ID | 요구사항명 | 유스케이스ID | 유스케이스명 | 화면ID | 화면명 | 인터페이스ID | 프로그램ID | 프로그램명 | 테이블ID | 통합테스트 시나리오ID",
                 sheet="SFR_기능",
-                location="SFR_기능 / 행 1",
+                location="SFR_기능 / 행 3",
             ),
             DocumentBlock(
                 block_type="sheet_row",
-                text="REQ-101 | UC-01 | SCR-01 | PRG-01 | TEST-01",
+                text="SFR-001 | SFR-001-AD-01 | 로그인 | UC-01 | 로그인 | UI-01 | 로그인화면 | N/A | PRG-01 | 로그인처리 | TB_USER | ITS-01",
                 sheet="SFR_기능",
-                location="SFR_기능 / 행 2",
+                location="SFR_기능 / 행 4",
             ),
             DocumentBlock(
                 block_type="sheet_row",
-                text="개정이력 | 1.2 | 종료단계 감리결과 반영",
-                sheet="개정이력",
-                location="개정이력 / 행 3",
+                text="SFR-002 | SFR-002-AD-01 | 조회 |  | 조회 | UI-02 | 조회화면 | N/A | PRG-02 | 조회처리 | TB_DATA | ",
+                sheet="SFR_기능",
+                location="SFR_기능 / 행 5",
             ),
         ),
     )
@@ -378,14 +378,13 @@ def test_req_018_builds_traceability_evidence_and_limits_context():
     )
     engine = DocumentHybridEngine((req_018_rule,), provider)
 
-    engine.inspect_document(document)
+    context = engine.build_context(document, req_018_rule)
 
-    context = provider.received_contexts[0]
-    assert context is not None
-    assert len(context.evidence) == 2
-    assert any("요구사항ID" in item for item in context.evidence)
-    assert any("REQ-101" in item for item in context.evidence)
-    assert all("개정이력" not in item for item in context.evidence)
+    assert len(context.evidence) == 1
+    assert "SFR_기능 / 행 5" in context.evidence[0]
+    assert "유스케이스" in context.evidence[0]
+    assert "통합테스트" in context.evidence[0]
+    assert "SFR_기능 / 행 4" not in context.evidence[0]
 
 
 def test_req_018_inspects_all_evidence_in_batches():
