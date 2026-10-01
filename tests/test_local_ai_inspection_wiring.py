@@ -26,12 +26,12 @@ def test_worker_builds_shared_local_provider_and_assessor():
     failed_messages = []
     worker.failed.connect(failed_messages.append)
 
-    with patch("ui.inspection_runtime.LocalAIRuntimeManager") as runtime_cls, patch(
+    with patch("ui.inspection_runtime.get_local_ai_runtime") as get_runtime, patch(
         "ui.inspection_runtime.InspectionService", side_effect=fake_service
     ):
         worker.run()
 
-    runtime_cls.return_value.start.assert_called_once()
+    get_runtime.assert_called_once()\n    get_runtime.return_value.start.assert_called_once()
 
     assert failed_messages
 
