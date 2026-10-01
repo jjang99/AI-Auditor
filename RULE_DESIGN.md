@@ -967,3 +967,53 @@ Issue 저장구조, Project Detail, Reports 및
 실제 AI 판정기가 연결되면 판정기가 제시한 Impact/Likelihood를 사용하되 **최종 Severity 자체는 AI가 임의 출력한 값을 신뢰하지 않고 확정 Matrix로 재계산**한다.
 
 실제 AI Provider/Issue Assessor 연결은 6단계 전에 수행하며, 모델 선정·Provider 구현·실문서 판정 검증을 별도 작업으로 진행한다.
+
+---
+
+# 2026-10-01 — Local AI Provider 입력·출력 설계 기준
+
+## 기본 모델
+- 현재 검증된 기본 모델: **Qwen3-4B GGUF Q4_K_M**
+- runtime: **llama.cpp**
+- 기본 실행은 non-thinking으로 한다.
+- 검증 기준 sampling: `temperature=0.7`, `top_p=0.8`, `top_k=20`, `min_p=0`.
+- 판정 재현성을 위해 Provider에서 seed를 명시적으로 관리한다. 초기 검증 기준 seed는 `42`이다.
+
+## IssueAssessment AI 출력 계약
+AI Issue Assessor가 요구하는 최소 구조는 다음 네 필드다.
+
+```json
+{
+  "impact": "Low|Medium|High",
+  "likelihood": "Low|Medium|High",
+  "impact_reason": "한국어 판정근거",
+  "likelihood_reason": "한국어 판정근거"
+}
+```
+
+- JSON 객체 외 설명/Markdown/code fence를 정상 출력으로 간주하지 않는다.
+- `impact`, `likelihood`는 반드시 Low/Medium/High 중 하나여야 한다.
+- 네 필드는 모두 필수로 검증한다.
+- 근거는 입력 Issue 및 제공된 문서/검사근거에 기반해야 한다.
+- 입력에 없는 사실을 실제 발생 사실처럼 생성하지 않도록 프롬프트에서 명시한다.
+
+## Severity 경계
+- AI Provider/Issue Assessor는 Severity를 반환하지 않는다.
+- AI가 반환한 Impact/Likelihood를 검증한 뒤 기존 `calculate_severity()` Matrix가 Severity를 결정한다.
+- 따라서 AI 응답에 Severity가 포함되더라도 최종값으로 사용하지 않는다.
+- `High × High → Critical` 등 기존 9조합 Matrix가 유일한 최종 Severity 계산 기준이다.
+
+## 오류 처리 방향
+- JSON 파싱 실패
+- 필수 필드 누락
+- Impact/Likelihood 허용값 위반
+- 빈 판정근거
+등은 정상 IssueAssessment로 저장하지 않는다.
+- Provider/Assessor 구현 시 재시도 횟수와 최종 실패 처리 정책을 코드와 테스트로 명시한다.
+- AI 실패가 기존 Rule Engine 또는 전체 Inspection 흐름을 임의로 오염시키지 않도록 Provider 경계를 유지한다.
+
+## 검증 근거
+- i5-1135G7 / RAM 8GB / Windows 11 CPU 환경에서 Qwen3-4B Q4_K_M 실제 실행 확인.
+- 한국어 생성, non-thinking, Impact/Likelihood 판정, JSON 출력, 동일 조건 반복 재현성을 실제 CLI로 검증하였다.
+- 기본 sampling 미고정 시 동일 입력 판정 변동을 확인했으므로 제품 Provider에서는 생성 설정을 명시적으로 관리한다.
+
