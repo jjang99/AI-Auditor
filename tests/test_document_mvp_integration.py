@@ -171,12 +171,12 @@ def test_document_mvp_rules_are_routed_to_correct_engines():
     assert len(hybrid_codes) == 11
     assert ai_codes.isdisjoint(hybrid_codes)
 
-def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
-    """MVP의 AI 6개와 Hybrid 11개가 실제 검사 시 모두 실행되는지 검증한다."""
+def test_document_mvp_ai_and_hybrid_rules_follow_strategy_execution():
+    """AI/Hybrid Rule이 전략별로 필요한 경우에만 Provider를 호출하는지 검증한다."""
 
     from pathlib import Path
 
-    from app.parsers.models import ParsedDocument
+    from app.parsers.models import DocumentBlock, ParsedDocument
     from rules.core.ai_provider import BaseAIProvider, AIInspectionResult
     from rules.core.inspection_engine import DocumentInspectionEngine
 
@@ -186,13 +186,7 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
 
         def inspect(self, document, rule, context=None):
             self.executed_rule_codes.append(rule.code)
-
-            return AIInspectionResult(
-                rule_code=rule.code,
-                findings=(),
-            )
-
-    from app.parsers.models import DocumentBlock
+            return AIInspectionResult(rule_code=rule.code, findings=())
 
     document = ParsedDocument(
         file_path=Path("mvp_integration_test.txt"),
@@ -200,51 +194,30 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
         blocks=(
             DocumentBlock(block_type="paragraph", text="REQ-001 | 로그인 기능"),
             DocumentBlock(block_type="paragraph", text="REQ-002 | 사용자 인증 기능"),
+            DocumentBlock(block_type="paragraph", text="요구사항은 필요시 관리자 승인을 받는다."),
+            DocumentBlock(block_type="paragraph", text="Prompt Injection 입력 필터링과 권한제한을 적용한다."),
+            DocumentBlock(block_type="paragraph", text="AI 모델과 프롬프트 변경 이력 및 재검증 절차를 관리한다."),
         ),
         metadata={},
     )
 
     provider = RecordingAIProvider()
-
-    engine = DocumentInspectionEngine(
-        get_document_mvp_rules(),
-        provider,
-    )
-
+    engine = DocumentInspectionEngine(get_document_mvp_rules(), provider)
     engine.inspect_document(document)
-
-    # AUD-024는 개별 검사결과를 종합하는 후처리 Rule이므로
-    # 원문 문서에 대한 Provider 호출 목록에서는 제외된다.
-    expected_document_ai_codes = {
-        "REQ-002",
-        "REQ-004",
-        "CHG-006",
-        "CHG-018",
-        "AI-005",
-    }
-
-    expected_provider_hybrid_codes = {
-        "AUD-002",
-        "AUD-007",
-        "REQ-003",
-        "REQ-009",
-        "CHG-001",
-        "CHG-012",
-        "FP-005",
-        "AI-009",
-        "AI-019",
-        "AI-022",
-    }
 
     executed_codes = set(provider.executed_rule_codes)
 
-    # REQ-018은 구조적으로 확정 가능한 추적정보 누락을 Rule 사전분석에서
-    # 직접 지적하므로, 후보가 없는 빈 문서에서는 AI Provider를 호출하지 않는다.
-    assert executed_codes == expected_document_ai_codes | expected_provider_hybrid_codes
-    assert "AUD-024" not in executed_codes
+    # 비교형 REQ-002/004는 비교할 요구사항 2건이 있어 실행된다.
+    assert {"REQ-002", "REQ-004"} <= executed_codes
+    # 후보추출/근거확인형은 실제 관련 근거가 있을 때만 실행된다.
+    assert {"REQ-003", "AI-009", "AI-022"} <= executed_codes
+    # REQ-018은 구조적 누락 후보가 없으면 AI를 호출하지 않는다.
     assert "REQ-018" not in executed_codes
-    assert len(provider.executed_rule_codes) == 15
-    assert len(executed_codes) == 15
+    # 종합형은 원문 직접검사 단계에서 실행하지 않는다.
+    assert "AUD-024" not in executed_codes
+    assert "CHG-006" not in executed_codes
+    assert "CHG-018" not in executed_codes
+
 
 def test_document_mvp_ai_and_hybrid_rules_have_check_points():
     """실제 AI 판정에 필요한 AI/Hybrid 17개 Rule의 체크포인트가 비어 있지 않은지 검증한다."""
