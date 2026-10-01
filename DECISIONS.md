@@ -962,3 +962,51 @@ Rule 관리, Issue 판정, Severity 산정 및 감리 개선판정 구현의 기
 - 로컬 실행 Runtime은 우선 llama.cpp 계열을 사용하되, 제품 코드가 특정 모델명이나 단일 Runtime 구현에 과도하게 종속되지 않도록 Provider 경계를 유지한다.
 - 폐쇄망 사용을 기본 전제로 하므로 프로그램이 인터넷에서 모델을 자동 다운로드·설치하는 기능은 구현하지 않는다. 검증된 모델 파일은 배포/반입 절차에 따라 준비한다.
 - 다음 구현 순서는 **Administration 최소 AI 설정 구조 → 교체형 Local AI Provider → Qwen3-4B 실제 구동 → Impact/Likelihood AI 판정 연결 → 실문서 검증 → 5단계 통합 마감 → 6단계**로 한다.
+
+---
+
+# 2026-10-01 — Qwen3-4B 실제 검증 및 기본 로컬 AI 채택 확정
+
+## 채택 모델·런타임
+- AI Auditor의 현재 기본 로컬 AI 모델은 **Qwen3-4B GGUF Q4_K_M**으로 확정한다.
+- 검증 모델 파일: `Qwen3-4B-Q4_K_M.gguf` (약 2.5GB).
+- 검증 런타임: **llama.cpp b11312 (commit 0c1e57098), Windows x86_64 CPU build**.
+- 최종 제품은 사용자가 Python/llama.cpp/Qwen을 별도 설치하는 방식이 아니라, 폐쇄망 Windows EXE 배포구조에서 runtime/model을 함께 제공하는 방향을 유지한다.
+- Qwen3-4B는 영구 고정 모델이 아니라 현재 검증된 기본 모델이다. 향후 AI Auditor가 검증한 모델만 내부 Provider/설정 구조를 통해 교체 가능하게 한다.
+- 사용자의 임의 GGUF 등록·삭제·모델 관리 기능은 구현하지 않는다.
+
+## 실제 검증환경
+- Intel Core i5-1135G7
+- RAM 8GB
+- Windows 11 64-bit
+- 별도 GPU를 전제로 하지 않는 CPU 실행 기준
+- 위 저사양 사무용 PC 환경에서 모델 로딩과 생성이 실제 동작함을 확인하였다.
+
+## 실행·응답 검증결과
+- llama.cpp CLI 실행: PASS
+- Qwen3-4B Q4_K_M 모델 로딩: PASS
+- 한국어 입력/생성: PASS
+- `--reasoning off` non-thinking 실행: PASS
+- AI Auditor형 Impact/Likelihood 4줄 출력: PASS
+- JSON 구조화 출력: PASS
+- 동일 입력 + 동일 설정 + 고정 seed 반복 시 JSON/판정/근거 재현: PASS
+- 실제 생성속도는 테스트별 약 3.8~8.5 tok/s 범위가 관찰되었으며, 성능값은 PC 상태와 입력 길이에 따라 달라질 수 있으므로 기능 적합성과 별도로 관리한다.
+
+## 판정 테스트
+- 요구사항 추적성 누락 사례: Impact/Likelihood 구분 및 근거 생성 확인.
+- 경미한 화면설계 문구 불일치 사례: 과도한 위험 상향 여부 확인.
+- 사용자 인증 기능 통합시험 실패·미조치 사례: High/High 판정 및 입력 근거 중심 설명 확인.
+- 동일 입력 반복 시 기본 sampling에서는 Impact가 Medium/High로 변동한 사례가 확인되어 sampling/seed 고정 필요성을 확인하였다.
+- Qwen 권장 non-thinking sampling(`temp 0.7 / top-p 0.8 / top-k 20 / min-p 0`)과 seed 고정 조건에서 동일 입력 반복 결과가 안정적으로 재현되었다.
+- seed 42와 seed 123 비교에서도 테스트 대상의 Impact/Likelihood 등급이 동일하게 유지되는 것을 확인하였다.
+
+## Provider 구현 시 고정 원칙
+- AI는 **Impact / Likelihood / 각 판정근거만 반환**한다.
+- AI가 최종 Severity를 직접 결정하지 않는다.
+- 프로그램이 기존 deterministic Severity Matrix를 적용하여 최종 Severity를 계산한다.
+- AI 출력은 그대로 신뢰하지 않고 JSON 파싱 후 필수 키와 `Low/Medium/High` 허용값을 검증한다.
+- 잘못된 JSON, 누락 필드, 허용되지 않은 값은 정상 판정으로 저장하지 않고 재시도/실패 처리 대상으로 한다.
+- 프롬프트는 입력에 없는 사실을 만들어내지 않도록 제한하며, 확인된 사실과 잠재적 영향을 구분하도록 보강한다.
+- 실제 Provider 구현 전 모델 검증을 완료한다는 기존 순서를 지켰으며, 이제 다음 작업은 **Local AI Provider 구현 → BaseIssueAssessor 연결 → 실문서 검증**이다.
+- 6단계 Administration 데이터 관리로는 실제 AI 연결·검증 및 5단계 통합 마감 이후에 이동한다.
+
