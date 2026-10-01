@@ -471,3 +471,50 @@ def test_ai_engine_defers_aud_024_from_raw_document_loop():
         result.rule_code != "AUD-024"
         for result in engine.inspect_document(document)
     )
+
+
+def test_comparison_ai_rules_receive_requirement_rows_only():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(block_type="sheet_row", text="문서 제목 | 요구사항추적표"),
+            DocumentBlock(block_type="sheet_row", text="SFR-001 | 로그인 기능 | 사용자는 로그인할 수 있다."),
+            DocumentBlock(block_type="sheet_row", text="SFR-002 | 인증 기능 | 사용자는 계정으로 로그인할 수 있다."),
+            DocumentBlock(block_type="sheet_row", text="일반 설명 | 비교 대상 아님"),
+        ),
+    )
+    provider = FakeAIProvider()
+    rules = tuple(
+        rule for rule in get_document_mvp_rules()
+        if rule.code in {"REQ-002", "REQ-004"}
+    )
+    engine = DocumentAIEngine(rules, provider)
+
+    results = engine.inspect_document(document)
+
+    assert {result.rule_code for result in results} == {"REQ-002", "REQ-004"}
+    assert len(provider.received_contexts) == 2
+    for context in provider.received_contexts:
+        assert context is not None
+        assert len(context.evidence) == 2
+        assert all(item.startswith("SFR-") for item in context.evidence)
+        assert all("일반 설명" not in item for item in context.evidence)
+
+
+def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(block_type="sheet_row", text="SFR-001 | 로그인 기능"),
+        ),
+    )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "REQ-002")
+    engine = DocumentAIEngine((rule,), provider)
+
+    result = engine.inspect_document(document)[0]
+
+    assert result.findings == ()
+    assert provider.received_contexts == []
