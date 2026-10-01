@@ -36,10 +36,14 @@ class XlsxParser(BaseDocumentParser):
                     worksheet.iter_rows(values_only=True),
                     start=1,
                 ):
-                    values = [
-                        str(value).strip()
+                    cell_values = tuple(
+                        "" if value is None else str(value).strip()
                         for value in row
-                        if value is not None and str(value).strip()
+                    )
+                    values = [
+                        value
+                        for value in cell_values
+                        if value
                     ]
 
                     if not values:
@@ -54,6 +58,7 @@ class XlsxParser(BaseDocumentParser):
                             metadata={
                                 "sheet_name": worksheet.title,
                                 "row_index": row_index,
+                                "cell_values": cell_values,
                             },
                         )
                     )
