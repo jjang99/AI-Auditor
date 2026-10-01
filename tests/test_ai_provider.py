@@ -187,7 +187,7 @@ def test_hybrid_engine_executes_hybrid_rules_through_provider():
         for result in results
     )
 
-def test_hybrid_engine_passes_context_to_provider():
+def test_hybrid_engine_skips_provider_without_strategy_evidence():
     document = ParsedDocument(
         file_path=Path("요구사항정의서.docx"),
         file_type="docx",
@@ -200,20 +200,18 @@ def test_hybrid_engine_passes_context_to_provider():
     )
 
     provider = FakeAIProvider()
-
     engine = DocumentHybridEngine(
         get_document_mvp_rules(),
         provider,
     )
 
-    engine.inspect_document(document)
+    results = engine.inspect_document(document)
 
-    # REQ-018은 사전분석 후보가 없으면 Provider를 호출하지 않는다.
-    assert len(provider.received_contexts) == 10
+    # 후보/근거확인형은 관련 근거가 없으면 AI를 호출하지 않고,
+    # REQ-018도 구조적 누락 후보가 없으면 Rule-first에서 종료한다.
+    assert len(results) == 11
+    assert provider.received_contexts == []
 
-    for context in provider.received_contexts:
-        assert context is not None
-        assert context.evidence == ()
 
 def test_req_003_builds_ambiguity_evidence_and_passes_it_to_provider():
     document = ParsedDocument(
