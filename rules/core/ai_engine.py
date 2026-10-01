@@ -208,7 +208,7 @@ class DocumentAIEngine:
             for item in evidence:
                 semantic_parts = [
                     part.strip()
-                    for part in cls._requirement_semantic_text(item).split("|")
+                    for part in item.split("|")[1:]
                     if part.strip()
                 ]
                 if not semantic_parts:
