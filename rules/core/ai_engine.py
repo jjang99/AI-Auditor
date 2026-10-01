@@ -148,9 +148,8 @@ class DocumentAIEngine:
         if not parts:
             return text
 
-        # XLSX Parser는 빈 셀을 제거해 열 위치를 보존하지 않으므로,
-        # 현재 ParsedDocument만으로는 특정 열을 확정적으로 재구성할 수 없다.
-        # 첫 필드는 요구사항 ID로 식별에만 사용하고 비교 점수에서는 제외한다.
+        # 첫 필드는 요구사항 ID이며, 이후 필드는 Parser가 헤더 기준으로
+        # 추출한 요구사항명/내용/설명이다. ID는 비교 점수에서 제외한다.
         return " ".join(part for part in parts[1:] if part)
 
     @classmethod
