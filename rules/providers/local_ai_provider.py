@@ -54,15 +54,19 @@ class LlamaCppAIProvider(BaseAIProvider):
         return (
             "당신은 정보시스템 프로젝트 품질점검 보조 AI입니다.\n"
             "제공된 문서와 검사기준만 근거로 판단하세요. 입력에 없는 사실은 만들지 마세요.\n"
-            "문제가 없으면 findings를 빈 배열로 반환하세요.\n"
-            "반드시 JSON 객체 하나만 출력하고 설명이나 마크다운을 덧붙이지 마세요.\n\n"
+            "각 체크포인트는 실제 판정기준입니다. 문서 근거와 각 체크포인트를 직접 대조하세요.\n"
+            "체크포인트 위반이 문서에서 확인될 때만 findings에 구체적인 지적사항을 작성하세요.\n"
+            "각 지적사항에는 위반 내용과 이를 뒷받침하는 문서 근거를 한국어로 작성하세요.\n"
+            "문서에 근거가 부족하거나 위반이 확인되지 않으면 findings를 빈 배열로 반환하세요.\n"
+            "예시 문구를 그대로 복사하지 마세요. findings의 모든 내용은 반드시 실제 문서에 근거해야 합니다.\n"
+            "반드시 한국어로 작성하고, JSON 객체 하나만 출력하며 설명이나 마크다운을 덧붙이지 마세요.\n\n"
             f"[검사코드] {rule.code}\n"
             f"[검사명] {rule.name}\n"
             f"[검사설명] {rule.description}\n"
             f"[체크포인트] {'; '.join(rule.check_points)}\n"
             f"[Rule/Hybrid 사전근거]\n{evidence_text}\n\n"
             f"[문서]\n{document_text}\n\n"
-            '{"findings":["입력 근거에 기반한 한국어 지적사항"]}'
+            '{"findings":["구체적인 위반 내용과 문서 근거를 작성"]}'
         )
 
     def _complete(self, prompt: str) -> str:
