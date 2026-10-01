@@ -33,7 +33,7 @@ class DocumentAIEngine:
         document: ParsedDocument,
         max_items: int = 24,
     ) -> tuple[str, ...]:
-        """요구사항 비교형 AI Rule에 전달할 요구사항 행만 추출한다."""
+        """요구사항 비교형 Rule의 요구사항 행을 추출한다."""
         import re
 
         evidence = []
@@ -58,6 +58,25 @@ class DocumentAIEngine:
                 break
 
         return tuple(evidence)
+
+    @staticmethod
+    def _build_comparison_batches(
+        evidence: tuple[str, ...],
+        batch_size: int = 6,
+    ) -> tuple[tuple[str, ...], ...]:
+        """저사양 로컬 AI에서 비교형 Rule 입력을 작은 묶음으로 제한한다."""
+        if len(evidence) < 2:
+            return ()
+
+        batches = []
+        step = max(2, batch_size - 1)
+        for start in range(0, len(evidence), step):
+            batch = evidence[start:start + batch_size]
+            if len(batch) >= 2:
+                batches.append(batch)
+            if start + batch_size >= len(evidence):
+                break
+        return tuple(batches)
 
     @staticmethod
     def _build_relevant_evidence(
@@ -117,10 +136,23 @@ class DocumentAIEngine:
                         provider_name=self.provider.__class__.__name__,
                     )
                 else:
-                    result = self.provider.inspect(
-                        document,
-                        rule,
-                        AIInspectionContext(evidence=evidence),
+                    findings = []
+                    raw_responses = []
+                    for batch in self._build_comparison_batches(evidence):
+                        batch_result = self.provider.inspect(
+                            document,
+                            rule,
+                            AIInspectionContext(evidence=batch),
+                        )
+                        findings.extend(batch_result.findings)
+                        if batch_result.raw_response:
+                            raw_responses.append(batch_result.raw_response)
+
+                    result = AIInspectionResult(
+                        rule_code=rule.code,
+                        findings=tuple(dict.fromkeys(findings)),
+                        raw_response="\n".join(raw_responses),
+                        provider_name=self.provider.__class__.__name__,
                     )
             elif strategy == AIProcessingStrategy.SYNTHESIS:
                 # 종합형 Rule은 앞선 검사결과를 입력으로 사용하는 후처리 단계에서 실행한다.
