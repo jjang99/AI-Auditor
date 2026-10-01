@@ -27,6 +27,88 @@ class LlamaCppAIProvider(BaseAIProvider):
     def __init__(self, settings: LocalAISettings | None = None):
         self.settings = settings or LocalAISettings()
 
+    def build_requirement_conflict_groups(
+        self,
+        evidence: tuple[str, ...],
+    ) -> tuple[tuple[str, ...], ...]:
+        """요구사항을 의미 구조로 묶어 REQ-004 비교 단위를 만든다."""
+        if len(evidence) < 2:
+            return ()
+
+        numbered = "\n".join(
+            f"{index}: {item}"
+            for index, item in enumerate(evidence)
+        )
+        prompt = (
+            "당신은 요구사항 엔지니어링 분석기입니다. "
+            "아래 요구사항을 대상(entity), 행위/속성(action/property), 조건(condition), "
+            "효과/값(effect/value), 극성(polarity) 관점에서 분석하세요. "
+            "상충 여부 자체를 판정하지 말고, 동일하거나 직접 관련된 대상과 행위/속성을 가져 "
+            "서로 양립 가능성을 검토할 필요가 있는 요구사항만 같은 그룹으로 묶으세요. "
+            "단순히 같은 단어가 있다는 이유로 묶지 마세요. "
+            "각 그룹은 최소 2개 index를 포함하고, 관련 없는 요구사항은 제외하세요. "
+            "JSON 객체 하나만 출력하세요.\n\n"
+            f"{numbered}"
+        )
+        schema = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "requirement_conflict_groups",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "groups": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "indexes": {
+                                        "type": "array",
+                                        "items": {"type": "integer"},
+                                        "minItems": 2,
+                                    }
+                                },
+                                "required": ["indexes"],
+                                "additionalProperties": False,
+                            },
+                        }
+                    },
+                    "required": ["groups"],
+                    "additionalProperties": False,
+                },
+            },
+        }
+        raw = self._complete(prompt, response_format=schema)
+        try:
+            payload = json.loads(raw)
+            raw_groups = payload["groups"]
+        except (json.JSONDecodeError, KeyError, TypeError) as exc:
+            raise LocalAIProviderError(
+                "REQ-004 의미 구조화 응답 형식이 올바르지 않습니다."
+            ) from exc
+
+        groups = []
+        seen = set()
+        for group in raw_groups:
+            indexes = group.get("indexes", [])
+            valid_indexes = []
+            for index in indexes:
+                if (
+                    isinstance(index, int)
+                    and 0 <= index < len(evidence)
+                    and index not in valid_indexes
+                ):
+                    valid_indexes.append(index)
+            if len(valid_indexes) < 2:
+                continue
+            key = tuple(valid_indexes)
+            if key in seen:
+                continue
+            seen.add(key)
+            groups.append(tuple(evidence[index] for index in valid_indexes))
+        return tuple(groups)
+
     def inspect(self, document, rule, context: AIInspectionContext | None = None):
         prompt = self._build_prompt(document, rule, context)
         try:
