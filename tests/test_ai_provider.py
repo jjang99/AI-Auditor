@@ -654,6 +654,6 @@ def test_comparison_prefilter_returns_no_pair_for_unrelated_requirements():
         "SFR-002 | 관리자는 통계 보고서를 출력한다.",
     )
 
-    pairs = DocumentAIEngine._build_comparison_pairs(evidence, min_similarity=0.5)
+    pairs = DocumentAIEngine._build_comparison_pairs(evidence, rule_code="REQ-002")
 
     assert pairs == ()
