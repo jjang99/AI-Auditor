@@ -81,3 +81,20 @@ def test_assessment_prompt_forbids_keyword_only_high_and_invention():
     assert "확인된 사실과 잠재적 영향" in prompt
     assert "단어가 있다는 이유만으로 High" in prompt
     assert '"impact":"Low|Medium|High"' in prompt
+
+
+def test_issue_assessor_uses_assessment_json_schema():
+    response_format = LocalAIIssueAssessor._assessment_response_format()
+    schema = response_format["json_schema"]["schema"]
+
+    assert response_format["type"] == "json_schema"
+    assert response_format["json_schema"]["strict"] is True
+    assert schema["properties"]["impact"]["enum"] == ["Low", "Medium", "High"]
+    assert schema["properties"]["likelihood"]["enum"] == ["Low", "Medium", "High"]
+    assert set(schema["required"]) == {
+        "impact",
+        "likelihood",
+        "impact_reason",
+        "likelihood_reason",
+    }
+    assert schema["additionalProperties"] is False
