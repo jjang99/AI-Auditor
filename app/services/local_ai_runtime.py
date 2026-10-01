@@ -117,3 +117,14 @@ class LocalAIRuntimeManager:
 
         self.process = None
         self._owns_process = False
+
+
+_shared_runtime: LocalAIRuntimeManager | None = None
+
+
+def get_local_ai_runtime() -> LocalAIRuntimeManager:
+    """Return the process-wide local AI runtime manager."""
+    global _shared_runtime
+    if _shared_runtime is None:
+        _shared_runtime = LocalAIRuntimeManager()
+    return _shared_runtime
