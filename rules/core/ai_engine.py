@@ -1,6 +1,7 @@
 from dataclasses import replace
 from app.parsers.models import ParsedDocument
-from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
+from rules.core.ai_provider import AIInspectionContext, AIInspectionResult, BaseAIProvider
+from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
 from rules.core.models import DocumentRule, RuleExecutionType
 
 
@@ -27,6 +28,37 @@ class DocumentAIEngine:
 
         self.provider = provider
 
+    @staticmethod
+    def _build_requirement_comparison_evidence(
+        document: ParsedDocument,
+        max_items: int = 24,
+    ) -> tuple[str, ...]:
+        """요구사항 비교형 AI Rule에 전달할 요구사항 행만 추출한다."""
+        import re
+
+        evidence = []
+        seen = set()
+
+        for block in document.blocks:
+            text = block.text.strip() if block.text else ""
+            if not text:
+                continue
+
+            first = text.split("|", 1)[0].strip()
+            if not re.match(r"^[A-Z]{2,5}-?\\d+(?:-[A-Z0-9]+)*$", first, re.IGNORECASE):
+                continue
+
+            normalized = " ".join(text.split())
+            if normalized in seen:
+                continue
+            seen.add(normalized)
+            evidence.append(normalized[:800])
+
+            if len(evidence) >= max_items:
+                break
+
+        return tuple(evidence)
+
     def inspect_document(
         self,
         document: ParsedDocument,
@@ -34,10 +66,28 @@ class DocumentAIEngine:
         results: list[AIInspectionResult] = []
 
         for rule in self.document_rules:
-            result = self.provider.inspect(
-                document,
-                rule,
-            )
+            strategy = get_ai_processing_strategy(rule.code)
+
+            if strategy == AIProcessingStrategy.COMPARISON:
+                evidence = self._build_requirement_comparison_evidence(document)
+                if len(evidence) < 2:
+                    result = AIInspectionResult(
+                        rule_code=rule.code,
+                        findings=(),
+                        raw_response="",
+                        provider_name=self.provider.__class__.__name__,
+                    )
+                else:
+                    result = self.provider.inspect(
+                        document,
+                        rule,
+                        AIInspectionContext(evidence=evidence),
+                    )
+            else:
+                result = self.provider.inspect(
+                    document,
+                    rule,
+                )
 
             result = replace(
                 result,
