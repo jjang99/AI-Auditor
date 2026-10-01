@@ -236,7 +236,7 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
     # 직접 지적하므로, 후보가 없는 빈 문서에서는 AI Provider를 호출하지 않는다.
     assert executed_codes == expected_ai_codes | expected_provider_hybrid_codes
     assert "REQ-018" not in executed_codes
-    assert len(provider.executed_rule_codes) == 17
+    assert len(provider.executed_rule_codes) == 16
     assert len(executed_codes) == 17
 
 def test_document_mvp_ai_and_hybrid_rules_have_check_points():
