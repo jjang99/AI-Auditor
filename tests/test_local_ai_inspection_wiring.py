@@ -23,9 +23,13 @@ def test_worker_builds_shared_local_provider_and_assessor():
 
     worker = InspectionWorker([], None, "전체 검사", [], use_local_ai=True)
 
+    failed_messages = []
+    worker.failed.connect(failed_messages.append)
+
     with patch("ui.inspection_runtime.InspectionService", side_effect=fake_service):
-        with patch.object(worker.failed, "emit"):
-            worker.run()
+        worker.run()
+
+    assert failed_messages
 
     provider = captured["ai_provider"]
     assessor = captured["issue_assessor"]
