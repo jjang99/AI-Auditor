@@ -90,6 +90,27 @@ def initialize_database():
         """
     )
 
+    issue_columns = {
+        row["name"]
+        for row in cursor.execute("PRAGMA table_info(issues)").fetchall()
+    }
+
+    issue_migrations = {
+        "impact_reason": "TEXT",
+        "likelihood": "TEXT",
+        "likelihood_reason": "TEXT",
+        "severity_reason": "TEXT",
+        "audit_recommendation_type": "TEXT",
+        "audit_improvement_timing": "TEXT",
+        "audit_important": "TEXT",
+    }
+
+    for column_name, column_type in issue_migrations.items():
+        if column_name not in issue_columns:
+            cursor.execute(
+                f"ALTER TABLE issues ADD COLUMN {column_name} {column_type}"
+            )
+
     connection.commit()
     connection.close()
 
