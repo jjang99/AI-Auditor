@@ -54,8 +54,11 @@ class LlamaCppAIProvider(BaseAIProvider):
         # Hybrid 사전근거가 있으면 선별된 근거를 AI의 주 판단대상으로 사용한다.
         # 대용량 문서 전체를 함께 전달하면 저사양 로컬 환경에서 불필요한 지연과
         # timeout이 발생할 수 있으므로 중복 전달하지 않는다.
-        inspection_text = evidence_text if evidence else document_text
-        inspection_label = "선별 문서근거" if evidence else "문서"
+        inspection_text = evidence_text if evidence else self._select_relevant_document_text(
+            document,
+            rule,
+        )
+        inspection_label = "선별 문서근거" if evidence else "관련 문서근거"
 
         return (
             "당신은 정보시스템 프로젝트 품질점검 보조 AI입니다.\n"
@@ -74,6 +77,43 @@ class LlamaCppAIProvider(BaseAIProvider):
             f"[{inspection_label}]\n{inspection_text}\n\n"
             '{"findings":["구체적인 위반 내용과 문서 근거를 작성"]}'
         )
+
+    @staticmethod
+    def _select_relevant_document_text(document, rule, max_chars: int = 6000) -> str:
+        """대용량 문서에서 규칙과 관련성이 높은 블록만 AI 입력으로 선별한다."""
+        terms = []
+        for value in (rule.name, rule.description, *rule.check_points):
+            for term in str(value).replace("/", " ").replace("·", " ").split():
+                normalized = term.strip("[](){}.,:;'\"")
+                if len(normalized) >= 2 and normalized not in terms:
+                    terms.append(normalized)
+
+        ranked = []
+        for index, block in enumerate(document.blocks):
+            text = block.text.strip() if block.text else ""
+            if not text:
+                continue
+            score = sum(1 for term in terms if term.lower() in text.lower())
+            if score:
+                ranked.append((-score, index, text))
+
+        # 관련 키워드가 전혀 잡히지 않는 문서는 앞부분을 제한적으로 사용한다.
+        if not ranked:
+            ranked = [(0, index, block.text.strip()) for index, block in enumerate(document.blocks)
+                      if block.text and block.text.strip()]
+
+        ranked.sort()
+        selected = []
+        used = 0
+        for _score, _index, text in ranked:
+            remaining = max_chars - used
+            if remaining <= 0:
+                break
+            snippet = text[:remaining]
+            selected.append(snippet)
+            used += len(snippet) + 1
+
+        return "\n".join(selected)
 
     def _complete(self, prompt: str, response_format: dict | None = None) -> str:
         payload = {
