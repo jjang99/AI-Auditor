@@ -236,3 +236,19 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
     assert executed_codes == expected_ai_codes | expected_hybrid_codes
     assert len(provider.executed_rule_codes) == 17
     assert len(executed_codes) == 17
+
+def test_document_mvp_ai_and_hybrid_rules_have_check_points():
+    """실제 AI 판정에 필요한 AI/Hybrid 17개 Rule의 체크포인트가 비어 있지 않은지 검증한다."""
+
+    ai_hybrid_rules = [
+        rule
+        for rule in get_document_mvp_rules()
+        if rule.execution_type in (RuleExecutionType.AI, RuleExecutionType.HYBRID)
+    ]
+
+    assert len(ai_hybrid_rules) == 17
+    assert all(rule.check_points for rule in ai_hybrid_rules)
+    assert all(
+        all(point.strip() for point in rule.check_points)
+        for rule in ai_hybrid_rules
+    )
