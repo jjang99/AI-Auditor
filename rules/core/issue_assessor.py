@@ -43,6 +43,11 @@ def apply_issue_assessments(
         normalized_assessment = replace(
             assessment,
             severity=calculated_severity,
+            severity_reason=(
+                f"Impact {assessment.impact.value} × "
+                f"Likelihood {assessment.likelihood.value} = "
+                f"Severity {calculated_severity.value}"
+            ),
         )
 
         assessed_issues.append(
