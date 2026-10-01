@@ -597,6 +597,47 @@ def test_req002_comparison_prefilter_selects_only_same_normalized_meaning():
     ),)
 
 
+def test_xlsx_comparison_evidence_includes_explicit_detail_column():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="요구사항ID | 요구사항명 | 상세내용 | 비고",
+                sheet="PER",
+                metadata={
+                    "cell_values": (
+                        "요구사항ID",
+                        "요구사항명",
+                        "상세내용",
+                        "비고",
+                    ),
+                },
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내 | 확인",
+                sheet="PER",
+                metadata={
+                    "cell_values": (
+                        "PER-001-CT-01",
+                        "서비스수준보장",
+                        "응답시간은 3초 이내",
+                        "확인",
+                    ),
+                },
+            ),
+        ),
+    )
+
+    evidence = DocumentAIEngine._build_requirement_comparison_evidence(document)
+
+    assert evidence == (
+        "PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내",
+    )
+
+
 def test_req004_comparison_prefilter_compares_same_name_with_different_details():
     evidence = (
         "PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내",
