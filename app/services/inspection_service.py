@@ -12,6 +12,7 @@ from rules.core.document_result_adapter import (
 from rules.core.inspection_engine import DocumentInspectionEngine
 from rules.core.ai_provider import AIInspectionResult
 from rules.core.issue_assessor import DeferredIssueAssessor, apply_issue_assessments
+from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
 from rules.core.models import (
     DocumentRuleIssue,
     InspectionSummary,
@@ -138,6 +139,48 @@ class InspectionService:
                             rule,
                         )
                     )
+
+            # CHG-006/CHG-018은 원문 직접검사가 아니라 앞 단계에서
+            # 확인된 변경 관련 지적사항을 종합하는 후처리 Rule로 실행한다.
+            for synthesis_code in ("CHG-006", "CHG-018"):
+                synthesis_rule = rule_by_code.get(synthesis_code)
+                if synthesis_rule is None:
+                    continue
+
+                source_issues = tuple(
+                    issue for issue in all_issues
+                    if issue.rule_code.startswith("CHG-")
+                    and issue.rule_code != synthesis_code
+                )
+                if not source_issues:
+                    continue
+
+                synthesis_document = ParsedDocument(
+                    file_path=Path(f"{synthesis_code.lower()}_findings.txt"),
+                    file_type="inspection_findings",
+                    blocks=tuple(
+                        DocumentBlock(
+                            block_type="inspection_finding",
+                            text=(
+                                f"{issue.rule_code} | {issue.rule_name} | "
+                                f"{issue.evidence}"
+                            ),
+                        )
+                        for issue in source_issues
+                    ),
+                    metadata={"source": "change_inspection_results"},
+                )
+                synthesis_result = self.ai_provider.inspect(
+                    synthesis_document,
+                    synthesis_rule,
+                )
+                all_issues.extend(
+                    adapt_ai_result(
+                        synthesis_result,
+                        synthesis_document,
+                        synthesis_rule,
+                    )
+                )
 
             # AUD-024는 원문 전체가 아니라 앞 단계에서 실제로 확인된
             # 개별 지적사항만 종합하여 마지막에 실행한다.
