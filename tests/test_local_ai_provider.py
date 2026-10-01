@@ -66,6 +66,10 @@ def test_local_provider_calls_llama_server_and_parses_findings():
     assert captured["payload"]["top_k"] == 20
     assert captured["payload"]["min_p"] == 0.0
     assert captured["payload"]["seed"] == 42
+    response_format = captured["payload"]["response_format"]
+    assert response_format["type"] == "json_schema"
+    assert response_format["json_schema"]["strict"] is True
+    assert response_format["json_schema"]["schema"]["required"] == ["findings"]
     prompt = captured["payload"]["messages"][0]["content"]
     assert "사전근거" in prompt
     assert "REQ-101 사용자는 로그인할 수 있다." not in prompt
