@@ -11,6 +11,11 @@ class FakeAIProvider(BaseAIProvider):
     def __init__(self):
         self.received_contexts = []
 
+    def build_requirement_conflict_groups(self, evidence):
+        if len(evidence) < 2:
+            return ()
+        return (tuple(evidence[:2]),)
+
     def inspect(
         self,
         document: ParsedDocument,
@@ -638,36 +643,29 @@ def test_xlsx_comparison_evidence_includes_explicit_detail_column():
     )
 
 
-def test_req004_comparison_prefilter_compares_same_name_with_different_details():
-    evidence = (
-        "PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내",
-        "PER-001-CT-02 | 서비스수준보장 | 응답시간은 5초 이상",
-        "PER-002-CT-01 | 처리성능 | 초당 100건 처리",
+def test_req004_uses_provider_semantic_groups_for_conflict_inspection():
+    document = ParsedDocument(
+        file_path=Path("요구사항정의서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(block_type="paragraph", text="REQ-001 | 응답시간은 3초 이내"),
+            DocumentBlock(block_type="paragraph", text="REQ-002 | 응답시간은 5초 이상"),
+            DocumentBlock(block_type="paragraph", text="REQ-003 | 관리자 화면을 제공한다"),
+        ),
     )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "REQ-004")
+    engine = DocumentAIEngine((rule,), provider)
 
-    pairs = DocumentAIEngine._build_comparison_pairs(
-        evidence,
-        rule_code="REQ-004",
+    result = engine.inspect_document(document)[0]
+
+    assert len(provider.received_contexts) == 1
+    assert provider.received_contexts[0].evidence == (
+        "REQ-001 | 응답시간은 3초 이내",
+        "REQ-002 | 응답시간은 5초 이상",
     )
+    assert result.findings
 
-    assert pairs == ((
-        "PER-001-CT-01 | 서비스수준보장 | 응답시간은 3초 이내",
-        "PER-001-CT-02 | 서비스수준보장 | 응답시간은 5초 이상",
-    ),)
-
-
-def test_req004_comparison_prefilter_does_not_compare_different_names():
-    evidence = (
-        "SFR-001-AD-01 | 이용사무 신청관리",
-        "SFR-001-AD-02 | 대법원 등기전산자료 첨부기능",
-    )
-
-    pairs = DocumentAIEngine._build_comparison_pairs(
-        evidence,
-        rule_code="REQ-004",
-    )
-
-    assert pairs == ()
 
 def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
     document = ParsedDocument(
