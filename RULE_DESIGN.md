@@ -917,3 +917,53 @@ Issue 저장구조, Project Detail, Reports 및
 - Inspection 검사기준 팝업은 Full Rule Catalog의 실제 Rule 정보를 표시하고, 개별 선택상태가 MVP 실행대상에 반영되도록 한다.
 - 본 연결은 검사기준 105개 전체가 실행 구현되었다는 의미가 아니며, 실제 실행 구현 범위는 MVP 20개이다.
 - 다음 설계·구현 단계는 Issue의 Impact / Likelihood / Severity 및 필요한 감리 개선판정 정보를 실제 데이터·실행 흐름에 적용하는 5-5이다.
+
+
+---
+
+# 2026-10-01 — 5-5 판정 파이프라인 실제 구현 상태
+
+현재 구현된 판정 파이프라인은 다음과 같다.
+
+`Issue 발견`
+→ `BaseIssueAssessor.assess(issue)`
+→ `Impact / Impact 근거`
+→ `Likelihood / Likelihood 근거`
+→ `Severity Matrix`
+→ `최종 Issue Severity`
+→ `IssueAssessment`
+→ `DB 저장`
+→ `기존 점수/결과 흐름`
+
+## 구현 구성
+
+- `rules/core/severity.py`
+  - `AssessmentLevel`
+  - `IssueSeverity`
+  - `IssueAssessment`
+  - `calculate_severity()`
+  - 감리 개선판정 Enum / `AuditImprovementJudgment`
+- `rules/core/issue_assessor.py`
+  - `BaseIssueAssessor`
+  - `DeferredIssueAssessor`
+  - `apply_issue_assessments()`
+- `RuleIssue`
+  - 선택적 `assessment`
+  - 선택적 `audit_judgment`
+- DB Issue 판정정보
+  - `impact`
+  - `impact_reason`
+  - `likelihood`
+  - `likelihood_reason`
+  - `severity_reason`
+  - `audit_recommendation_type`
+  - `audit_improvement_timing`
+  - `audit_important`
+
+기존 DB는 삭제/재생성하지 않고 컬럼 존재 여부를 확인한 뒤 필요한 컬럼만 추가한다.
+
+현재 `DeferredIssueAssessor`는 실제 판정을 수행하지 않는다. 이는 임시 고정 Severity를 새 Severity로 간주하기 위한 것이 아니라, 실제 AI 판정기 연결 전 기존 동작을 보존하기 위한 호환 계층이다.
+
+실제 AI 판정기가 연결되면 판정기가 제시한 Impact/Likelihood를 사용하되 **최종 Severity 자체는 AI가 임의 출력한 값을 신뢰하지 않고 확정 Matrix로 재계산**한다.
+
+실제 AI Provider/Issue Assessor 연결은 6단계 전에 수행하며, 모델 선정·Provider 구현·실문서 판정 검증을 별도 작업으로 진행한다.
