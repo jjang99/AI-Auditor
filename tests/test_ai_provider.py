@@ -554,3 +554,40 @@ def test_hybrid_evidence_strategy_passes_only_relevant_blocks():
     assert len(evidence) == 1
     assert "Prompt Injection" in evidence[0]
     assert all("일반 프로젝트 설명" not in item for item in evidence)
+
+
+def test_pure_ai_evidence_rule_skips_provider_without_relevant_evidence():
+    document = ParsedDocument(
+        file_path=Path("일반문서.docx"),
+        file_type="docx",
+        blocks=(DocumentBlock(block_type="paragraph", text="일반 프로젝트 설명입니다."),),
+    )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "AI-005")
+    engine = DocumentAIEngine((rule,), provider)
+
+    result = engine.inspect_document(document)[0]
+
+    assert result.findings == ()
+    assert provider.received_contexts == []
+
+
+def test_pure_ai_evidence_rule_passes_relevant_blocks_only():
+    document = ParsedDocument(
+        file_path=Path("AI설계서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(block_type="paragraph", text="일반 프로젝트 설명입니다."),
+            DocumentBlock(block_type="paragraph", text="AI 출력의 정확성과 근거성을 검증하고 환각 탐지 후 재검토한다."),
+        ),
+    )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "AI-005")
+    engine = DocumentAIEngine((rule,), provider)
+
+    engine.inspect_document(document)
+
+    assert len(provider.received_contexts) == 1
+    evidence = provider.received_contexts[0].evidence
+    assert len(evidence) == 1
+    assert "환각" in evidence[0]
