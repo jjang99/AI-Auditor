@@ -292,11 +292,17 @@ class DocumentAIEngine:
                         provider_name=self.provider.__class__.__name__,
                     )
                 else:
-                    pairs = self._build_comparison_pairs(
-                        evidence,
-                        rule_code=rule.code,
-                    )
-                    if not pairs:
+                    if rule.code == "REQ-004":
+                        comparison_groups = self.provider.build_requirement_conflict_groups(
+                            evidence,
+                        )
+                    else:
+                        comparison_groups = self._build_comparison_pairs(
+                            evidence,
+                            rule_code=rule.code,
+                        )
+
+                    if not comparison_groups:
                         result = AIInspectionResult(
                             rule_code=rule.code,
                             findings=(),
@@ -306,15 +312,15 @@ class DocumentAIEngine:
                     else:
                         findings = []
                         raw_responses = []
-                        for pair in pairs:
-                            pair_result = self.provider.inspect(
+                        for group in comparison_groups:
+                            group_result = self.provider.inspect(
                                 document,
                                 rule,
-                                AIInspectionContext(evidence=pair),
+                                AIInspectionContext(evidence=group),
                             )
-                            findings.extend(pair_result.findings)
-                            if pair_result.raw_response:
-                                raw_responses.append(pair_result.raw_response)
+                            findings.extend(group_result.findings)
+                            if group_result.raw_response:
+                                raw_responses.append(group_result.raw_response)
 
                         result = AIInspectionResult(
                             rule_code=rule.code,
