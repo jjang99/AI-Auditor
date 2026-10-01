@@ -44,3 +44,26 @@ def calculate_severity(
 ) -> IssueSeverity:
     """Return the deterministic severity defined by the approved matrix."""
     return _SEVERITY_MATRIX[(impact, likelihood)]
+
+
+class AuditRecommendationType(str, Enum):
+    REQUIRED = "필수"
+    CONSULT = "협의"
+    RECOMMENDED = "권고"
+
+
+class AuditImprovementTiming(str, Enum):
+    SHORT_TERM = "단기"
+    LONG_TERM = "장기"
+
+
+class AuditImportantFlag(str, Enum):
+    YES = "O"
+    NO = "-"
+
+
+@dataclass(frozen=True)
+class AuditImprovementJudgment:
+    recommendation_type: AuditRecommendationType
+    improvement_timing: AuditImprovementTiming
+    important: AuditImportantFlag
