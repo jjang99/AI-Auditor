@@ -26,6 +26,16 @@ class AIInspectionContext:
 class BaseAIProvider(ABC):
     """AI 검사기를 위한 공통 인터페이스."""
 
+    def build_requirement_conflict_groups(
+        self,
+        evidence: tuple[str, ...],
+    ) -> tuple[tuple[str, ...], ...]:
+        """REQ-004용 의미 구조 그룹을 만든다.
+
+        Provider가 의미 구조화를 지원하지 않으면 후보를 추정하지 않는다.
+        """
+        return ()
+
     @abstractmethod
     def inspect(
         self,
