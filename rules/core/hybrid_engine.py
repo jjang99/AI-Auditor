@@ -124,7 +124,7 @@ class DocumentHybridEngine:
             )
             has_requirement_id = bool(
                 re.search(
-                    r"\\b(?:REQ[-_]?\\d+|[A-Z]{2,5}[-_]\\d{2,})\\b",
+                    r"\b(?:REQ[-_]?\d+|[A-Z]{2,5}[-_]\d{2,})\b",
                     text,
                     re.IGNORECASE,
                 )
