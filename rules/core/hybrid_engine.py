@@ -199,8 +199,16 @@ class DocumentHybridEngine:
                 rule,
             )
 
-            if rule.code == "REQ-018" and context.evidence:
-                result = self._inspect_req_018_in_batches(context)
+            if rule.code == "REQ-018":
+                if context.evidence:
+                    result = self._inspect_req_018_in_batches(context)
+                else:
+                    result = AIInspectionResult(
+                        rule_code=rule.code,
+                        findings=(),
+                        raw_response="",
+                        provider_name=self.provider.__class__.__name__,
+                    )
             else:
                 result = self.provider.inspect(
                     context.document,
