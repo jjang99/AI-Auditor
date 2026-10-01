@@ -341,3 +341,45 @@ def test_document_inspection_engine_combines_rule_ai_and_hybrid_results():
         result.rule_code == "AI-022"
         for result in ai_results
     )
+
+def test_req_018_builds_traceability_evidence_and_limits_context():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="요구사항ID | 유스케이스 | 화면 | 프로그램 | 통합테스트",
+                sheet="SFR_기능",
+                location="SFR_기능 / 행 1",
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="REQ-101 | UC-01 | SCR-01 | PRG-01 | TEST-01",
+                sheet="SFR_기능",
+                location="SFR_기능 / 행 2",
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="개정이력 | 1.2 | 종료단계 감리결과 반영",
+                sheet="개정이력",
+                location="개정이력 / 행 3",
+            ),
+        ),
+    )
+
+    provider = FakeAIProvider()
+    req_018_rule = next(
+        rule for rule in get_document_mvp_rules()
+        if rule.code == "REQ-018"
+    )
+    engine = DocumentHybridEngine((req_018_rule,), provider)
+
+    engine.inspect_document(document)
+
+    context = provider.received_contexts[0]
+    assert context is not None
+    assert len(context.evidence) == 2
+    assert any("요구사항ID" in item for item in context.evidence)
+    assert any("REQ-101" in item for item in context.evidence)
+    assert all("개정이력" not in item for item in context.evidence)
