@@ -585,6 +585,38 @@ def test_xlsx_comparison_evidence_preserves_empty_cells_before_requirement_colum
     assert evidence == ("REQ-010 | 로그인 기능",)
 
 
+def test_req002_comparison_prefilter_selects_only_same_normalized_meaning():
+    evidence = (
+        "REQ-001 | 사용자 로그인 기능",
+        "REQ-002 | 사용자 로그인 기능",
+        "REQ-003 | 관리자 통계 조회",
+    )
+
+    pairs = DocumentAIEngine._build_comparison_pairs(
+        evidence,
+        rule_code="REQ-002",
+    )
+
+    assert pairs == ((
+        "REQ-001 | 사용자 로그인 기능",
+        "REQ-002 | 사용자 로그인 기능",
+    ),)
+
+
+def test_req004_comparison_prefilter_does_not_guess_conflicts():
+    evidence = (
+        "REQ-001 | 비밀번호는 8자리 이상이어야 한다",
+        "REQ-002 | 비밀번호는 10자리 이상이어야 한다",
+    )
+
+    pairs = DocumentAIEngine._build_comparison_pairs(
+        evidence,
+        rule_code="REQ-004",
+    )
+
+    assert pairs == ()
+
+
 def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
     document = ParsedDocument(
         file_path=Path("요구사항추적표.xlsx"),
