@@ -59,6 +59,45 @@ class DocumentAIEngine:
 
         return tuple(evidence)
 
+    @staticmethod
+    def _build_relevant_evidence(
+        document: ParsedDocument,
+        rule: DocumentRule,
+        max_items: int = 12,
+        max_chars: int = 4500,
+    ) -> tuple[str, ...]:
+        """AI 근거확인형 Rule에 관련성이 높은 블록만 전달한다."""
+        import re
+
+        terms = []
+        for value in (rule.name, rule.description, *rule.check_points):
+            for term in re.split(r"[\\s·/,()]+", str(value)):
+                normalized = term.strip("[]{}.,:;'\"")
+                if len(normalized) >= 2 and normalized not in terms:
+                    terms.append(normalized)
+
+        ranked = []
+        for index, block in enumerate(document.blocks):
+            text = block.text.strip() if block.text else ""
+            if not text:
+                continue
+            score = sum(1 for term in terms if term.lower() in text.lower())
+            if score:
+                ranked.append((-score, index, text))
+
+        ranked.sort()
+        selected = []
+        used = 0
+        for _score, _index, text in ranked:
+            remaining = max_chars - used
+            if remaining <= 0 or len(selected) >= max_items:
+                break
+            snippet = text[: min(800, remaining)]
+            selected.append(snippet)
+            used += len(snippet) + 1
+
+        return tuple(selected)
+
     def inspect_document(
         self,
         document: ParsedDocument,
@@ -91,6 +130,21 @@ class DocumentAIEngine:
                     raw_response="",
                     provider_name=self.provider.__class__.__name__,
                 )
+            elif strategy == AIProcessingStrategy.EVIDENCE:
+                evidence = self._build_relevant_evidence(document, rule)
+                if not evidence:
+                    result = AIInspectionResult(
+                        rule_code=rule.code,
+                        findings=(),
+                        raw_response="",
+                        provider_name=self.provider.__class__.__name__,
+                    )
+                else:
+                    result = self.provider.inspect(
+                        document,
+                        rule,
+                        AIInspectionContext(evidence=evidence),
+                    )
             else:
                 result = self.provider.inspect(
                     document,
