@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, replace
 
 from app.parsers.models import ParsedDocument
@@ -122,10 +123,10 @@ class DocumentHybridEngine:
                 for term in traceability_terms
             )
             has_requirement_id = bool(
-                __import__("re").search(
-                    r"\\b(?:[A-Z]{2,5}|REQ)[-_]?\\d{2,}\\b",
+                re.search(
+                    r"\\b(?:REQ[-_]?\\d+|[A-Z]{2,5}[-_]\\d{2,})\\b",
                     text,
-                    __import__("re").IGNORECASE,
+                    re.IGNORECASE,
                 )
             )
 
