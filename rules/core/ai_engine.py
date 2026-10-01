@@ -83,6 +83,14 @@ class DocumentAIEngine:
                         rule,
                         AIInspectionContext(evidence=evidence),
                     )
+            elif strategy == AIProcessingStrategy.SYNTHESIS:
+                # 종합형 Rule은 앞선 검사결과를 입력으로 사용하는 후처리 단계에서 실행한다.
+                result = AIInspectionResult(
+                    rule_code=rule.code,
+                    findings=(),
+                    raw_response="",
+                    provider_name=self.provider.__class__.__name__,
+                )
             else:
                 result = self.provider.inspect(
                     document,
