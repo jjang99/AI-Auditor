@@ -118,9 +118,12 @@ class DocumentHybridEngine:
                 continue
 
             normalized = text.lower()
-            has_traceability_term = any(
-                term in normalized
-                for term in traceability_terms
+            has_traceability_term = (
+                block.block_type == "sheet_row"
+                and any(
+                    term in normalized
+                    for term in traceability_terms
+                )
             )
             has_requirement_id = bool(
                 re.search(
