@@ -88,7 +88,6 @@ def test_ai_engine_executes_only_ai_rules():
     }
 
     assert executed_rule_codes == {
-        "AUD-024",
         "REQ-002",
         "REQ-004",
         "CHG-006",
@@ -455,3 +454,20 @@ def test_req_018_confirmed_missing_trace_becomes_finding_without_ai():
     assert "SFR-999" in result.findings[0]
     assert result.raw_response == ""
     assert provider.received_contexts == []
+
+
+def test_ai_engine_defers_aud_024_from_raw_document_loop():
+    document = ParsedDocument(
+        file_path=Path("요구사항정의서.docx"),
+        file_type="docx",
+        blocks=(DocumentBlock(block_type="paragraph", text="테스트 문서"),),
+    )
+    provider = FakeAIProvider()
+    engine = DocumentAIEngine(get_document_mvp_rules(), provider)
+
+    engine.inspect_document(document)
+
+    assert all(
+        result.rule_code != "AUD-024"
+        for result in engine.inspect_document(document)
+    )
