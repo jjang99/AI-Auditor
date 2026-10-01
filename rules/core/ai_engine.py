@@ -61,19 +61,15 @@ class DocumentAIEngine:
 
     @staticmethod
     def _requirement_semantic_text(text: str) -> str:
-        """추적표 행에서 비교 의미가 큰 요구사항 ID/명칭 영역만 사용한다."""
+        """추적표 행에서 비교에 사용할 요구사항 의미 텍스트를 반환한다."""
         parts = [part.strip() for part in text.split("|")]
         if not parts:
             return text
 
-        # 실제 추적표는 대체로
-        # 상위요구사항ID | 상세요구사항ID | 요구사항명 | UC... 형태다.
-        # ID 자체는 유사도 점수에서 제외하고 요구사항명/내용만 비교한다.
-        if len(parts) >= 3 and parts[1]:
-            return parts[2] or parts[1]
-        if len(parts) >= 2:
-            return parts[1]
-        return parts[0]
+        # XLSX Parser는 빈 셀을 제거해 열 위치를 보존하지 않으므로,
+        # 현재 ParsedDocument만으로는 특정 열을 확정적으로 재구성할 수 없다.
+        # 첫 필드는 요구사항 ID로 식별에만 사용하고 비교 점수에서는 제외한다.
+        return " ".join(part for part in parts[1:] if part)
 
     @classmethod
     def _build_comparison_pairs(
@@ -81,64 +77,40 @@ class DocumentAIEngine:
         evidence: tuple[str, ...],
         *,
         rule_code: str = "REQ-002",
-        max_pairs: int = 6,
     ) -> tuple[tuple[str, str], ...]:
-        """Rule 목적별 Python 사전선별로 AI 비교 후보쌍만 만든다."""
+        """확정적으로 선별 가능한 비교 후보만 만든다.
+
+        임의 임계값/상위 N개 제한으로 검사 범위를 잘라내지 않는다.
+        REQ-002는 정규화 후 의미 텍스트가 동일한 경우만 확정 후보로 만든다.
+        REQ-004는 현재 평탄화된 XLSX 행만으로 상충 후보를 안전하게 사전선별할
+        근거가 없으므로 추정 후보를 만들지 않는다.
+        """
         import re
-        from difflib import SequenceMatcher
 
-        def tokens(text: str) -> set[str]:
-            semantic = cls._requirement_semantic_text(text)
-            return {
-                token.lower()
-                for token in re.findall(r"[가-힣A-Za-z0-9]{2,}", semantic)
-            }
+        def normalized(text: str) -> str:
+            semantic = cls._requirement_semantic_text(text).lower()
+            return re.sub(r"[^가-힣a-z0-9]+", "", semantic)
 
-        ranked = []
-        for left_index in range(len(evidence)):
-            left = evidence[left_index]
-            left_semantic = cls._requirement_semantic_text(left).lower()
-            left_tokens = tokens(left)
+        if rule_code == "REQ-002":
+            groups: dict[str, list[str]] = {}
+            for item in evidence:
+                key = normalized(item)
+                if key:
+                    groups.setdefault(key, []).append(item)
 
-            for right_index in range(left_index + 1, len(evidence)):
-                right = evidence[right_index]
-                right_semantic = cls._requirement_semantic_text(right).lower()
-                right_tokens = tokens(right)
-
-                union = left_tokens | right_tokens
-                jaccard = (
-                    len(left_tokens & right_tokens) / len(union)
-                    if union else 0.0
-                )
-                sequence = SequenceMatcher(None, left_semantic, right_semantic).ratio()
-
-                if rule_code == "REQ-002":
-                    # 중복은 명칭/내용 자체의 강한 유사성이 있어야 AI 후보로 보낸다.
-                    similarity = max(jaccard, sequence)
-                    if similarity < 0.45:
-                        continue
-                    score = similarity
-                elif rule_code == "REQ-004":
-                    # 상충은 같은 기능/대상을 다루는 요구사항끼리만 AI가 판단한다.
-                    # 단순히 같은 추적 UI/프로그램을 쓴다는 이유로 후보가 되지 않는다.
-                    shared = left_tokens & right_tokens
-                    if not shared:
-                        continue
-                    similarity = max(jaccard, sequence)
-                    if similarity < 0.30:
-                        continue
-                    score = similarity
-                else:
+            pairs = []
+            for items in groups.values():
+                if len(items) < 2:
                     continue
+                for left_index in range(len(items)):
+                    for right_index in range(left_index + 1, len(items)):
+                        pairs.append((items[left_index], items[right_index]))
+            return tuple(pairs)
 
-                ranked.append((-score, left_index, right_index, left, right))
+        if rule_code == "REQ-004":
+            return ()
 
-        ranked.sort()
-        return tuple(
-            (left, right)
-            for _score, _left_index, _right_index, left, right
-            in ranked[:max_pairs]
-        )
+        return ()
 
     @staticmethod
     def _build_relevant_evidence(
