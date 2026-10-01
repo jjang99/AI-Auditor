@@ -99,3 +99,30 @@ def test_local_provider_rejects_invalid_model_output(raw):
     with patch.object(provider, "_complete", return_value=raw):
         with pytest.raises(LocalAIProviderError):
             provider.inspect(_document(), _rule())
+
+
+def test_local_provider_limits_large_document_prompt_to_relevant_evidence():
+    rule = _rule()
+    blocks = tuple(
+        DocumentBlock(
+            block_type="paragraph",
+            text=(
+                f"일반 설명 {index} " + ("X" * 500)
+                if index < 30
+                else "REQ-101과 REQ-205는 동일한 로그인 요구사항으로 보인다."
+            ),
+        )
+        for index in range(31)
+    )
+    document = ParsedDocument(
+        file_path=Path("large.docx"),
+        file_type="docx",
+        blocks=blocks,
+    )
+    provider = LlamaCppAIProvider()
+
+    prompt = provider._build_prompt(document, rule, None)
+
+    assert "REQ-101과 REQ-205" in prompt
+    assert len(prompt) < 9000
+    assert "[관련 문서근거]" in prompt
