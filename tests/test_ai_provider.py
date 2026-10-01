@@ -591,3 +591,44 @@ def test_pure_ai_evidence_rule_passes_relevant_blocks_only():
     evidence = provider.received_contexts[0].evidence
     assert len(evidence) == 1
     assert "환각" in evidence[0]
+
+
+def test_base_issue_assessor_batch_falls_back_to_individual_calls():
+    from rules.core.issue_assessor import BaseIssueAssessor
+    from rules.core.models import RuleIssue
+    from rules.core.severity import AssessmentLevel, IssueAssessment, IssueSeverity
+
+    class RecordingAssessor(BaseIssueAssessor):
+        def __init__(self):
+            self.calls = 0
+
+        def assess(self, issue):
+            self.calls += 1
+            return IssueAssessment(
+                impact=AssessmentLevel.LOW,
+                impact_reason="낮음",
+                likelihood=AssessmentLevel.LOW,
+                likelihood_reason="낮음",
+                severity=IssueSeverity.LOW,
+                severity_reason="",
+            )
+
+    issues = tuple(
+        RuleIssue(
+            rule_code=f"T-{i}",
+            rule_name="테스트",
+            category="테스트",
+            severity="Low",
+            file_path="test.txt",
+            line_number=i,
+            evidence="근거",
+            description="설명",
+        )
+        for i in range(3)
+    )
+    assessor = RecordingAssessor()
+
+    results = assessor.assess_many(issues)
+
+    assert len(results) == 3
+    assert assessor.calls == 3
