@@ -208,8 +208,9 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
 
     engine.inspect_document(document)
 
-    expected_ai_codes = {
-        "AUD-024",
+    # AUD-024는 개별 검사결과를 종합하는 후처리 Rule이므로
+    # 원문 문서에 대한 Provider 호출 목록에서는 제외된다.
+    expected_document_ai_codes = {
         "REQ-002",
         "REQ-004",
         "CHG-006",
@@ -234,10 +235,11 @@ def test_document_mvp_ai_and_hybrid_rules_are_all_executed():
 
     # REQ-018은 구조적으로 확정 가능한 추적정보 누락을 Rule 사전분석에서
     # 직접 지적하므로, 후보가 없는 빈 문서에서는 AI Provider를 호출하지 않는다.
-    assert executed_codes == expected_ai_codes | expected_provider_hybrid_codes
+    assert executed_codes == expected_document_ai_codes | expected_provider_hybrid_codes
+    assert "AUD-024" not in executed_codes
     assert "REQ-018" not in executed_codes
-    assert len(provider.executed_rule_codes) == 16
-    assert len(executed_codes) == 16
+    assert len(provider.executed_rule_codes) == 15
+    assert len(executed_codes) == 15
 
 def test_document_mvp_ai_and_hybrid_rules_have_check_points():
     """실제 AI 판정에 필요한 AI/Hybrid 17개 Rule의 체크포인트가 비어 있지 않은지 검증한다."""
