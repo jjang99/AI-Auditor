@@ -45,7 +45,7 @@ class DocumentAIEngine:
                 continue
 
             first = text.split("|", 1)[0].strip()
-            if not re.match(r"^[A-Z]{2,5}-?\\d+(?:-[A-Z0-9]+)*$", first, re.IGNORECASE):
+            if not re.match(r"^[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*$", first, re.IGNORECASE):
                 continue
 
             normalized = " ".join(text.split())
