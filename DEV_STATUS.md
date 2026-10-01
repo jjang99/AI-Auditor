@@ -1074,3 +1074,55 @@ Severity 및 감리 개선판정 구현은
 따라서 **5-4 MVP 20개 ↔ 문서 검사 Engine 실제 연결을 완료 상태로 확정한다.**
 
 다음 개발 단계는 **5-5 Issue Severity + 감리 개선판단**이다.
+
+
+---
+
+# 2026-10-01 — 5-5 Issue Severity + 감리 개선판정 뼈대 구현 완료
+
+## 완료 내용
+
+- Impact/Likelihood 공통 3단계 데이터 모델 구현
+- Impact × Likelihood Severity Matrix 구현
+- Critical 제한원칙 코드/테스트 반영
+- IssueAssessment 및 판정근거 구조 구현
+- 기존 DB 무삭제 migration 구현
+- Impact/Likelihood/Severity 근거 DB 저장·조회 연결
+- 감리 개선판정(필수/협의/권고, 단기/장기, O/-)을 Severity와 별도 구조로 구현
+- 감리 개선판정 선택 저장 및 NULL 호환 처리
+- `BaseIssueAssessor` 교체형 판정 인터페이스 구현
+- `DeferredIssueAssessor` 기본 구현 연결
+- 문서 Inspection 흐름에 `apply_issue_assessments()` 연결
+- Matrix로 계산된 Severity가 Issue와 기존 점수 계산에 반영되는 흐름 검증
+- 기존 UI Freeze 화면 구조는 변경하지 않음
+
+## 테스트
+
+- Severity Matrix 전체 9조합 검증
+- DB 기존 스키마 migration / 반복 초기화 검증
+- IssueAssessment 저장/조회 검증
+- 감리 개선판정 분리 저장/NULL 검증
+- 교체형 Issue Assessor 및 Matrix 강제 적용 검증
+- 계산된 Severity → 점수 흐름 검증
+- 전체 회귀 테스트: **75 passed, 51 subtests passed / 실패 0건**
+
+## 현재 경계
+
+5-5의 **판정 데이터·Matrix·DB·실행 파이프라인 뼈대는 완료**하였다.
+
+아직 완료하지 않은 핵심은 실제 AI 기반 Impact/Likelihood 판정이다. 현재 `DeferredIssueAssessor`는 기존 결과를 보존하며 실제 AI 판단을 수행하지 않는다.
+
+## 다음 작업
+
+**실제 AI Provider / Issue Assessor 연결 및 검증**
+
+진행 순서:
+1. 폐쇄망/Windows EXE 조건을 고려한 로컬 AI 실행방식 및 모델 후보 최종 선정
+2. 실제 AI Provider 구현
+3. Impact/Likelihood 판정 프롬프트·출력 스키마 구현
+4. `BaseIssueAssessor`와 연결
+5. 실문서 Issue 판정 및 근거 검증
+6. 전체 회귀 테스트
+7. 실제 AI 연결 완료 후 6단계로 이동
+
+**6단계 진입 전에 실제 AI 연결을 완료한다.**
