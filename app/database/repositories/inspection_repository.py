@@ -51,22 +51,31 @@ def save_inspection_result(project_id: int, summary: InspectionSummary, inspecti
 
     for issue in summary.issues:
         evidence = f"{issue.file_path}:{issue.line_number} | {issue.evidence}"
+        assessment = issue.assessment
+        stored_severity = (
+            assessment.severity.value if assessment is not None else issue.severity
+        )
         cursor.execute(
             """
             INSERT INTO issues (
                 inspection_id, severity, rule_code, title, description,
-                evidence, impact, ai_recommendation, category, status
+                evidence, impact, impact_reason, likelihood, likelihood_reason,
+                severity_reason, ai_recommendation, category, status
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '미조치')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '미조치')
             """,
             (
                 inspection_id,
-                issue.severity,
+                stored_severity,
                 issue.rule_code,
                 issue.title,
                 issue.description,
                 evidence,
-                None,
+                assessment.impact.value if assessment is not None else None,
+                assessment.impact_reason if assessment is not None else None,
+                assessment.likelihood.value if assessment is not None else None,
+                assessment.likelihood_reason if assessment is not None else None,
+                assessment.severity_reason if assessment is not None else None,
                 issue.recommendation,
                 issue.category,
             ),
@@ -116,7 +125,8 @@ def get_issues_for_inspection(inspection_id: int):
     rows = connection.execute(
         """
         SELECT id, inspection_id, severity, rule_code, title, description,
-               evidence, impact, ai_recommendation, category, status
+               evidence, impact, impact_reason, likelihood, likelihood_reason,
+               severity_reason, ai_recommendation, category, status
         FROM issues
         WHERE inspection_id = ?
         ORDER BY
