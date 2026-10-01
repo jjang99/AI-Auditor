@@ -111,6 +111,29 @@ def test_xlsx_parser_extracts_multiple_sheets(tmp_path: Path):
     assert result.metadata["sheet_count"] == 2
     assert "REQ-001 | 로그인 기능" in result.text
     assert "CHG-001 | 로그인 정책 변경" in result.text
+
+
+def test_xlsx_parser_preserves_empty_cell_positions(tmp_path: Path):
+    file_path = tmp_path / "positions.xlsx"
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "요구사항"
+    worksheet.append(["요구사항 ID", "요구사항명", "화면 ID", "프로그램 ID"])
+    worksheet.append(["REQ-001", "로그인 기능", None, "PRG-001"])
+    workbook.save(file_path)
+    workbook.close()
+
+    result = parse_document(file_path)
+    data_block = result.blocks[1]
+
+    assert data_block.text == "REQ-001 | 로그인 기능 | PRG-001"
+    assert data_block.metadata["cell_values"] == (
+        "REQ-001",
+        "로그인 기능",
+        "",
+        "PRG-001",
+    )
 def test_pptx_parser_extracts_slide_text_and_table(tmp_path: Path):
     file_path = tmp_path / "sample.pptx"
 
