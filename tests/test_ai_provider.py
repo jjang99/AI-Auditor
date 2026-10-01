@@ -420,3 +420,38 @@ def test_req_018_skips_provider_when_no_missing_candidates():
     assert results[0].findings == ()
     assert results[0].execution_type == "Hybrid"
     assert provider.received_contexts == []
+
+
+def test_req_018_confirmed_missing_trace_becomes_finding_without_ai():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="요구사항 | 요구사항ID | 요구사항명 | 유스케이스ID | 유스케이스명 | 화면ID | 화면명 | 인터페이스ID | 프로그램ID | 프로그램명 | 테이블ID | 통합테스트 시나리오ID",
+                sheet="SFR_기능",
+                location="SFR_기능 / 행 3",
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="SFR-999 | SFR-999-AD-01 | 로그인 기능 | UC-999 | 로그인 | UI-999 | 로그인화면 | N/A | PRG-999 | 로그인처리 | TB_USER | ",
+                sheet="SFR_기능",
+                location="SFR_기능 / 행 4",
+            ),
+        ),
+    )
+    provider = FakeAIProvider()
+    req_018_rule = next(
+        rule for rule in get_document_mvp_rules()
+        if rule.code == "REQ-018"
+    )
+    engine = DocumentHybridEngine((req_018_rule,), provider)
+
+    result = engine.inspect_document(document)[0]
+
+    assert len(result.findings) == 1
+    assert "통합테스트" in result.findings[0]
+    assert "SFR-999" in result.findings[0]
+    assert result.raw_response == ""
+    assert provider.received_contexts == []
