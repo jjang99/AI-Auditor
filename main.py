@@ -3,7 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from app.database.database import initialize_database
-from app.services.local_ai_runtime import LocalAIRuntimeManager
+from app.services.local_ai_runtime import get_local_ai_runtime
 from ui.main_window import MainWindow
 from ui.inspection_page import InspectionPage
 from ui.inspection_rule_ui_patch import apply_inspection_rule_ui_patch
@@ -16,7 +16,7 @@ apply_inspection_visual_polish(InspectionPage)
 
 app = QApplication(sys.argv)
 
-local_ai_runtime = LocalAIRuntimeManager()
+local_ai_runtime = get_local_ai_runtime()
 app.aboutToQuit.connect(local_ai_runtime.stop)
 
 window = MainWindow()
