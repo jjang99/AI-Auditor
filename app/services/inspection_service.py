@@ -2,6 +2,7 @@ from pathlib import Path
 
 from app.database.repositories.inspection_repository import save_inspection_result
 from app.parsers import get_supported_extensions, parse_document
+from app.parsers.models import DocumentBlock, ParsedDocument
 from rules.core.engine import RuleEngine
 from rules.definitions.default_rules import get_default_rules
 from rules.core.document_result_adapter import (
@@ -135,6 +136,40 @@ class InspectionService:
                             result,
                             document,
                             rule,
+                        )
+                    )
+
+            # AUD-024는 원문 전체가 아니라 앞 단계에서 실제로 확인된
+            # 개별 지적사항만 종합하여 마지막에 실행한다.
+            audit_rule = rule_by_code.get("AUD-024")
+            if audit_rule is not None and all_issues:
+                audit_evidence = tuple(
+                    DocumentBlock(
+                        block_type="inspection_finding",
+                        text=(
+                            f"{issue.rule_code} | {issue.rule_name} | "
+                            f"{issue.evidence}"
+                        ),
+                    )
+                    for issue in all_issues
+                    if issue.rule_code != "AUD-024"
+                )
+                if audit_evidence:
+                    audit_document = ParsedDocument(
+                        file_path=Path("inspection_findings.txt"),
+                        file_type="inspection_findings",
+                        blocks=audit_evidence,
+                        metadata={"source": "inspection_results"},
+                    )
+                    audit_result = self.ai_provider.inspect(
+                        audit_document,
+                        audit_rule,
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            audit_result,
+                            audit_document,
+                            audit_rule,
                         )
                     )
 
