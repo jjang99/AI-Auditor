@@ -500,6 +500,62 @@ def test_comparison_ai_rules_receive_requirement_rows_only():
         assert all("일반 설명" not in item for item in context.evidence)
 
 
+def test_xlsx_comparison_evidence_uses_requirement_columns_only():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="요구사항 ID | 요구사항명 | 화면 ID | 프로그램 ID",
+                sheet="요구사항",
+                metadata={
+                    "cell_values": (
+                        "요구사항 ID",
+                        "요구사항명",
+                        "화면 ID",
+                        "프로그램 ID",
+                    ),
+                },
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="REQ-001 | 로그인 기능 | UI-001 | PRG-001",
+                sheet="요구사항",
+                metadata={
+                    "cell_values": (
+                        "REQ-001",
+                        "로그인 기능",
+                        "UI-001",
+                        "PRG-001",
+                    ),
+                },
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="REQ-002 | 사용자 조회 | UI-002 | PRG-002",
+                sheet="요구사항",
+                metadata={
+                    "cell_values": (
+                        "REQ-002",
+                        "사용자 조회",
+                        "UI-002",
+                        "PRG-002",
+                    ),
+                },
+            ),
+        ),
+    )
+
+    evidence = DocumentAIEngine._build_requirement_comparison_evidence(document)
+
+    assert evidence == (
+        "REQ-001 | 로그인 기능",
+        "REQ-002 | 사용자 조회",
+    )
+    assert all("UI-" not in item and "PRG-" not in item for item in evidence)
+
+
 def test_comparison_ai_rule_skips_provider_when_fewer_than_two_requirements():
     document = ParsedDocument(
         file_path=Path("요구사항추적표.xlsx"),
