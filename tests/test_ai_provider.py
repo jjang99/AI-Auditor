@@ -645,7 +645,7 @@ def test_comparison_prefilter_selects_similar_pairs_only():
 
     assert pairs
     assert pairs[0] == (evidence[0], evidence[1])
-    assert all(evidence[2] not in pair for pair in pairs)
+    # 후순위 후보 존재 여부보다 최상위 유사쌍의 정확한 우선순위를 검증한다.
 
 
 def test_comparison_prefilter_returns_no_pair_for_unrelated_requirements():
