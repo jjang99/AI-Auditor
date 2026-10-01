@@ -51,6 +51,12 @@ class LlamaCppAIProvider(BaseAIProvider):
 
         evidence_text = "\n".join(f"- {item}" for item in evidence) or "- 없음"
 
+        # Hybrid 사전근거가 있으면 선별된 근거를 AI의 주 판단대상으로 사용한다.
+        # 대용량 문서 전체를 함께 전달하면 저사양 로컬 환경에서 불필요한 지연과
+        # timeout이 발생할 수 있으므로 중복 전달하지 않는다.
+        inspection_text = evidence_text if evidence else document_text
+        inspection_label = "선별 문서근거" if evidence else "문서"
+
         return (
             "당신은 정보시스템 프로젝트 품질점검 보조 AI입니다.\n"
             "제공된 문서와 검사기준만 근거로 판단하세요. 입력에 없는 사실은 만들지 마세요.\n"
@@ -65,7 +71,7 @@ class LlamaCppAIProvider(BaseAIProvider):
             f"[검사설명] {rule.description}\n"
             f"[체크포인트] {'; '.join(rule.check_points)}\n"
             f"[Rule/Hybrid 사전근거]\n{evidence_text}\n\n"
-            f"[문서]\n{document_text}\n\n"
+            f"[{inspection_label}]\n{inspection_text}\n\n"
             '{"findings":["구체적인 위반 내용과 문서 근거를 작성"]}'
         )
 
