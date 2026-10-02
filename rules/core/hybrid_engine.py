@@ -197,6 +197,12 @@ class DocumentHybridEngine:
             ):
                 continue
 
+            # 통합 행이 상세 추적을 별도 SFR 시트로 위임한 경우,
+            # 현재 행의 빈 추적열을 누락으로 확정하지 않는다.
+            # 참조된 상세 시트는 문서의 다른 행으로 별도 검사된다.
+            if any("시트" in value and "참고" in value for value in columns):
+                continue
+
             missing = []
             for label, index in trace_columns.items():
                 value = columns[index].strip() if index < len(columns) else ""
