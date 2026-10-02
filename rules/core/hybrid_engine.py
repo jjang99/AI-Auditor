@@ -278,10 +278,13 @@ class DocumentHybridEngine:
     def inspect_document(
         self,
         document: ParsedDocument,
+        skip_rule_codes: frozenset[str] = frozenset(),
     ) -> tuple[AIInspectionResult, ...]:
         results: list[AIInspectionResult] = []
 
         for rule in self.rules:
+            if rule.code in skip_rule_codes:
+                continue
             context = self.build_context(
                 document,
                 rule,
