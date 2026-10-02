@@ -1010,3 +1010,39 @@ def test_comparison_prefilter_returns_no_pair_for_unrelated_requirements():
     pairs = DocumentAIEngine._build_comparison_pairs(evidence, rule_code="REQ-002")
 
     assert pairs == ()
+
+
+class ChangeComparisonProvider(LlamaCppAIProvider):
+    def __init__(self):
+        super().__init__()
+        self.prompts = []
+
+    def _complete(self, prompt, response_format=None):
+        self.prompts.append(prompt)
+        return '{"findings":["기능 조건이 변경되었습니다."]}'
+
+
+def test_change_comparison_uses_diff_candidates_instead_of_whole_documents():
+    from pathlib import Path
+    from app.parsers.models import DocumentBlock, ParsedDocument
+    from rules.definitions.document_mvp_rules import get_document_mvp_rules
+
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-001")
+    document = ParsedDocument(
+        file_path=Path("요구사항_v1.1.hwp"),
+        file_type="version_comparison",
+        blocks=(
+            DocumentBlock(block_type="previous_document", text="[이전 내용]\n로그인 실패 5회 제한\n공통 내용"),
+            DocumentBlock(block_type="current_document", text="[현재 내용]\n로그인 실패 3회 제한\n공통 내용"),
+        ),
+        metadata={"previous_file": "요구사항.hwp", "current_file": "요구사항_v1.1.hwp"},
+    )
+
+    provider = ChangeComparisonProvider()
+    result = provider.inspect(document, rule)
+
+    assert result.findings == ("기능 조건이 변경되었습니다.",)
+    assert len(provider.prompts) == 1
+    assert "로그인 실패 5회 제한" in provider.prompts[0]
+    assert "로그인 실패 3회 제한" in provider.prompts[0]
+    assert "공통 내용" not in provider.prompts[0]
