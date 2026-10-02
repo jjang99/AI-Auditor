@@ -1,3 +1,4 @@
+from pathlib import Path
 from docx import Document
 
 from app.services.inspection_service import InspectionService
@@ -90,3 +91,40 @@ def test_single_document_change_rules_require_comparison_context(tmp_path):
     assert "CHG-006" not in provider.calls
     assert "CHG-018" not in provider.calls
     assert not any(issue.rule_code.startswith("CHG-") for issue in summary.issues)
+
+
+def test_find_version_pairs_requires_same_artifact_family():
+    from app.parsers.models import ParsedDocument
+    from app.services.inspection_service import _find_version_pairs
+
+    def parsed(name):
+        return ParsedDocument(
+            file_path=Path(name),
+            file_type="hwp",
+            blocks=(),
+        )
+
+    pairs = _find_version_pairs(
+        (
+            parsed("요구사항기술서.hwp"),
+            parsed("요구사항기술서_v1.1.hwp"),
+            parsed("테스트계획서.hwp"),
+        )
+    )
+
+    assert len(pairs) == 1
+    previous, current = pairs[0]
+    assert previous.file_path.name == "요구사항기술서.hwp"
+    assert current.file_path.name == "요구사항기술서_v1.1.hwp"
+
+
+def test_find_version_pairs_does_not_pair_unrelated_documents():
+    from app.parsers.models import ParsedDocument
+    from app.services.inspection_service import _find_version_pairs
+
+    documents = (
+        ParsedDocument(file_path=Path("요구사항기술서.hwp"), file_type="hwp", blocks=()),
+        ParsedDocument(file_path=Path("테스트계획서.hwp"), file_type="hwp", blocks=()),
+    )
+
+    assert _find_version_pairs(documents) == ()
