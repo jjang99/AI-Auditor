@@ -225,8 +225,21 @@ class DocumentHybridEngine:
             for label, index in trace_columns.items():
                 value = columns[index].strip() if index < len(columns) else ""
                 normalized_value = re.sub(r"[.\\s/]", "", value).upper()
-                # N/A 계열 표기와 다른 시트 참조는 명시적인 비적용/추적 근거로 본다.
-                if normalized_value == "NA" or ("시트" in value and "참고" in value):
+                companion_value = (
+                    columns[index + 1].strip()
+                    if label in {"화면", "프로그램"} and index + 1 < len(columns)
+                    else ""
+                )
+                normalized_companion = re.sub(
+                    r"[.\\s/]", "", companion_value
+                ).upper()
+                # ID/명칭 쌍 중 어느 한쪽이 N/A이면 해당 추적항목을 비적용으로 본다.
+                if (
+                    normalized_value == "NA"
+                    or normalized_companion == "NA"
+                    or ("시트" in value and "참고" in value)
+                    or ("시트" in companion_value and "참고" in companion_value)
+                ):
                     continue
                 if not value:
                     missing.append(label)
