@@ -54,3 +54,39 @@ def test_parse_documents_ignores_existing_text_files(tmp_path):
     parsed_documents = service.parse_documents([text_path])
 
     assert parsed_documents == []
+
+def test_single_document_change_rules_require_comparison_context(tmp_path):
+    from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
+    from rules.definitions.document_mvp_rules import get_document_mvp_rules
+
+    class RecordingProvider(BaseAIProvider):
+        def __init__(self):
+            self.calls = []
+
+        def inspect(self, document, rule, context=None):
+            self.calls.append(rule.code)
+            return AIInspectionResult(
+                rule_code=rule.code,
+                findings=(),
+                raw_response="",
+                provider_name=self.__class__.__name__,
+            )
+
+    document_path = tmp_path / "current.docx"
+    document = Document()
+    document.add_paragraph("변경된 화면과 시험 항목을 확인한다.")
+    document.save(document_path)
+
+    provider = RecordingProvider()
+    service = InspectionService(
+        rules=get_document_mvp_rules(),
+        ai_provider=provider,
+    )
+
+    _inspection_id, summary = service.run([document_path])
+
+    assert "CHG-001" not in provider.calls
+    assert "CHG-012" not in provider.calls
+    assert "CHG-006" not in provider.calls
+    assert "CHG-018" not in provider.calls
+    assert not any(issue.rule_code.startswith("CHG-") for issue in summary.issues)
