@@ -460,6 +460,27 @@ def test_req_018_confirmed_missing_trace_becomes_finding_without_ai():
     assert provider.received_contexts == []
 
 
+
+def test_req_018_does_not_flag_nonfunctional_or_na_trace_values():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(block_type="sheet_row", text="요구사항 | 요구사항ID | 요구사항명 | 유스케이스ID | 화면ID | 프로그램ID | 테이블ID | 통합테스트 시나리오ID", sheet="비기능", location="비기능 / 행 3"),
+            DocumentBlock(block_type="sheet_row", text="SER-002 | SER-002-CT-01 | 보안 준수 | N/A |  |  |  | ", sheet="비기능", location="비기능 / 행 4"),
+            DocumentBlock(block_type="sheet_row", text="요구사항 | 요구사항ID | 요구사항명 | 유스케이스ID | 화면ID | 프로그램ID | 테이블ID | 통합테스트 시나리오ID", sheet="SFR_기능", location="SFR_기능 / 행 3"),
+            DocumentBlock(block_type="sheet_row", text="SFR-001 | SFR-001-AD-01 | 로그인 | UC-01 | UI-01 | PRG-01 | TB_USER | N/A", sheet="SFR_기능", location="SFR_기능 / 행 4"),
+        ),
+    )
+    provider = FakeAIProvider()
+    req_018_rule = next(rule for rule in get_document_mvp_rules() if rule.code == "REQ-018")
+    engine = DocumentHybridEngine((req_018_rule,), provider)
+
+    result = engine.inspect_document(document)[0]
+
+    assert result.findings == ()
+    assert provider.received_contexts == []
+
 def test_ai_engine_defers_aud_024_from_raw_document_loop():
     document = ParsedDocument(
         file_path=Path("요구사항정의서.docx"),
