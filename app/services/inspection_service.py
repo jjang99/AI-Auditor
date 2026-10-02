@@ -288,10 +288,14 @@ class InspectionService:
                 if synthesis_rule is None:
                     continue
 
+                source_codes = (
+                    {"CHG-001"}
+                    if synthesis_code == "CHG-006"
+                    else {"CHG-001", "CHG-006", "CHG-012"}
+                )
                 source_issues = tuple(
                     issue for issue in all_issues
-                    if issue.rule_code.startswith("CHG-")
-                    and issue.rule_code != synthesis_code
+                    if issue.rule_code in source_codes
                 )
                 if not source_issues:
                     continue
