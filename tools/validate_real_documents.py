@@ -14,7 +14,7 @@ from app.services.local_ai_runtime import get_local_ai_runtime
 from rules.core.ai_provider import AIInspectionResult
 from rules.core.inspection_engine import DocumentInspectionEngine
 from rules.core.models import DocumentRuleIssue, RuleIssue
-from rules.core.severity import calculate_issue_severity
+from rules.core.severity import calculate_severity
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
 from rules.providers.local_ai_issue_assessor import LocalAIIssueAssessor
 from rules.providers.local_ai_provider import LlamaCppAIProvider, LocalAISettings
@@ -109,7 +109,7 @@ def main():
             for issue, assessment in zip(all_issues, assessments):
                 if assessment is None:
                     continue
-                severity = calculate_issue_severity(assessment.impact, assessment.likelihood)
+                severity = calculate_severity(assessment.impact, assessment.likelihood)
                 print(
                     f"  {issue.rule_code}: Impact={assessment.impact.value}, "
                     f"Likelihood={assessment.likelihood.value}, Severity={severity.value}"
