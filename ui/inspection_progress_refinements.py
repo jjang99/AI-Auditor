@@ -6,11 +6,11 @@ from PySide6.QtWidgets import (
 )
 
 DARK_INSPECTION_PROGRESS = r'''
-#inspectionProgressDescription { color:#e2e8f0; font-size:11px; font-weight:650; }
+#inspectionProgressDescription { color:#e2e8f0; font-size:14px; font-weight:650; }
 #inspectionProgressPercent { color:#60a5fa; font-size:31px; font-weight:800; }
 QProgressBar#inspectionProgressBar { background:#2b3b4b; border:none; border-radius:9px; }
 QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9px; }
-#inspectionCancelButton { color:#ffffff; background:#dc2626; border:1px solid #f87171; border-radius:7px; font-size:13px; font-weight:900; }
+#inspectionCancelButton { color:#ffffff; background:#dc2626; border:1px solid #f87171; border-radius:7px; font-size:16px; font-weight:900; }
 #inspectionCancelButton:hover { background:#ef4444; border-color:#fca5a5; }
 #inspectionProgressInfoBox { background:#0d1721; border:1px solid #465669; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#d1d9e3; font-size:11px; font-weight:700; }
@@ -28,11 +28,11 @@ QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9p
 '''
 
 LIGHT_INSPECTION_PROGRESS = r'''
-#inspectionProgressDescription { color:#334155; font-size:11px; font-weight:650; }
+#inspectionProgressDescription { color:#334155; font-size:14px; font-weight:650; }
 #inspectionProgressPercent { color:#2563eb; font-size:31px; font-weight:800; }
 QProgressBar#inspectionProgressBar { background:#d6dee8; border:none; border-radius:9px; }
 QProgressBar#inspectionProgressBar::chunk { background:#3b82f6; border-radius:9px; }
-#inspectionCancelButton { color:#ffffff; background:#dc2626; border:1px solid #b91c1c; border-radius:7px; font-size:13px; font-weight:900; }
+#inspectionCancelButton { color:#ffffff; background:#dc2626; border:1px solid #b91c1c; border-radius:7px; font-size:16px; font-weight:900; }
 #inspectionCancelButton:hover { background:#b91c1c; border-color:#991b1b; }
 #inspectionProgressInfoBox { background:#f8fafc; border:1px solid #aebccc; border-radius:7px; }
 #inspectionProgressInfoTitle { color:#334155; font-size:11px; font-weight:700; }
