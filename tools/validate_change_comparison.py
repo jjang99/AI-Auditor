@@ -23,7 +23,7 @@ def main():
     paths = tuple(Path(arg) for arg in sys.argv[1:])
     rules = tuple(
         rule for rule in get_document_mvp_rules()
-        if rule.code == "CHG-001"
+        if rule.code in {"CHG-001", "CHG-006"}
     )
 
     runtime = get_local_ai_runtime()
@@ -45,12 +45,15 @@ def main():
 
         started = time.perf_counter()
         _inspection_id, summary = service.run(paths)
-        issues = tuple(issue for issue in summary.issues if issue.rule_code == "CHG-001")
-
-        print(f"[CHG-001 ISSUES] {len(issues)}")
-        for index, issue in enumerate(issues, 1):
-            print(f"  [{index}] {issue.description}")
-            print(f"      evidence: {issue.evidence}")
+        for rule_code in ("CHG-001", "CHG-006"):
+            issues = tuple(
+                issue for issue in summary.issues
+                if issue.rule_code == rule_code
+            )
+            print(f"[{rule_code} ISSUES] {len(issues)}")
+            for index, issue in enumerate(issues, 1):
+                print(f"  [{index}] {issue.description}")
+                print(f"      evidence: {issue.evidence}")
         print(f"[ELAPSED] {time.perf_counter() - started:.2f}s")
     finally:
         runtime.stop()
