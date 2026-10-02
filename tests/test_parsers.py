@@ -369,3 +369,36 @@ def test_ppt_parser_converts_and_extracts_text(tmp_path, monkeypatch):
     assert "AI Auditor PPT 테스트" in result.text
     assert "REQ-001" in result.text
     assert "로그인 기능" in result.text
+
+def test_hwp_parser_skips_inline_control_payload():
+    parser = HwpParser()
+
+    def control(code: int, payload: str) -> bytes:
+        payload_bytes = payload.encode("utf-16le")
+        payload_bytes = payload_bytes[:12].ljust(12, b"\\x00")
+        return (
+            code.to_bytes(2, "little")
+            + payload_bytes
+            + code.to_bytes(2, "little")
+        )
+
+    paragraph_data = (
+        "문서번호 : ".encode("utf-16le")
+        + control(0x0002, "浲╳")
+        + "SAIF3-AD-R0403-01 ".encode("utf-16le")
+        + control(0x0002, "浲ࡳ")
+    )
+
+    assert parser._clean_paragraph_text(paragraph_data) == (
+        "문서번호 : SAIF3-AD-R0403-01"
+    )
+
+
+def test_hwp_parser_preserves_normal_hanja():
+    parser = HwpParser()
+
+    paragraph_data = "행정(行政) 요구사항 SFR-001".encode("utf-16le")
+
+    assert parser._clean_paragraph_text(paragraph_data) == (
+        "행정(行政) 요구사항 SFR-001"
+    )
