@@ -160,6 +160,12 @@ class DocumentHybridEngine:
             if not text:
                 continue
 
+            # 비기능 요구사항은 화면/프로그램/테이블 등이 본질적으로
+            # 적용되지 않을 수 있으므로 기능 추적열의 구조적 누락으로 확정하지 않는다.
+            sheet_name = (block.sheet or "").replace(" ", "").lower()
+            if "비기능" in sheet_name:
+                continue
+
             columns = [value.strip() for value in text.split("|")]
             normalized = [value.lower().replace(" ", "") for value in columns]
 
@@ -189,7 +195,8 @@ class DocumentHybridEngine:
             missing = []
             for label, index in trace_columns.items():
                 value = columns[index].strip() if index < len(columns) else ""
-                if not value or value.upper() == "N/A":
+                # N/A는 명시적인 비적용 값이므로 누락으로 보지 않는다.
+                if not value:
                     missing.append(label)
 
             if not missing:
