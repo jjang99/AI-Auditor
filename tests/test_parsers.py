@@ -402,3 +402,35 @@ def test_hwp_parser_preserves_normal_hanja():
     assert parser._clean_paragraph_text(paragraph_data) == (
         "행정(行政) 요구사항 SFR-001"
     )
+
+
+@pytest.mark.parametrize(
+    "control_code",
+    (
+        0x0009,  # 탭 (inline)
+        0x0012,  # 자동번호 (extended)
+        0x0013,  # 예약 (inline)
+        0x0014,  # 예약 (inline)
+        0x0015,  # 페이지 컨트롤 (extended)
+        0x0016,  # 책갈피/찾아보기 표식 (extended)
+        0x0017,  # 덧말/글자 겹침 (extended)
+    ),
+)
+def test_hwp_parser_skips_all_eight_unit_controls(control_code):
+    parser = HwpParser()
+
+    payload = (
+        control_code.to_bytes(2, "little")
+        + "錌ȃABCD".encode("utf-16le")[:12]
+        + control_code.to_bytes(2, "little")
+    )
+
+    paragraph_data = (
+        "2.1. SFR-001-AD-01 ".encode("utf-16le")
+        + payload
+        + " 5".encode("utf-16le")
+    )
+
+    assert parser._clean_paragraph_text(paragraph_data) == (
+        "2.1. SFR-001-AD-01 5"
+    )
