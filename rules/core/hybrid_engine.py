@@ -200,7 +200,10 @@ class DocumentHybridEngine:
             missing = []
             for label, index in trace_columns.items():
                 value = columns[index].strip() if index < len(columns) else ""
-                # N/A는 명시적인 비적용 값이므로 누락으로 보지 않는다.
+                normalized_value = re.sub(r"[.\\s/]", "", value).upper()
+                # N/A 계열 표기와 다른 시트 참조는 명시적인 비적용/추적 근거로 본다.
+                if normalized_value == "NA" or ("시트" in value and "참고" in value):
+                    continue
                 if not value:
                     missing.append(label)
 
