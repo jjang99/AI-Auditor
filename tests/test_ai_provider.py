@@ -540,6 +540,35 @@ def test_req_018_defers_parent_row_when_trace_is_delegated_to_detail_sheet():
     assert result.findings == ()
     assert provider.received_contexts == []
 
+
+def test_req_018_prefers_id_column_over_name_column():
+    document = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="요구사항 | 요구사항ID | 요구사항명 | 유스케이스ID | 유스케이스명 | 화면ID | 화면명 | 프로그램명 | 프로그램ID | 테이블ID | 통합테스트",
+                sheet="기능",
+                location="기능 / 행 3",
+                metadata={"cell_values": ("요구사항", "요구사항ID", "요구사항명", "유스케이스ID", "유스케이스명", "화면ID", "화면명", "프로그램명", "프로그램ID", "테이블ID", "통합테스트")},
+            ),
+            DocumentBlock(
+                block_type="sheet_row",
+                text="SFR-007 | SFR-007-AD-04 | 정산 | UC-01 | 정산 | UI-01 | 정산화면 | N/A | N/A | TB-01 | ITS-01",
+                sheet="기능",
+                location="기능 / 행 4",
+                metadata={"cell_values": ("SFR-007", "SFR-007-AD-04", "정산", "UC-01", "정산", "UI-01", "정산화면", "N/A", "N/A", "TB-01", "ITS-01")},
+            ),
+        ),
+    )
+    provider = FakeAIProvider()
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "REQ-018")
+
+    result = DocumentHybridEngine((rule,), provider).inspect_document(document)[0]
+
+    assert result.findings == ()
+
 def test_ai_engine_defers_aud_024_from_raw_document_loop():
     document = ParsedDocument(
         file_path=Path("요구사항정의서.docx"),
