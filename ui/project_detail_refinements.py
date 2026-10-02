@@ -265,10 +265,17 @@ def _make_issue_detail_scrollable(detail_card):
 
     scroll.setWidget(content)
 
-    # The card keeps 12px padding for its fixed title. Let only the scrolling
-    # detail region reach the card edges, matching the Issues list scrollbar.
-    scroll.setContentsMargins(-12, 0, -12, -12)
-    content_layout.setContentsMargins(12, 4, 12, 12)
+    # Match the Issues card structure: the outer card has no side padding,
+    # while the fixed title and the scroll content own their own padding.
+    # This lets the vertical scrollbar sit directly on the card's right edge.
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(0)
+    title = layout.itemAt(0).widget()
+    if title is not None:
+        title.setContentsMargins(12, 12, 12, 6)
+        title.setMinimumHeight(38)
+    content_layout.setContentsMargins(12, 4, 10, 12)
+    scroll.setContentsMargins(0, 0, 0, 0)
     layout.addWidget(scroll, 1)
 
 
