@@ -5,6 +5,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QAbstractScrollArea,
     QFrame,
+    QLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -250,6 +251,9 @@ def _make_issue_detail_scrollable(detail_card):
     content_layout = QVBoxLayout(content)
     content_layout.setContentsMargins(0, 4, 0, 0)
     content_layout.setSpacing(6)
+    # Long wrapped labels must keep their calculated minimum height so the
+    # scroll area grows vertically instead of compressing/clipping the text.
+    content_layout.setSizeConstraint(QLayout.SetMinimumSize)
 
     for item in items:
         if item.widget() is not None:
