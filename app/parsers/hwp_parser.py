@@ -1,4 +1,3 @@
-import re
 import struct
 import zlib
 from pathlib import Path
@@ -180,26 +179,40 @@ class HwpParser(BaseDocumentParser):
     def _clean_paragraph_text(
         data: bytes,
     ) -> str:
-        text = data.decode(
-            "utf-16le",
-            errors="ignore",
-        )
+        # PARA_TEXT의 인라인 제어 payload가 일반 문자로
+        # 디코딩되어 깨진 문자열이 되지 않도록 먼저 건너뛴다.
+        units = [
+            struct.unpack_from("<H", data, offset)[0]
+            for offset in range(0, len(data) - 1, 2)
+        ]
 
-        # HWP 문단 내부 제어문자 제거
-        text = re.sub(
-            r"[\x00-\x1f]",
-            " ",
-            text,
-        )
+        inline_control_codes = {
+            0x0001, 0x0002, 0x0003, 0x0004,
+            0x0005, 0x0006, 0x0007, 0x0008,
+            0x000B, 0x000C,
+            0x000E, 0x000F, 0x0010, 0x0011,
+            0x0012, 0x0013, 0x0014, 0x0015,
+            0x0016, 0x0017,
+        }
 
-        # HWP 인라인 제어 데이터에서 발생하는
-        # 문단 앞쪽의 비정상 제어 데이터 제거
-        match = re.search(
-            r"[A-Za-z0-9가-힣]",
-            text,
-        )
+        characters: list[str] = []
+        index = 0
 
-        if match:
-            text = text[match.start():]
+        while index < len(units):
+            code = units[index]
 
-        return " ".join(text.split())
+            if code in inline_control_codes:
+                # 인라인 제어문자는 총 8 UTF-16 code unit이다.
+                index += 8
+                characters.append(" ")
+                continue
+
+            if code < 0x0020:
+                characters.append(" ")
+                index += 1
+                continue
+
+            characters.append(chr(code))
+            index += 1
+
+        return " ".join("".join(characters).split())
