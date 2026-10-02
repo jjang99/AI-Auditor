@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import datetime
 
 from PySide6.QtCore import QEvent, Qt
-from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QProgressBar, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QProgressBar, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from app.database.repositories.inspection_repository import (
     get_inspection_history,
@@ -283,13 +283,18 @@ def apply_project_detail_runtime(ProjectDetailPage):
         if len(cards) < 4:
             return
         card = cards[3]
-        layout = card.layout()
+
+        # Project Detail refinements create one persistent scroll area below the
+        # fixed "Issue Detail" title.  Keep that structure when runtime data is
+        # refreshed; clearing the card layout here would delete the scroll area.
+        scroll = card.findChild(QScrollArea, "detailContentScroll")
+        content = scroll.widget() if scroll is not None else None
+        layout = content.layout() if content is not None else None
         if layout is None:
             return
+
         _clear_layout(layout)
-        title = QLabel("Issue Detail")
-        title.setObjectName("detailBodyTitle")
-        layout.addWidget(title)
+
         if issue is None:
             empty = QLabel("선택할 Issue가 없습니다.\n이번 검사에서는 문제가 발견되지 않았습니다.")
             empty.setObjectName("detailTextBody")
@@ -302,20 +307,26 @@ def apply_project_detail_runtime(ProjectDetailPage):
         badge = QLabel(issue["severity"])
         badge.setObjectName(f"detailBadge_{issue['severity'].lower()}")
         badge.setFixedWidth(54)
+        badge.setFixedHeight(24)
         badge.setAlignment(Qt.AlignCenter)
         code = QLabel(issue["rule_code"])
         code.setObjectName("detailIssueDetailCode")
         status = QLabel(issue["status"])
         status.setObjectName("detailStatusResolved" if issue["status"] == "조치완료" else "detailStatusOpen")
+        status.setFixedWidth(48)
+        status.setMinimumHeight(24)
+        status.setAlignment(Qt.AlignCenter)
         header.addWidget(badge)
         header.addWidget(code)
         header.addStretch()
         header.addWidget(status)
         layout.addLayout(header)
+
         self.add_detail_section(layout, "제목", issue["title"] or "-")
         self.add_detail_section(layout, "설명", issue["description"] or "-")
         self.add_detail_section(layout, "근거", issue["evidence"] or "-")
         self.add_detail_section(layout, "영향", issue["impact"] or "분석 예정")
+
         ai_title = QLabel("AI 권고")
         ai_title.setObjectName("detailTextLabel")
         layout.addWidget(ai_title)
@@ -328,13 +339,18 @@ def apply_project_detail_runtime(ProjectDetailPage):
         ai_text.setWordWrap(True)
         ai_layout.addWidget(ai_text)
         layout.addWidget(ai_box)
-        layout.addStretch()
+
         category = QLabel(f"카테고리    {issue['category'] or '-'}")
         category.setObjectName("detailTagText")
         rule = QLabel(f"발견 기준    {issue['rule_code']}")
         rule.setObjectName("detailTagText")
         layout.addWidget(category)
         layout.addWidget(rule)
+        layout.addStretch()
+
+        # Wrapped labels recalculate their height after real DB text is set.
+        # The minimum-size layout then makes QScrollArea expose the full content.
+        content.adjustSize()
 
     ProjectDetailPage.__init__ = runtime_init
     original_event_filter = getattr(ProjectDetailPage, "eventFilter", None)
