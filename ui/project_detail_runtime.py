@@ -1,4 +1,5 @@
 from collections import Counter
+import re
 from datetime import datetime
 
 from PySide6.QtCore import QEvent, Qt
@@ -55,6 +56,16 @@ def _clear_layout(layout):
             widget.deleteLater()
         elif child_layout is not None:
             _clear_layout(child_layout)
+
+
+def _format_detail_text(value):
+    """Improve long issue evidence readability without changing its meaning."""
+    text = str(value or "-").strip()
+    text = re.sub(r"\s*\|\s*", "\n", text)
+    text = re.sub(r"(?<!\n)(근거:|위반사항:|위험:|권고:)", r"\n\1", text)
+    text = re.sub(r"(?<=[.!?])\s+(?=[가-힣A-Za-z0-9'\"])", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
 
 
 def apply_project_detail_runtime(ProjectDetailPage):
@@ -323,8 +334,8 @@ def apply_project_detail_runtime(ProjectDetailPage):
         layout.addLayout(header)
 
         self.add_detail_section(layout, "제목", issue["title"] or "-")
-        self.add_detail_section(layout, "설명", issue["description"] or "-")
-        self.add_detail_section(layout, "근거", issue["evidence"] or "-")
+        self.add_detail_section(layout, "설명", _format_detail_text(issue["description"]))
+        self.add_detail_section(layout, "근거", _format_detail_text(issue["evidence"]))
         self.add_detail_section(layout, "영향", issue["impact"] or "분석 예정")
 
         ai_title = QLabel("AI 권고")
