@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import sys
 import time
-from dataclasses import replace
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.parsers.parser_factory import parse_document
 from app.services.local_ai_runtime import get_local_ai_runtime
