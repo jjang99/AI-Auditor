@@ -93,23 +93,6 @@ def main():
             print(f"\n[DOCUMENT] {path}")
             print(f"[PARSER] type={document.file_type}, blocks={len(document.blocks)}")
             print(f"[RULES] {', '.join(rule.code for rule in rules)}")
-            if any(rule.code == "REQ-018" for rule in rules):
-                debug_ids = {"SFR-007", "SFR-012", "SFR-030"}
-                for block in document.blocks:
-                    cells = tuple(block.metadata.get("cell_values", ()))
-                    if not cells:
-                        continue
-                    values = tuple(str(value).strip() for value in cells)
-                    is_header = (
-                        any("요구사항ID" in value.replace(" ", "") for value in values)
-                        and any("통합테스트" in value.replace(" ", "") for value in values)
-                    )
-                    row_id = values[0] if values else ""
-                    if is_header or row_id in debug_ids:
-                        print(f"[REQ-018 DEBUG] {block.location or block.sheet}")
-                        for index, value in enumerate(values):
-                            print(f"  [{index:02d}] {value!r}")
-
             print(f"[ISSUES] {len(issues)}")
             for result in results:
                 if isinstance(result, AIInspectionResult):
