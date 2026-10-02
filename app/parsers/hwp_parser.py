@@ -1,3 +1,4 @@
+import re
 import struct
 import zlib
 from pathlib import Path
@@ -215,4 +216,4 @@ class HwpParser(BaseDocumentParser):
             characters.append(chr(code))
             index += 1
 
-        return " ".join("".join(characters).split())
+        text = " ".join("".join(characters).split())\n\n        # 기존 HWP prefix 정리 동작을 유지한다.\n        match = re.search(r"[A-Za-z0-9가-힣]", text)\n        if match:\n            text = text[match.start():]\n\n        return text
