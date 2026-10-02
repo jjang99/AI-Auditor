@@ -180,10 +180,28 @@ class DocumentHybridEngine:
             ):
                 trace_columns = {}
                 for label, aliases in required_groups.items():
-                    for index, value in enumerate(normalized):
-                        if any(alias in value for alias in aliases):
-                            trace_columns[label] = index
-                            break
+                    # "프로그램"이 "프로그램명"에 먼저 걸리는 식의 부분일치를 막고
+                    # ID 열을 우선 선택한다.
+                    exact_aliases = tuple(alias.replace(" ", "") for alias in aliases)
+                    matched_index = next(
+                        (
+                            index
+                            for index, value in enumerate(normalized)
+                            if value in exact_aliases
+                        ),
+                        None,
+                    )
+                    if matched_index is None:
+                        matched_index = next(
+                            (
+                                index
+                                for index, value in enumerate(normalized)
+                                if any(alias in value for alias in aliases)
+                            ),
+                            None,
+                        )
+                    if matched_index is not None:
+                        trace_columns[label] = matched_index
                 continue
 
             if not trace_columns:
