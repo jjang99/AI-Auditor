@@ -644,12 +644,12 @@ def test_xlsx_comparison_evidence_includes_explicit_detail_column():
     )
 
 
-def test_local_provider_req004_schema_extracts_comparable_constraints():
+def test_local_provider_req004_schema_requires_exact_conflict_pairs():
     class RecordingProvider(LlamaCppAIProvider):
         def _complete(self, prompt, response_format=None):
             self.recorded_prompt = prompt
             self.recorded_format = response_format
-            return '{"constraints":[]}'
+            return '{"groups":[]}'
 
     provider = RecordingProvider()
     groups = provider.build_requirement_conflict_groups((
@@ -658,49 +658,38 @@ def test_local_provider_req004_schema_extracts_comparable_constraints():
         "REQ-003 | 관리자 화면을 제공한다",
     ))
 
-    constraint_schema = (
-        provider.recorded_format["json_schema"]["schema"]["properties"]["constraints"]
-        ["items"]["properties"]
+    indexes_schema = (
+        provider.recorded_format["json_schema"]["schema"]["properties"]["groups"]
+        ["items"]["properties"]["indexes"]
     )
     assert groups == ()
-    assert set(constraint_schema) == {"index", "subject", "property"}
-    assert "명시적 제약" in provider.recorded_prompt
-    assert "단순 기능명은 제외" in provider.recorded_prompt
+    assert indexes_schema["minItems"] == 2
+    assert indexes_schema["maxItems"] == 2
+    assert indexes_schema["uniqueItems"] is True
+    assert "동일 대상/속성" in provider.recorded_prompt
+    assert "같은 업무 주제" in provider.recorded_prompt
 
 
-def test_local_provider_req004_compares_same_constraint_across_batches():
-    class CrossBatchProvider(LlamaCppAIProvider):
+def test_local_provider_req004_batches_with_overlap():
+    class BatchProvider(LlamaCppAIProvider):
         def __init__(self):
             super().__init__()
-            self.call_count = 0
+            self.calls = 0
 
         def _complete(self, prompt, response_format=None):
-            self.call_count += 1
-            if self.call_count == 1:
-                return (
-                    '{"constraints":['
-                    '{"index":0,"subject":"사용자 로그인","property":"응답시간"}'
-                    ']}'
-                )
-            return (
-                '{"constraints":['
-                '{"index":0,"subject":"사용자 로그인","property":"응답시간"}'
-                ']}'
-            )
+            self.calls += 1
+            return '{"groups":[]}'
 
-    evidence = tuple(
-        ["REQ-001 | 사용자 로그인 응답시간은 3초 이하여야 한다"]
-        + [f"REQ-{index:03d} | 일반 기능 {index}" for index in range(2, 13)]
-        + ["REQ-013 | 사용자 로그인 응답시간은 5초 이상이어야 한다"]
-    )
-    provider = CrossBatchProvider()
+    evidence = tuple(f"REQ-{index:03d} | 일반 기능 {index}" for index in range(1, 14))
+    provider = BatchProvider()
 
     groups = provider.build_requirement_conflict_groups(evidence)
 
-    assert provider.call_count == 2
-    assert groups == ((evidence[0], evidence[12]),)
+    assert groups == ()
+    assert provider.calls == 2
     assert provider.last_requirement_conflict_diagnostics["batch_count"] == 2
-    assert provider.last_requirement_conflict_diagnostics["valid_group_count"] == 1
+    assert provider.last_requirement_conflict_diagnostics["batches"][0]["start"] == 0
+    assert provider.last_requirement_conflict_diagnostics["batches"][1]["start"] == 11
 
 
 def test_req004_uses_provider_semantic_groups_for_conflict_inspection():
