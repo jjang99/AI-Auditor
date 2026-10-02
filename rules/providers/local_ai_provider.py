@@ -222,9 +222,22 @@ class LlamaCppAIProvider(BaseAIProvider):
 
         findings = []
         raw_responses = []
-        batch_size = 8
-        for start in range(0, len(candidates), batch_size):
-            batch = candidates[start:start + batch_size]
+        # 한 번에 더 많은 diff 후보를 처리하되 입력 길이를 제한해 호출 수를 줄인다.
+        batches = []
+        current_batch = []
+        current_chars = 0
+        for candidate in candidates:
+            candidate = candidate[:1200]
+            if current_batch and (len(current_batch) >= 16 or current_chars + len(candidate) > 7000):
+                batches.append(tuple(current_batch))
+                current_batch = []
+                current_chars = 0
+            current_batch.append(candidate)
+            current_chars += len(candidate)
+        if current_batch:
+            batches.append(tuple(current_batch))
+
+        for batch in batches:
             candidate_text = "\n".join(
                 f"{index + 1}. {item}" for index, item in enumerate(batch)
             )
@@ -244,9 +257,19 @@ class LlamaCppAIProvider(BaseAIProvider):
             raw_responses.append(raw)
             findings.extend(self._parse_findings(raw))
 
+        # 배치 경계에서 같은 변경이 반복 보고되는 것을 최소화한다.
+        unique_findings = []
+        seen_findings = set()
+        for finding in findings:
+            normalized = " ".join(finding.split()).rstrip(".")
+            if normalized in seen_findings:
+                continue
+            seen_findings.add(normalized)
+            unique_findings.append(finding)
+
         return AIInspectionResult(
             rule_code=rule.code,
-            findings=tuple(findings),
+            findings=tuple(unique_findings),
             raw_response="\n".join(raw_responses),
             provider_name=self.__class__.__name__,
         )
