@@ -26,9 +26,12 @@ DEFAULT_RULES = {
 }
 
 
-def select_rules(path: Path):
-    codes = DEFAULT_RULES.get(path.suffix.lower().lstrip("."), ())
+def select_rules(path: Path, requested_codes=()):
+    codes = requested_codes or DEFAULT_RULES.get(path.suffix.lower().lstrip("."), ())
     all_rules = {rule.code: rule for rule in get_document_mvp_rules()}
+    unknown_codes = [code for code in codes if code not in all_rules]
+    if unknown_codes:
+        raise ValueError(f"Unknown MVP rule code(s): {', '.join(unknown_codes)}")
     return tuple(all_rules[code] for code in codes)
 
 
@@ -68,6 +71,13 @@ def to_rule_issues(results):
 def main():
     parser = argparse.ArgumentParser(description="AI Auditor real-document MVP validation")
     parser.add_argument("documents", nargs="+", type=Path)
+    parser.add_argument(
+        "--rules",
+        nargs="+",
+        default=(),
+        metavar="RULE",
+        help="MVP rule code(s) to run instead of extension defaults (e.g. REQ-002 REQ-003)",
+    )
     args = parser.parse_args()
 
     runtime = get_local_ai_runtime()
@@ -80,7 +90,7 @@ def main():
         for path in args.documents:
             started = time.perf_counter()
             document = parse_document(path)
-            rules = select_rules(path)
+            rules = select_rules(path, tuple(args.rules))
             if not rules:
                 print(f"[SKIP] {path.name}: no representative validation rule")
                 continue
