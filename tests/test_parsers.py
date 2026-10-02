@@ -375,7 +375,7 @@ def test_hwp_parser_skips_inline_control_payload():
 
     def control(code: int, payload: str) -> bytes:
         payload_bytes = payload.encode("utf-16le")
-        payload_bytes = payload_bytes[:12].ljust(12, b"\\x00")
+        payload_bytes = payload_bytes[:12].ljust(12, bytes([0]))
         return (
             code.to_bytes(2, "little")
             + payload_bytes
