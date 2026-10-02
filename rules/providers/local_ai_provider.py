@@ -19,7 +19,7 @@ class LocalAISettings:
     min_p: float = 0.0
     seed: int = 42
     max_tokens: int = 512
-    timeout_seconds: float = 120.0
+    timeout_seconds: float = 300.0
 
 
 class LlamaCppAIProvider(BaseAIProvider):
