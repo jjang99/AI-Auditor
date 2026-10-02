@@ -166,7 +166,12 @@ class DocumentHybridEngine:
             if "비기능" in sheet_name:
                 continue
 
-            columns = [value.strip() for value in text.split("|")]
+            cell_values = tuple(block.metadata.get("cell_values", ()))
+            columns = (
+                [str(value).strip() for value in cell_values]
+                if cell_values
+                else [value.strip() for value in text.split("|")]
+            )
             normalized = [value.lower().replace(" ", "") for value in columns]
 
             if (
