@@ -59,10 +59,13 @@ class LlamaCppAIProvider(BaseAIProvider):
                 "당신은 요구사항 엔지니어링 분석기입니다. "
                 "아래 요구사항을 대상(entity), 행위/속성(action/property), 조건(condition), "
                 "효과/값(effect/value), 극성(polarity) 관점에서 분석하세요. "
-                "상충 여부 자체를 판정하지 말고, 동일하거나 직접 관련된 대상과 행위/속성을 가져 "
-                "서로 양립 가능성을 검토할 필요가 있는 요구사항만 같은 그룹으로 묶으세요. "
-                "단순히 같은 단어가 있다는 이유로 묶지 마세요. "
-                "각 그룹은 최소 2개 index를 포함하고, 관련 없는 요구사항은 제외하세요. "
+                "이 단계는 단순 관련성 그룹화가 아니라 상충 가능성이 텍스트에 직접 드러나는 "
+                "요구사항 쌍만 선별하는 단계입니다. "
+                "동일 대상/속성에 대해 서로 동시에 만족할 수 없는 값·범위·조건·상태·극성이 "
+                "확인되는 경우에만 한 쌍으로 반환하세요. "
+                "같은 업무 주제이거나 같은 단어를 사용한다는 이유만으로 묶지 마세요. "
+                "상충 근거가 명확하지 않은 요구사항은 제외하세요. "
+                "각 그룹은 정확히 2개 index만 포함하세요. "
                 "JSON 객체 하나만 출력하세요.\n\n"
                 f"{numbered}"
             )
@@ -83,6 +86,8 @@ class LlamaCppAIProvider(BaseAIProvider):
                                             "type": "array",
                                             "items": {"type": "integer"},
                                             "minItems": 2,
+                                            "maxItems": 2,
+                                            "uniqueItems": True,
                                         }
                                     },
                                     "required": ["indexes"],
