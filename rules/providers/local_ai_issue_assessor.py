@@ -42,7 +42,7 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
     def assess_many(
         self,
         issues: tuple[RuleIssue, ...],
-        batch_size: int = 8,
+        batch_size: int = 2,
     ) -> tuple[IssueAssessment | None, ...]:
         """여러 Issue를 소규모 배치로 평가해 로컬 AI 호출 횟수를 줄인다."""
         if not issues:
