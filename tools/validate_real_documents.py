@@ -105,7 +105,7 @@ def main():
 
         if all_issues:
             print(f"\n[ASSESSMENT] batch Impact/Likelihood for {len(all_issues)} issue(s)")
-            assessments = assessor.assess_many(tuple(all_issues), batch_size=8)
+            assessments = assessor.assess_many(tuple(all_issues), batch_size=2)
             for issue, assessment in zip(all_issues, assessments):
                 if assessment is None:
                     continue
