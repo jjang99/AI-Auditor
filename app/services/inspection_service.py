@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 from app.database.repositories.inspection_repository import save_inspection_result
 from app.parsers import get_supported_extensions, parse_document
@@ -25,6 +26,50 @@ SUPPORTED_TEXT_EXTENSIONS = {
 }
 
 SUPPORTED_DOCUMENT_EXTENSIONS = set(get_supported_extensions())
+
+_VERSION_SUFFIX_RE = re.compile(
+    r"(?i)(?:[_\- ](?:v|ver)?\d+(?:\.\d+)*|[_\- ]\d{6,8})$"
+)
+
+
+def _artifact_family(path: Path) -> str:
+    """Return a conservative family key for explicit versioned artifacts."""
+    return _VERSION_SUFFIX_RE.sub("", path.stem).strip().lower()
+
+
+def _version_rank(path: Path):
+    stem = path.stem
+    version = re.search(r"(?i)(?:^|[_\- ])(?:v|ver)?(\d+(?:\.\d+)*)$", stem)
+    if version:
+        return (2, tuple(int(part) for part in version.group(1).split(".")))
+    dated = re.search(r"(?:^|[_\- ])(\d{6,8})$", stem)
+    if dated:
+        return (1, (int(dated.group(1)),))
+    return (0, ())
+
+
+def _find_version_pairs(documents):
+    """Pair only same-type artifacts where at least one filename has a version marker."""
+    groups = {}
+    for document in documents:
+        key = (document.file_type, _artifact_family(document.file_path))
+        groups.setdefault(key, []).append(document)
+
+    pairs = []
+    for group in groups.values():
+        if len(group) < 2:
+            continue
+        ranked = sorted(group, key=lambda doc: _version_rank(doc.file_path))
+        if not any(_version_rank(doc.file_path)[0] > 0 for doc in ranked):
+            continue
+        pairs.append((ranked[-2], ranked[-1]))
+    return tuple(pairs)
+
+
+def _is_test_document(document: ParsedDocument) -> bool:
+    name = document.file_path.stem.lower()
+    return any(term in name for term in ("테스트", "시험", "test", "시나리오", "결과"))
+
 
 class InspectionService:
     def __init__(self, rules=None, ai_provider=None, issue_assessor=None):
@@ -116,15 +161,10 @@ class InspectionService:
                 for rule in self.rules
             }
 
-            # 변경영향도 비교형 Rule은 이전/현재 관계를 확인할 수 없는
-            # 단일 문서만으로 판정하지 않는다. 단일 문서의 "변경" 관련 문구를
-            # 실제 변경으로 오인해 연쇄 CHG Issue를 만드는 것을 방지한다.
-            change_comparison_available = len(parsed_documents) >= 2
-            hybrid_skip_codes = (
-                frozenset()
-                if change_comparison_available
-                else frozenset({"CHG-001", "CHG-012"})
-            )
+            # CHG-001/012는 개별 문서 자체를 검사하지 않는다.
+            # CHG-001은 아래에서 명시적인 동일 산출물 버전쌍을 비교하고,
+            # CHG-012는 확인된 변경 + 시험자료가 있을 때 후처리한다.
+            hybrid_skip_codes = frozenset({"CHG-001", "CHG-012"})
 
             for document in parsed_documents:
                 if cancel_requested is not None and cancel_requested():
@@ -150,6 +190,96 @@ class InspectionService:
                             rule,
                         )
                     )
+
+            # CHG-001: 동일 산출물의 명시적 버전쌍만 이전/현재로 비교한다.
+            change_rule = rule_by_code.get("CHG-001")
+            if change_rule is not None:
+                for previous, current in _find_version_pairs(parsed_documents):
+                    comparison_document = ParsedDocument(
+                        file_path=current.file_path,
+                        file_type="version_comparison",
+                        blocks=(
+                            DocumentBlock(
+                                block_type="comparison_header",
+                                text=(
+                                    f"[이전 산출물] {previous.file_path.name}\n"
+                                    f"[현재 산출물] {current.file_path.name}"
+                                ),
+                            ),
+                            DocumentBlock(
+                                block_type="previous_document",
+                                text=f"[이전 내용]\n{previous.text}",
+                            ),
+                            DocumentBlock(
+                                block_type="current_document",
+                                text=f"[현재 내용]\n{current.text}",
+                            ),
+                        ),
+                        metadata={
+                            "comparison": "previous_current",
+                            "previous_file": str(previous.file_path),
+                            "current_file": str(current.file_path),
+                        },
+                    )
+                    change_result = self.ai_provider.inspect(
+                        comparison_document,
+                        change_rule,
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            change_result,
+                            comparison_document,
+                            change_rule,
+                        )
+                    )
+
+            # CHG-012: 실제 변경이 확인됐고 시험자료도 함께 입력된 경우에만
+            # 변경내용과 시험자료를 하나의 근거 컨텍스트로 검사한다.
+            test_documents = tuple(
+                document for document in parsed_documents
+                if _is_test_document(document)
+            )
+            change_issues = tuple(
+                issue for issue in all_issues
+                if issue.rule_code == "CHG-001"
+            )
+            test_change_rule = rule_by_code.get("CHG-012")
+            if test_change_rule is not None and change_issues and test_documents:
+                test_context = ParsedDocument(
+                    file_path=Path("change_test_context.txt"),
+                    file_type="change_test_comparison",
+                    blocks=tuple(
+                        [
+                            DocumentBlock(
+                                block_type="confirmed_change",
+                                text=f"[확인된 변경] {issue.evidence}",
+                            )
+                            for issue in change_issues
+                        ]
+                        + [
+                            DocumentBlock(
+                                block_type="test_document",
+                                text=(
+                                    f"[시험 산출물] {document.file_path.name}\n"
+                                    f"{document.text}"
+                                ),
+                            )
+                            for document in test_documents
+                        ]
+                    ),
+                    metadata={"source": "confirmed_changes_and_test_documents"},
+                )
+                test_change_result = self.ai_provider.inspect(
+                    test_context,
+                    test_change_rule,
+                )
+                all_issues.extend(
+                    adapt_ai_result(
+                        test_change_result,
+                        test_context,
+                        test_change_rule,
+                    )
+                )
 
             # CHG-006/CHG-018은 원문 직접검사가 아니라 앞 단계에서
             # 확인된 변경 관련 지적사항을 종합하는 후처리 Rule로 실행한다.
