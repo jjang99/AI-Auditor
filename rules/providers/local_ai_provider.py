@@ -1,5 +1,6 @@
 import json
 import time
+from difflib import SequenceMatcher
 from dataclasses import dataclass
 from urllib import error, request
 
@@ -153,6 +154,9 @@ class LlamaCppAIProvider(BaseAIProvider):
         return tuple(groups)
 
     def inspect(self, document, rule, context: AIInspectionContext | None = None):
+        if rule.code == "CHG-001" and document.file_type == "version_comparison":
+            return self._inspect_change_comparison(document, rule)
+
         prompt = self._build_prompt(document, rule, context)
         try:
             raw_response = self._complete(prompt)
@@ -166,6 +170,85 @@ class LlamaCppAIProvider(BaseAIProvider):
             rule_code=rule.code,
             findings=findings,
             raw_response=raw_response,
+            provider_name=self.__class__.__name__,
+        )
+
+    def _inspect_change_comparison(self, document, rule):
+        """Compare versioned artifacts with deterministic paragraph diff + small AI batches."""
+        previous_block = next(
+            (block for block in document.blocks if block.block_type == "previous_document"),
+            None,
+        )
+        current_block = next(
+            (block for block in document.blocks if block.block_type == "current_document"),
+            None,
+        )
+        if previous_block is None or current_block is None:
+            return AIInspectionResult(
+                rule_code=rule.code,
+                findings=(),
+                raw_response='{"findings":[]}',
+                provider_name=self.__class__.__name__,
+            )
+
+        previous_lines = [
+            line.strip() for line in previous_block.text.splitlines()[1:]
+            if line.strip()
+        ]
+        current_lines = [
+            line.strip() for line in current_block.text.splitlines()[1:]
+            if line.strip()
+        ]
+        matcher = SequenceMatcher(a=previous_lines, b=current_lines, autojunk=False)
+        candidates = []
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == "equal":
+                continue
+            before = " / ".join(previous_lines[i1:i2])
+            after = " / ".join(current_lines[j1:j2])
+            if not before and not after:
+                continue
+            candidates.append(
+                f"변경형태={tag}; 이전={before or '[없음]'}; 현재={after or '[없음]'}"
+            )
+
+        if not candidates:
+            return AIInspectionResult(
+                rule_code=rule.code,
+                findings=(),
+                raw_response='{"findings":[]}',
+                provider_name=self.__class__.__name__,
+            )
+
+        findings = []
+        raw_responses = []
+        batch_size = 8
+        for start in range(0, len(candidates), batch_size):
+            batch = candidates[start:start + batch_size]
+            candidate_text = "\n".join(
+                f"{index + 1}. {item}" for index, item in enumerate(batch)
+            )
+            prompt = (
+                "당신은 정보시스템 산출물 변경분석 보조 AI입니다. "
+                "아래 내용은 동일 산출물의 이전 버전과 현재 버전을 문단 단위로 비교해 "
+                "실제로 달라진 후보만 추린 것입니다. "
+                "서식·공백·단순 표현 차이는 제외하고 기능, 조건, 데이터, 인터페이스, "
+                "시험, 요구사항 의미가 달라진 경우만 findings에 작성하세요. "
+                "입력에 없는 변경을 만들지 마세요. 각 finding에는 무엇이 이전에서 현재로 "
+                "어떻게 바뀌었는지 근거를 포함하세요. 한국어 JSON 객체 하나만 출력하세요.\n\n"
+                f"[이전 산출물] {document.metadata.get('previous_file', '')}\n"
+                f"[현재 산출물] {document.metadata.get('current_file', '')}\n"
+                f"[변경 후보]\n{candidate_text}\n\n"
+                '{"findings":["의미 있는 실제 변경과 근거"]}'
+            )
+            raw = self._complete(prompt)
+            raw_responses.append(raw)
+            findings.extend(self._parse_findings(raw))
+
+        return AIInspectionResult(
+            rule_code=rule.code,
+            findings=tuple(findings),
+            raw_response="\n".join(raw_responses),
             provider_name=self.__class__.__name__,
         )
 
