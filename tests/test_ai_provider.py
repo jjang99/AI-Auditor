@@ -4,6 +4,7 @@ from app.parsers.models import DocumentBlock, ParsedDocument
 from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
 from rules.core.models import DocumentRuleIssue
+from rules.providers.local_ai_provider import LlamaCppAIProvider
 
 class FakeAIProvider(BaseAIProvider):
     """자동테스트용 가짜 AI Provider."""
