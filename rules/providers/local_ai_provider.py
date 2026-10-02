@@ -32,127 +32,124 @@ class LlamaCppAIProvider(BaseAIProvider):
         self,
         evidence: tuple[str, ...],
     ) -> tuple[tuple[str, ...], ...]:
-        """REQ-004용 제약을 배치별 구조화한 뒤 전체 문서에서 비교쌍을 만든다."""
+        """요구사항을 작은 배치로 의미 구조화해 REQ-004 비교 단위를 만든다."""
         if len(evidence) < 2:
             return ()
 
-        # 배치는 AI 입력 크기만 제한한다. 비교 범위는 배치로 제한하지 않는다.
-        # 각 배치에서 비교 가능한 명시적 제약의 대상/속성을 정규화하고,
-        # 모든 배치 결과를 합친 뒤 같은 대상/속성끼리 전체 문서에서 비교한다.
+        # 저사양 로컬 CPU에서 전체 요구사항을 한 번에 구조화하면 timeout이 발생한다.
+        # 작은 배치에서 명시적 상충 후보만 선별하고, 최종 상충 여부는 inspect()가 재판정한다.
         batch_size = 12
-        constraints: list[tuple[int, str, str]] = []
+        overlap = 1
+        groups: list[tuple[str, ...]] = []
+        seen: set[tuple[str, ...]] = set()
         self.last_requirement_conflict_diagnostics = {
             "evidence_count": len(evidence),
             "batch_count": 0,
-            "raw_constraint_count": 0,
-            "valid_constraint_count": 0,
+            "raw_group_count": 0,
             "valid_group_count": 0,
             "batches": [],
         }
 
-        for start in range(0, len(evidence), batch_size):
+        start = 0
+        while start < len(evidence):
             batch = evidence[start : start + batch_size]
+            if len(batch) < 2:
+                break
+
             numbered = "\n".join(
                 f"{index}: {item}"
                 for index, item in enumerate(batch)
             )
             prompt = (
-                "당신은 요구사항 상충검사의 1차 구조화기입니다. "
-                "각 요구사항에서 다른 요구사항과 양립 여부를 비교할 수 있는 명시적 제약만 추출하세요. "
-                "수치·범위·허용/금지·필수/선택·상태·조건처럼 비교 가능한 제약이 없는 단순 기능명은 제외하세요. "
-                "각 제약의 비교 대상(subject)과 비교 속성(property)을 짧은 한국어 명사구로 정규화하세요. "
-                "값이나 방향(예: 3초, 5초, 이상, 이하, 허용, 금지)은 subject/property에 넣지 마세요. "
-                "같은 개념은 표현이 달라도 같은 subject/property를 사용하세요. "
-                "원문에 없는 제약을 만들지 마세요. JSON 객체 하나만 출력하세요.\n\n"
+                "당신은 요구사항 엔지니어링 분석기입니다. "
+                "아래 요구사항을 대상(entity), 행위/속성(action/property), 조건(condition), "
+                "효과/값(effect/value), 극성(polarity) 관점에서 분석하세요. "
+                "이 단계는 단순 관련성 그룹화가 아니라 상충 가능성이 텍스트에 직접 드러나는 "
+                "요구사항 쌍만 선별하는 단계입니다. "
+                "동일 대상/속성에 대해 서로 동시에 만족할 수 없는 값·범위·조건·상태·극성이 "
+                "확인되는 경우에만 한 쌍으로 반환하세요. "
+                "같은 업무 주제이거나 같은 단어를 사용한다는 이유만으로 묶지 마세요. "
+                "상충 근거가 명확하지 않은 요구사항은 제외하세요. "
+                "각 그룹은 정확히 2개 index만 포함하세요. "
+                "JSON 객체 하나만 출력하세요.\n\n"
                 f"{numbered}"
             )
             schema = {
                 "type": "json_schema",
                 "json_schema": {
-                    "name": "requirement_constraints",
+                    "name": "requirement_conflict_groups",
                     "strict": True,
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "constraints": {
+                            "groups": {
                                 "type": "array",
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "index": {"type": "integer"},
-                                        "subject": {"type": "string"},
-                                        "property": {"type": "string"},
+                                        "indexes": {
+                                            "type": "array",
+                                            "items": {"type": "integer"},
+                                            "minItems": 2,
+                                            "maxItems": 2,
+                                            "uniqueItems": True,
+                                        }
                                     },
-                                    "required": ["index", "subject", "property"],
+                                    "required": ["indexes"],
                                     "additionalProperties": False,
                                 },
                             }
                         },
-                        "required": ["constraints"],
+                        "required": ["groups"],
                         "additionalProperties": False,
                     },
                 },
             }
-
             self.last_requirement_conflict_diagnostics["batch_count"] += 1
             batch_started = time.perf_counter()
             raw = self._complete(prompt, response_format=schema)
             batch_seconds = round(time.perf_counter() - batch_started, 2)
             try:
                 payload = json.loads(raw)
-                raw_constraints = payload["constraints"]
-                self.last_requirement_conflict_diagnostics["raw_constraint_count"] += len(
-                    raw_constraints
+                raw_groups = payload["groups"]
+                self.last_requirement_conflict_diagnostics["raw_group_count"] += len(raw_groups)
+                self.last_requirement_conflict_diagnostics["batches"].append(
+                    {
+                        "start": start,
+                        "items": len(batch),
+                        "seconds": batch_seconds,
+                        "raw_groups": len(raw_groups),
+                    }
                 )
             except (json.JSONDecodeError, KeyError, TypeError) as exc:
                 raise LocalAIProviderError(
-                    "REQ-004 제약 구조화 응답 형식이 올바르지 않습니다."
+                    "REQ-004 의미 구조화 응답 형식이 올바르지 않습니다."
                 ) from exc
 
-            valid_in_batch = 0
-            for constraint in raw_constraints:
-                index = constraint.get("index")
-                subject = str(constraint.get("subject", "")).strip().casefold()
-                property_name = str(constraint.get("property", "")).strip().casefold()
-                if (
-                    not isinstance(index, int)
-                    or not 0 <= index < len(batch)
-                    or not subject
-                    or not property_name
-                ):
+            for group in raw_groups:
+                indexes = group.get("indexes", [])
+                valid_indexes = []
+                for index in indexes:
+                    if (
+                        isinstance(index, int)
+                        and 0 <= index < len(batch)
+                        and index not in valid_indexes
+                    ):
+                        valid_indexes.append(index)
+                if len(valid_indexes) < 2:
                     continue
-                constraints.append((start + index, subject, property_name))
-                valid_in_batch += 1
+                items = tuple(batch[index] for index in valid_indexes)
+                key = tuple(sorted(items))
+                if key in seen:
+                    continue
+                seen.add(key)
+                groups.append(items)
+                self.last_requirement_conflict_diagnostics["valid_group_count"] = len(groups)
 
-            self.last_requirement_conflict_diagnostics["valid_constraint_count"] += valid_in_batch
-            self.last_requirement_conflict_diagnostics["batches"].append(
-                {
-                    "start": start,
-                    "items": len(batch),
-                    "seconds": batch_seconds,
-                    "raw_constraints": len(raw_constraints),
-                    "valid_constraints": valid_in_batch,
-                }
-            )
+            if start + batch_size >= len(evidence):
+                break
+            start += batch_size - overlap
 
-        buckets: dict[tuple[str, str], list[int]] = {}
-        for index, subject, property_name in constraints:
-            indexes = buckets.setdefault((subject, property_name), [])
-            if index not in indexes:
-                indexes.append(index)
-
-        groups: list[tuple[str, ...]] = []
-        for indexes in buckets.values():
-            for left_position in range(len(indexes)):
-                for right_position in range(left_position + 1, len(indexes)):
-                    groups.append(
-                        (
-                            evidence[indexes[left_position]],
-                            evidence[indexes[right_position]],
-                        )
-                    )
-
-        self.last_requirement_conflict_diagnostics["valid_group_count"] = len(groups)
         return tuple(groups)
 
     def inspect(self, document, rule, context: AIInspectionContext | None = None):
