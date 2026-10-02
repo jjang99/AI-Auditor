@@ -59,11 +59,38 @@ def _clear_layout(layout):
 
 
 def _format_detail_text(value):
-    """Improve long issue evidence readability without changing its meaning."""
+    """Format stored evidence for display without changing its source text."""
     text = str(value or "-").strip()
+
+    # Stored document evidence uses pipes to separate location/source and
+    # finding text. Present those boundaries as paragraphs.
     text = re.sub(r"\s*\|\s*", "\n", text)
-    text = re.sub(r"(?<!\n)(근거:|위반사항:|위험:|권고:)", r"\n\1", text)
+
+    # AI findings often contain semantic labels in one long string.
+    labels = (
+        "체크포인트", "위반사항", "위반 내용", "근거",
+        "위험", "권고", "판단", "사유",
+    )
+    label_pattern = "|".join(re.escape(label) for label in labels)
+    text = re.sub(
+        rf"(?<!^)(?<!\n)({label_pattern})\s*:",
+        r"\n\1: ",
+        text,
+    )
+
+    # Keep each complete sentence visually separate when AI returned prose as
+    # one paragraph.
     text = re.sub(r"(?<=[.!?])\s+(?=[가-힣A-Za-z0-9'\"])", "\n", text)
+
+    # Long Windows paths contain no spaces, so QLabel cannot wrap them by
+    # itself. Add zero-width wrap opportunities for display only.
+    lines = []
+    for line in text.splitlines():
+        if "\\" in line and len(line) > 34:
+            line = line.replace("\\", "\\\u200b")
+        lines.append(line)
+
+    text = "\n".join(lines)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
