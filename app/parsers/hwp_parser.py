@@ -187,10 +187,13 @@ class HwpParser(BaseDocumentParser):
             for offset in range(0, len(data) - 1, 2)
         ]
 
+        # HWP 5.0 제어 문자 중 inline/extended control은
+        # 제어 코드 + 6 WCHAR payload + 제어 코드의 총 8 WCHAR이다.
+        # 문자형 control(10, 13, 24~31)은 한 WCHAR만 소비한다.
         inline_control_codes = {
             0x0001, 0x0002, 0x0003, 0x0004,
             0x0005, 0x0006, 0x0007, 0x0008,
-            0x000B, 0x000C,
+            0x0009, 0x000B, 0x000C,
             0x000E, 0x000F, 0x0010, 0x0011,
             0x0012, 0x0013, 0x0014, 0x0015,
             0x0016, 0x0017,
