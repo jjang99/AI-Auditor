@@ -264,6 +264,11 @@ def _make_issue_detail_scrollable(detail_card):
             content_layout.addItem(item.spacerItem())
 
     scroll.setWidget(content)
+
+    # The card keeps 12px padding for its fixed title. Let only the scrolling
+    # detail region reach the card edges, matching the Issues list scrollbar.
+    scroll.setContentsMargins(-12, 0, -12, -12)
+    content_layout.setContentsMargins(12, 4, 12, 12)
     layout.addWidget(scroll, 1)
 
 
