@@ -116,6 +116,16 @@ class InspectionService:
                 for rule in self.rules
             }
 
+            # 변경영향도 비교형 Rule은 이전/현재 관계를 확인할 수 없는
+            # 단일 문서만으로 판정하지 않는다. 단일 문서의 "변경" 관련 문구를
+            # 실제 변경으로 오인해 연쇄 CHG Issue를 만드는 것을 방지한다.
+            change_comparison_available = len(parsed_documents) >= 2
+            hybrid_skip_codes = (
+                frozenset()
+                if change_comparison_available
+                else frozenset({"CHG-001", "CHG-012"})
+            )
+
             for document in parsed_documents:
                 if cancel_requested is not None and cancel_requested():
                     from rules.core.engine import InspectionCancelled
@@ -126,7 +136,8 @@ class InspectionService:
                 )
 
                 hybrid_results = self.document_engine.hybrid_engine.inspect_document(
-                    document
+                    document,
+                    skip_rule_codes=hybrid_skip_codes,
                 )
 
                 for result in (*ai_results, *hybrid_results):
