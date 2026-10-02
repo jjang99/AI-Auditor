@@ -279,11 +279,13 @@ class MainWindow(QMainWindow):
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ width:0; height:0; border:none; background:transparent; }}
             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ border:none; background:transparent; }}
         """
-        detail_scroll = self.project_detail_page.findChild(QScrollArea, "detailIssueScroll")
-        if detail_scroll is not None:
-            detail_scroll.setViewportMargins(0, 0, 0, 0)
-            detail_scroll.verticalScrollBar().setFixedWidth(2)
-            detail_scroll.verticalScrollBar().setStyleSheet(style)
+        for scroll_name in ("detailIssueScroll", "detailContentScroll"):
+            detail_scroll = self.project_detail_page.findChild(QScrollArea, scroll_name)
+            if detail_scroll is not None:
+                detail_scroll.setViewportMargins(0, 0, 0, 0)
+                detail_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                detail_scroll.verticalScrollBar().setFixedWidth(2)
+                detail_scroll.verticalScrollBar().setStyleSheet(style)
         self.reports_page.report_table.setViewportMargins(0, 0, 0, 0)
         self.reports_page.report_table.verticalScrollBar().setFixedWidth(2)
         self.reports_page.report_table.verticalScrollBar().setStyleSheet(style)
