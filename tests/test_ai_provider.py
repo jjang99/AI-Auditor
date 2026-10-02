@@ -643,6 +643,34 @@ def test_xlsx_comparison_evidence_includes_explicit_detail_column():
     )
 
 
+def test_local_provider_req004_schema_requires_exact_conflict_pairs():
+    provider = LlamaCppAIProvider()
+
+    class RecordingProvider(LlamaCppAIProvider):
+        def _complete(self, prompt, response_format=None):
+            self.recorded_prompt = prompt
+            self.recorded_format = response_format
+            return '{"groups":[]}'
+
+    provider = RecordingProvider()
+    groups = provider.build_requirement_conflict_groups((
+        "REQ-001 | 응답시간은 3초 이내",
+        "REQ-002 | 응답시간은 5초 이상",
+        "REQ-003 | 관리자 화면을 제공한다",
+    ))
+
+    indexes_schema = (
+        provider.recorded_format["json_schema"]["schema"]["properties"]["groups"]
+        ["items"]["properties"]["indexes"]
+    )
+    assert groups == ()
+    assert indexes_schema["minItems"] == 2
+    assert indexes_schema["maxItems"] == 2
+    assert indexes_schema["uniqueItems"] is True
+    assert "동일 대상/속성" in provider.recorded_prompt
+    assert "같은 업무 주제" in provider.recorded_prompt
+
+
 def test_req004_uses_provider_semantic_groups_for_conflict_inspection():
     document = ParsedDocument(
         file_path=Path("요구사항정의서.docx"),
