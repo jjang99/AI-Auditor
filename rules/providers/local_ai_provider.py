@@ -1,3 +1,4 @@
+import re
 import json
 import time
 from difflib import SequenceMatcher
@@ -156,6 +157,8 @@ class LlamaCppAIProvider(BaseAIProvider):
     def inspect(self, document, rule, context: AIInspectionContext | None = None):
         if rule.code == "CHG-001" and document.file_type == "version_comparison":
             return self._inspect_change_comparison(document, rule)
+        if rule.code == "CHG-012" and document.file_type == "change_test_comparison":
+            return self._inspect_change_test_comparison(document, rule)
 
         prompt = self._build_prompt(document, rule, context)
         try:
@@ -271,6 +274,79 @@ class LlamaCppAIProvider(BaseAIProvider):
             rule_code=rule.code,
             findings=tuple(unique_findings),
             raw_response="\n".join(raw_responses),
+            provider_name=self.__class__.__name__,
+        )
+
+    def _inspect_change_test_comparison(self, document, rule):
+        """Inspect confirmed changes against a bounded set of relevant test rows."""
+        change_texts = [
+            block.text.strip()
+            for block in document.blocks
+            if block.block_type == "confirmed_change" and block.text and block.text.strip()
+        ]
+        test_blocks = [
+            block
+            for block in document.blocks
+            if block.block_type == "test_document" and block.text and block.text.strip()
+        ]
+        if not change_texts or not test_blocks:
+            return AIInspectionResult(
+                rule_code=rule.code,
+                findings=(),
+                raw_response='{"findings":[]}',
+                provider_name=self.__class__.__name__,
+            )
+
+        terms = []
+        stop_terms = {"확인된", "변경", "현재", "문서", "기능", "내용", "요구사항", "산출물"}
+        for text in change_texts:
+            for term in re.findall(r"[가-힣A-Za-z0-9_-]{2,}", text):
+                normalized = term.lower()
+                if normalized not in stop_terms and normalized not in terms:
+                    terms.append(normalized)
+
+        ranked = []
+        for index, block in enumerate(test_blocks):
+            text = block.text.strip()
+            score = sum(1 for term in terms if term in text.lower())
+            if score:
+                ranked.append((-score, index, text))
+        ranked.sort()
+
+        selected = []
+        used = 0
+        for _score, _index, text in ranked[:24]:
+            snippet = text[:900]
+            if used + len(snippet) > 7000:
+                break
+            selected.append(snippet)
+            used += len(snippet) + 1
+
+        if not selected:
+            selected = [block.text.strip()[:900] for block in test_blocks[:8]]
+
+        prompt = (
+            "당신은 변경영향 시험반영 점검 AI입니다. "
+            "확인된 변경사항과 관련 시험행만 비교하세요. "
+            "변경된 요구·기능이 시험항목, 시험조건, 입력 또는 예상결과에 반영되지 않은 것이 "
+            "근거로 확인될 때만 findings를 작성하세요. "
+            "관련 시험행이 없다는 사실만으로 누락을 단정하지 마세요. "
+            "입력에 없는 사실을 만들지 말고 최대 4건, 각 140자 이내로 작성하세요. "
+            "한국어 JSON 객체 하나만 출력하세요.\n\n"
+            "[확인된 변경]\n" + "\n".join(change_texts[:8]) +
+            "\n\n[관련 시험행]\n" + "\n".join(selected) +
+            '\n\n{"findings":["시험 변경 미반영 근거"]}'
+        )
+        try:
+            raw = self._complete(prompt)
+        except LocalAIProviderError as exc:
+            raise LocalAIProviderError(
+                f"{rule.code} ({rule.name}) 검사 중 오류: {exc}"
+            ) from exc
+        return AIInspectionResult(
+            rule_code=rule.code,
+            findings=self._parse_findings(raw),
+            raw_response=raw,
             provider_name=self.__class__.__name__,
         )
 
