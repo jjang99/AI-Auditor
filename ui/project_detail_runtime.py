@@ -140,12 +140,12 @@ def _help_dialog_header(layout, icon, title, subtitle):
     layout.addWidget(head)
 
 
-def _help_section(layout, number, title, rows, audit=False, icon="◆"):
+def _help_section(layout, number, title, rows, audit=False):
     head = QHBoxLayout()
     head.setSpacing(7)
-    number_label = QLabel(icon)
-    number_label.setObjectName("detailHelpSectionIcon")
-    number_label.setFixedSize(18, 18)
+    number_label = QLabel(f"{number}.")
+    number_label.setObjectName("detailHelpSectionNumberPlain")
+    number_label.setFixedWidth(18)
     number_label.setAlignment(Qt.AlignCenter)
     title_label = QLabel(title)
     title_label.setObjectName("detailHelpSection")
@@ -192,29 +192,34 @@ def _show_risk_help(parent):
     layout.setSpacing(10)
 
     _help_dialog_header(
-        layout, "◆", "위험도 기준",
+        layout, "?", "위험도 기준",
         "Impact와 Likelihood를 각각 판정한 뒤 Matrix로 최종 Severity를 결정합니다.",
     )
     _help_section(layout, 1, "Impact (영향도)", (
         ("High", "핵심 기능·업무·보안 또는 중요 검증에 중대한 영향"),
         ("Medium", "품질·관리·검증에 영향이 있으나 범위가 제한적"),
         ("Low", "국소적 문서·표현 수준의 제한적 영향"),
-    ), icon="◆")
+    ))
     _help_section(layout, 2, "Likelihood (발생가능성)", (
         ("High", "영향 현실화 가능성이 높거나 이미 징후가 확인됨"),
         ("Medium", "후속 영향 가능성이 있으나 근거가 부분적"),
         ("Low", "현재 징후가 없고 추가 조건이 필요함"),
-    ), icon="◇")
+    ))
 
     head = QHBoxLayout()
     head.setSpacing(7)
-    num = QLabel("◆"); num.setObjectName("detailHelpSectionIcon"); num.setFixedSize(18,18); num.setAlignment(Qt.AlignCenter)
+    num = QLabel("3."); num.setObjectName("detailHelpSectionNumberPlain"); num.setFixedWidth(18); num.setAlignment(Qt.AlignCenter)
     title = QLabel("Severity (위험도)"); title.setObjectName("detailHelpSection")
     head.addWidget(num); head.addWidget(title); head.addStretch(); layout.addLayout(head)
     matrix_card = QFrame(); matrix_card.setObjectName("detailHelpMatrixCard")
     matrix_layout = QVBoxLayout(matrix_card); matrix_layout.setContentsMargins(10,9,10,10); matrix_layout.setSpacing(7)
     note = QLabel("Impact × Likelihood Matrix"); note.setObjectName("detailHelpMatrixNote"); matrix_layout.addWidget(note)
     grid = QGridLayout(); grid.setSpacing(4)
+    grid.setColumnMinimumWidth(0, 108)
+    grid.setColumnStretch(0, 0)
+    grid.setColumnStretch(1, 1)
+    grid.setColumnStretch(2, 1)
+    grid.setColumnStretch(3, 1)
     matrix = [
         ("Impact × Likelihood", "Low", "Medium", "High"),
         ("High", "Medium", "High", "Critical"),
@@ -244,22 +249,22 @@ def _show_audit_help(parent):
     layout.setSpacing(10)
 
     _help_dialog_header(
-        layout, "★", "감리 개선판정 기준",
+        layout, "✓", "감리 개선판정 기준",
         "Severity와 별개로 감리 대응 관점에서 개선 유형·시점·중요 여부를 판단합니다.",
     )
     _help_section(layout, 1, "개선권고유형", (
         ("필수", "감리 지적 가능성이 높아 반드시 개선 필요"),
         ("협의", "감리 검토 후 개선 여부 협의 필요"),
         ("권고", "품질 향상을 위해 개선 권고"),
-    ), audit=True, icon="★")
+    ), audit=True)
     _help_section(layout, 2, "개선시점", (
         ("단기", "사업 기간 내 조치 권장"),
         ("장기", "유지보수 등 후속 단계에서 조치"),
-    ), audit=True, icon="◷")
+    ), audit=True)
     _help_section(layout, 3, "중요 여부", (
         ("O", "사업·업무에 중요한 영향이 있는 경우"),
         ("-", "상대적으로 영향이 낮은 경우"),
-    ), audit=True, icon="!")
+    ), audit=True)
     dialog.exec()
 
 
