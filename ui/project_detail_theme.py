@@ -723,4 +723,22 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailMetaValue { font-size:11px; font-weight:600; }
 #detailFindingMetaTitle { font-size:11px; font-weight:800; }
 #detailFindingMetaFile { font-size:11px; font-weight:600; }
+
+/* LIGHT MODE FINAL CONTRAST */
+#detailContentContainer { background:#ffffff; }
+#detailReasonBox { background:#f8fafc; border:1px solid #cbd5e1; }
+#detailReasonBox #detailReasonItem { background:transparent; border:0; }
+#detailReasonBox #detailEvidenceSubsection { background:transparent; border:0; }
+#detailReasonTitle { color:#075985; font-size:11px; font-weight:900; }
+#detailReasonBody { color:#0f172a; font-size:12px; font-weight:600; }
+#detailEvidenceSubLabel { color:#b45309; font-size:11px; font-weight:900; }
+#detailMetaLabel { color:#0369a1; font-size:11px; font-weight:800; }
+#detailMetaValue { color:#0f172a; font-size:11px; font-weight:600; }
+#detailFindingMetaTitle { color:#075985; font-size:11px; font-weight:800; }
+#detailFindingMetaFile { color:#0f172a; font-size:11px; font-weight:600; }
+#detailAuditCardTitle { color:#075985; }
+#detailAuditResultBadge { color:#334155; background:#f1f5f9; border:1px solid #94a3b8; }
+#detailOtherLabel { color:#0369a1; }
+#detailOtherText { color:#0f172a; }
+#detailSortButton { font-size:10px; font-weight:700; padding:0 4px; }
 """
