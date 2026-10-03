@@ -80,23 +80,18 @@ def _result_card(title, value, role, subtext=""):
     badge = _level_badge(value, role)
     if role == "audit":
         badge.setObjectName("detailAuditResultBadge")
-        card.setStyleSheet("""
-            QFrame#detailAuditCard {
-                background-color: rgba(25, 48, 64, 210);
-                border: 1px solid #365a72;
-                border-radius: 8px;
-            }
-            QLabel#detailAuditCardTitle {
-                color: #8fdcff;
-                font-weight: 700;
-            }
+        badge.setMinimumWidth(64)
+        badge.setMaximumWidth(72)
+        badge.setFixedHeight(24)
+        badge.setStyleSheet("""
             QLabel#detailAuditResultBadge {
                 color: #ffffff;
                 background-color: #6d28d9;
                 border: 1px solid #a78bfa;
                 border-radius: 6px;
+                font-size: 9px;
                 font-weight: 700;
-                padding: 4px 8px;
+                padding: 2px 5px;
             }
         """)
         card.setMinimumHeight(68)
