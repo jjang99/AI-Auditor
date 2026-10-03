@@ -97,8 +97,8 @@ def apply_project_detail_refinements(ProjectDetailPage):
             button.setMinimumHeight(34)
         sort_button = self.findChild(QPushButton, "detailSortButton")
         if sort_button:
-            sort_button.setMinimumHeight(30)
-            sort_button.setMinimumWidth(78)
+            sort_button.setFixedHeight(24)
+            sort_button.setFixedWidth(58)
 
         icon_map = {
             "detailStatIcon_purple": "detail_score.svg",
