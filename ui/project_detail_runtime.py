@@ -110,7 +110,7 @@ def _result_card(title, value, role, subtext=""):
         sub.setObjectName("detailRiskSubtext")
         sub.setAlignment(Qt.AlignCenter)
         sub.setWordWrap(False)
-        sub.setMinimumWidth(72)
+        sub.setMinimumWidth(86)
         box.addWidget(sub, 0, Qt.AlignHCenter | Qt.AlignTop)
     box.addStretch()
     return card
@@ -804,9 +804,11 @@ def apply_project_detail_runtime(ProjectDetailPage):
         severity_formula = f"{impact_value} × {likelihood_value}" if issue["impact"] and issue["likelihood"] else ""
         risk_row = QHBoxLayout()
         risk_row.setSpacing(6)
-        risk_row.addWidget(_result_card("Impact", impact_value, "impact"), 1)
-        risk_row.addWidget(_result_card("Likelihood", likelihood_value, "likelihood"), 1)
-        risk_row.addWidget(_result_card("Severity", severity_value, "severity", severity_formula), 1)
+        # Severity also shows the Impact × Likelihood formula, so give it
+        # more horizontal room than the two single-value cards.
+        risk_row.addWidget(_result_card("Impact", impact_value, "impact"), 28)
+        risk_row.addWidget(_result_card("Likelihood", likelihood_value, "likelihood"), 28)
+        risk_row.addWidget(_result_card("Severity", severity_value, "severity", severity_formula), 44)
         layout.addLayout(risk_row)
 
         layout.addLayout(_numbered_section_title(3, "판정 근거", "≡"))
