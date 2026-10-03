@@ -196,6 +196,28 @@ DETAIL_DARK_REFINEMENTS = """
 #detailReasonBody { color:#f8fafc; font-size:10px; font-weight:500; }
 #detailOtherInfo { background:#111f2b; border:1px solid #30495d; border-radius:8px; }
 
+
+/* FINAL DETAIL REVIEW */
+#detailIssueListRow QLabel#detailIssueCode { font-size:11px; font-weight:800; }
+#detailIssueListRow QLabel#detailIssueDescription { font-size:10px; font-weight:600; }
+#detailIssueListRow QLabel#detailStatusOpen, #detailIssueListRow QLabel#detailStatusResolved { font-size:9px; font-weight:800; }
+#detailSectionIcon { color:#38bdf8; background:transparent; border:none; font-size:12px; font-weight:900; }
+#detailSectionTitle { color:#7dd3fc; font-size:10px; font-weight:900; }
+#detailTextBody { color:#f8fafc; font-size:11px; font-weight:650; }
+#detailRiskCard { min-height:64px; max-height:64px; }
+#detailRiskCardTitle { font-size:10px; font-weight:900; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical {
+ min-height:18px; max-height:18px; font-size:10px; font-weight:900; padding:0 5px;
+}
+#detailReasonItem { background:#132431; border:1px solid #365a72; border-radius:8px; }
+#detailReasonTitle { color:#8bd5ff; font-size:10px; font-weight:900; }
+#detailReasonBody { color:#f8fafc; font-size:11px; font-weight:600; }
+#detailEvidenceSubLabel { color:#f6bd60; font-size:10px; font-weight:900; }
+#detailAuditCard { background:#132431; border:1px solid #365a72; border-radius:8px; min-height:66px; max-height:66px; }
+#detailAuditCardTitle { color:#bfe6ff; font-size:10px; font-weight:900; }
+QLabel#detailAuditResultBadge[auditPending="true"] {
+ color:#a8b3bd; background:#1a2833; border:1px solid #445563; border-radius:6px; font-size:9px; font-weight:700;
+}
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -539,4 +561,21 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailReasonBody { font-size:11px; font-weight:600; }
 #detailAuditCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; min-height:64px; max-height:64px; }
 #detailAuditCardTitle { color:#075985; font-size:9px; font-weight:900; }
+
+/* FINAL DETAIL REVIEW */
+#detailIssueListRow QLabel#detailIssueCode { font-size:11px; font-weight:800; }
+#detailIssueListRow QLabel#detailIssueDescription { font-size:10px; font-weight:600; }
+#detailIssueListRow QLabel#detailStatusOpen, #detailIssueListRow QLabel#detailStatusResolved { font-size:9px; font-weight:800; }
+#detailSectionIcon { color:#0284c7; background:transparent; border:none; font-size:12px; font-weight:900; }
+#detailSectionTitle { color:#0369a1; font-size:10px; font-weight:900; }
+#detailTextBody { font-size:11px; font-weight:600; }
+#detailRiskCard { min-height:64px; max-height:64px; }
+#detailRiskCardTitle { font-size:10px; font-weight:900; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical { min-height:18px; max-height:18px; font-size:10px; font-weight:900; padding:0 5px; }
+#detailReasonTitle { color:#075985; font-size:10px; font-weight:900; }
+#detailReasonBody { font-size:11px; font-weight:600; }
+#detailEvidenceSubLabel { color:#b45309; font-size:10px; font-weight:900; }
+#detailAuditCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; min-height:66px; max-height:66px; }
+#detailAuditCardTitle { color:#075985; font-size:10px; font-weight:900; }
+QLabel#detailAuditResultBadge[auditPending="true"] { color:#64748b; background:#eef2f6; border:1px solid #cbd5e1; border-radius:6px; font-size:9px; font-weight:700; }
 """
