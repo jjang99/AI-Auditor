@@ -639,7 +639,11 @@ QLabel#detailAuditResultBadge[auditPending="true"] { color:#64748b; background:#
 }
 #detailRiskSubtext { margin-top:4px; font-size:9px; font-weight:700; }
 
-#detailAuditCard { min-height:48px; max-height:48px; padding:0; }
+#detailAuditCard { min-height:52px; max-height:52px; padding:0; }
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low,
+#detailIssueListRow QLabel#detailBadge_critical { font-size:11px; font-weight:900; padding:0; }
 #detailAuditCardTitle { font-size:10px; font-weight:900; margin:0; padding:0; }
 QLabel#detailAuditResultBadge { min-height:16px; max-height:16px; padding:0 5px; margin:0; }
 QLabel#detailAuditResultBadge[auditPending="true"] {
@@ -647,17 +651,3 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
     font-size:9px; font-weight:700;
 }
 """
-
-/* USER REVIEW — typography and final compact sizing */
-#detailIssueListRow QLabel#detailBadge_high,
-#detailIssueListRow QLabel#detailBadge_medium,
-#detailIssueListRow QLabel#detailBadge_low,
-#detailIssueListRow QLabel#detailBadge_critical {
-    font-size:11px; font-weight:900;
-}
-#detailRiskBadge_high, #detailRiskBadge_medium,
-#detailRiskBadge_low, #detailRiskBadge_critical {
-    font-size:11px; font-weight:900;
-}
-#detailAuditCard { min-height:52px; max-height:52px; }
-#detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
