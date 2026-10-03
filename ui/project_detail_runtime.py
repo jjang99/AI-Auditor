@@ -72,8 +72,8 @@ def _result_card(title, value, role, subtext=""):
     card = QFrame()
     card.setObjectName("detailAuditCard" if role == "audit" else "detailRiskCard")
     box = QVBoxLayout(card)
-    box.setContentsMargins(6, 7, 6, 7)
-    box.setSpacing(4)
+    box.setContentsMargins(6, 6, 6, 6)
+    box.setSpacing(5)
     heading = QLabel(title)
     heading.setObjectName("detailAuditCardTitle" if role == "audit" else "detailRiskCardTitle")
     heading.setAlignment(Qt.AlignCenter)
@@ -383,7 +383,7 @@ def _inspection_evidence_item(value):
 def _numbered_section_title(number, title, icon, help_callback=None):
     """Approved detail header: icon + title only. number kept for call compatibility."""
     row = QHBoxLayout()
-    row.setContentsMargins(0, 5, 0, 0)
+    row.setContentsMargins(0, 10, 0, 2)
     row.setSpacing(7)
     icon_label = QLabel(icon)
     icon_label.setObjectName("detailSectionHeaderIcon")
