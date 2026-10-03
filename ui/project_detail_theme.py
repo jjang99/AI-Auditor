@@ -55,6 +55,14 @@ DETAIL_DARK_REFINEMENTS = """
 #detailHelpText { color:#f1f5f9; font-size:12px; font-weight:500; }
 #detailHelpSection { color:#ffffff; font-size:13px; font-weight:700; padding-top:6px; }
 #detailHelpTitle { color:#ffffff; font-size:17px; font-weight:800; }
+#detailSectionCard { background:#121b24; border:1px solid #314155; border-radius:7px; }
+#detailSectionIcon { color:#60a5fa; font-size:11px; font-weight:800; }
+#detailSectionTitle { color:#f8fafc; font-size:11px; font-weight:700; }
+#detailReasonItem { background:#16212c; border:1px solid #2d4052; border-radius:6px; }
+#detailReasonIcon { color:#7dd3fc; font-size:11px; font-weight:800; }
+#detailHelpButton { color:#7dd3fc; background:#102536; border:1px solid #38bdf8; border-radius:8px; font-size:9px; font-weight:800; padding:0px; text-align:center; }
+#detailHelpButton:hover { background:#0c4a6e; border-color:#7dd3fc; }
+#detailRiskBadge_판정 없음 { color:#cbd5e1; background:#1f2937; border:1px solid #475569; border-radius:6px; font-size:8px; font-weight:700; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -114,4 +122,12 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailHelpText { color:#1e293b; font-size:12px; font-weight:500; }
 #detailHelpSection { color:#0f172a; font-size:13px; font-weight:700; padding-top:6px; }
 #detailHelpTitle { color:#0f172a; font-size:17px; font-weight:800; }
+#detailSectionCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailSectionIcon { color:#2563eb; font-size:11px; font-weight:800; }
+#detailSectionTitle { color:#0f172a; font-size:11px; font-weight:700; }
+#detailReasonItem { background:#ffffff; border:1px solid #dbe4ee; border-radius:6px; }
+#detailReasonIcon { color:#0369a1; font-size:11px; font-weight:800; }
+#detailHelpButton { color:#0369a1; background:#f0f9ff; border:1px solid #0284c7; border-radius:8px; font-size:9px; font-weight:800; padding:0px; text-align:center; }
+#detailHelpButton:hover { background:#e0f2fe; border-color:#0369a1; }
+#detailRiskBadge_판정 없음 { color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; font-size:8px; font-weight:700; }
 """
