@@ -549,6 +549,12 @@ class ProjectDetailPage(QWidget):
         # 58px is too narrow for Korean text + native combo arrow on Windows.
         # Keep the control compact, but reserve enough real text width.
         sort_button.setFixedWidth(72)
+        # Windows native combo rendering can clip Korean text despite stylesheet font changes.
+        # Set the actual widget font explicitly so the visible "정렬" text really shrinks.
+        sort_font = sort_button.font()
+        sort_font.setPointSize(7)
+        sort_font.setBold(True)
+        sort_button.setFont(sort_font)
         sort_button.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.issue_sort_button = sort_button
         sort_button.currentIndexChanged.connect(
