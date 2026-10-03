@@ -270,14 +270,13 @@ class ProjectDetailPage(QWidget):
             self,
             "검사 보고서 내보내기",
             f"{safe_name}_검사보고서.docx",
-            "Word 문서 (*.docx);;한글 HWPX 문서 (*.hwpx);;Excel 통합문서 (*.xlsx);;텍스트 파일 (*.txt)",
+            "Word 문서 (*.docx);;Excel 통합문서 (*.xlsx);;텍스트 파일 (*.txt)",
         )
         if not file_path:
             return
 
         suffix_by_filter = {
             "Word 문서 (*.docx)": ".docx",
-            "한글 HWPX 문서 (*.hwpx)": ".hwpx",
             "Excel 통합문서 (*.xlsx)": ".xlsx",
             "텍스트 파일 (*.txt)": ".txt",
         }
@@ -289,8 +288,6 @@ class ProjectDetailPage(QWidget):
         suffix = path.suffix.lower()
         if suffix == ".docx":
             self._export_report_docx(path, report)
-        elif suffix == ".hwpx":
-            self._export_report_hwpx(path, report)
         elif suffix == ".xlsx":
             self._export_report_xlsx(path, report)
         elif suffix == ".txt":
@@ -391,37 +388,6 @@ class ProjectDetailPage(QWidget):
         for index, width in enumerate(widths, 1):
             issue_sheet.column_dimensions[chr(64 + index)].width = width
         workbook.save(path)
-
-    def _export_report_hwpx(self, path, report):
-        # HWPX를 임의 ZIP/XML로 만들지 않고 설치된 한/글의 저장 엔진을 사용한다.
-        from pyhwpx import Hwp
-
-        lines = ["AI Auditor 검사 보고서"]
-        lines.extend(f"{label}: {value}" for label, value in report["summary"])
-        lines.extend(["", "Issues"])
-        rows = self._issue_rows(report)
-        if not rows:
-            lines.append("이슈 없음")
-        else:
-            for row in rows:
-                lines.extend([
-                    "",
-                    f"{row[0]}. [{row[1]}] {row[2]} - {row[3]}",
-                    f"상태: {row[4]}",
-                    f"설명: {row[5]}",
-                    f"근거: {row[6]}",
-                    f"영향: {row[7]}",
-                    f"권고: {row[8]}",
-                ])
-
-        hwp = Hwp(visible=False)
-        try:
-            hwp.insert_text("\r\n".join(str(line) for line in lines))
-            result = hwp.save_as(str(path.resolve()), format="HWPX")
-            if result is False:
-                raise RuntimeError("한/글 HWPX 저장에 실패했습니다.")
-        finally:
-            hwp.quit()
 
     def create_stat_card(
         self,
