@@ -404,7 +404,8 @@ def apply_project_detail_runtime(ProjectDetailPage):
 
         self.add_detail_section(layout, "제목", issue["title"] or "-")
         self.add_detail_section(layout, "검사 파일", source_text)
-        self.add_detail_section(layout, "발견 내용", finding_text)
+        description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
+        self.add_detail_section(layout, "발견 내용", description_text)
 
         risk_parts = [
             f"Impact  {issue['impact'] or '-'}",
@@ -412,7 +413,17 @@ def apply_project_detail_runtime(ProjectDetailPage):
             f"Severity  {issue['severity'] or '-'}",
         ]
         self.add_detail_section(layout, "위험도 판정", "  ·  ".join(risk_parts))
-        self.add_detail_section(layout, "근거", finding_text)
+        reason_parts = []
+        if issue["impact_reason"]:
+            reason_parts.append(f"Impact 근거\n{issue['impact_reason']}")
+        if issue["likelihood_reason"]:
+            reason_parts.append(f"Likelihood 근거\n{issue['likelihood_reason']}")
+        if issue["severity_reason"]:
+            reason_parts.append(f"Severity 근거\n{issue['severity_reason']}")
+        evidence_summary = finding_text
+        if evidence_summary and evidence_summary != description_text:
+            reason_parts.insert(0, f"검사 근거\n{evidence_summary}")
+        self.add_detail_section(layout, "근거", "\n\n".join(reason_parts) if reason_parts else evidence_summary)
 
         audit_title = QLabel("감리 개선판정")
         audit_title.setObjectName("detailTextLabel")
