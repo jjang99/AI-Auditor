@@ -327,6 +327,11 @@ QComboBox#detailSortCombo::drop-down {
 #detailMatrixHeader { font-size:10px; font-weight:800; }
 #detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { font-size:10px; font-weight:800; }
 #detailAuditHelpBadge { font-size:11px; font-weight:900; }
+
+/* AUTHORITATIVE HELP MODAL VISUAL PASS */
+#detailHelpSectionIcon { color:#38bdf8; font-size:13px; font-weight:900; }
+#detailMatrixHeader { color:#f8fafc; font-size:11px; font-weight:800; }
+#detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { color:#ffffff; font-size:11px; font-weight:900; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -831,4 +836,9 @@ QComboBox#detailSortCombo::drop-down {
 #detailMatrixHeader { font-size:10px; font-weight:800; }
 #detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { font-size:10px; font-weight:800; }
 #detailAuditHelpBadge { font-size:11px; font-weight:900; }
+
+/* AUTHORITATIVE HELP MODAL VISUAL PASS */
+#detailHelpSectionIcon { color:#0284c7; font-size:13px; font-weight:900; }
+#detailMatrixHeader { color:#0f172a; font-size:11px; font-weight:800; }
+#detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { font-size:11px; font-weight:900; }
 """
