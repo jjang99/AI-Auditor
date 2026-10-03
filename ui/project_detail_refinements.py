@@ -180,8 +180,8 @@ def _refine_issue_row(row):
 
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
-        status.setFixedWidth(31)
-        status.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        status.setFixedWidth(48)
+        status.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     layout = row.layout()
     if layout:
