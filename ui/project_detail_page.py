@@ -1,4 +1,10 @@
 from pathlib import Path
+import html
+import zipfile
+from xml.etree import ElementTree as ET
+
+from docx import Document
+from openpyxl import Workbook
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -263,43 +269,183 @@ class ProjectDetailPage(QWidget):
 
         issues = get_issues_for_inspection(inspection_id)
         safe_name = "".join(ch if ch not in '\\/:*?"<>|' else "_" for ch in project["name"])
-        file_path, _ = QFileDialog.getSaveFileName(
+        file_path, selected_filter = QFileDialog.getSaveFileName(
             self,
             "검사 보고서 내보내기",
-            f"{safe_name}_검사보고서.txt",
-            "텍스트 파일 (*.txt)",
+            f"{safe_name}_검사보고서.docx",
+            "Word 문서 (*.docx);;한글 HWPX 문서 (*.hwpx);;Excel 통합문서 (*.xlsx);;텍스트 파일 (*.txt)",
         )
         if not file_path:
             return
 
-        lines = [
-            "AI Auditor 검사 보고서",
-            "=" * 48,
-            f"프로젝트명: {project['name']}",
-            f"부서명(기관명): {project.get('department') or '-'}",
-            f"프로젝트 구분: {project.get('project_type') or '-'}",
-            f"검사일시: {inspection.get('inspected_at') or '-'}",
-            f"검사유형: {inspection.get('inspection_type') or '-'}",
-            f"Score / Grade: {inspection.get('score') if inspection.get('score') is not None else '-'} / {inspection.get('grade') or '-'}",
-            f"적용 규칙: {inspection.get('rule_count') or 0}개",
-            f"전체 이슈: {inspection.get('total_issues') or 0}개",
-            "",
-            "[Issues]",
-        ]
-        if not issues:
+        suffix_by_filter = {
+            "Word 문서 (*.docx)": ".docx",
+            "한글 HWPX 문서 (*.hwpx)": ".hwpx",
+            "Excel 통합문서 (*.xlsx)": ".xlsx",
+            "텍스트 파일 (*.txt)": ".txt",
+        }
+        path = Path(file_path)
+        if not path.suffix:
+            path = path.with_suffix(suffix_by_filter.get(selected_filter, ".docx"))
+
+        report = self._build_report_data(project, inspection, issues)
+        suffix = path.suffix.lower()
+        if suffix == ".docx":
+            self._export_report_docx(path, report)
+        elif suffix == ".hwpx":
+            self._export_report_hwpx(path, report)
+        elif suffix == ".xlsx":
+            self._export_report_xlsx(path, report)
+        elif suffix == ".txt":
+            self._export_report_txt(path, report)
+        else:
+            self._export_report_docx(path.with_suffix(".docx"), report)
+
+    def _build_report_data(self, project, inspection, issues):
+        return {
+            "project": project,
+            "inspection": inspection,
+            "issues": issues,
+            "summary": [
+                ("프로젝트명", project["name"]),
+                ("부서명(기관명)", project.get("department") or "-"),
+                ("프로젝트 구분", project.get("project_type") or "-"),
+                ("검사일시", inspection.get("inspected_at") or "-"),
+                ("검사유형", inspection.get("inspection_type") or "-"),
+                ("Score / Grade", f"{inspection.get('score') if inspection.get('score') is not None else '-'} / {inspection.get('grade') or '-'}"),
+                ("적용 규칙", f"{inspection.get('rule_count') or 0}개"),
+                ("전체 이슈", f"{inspection.get('total_issues') or 0}개"),
+            ],
+        }
+
+    def _issue_rows(self, report):
+        rows = []
+        for index, issue in enumerate(report["issues"], 1):
+            rows.append([
+                index,
+                issue.get("severity") or "-",
+                issue.get("rule_code") or "-",
+                issue.get("title") or "-",
+                issue.get("status") or "-",
+                issue.get("description") or "-",
+                issue.get("evidence") or "-",
+                issue.get("impact") or "-",
+                issue.get("ai_recommendation") or "-",
+            ])
+        return rows
+
+    def _export_report_txt(self, path, report):
+        lines = ["AI Auditor 검사 보고서", "=" * 48]
+        lines.extend(f"{label}: {value}" for label, value in report["summary"])
+        lines.extend(["", "[Issues]"])
+        rows = self._issue_rows(report)
+        if not rows:
             lines.append("이슈 없음")
         else:
-            for index, issue in enumerate(issues, 1):
+            for row in rows:
                 lines.extend([
-                    f"{index}. [{issue.get('severity') or '-'}] {issue.get('rule_code') or '-'} - {issue.get('title') or '-'}",
-                    f"   상태: {issue.get('status') or '-'}",
-                    f"   설명: {issue.get('description') or '-'}",
-                    f"   근거: {issue.get('evidence') or '-'}",
-                    f"   영향: {issue.get('impact') or '-'}",
-                    f"   권고: {issue.get('ai_recommendation') or '-'}",
+                    f"{row[0]}. [{row[1]}] {row[2]} - {row[3]}",
+                    f"   상태: {row[4]}",
+                    f"   설명: {row[5]}",
+                    f"   근거: {row[6]}",
+                    f"   영향: {row[7]}",
+                    f"   권고: {row[8]}",
                     "",
                 ])
-        Path(file_path).write_text("\n".join(lines), encoding="utf-8-sig")
+        path.write_text("\n".join(lines), encoding="utf-8-sig")
+
+    def _export_report_docx(self, path, report):
+        document = Document()
+        document.add_heading("AI Auditor 검사 보고서", level=0)
+        table = document.add_table(rows=0, cols=2)
+        table.style = "Table Grid"
+        for label, value in report["summary"]:
+            cells = table.add_row().cells
+            cells[0].text = str(label)
+            cells[1].text = str(value)
+
+        document.add_heading("Issues", level=1)
+        rows = self._issue_rows(report)
+        if not rows:
+            document.add_paragraph("이슈 없음")
+        else:
+            for row in rows:
+                document.add_heading(f"{row[0]}. [{row[1]}] {row[2]} - {row[3]}", level=2)
+                for label, value in zip(("상태", "설명", "근거", "영향", "권고"), row[4:]):
+                    document.add_paragraph(f"{label}: {value}")
+        document.save(path)
+
+    def _export_report_xlsx(self, path, report):
+        workbook = Workbook()
+        summary_sheet = workbook.active
+        summary_sheet.title = "검사요약"
+        summary_sheet.append(["AI Auditor 검사 보고서", ""])
+        for label, value in report["summary"]:
+            summary_sheet.append([label, value])
+        summary_sheet.column_dimensions["A"].width = 22
+        summary_sheet.column_dimensions["B"].width = 48
+
+        issue_sheet = workbook.create_sheet("Issues")
+        headers = ["No.", "Severity", "Rule", "제목", "상태", "설명", "근거", "영향", "권고"]
+        issue_sheet.append(headers)
+        for row in self._issue_rows(report):
+            issue_sheet.append(row)
+        widths = [7, 12, 14, 28, 12, 50, 60, 40, 40]
+        for index, width in enumerate(widths, 1):
+            issue_sheet.column_dimensions[chr(64 + index)].width = width
+        workbook.save(path)
+
+    def _export_report_hwpx(self, path, report):
+        # HWPX is an OPC/ZIP package. This minimal standards-based report
+        # preserves Korean text and can be opened/edited by Hancom Office.
+        paragraphs = ["AI Auditor 검사 보고서"]
+        paragraphs.extend(f"{label}: {value}" for label, value in report["summary"])
+        paragraphs.append("Issues")
+        rows = self._issue_rows(report)
+        if not rows:
+            paragraphs.append("이슈 없음")
+        else:
+            for row in rows:
+                paragraphs.extend([
+                    f"{row[0]}. [{row[1]}] {row[2]} - {row[3]}",
+                    f"상태: {row[4]}",
+                    f"설명: {row[5]}",
+                    f"근거: {row[6]}",
+                    f"영향: {row[7]}",
+                    f"권고: {row[8]}",
+                ])
+
+        def xml_text(value):
+            return html.escape(str(value), quote=False)
+
+        section_body = "".join(
+            f'<hp:p id="{index}" paraPrIDRef="0" styleIDRef="0"><hp:run charPrIDRef="0"><hp:t>{xml_text(text)}</hp:t></hp:run></hp:p>'
+            for index, text in enumerate(paragraphs, 1)
+        )
+        section_xml = (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<hs:sec xmlns:hs="http://www.hancom.co.kr/hwpml/2011/section" '
+            'xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph">'
+            + section_body + '</hs:sec>'
+        )
+        content_hpf = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<opf:package xmlns:opf="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="AI-Auditor">'
+            '<opf:metadata><opf:title>AI Auditor 검사 보고서</opf:title></opf:metadata>'
+            '<opf:manifest><opf:item id="section0" href="Contents/section0.xml" media-type="application/xml"/></opf:manifest>'
+            '<opf:spine><opf:itemref idref="section0"/></opf:spine></opf:package>'
+        )
+        container_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">'
+            '<rootfiles><rootfile full-path="Contents/content.hpf" media-type="application/oebps-package+xml"/>'
+            '</rootfiles></container>'
+        )
+        with zipfile.ZipFile(path, "w") as archive:
+            archive.writestr("mimetype", "application/hwp+zip", compress_type=zipfile.ZIP_STORED)
+            archive.writestr("META-INF/container.xml", container_xml)
+            archive.writestr("Contents/content.hpf", content_hpf)
+            archive.writestr("Contents/section0.xml", section_xml)
 
     def create_stat_card(
         self,
