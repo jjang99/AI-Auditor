@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 from PySide6.QtCore import QEvent, Qt
-from PySide6.QtWidgets import QComboBox, QFrame, QHBoxLayout, QLabel, QProgressBar, QPushButton, QScrollArea, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel, QProgressBar, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
 from app.database.repositories.inspection_repository import (
     get_inspection_history,
@@ -56,6 +56,119 @@ def _clear_layout(layout):
             widget.deleteLater()
         elif child_layout is not None:
             _clear_layout(child_layout)
+
+
+def _level_badge(value, role):
+    label = QLabel(str(value or "-"))
+    label.setObjectName(f"detailRiskBadge_{str(value or 'none').lower()}")
+    label.setProperty("riskRole", role)
+    label.setAlignment(Qt.AlignCenter)
+    label.setFixedHeight(24)
+    label.setMinimumWidth(56)
+    return label
+
+
+def _result_card(title, value, role, subtext=""):
+    card = QFrame()
+    card.setObjectName("detailRiskCard")
+    box = QVBoxLayout(card)
+    box.setContentsMargins(5, 6, 5, 6)
+    box.setSpacing(4)
+    heading = QLabel(title)
+    heading.setObjectName("detailRiskCardTitle")
+    heading.setAlignment(Qt.AlignCenter)
+    badge = _level_badge(value, role)
+    box.addWidget(heading)
+    box.addWidget(badge)
+    if subtext:
+        sub = QLabel(subtext)
+        sub.setObjectName("detailRiskSubtext")
+        sub.setAlignment(Qt.AlignCenter)
+        sub.setWordWrap(True)
+        box.addWidget(sub)
+    return card
+
+
+def _section_title_with_help(title, callback):
+    row = QHBoxLayout()
+    row.setSpacing(5)
+    label = QLabel(title)
+    label.setObjectName("detailTextLabel")
+    help_button = QPushButton("?")
+    help_button.setObjectName("detailHelpButton")
+    help_button.setFixedSize(18, 18)
+    help_button.setCursor(Qt.PointingHandCursor)
+    help_button.clicked.connect(callback)
+    row.addWidget(label)
+    row.addWidget(help_button)
+    row.addStretch()
+    return row
+
+
+def _show_risk_help(parent):
+    dialog = QDialog(parent)
+    dialog.setObjectName("detailHelpDialog")
+    dialog.setWindowTitle("위험도 기준")
+    dialog.setModal(True)
+    dialog.setFixedWidth(430)
+    layout = QVBoxLayout(dialog)
+    layout.setContentsMargins(18, 16, 18, 16)
+    layout.setSpacing(10)
+
+    title = QLabel("위험도 기준 (Help)")
+    title.setObjectName("detailHelpTitle")
+    layout.addWidget(title)
+    for heading, rows in (
+        ("1. Impact (영향도)", (("High", "핵심 기능·보안·중요 검증 또는 광범위한 중대 영향"), ("Medium", "품질·관리·검증 영향이 있으나 범위가 제한적"), ("Low", "국소적 문서·표현 수준의 제한적 영향"))),
+        ("2. Likelihood (발생가능성)", (("High", "영향 현실화 가능성이 높거나 이미 징후가 확인됨"), ("Medium", "후속 영향 가능성이 있으나 근거가 부분적"), ("Low", "현재 징후가 없고 추가 조건이 필요함"))),
+    ):
+        h = QLabel(heading); h.setObjectName("detailHelpSection"); layout.addWidget(h)
+        for level, desc in rows:
+            row = QHBoxLayout(); row.setSpacing(9)
+            row.addWidget(_level_badge(level, "help"))
+            text = QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
+            row.addWidget(text, 1); layout.addLayout(row)
+
+    h = QLabel("3. Severity (위험도)"); h.setObjectName("detailHelpSection"); layout.addWidget(h)
+    note = QLabel("Impact × Likelihood Matrix로 결정"); note.setObjectName("detailHelpText"); layout.addWidget(note)
+    grid = QGridLayout(); grid.setSpacing(3)
+    matrix = [
+        ("Impact \\ Likelihood", "Low", "Medium", "High"),
+        ("High", "Medium", "High", "Critical"),
+        ("Medium", "Low", "Medium", "High"),
+        ("Low", "Low", "Low", "Medium"),
+    ]
+    for r, values in enumerate(matrix):
+        for col, value in enumerate(values):
+            cell = QLabel(value); cell.setObjectName("detailMatrixHeader" if r == 0 or col == 0 else f"detailMatrix_{value.lower()}")
+            cell.setAlignment(Qt.AlignCenter); cell.setMinimumHeight(28); grid.addWidget(cell, r, col)
+    layout.addLayout(grid)
+    dialog.exec()
+
+
+def _show_audit_help(parent):
+    dialog = QDialog(parent)
+    dialog.setObjectName("detailHelpDialog")
+    dialog.setWindowTitle("감리 개선판정 기준")
+    dialog.setModal(True)
+    dialog.setFixedWidth(430)
+    layout = QVBoxLayout(dialog)
+    layout.setContentsMargins(18, 16, 18, 16)
+    layout.setSpacing(10)
+    title = QLabel("감리 개선판정 기준 (Help)"); title.setObjectName("detailHelpTitle"); layout.addWidget(title)
+    sections = (
+        ("1. 개선권고유형", (("필수", "감리 지적 가능성이 높아 반드시 개선 필요"), ("협의", "감리 검토 후 개선 여부 협의 필요"), ("권고", "품질 향상을 위해 개선 권고"))),
+        ("2. 개선시점", (("단기", "사업 기간 내 조치 권장"), ("장기", "유지보수 등 후속 단계에서 조치"))),
+        ("3. 중요 여부", (("O", "사업·업무에 중요한 영향이 있는 경우"), ("-", "상대적으로 영향이 낮은 경우"))),
+    )
+    for heading, rows in sections:
+        h=QLabel(heading); h.setObjectName("detailHelpSection"); layout.addWidget(h)
+        for value, desc in rows:
+            row=QHBoxLayout(); row.setSpacing(9)
+            badge=QLabel(value); badge.setObjectName("detailAuditHelpBadge"); badge.setAlignment(Qt.AlignCenter); badge.setFixedSize(56,24)
+            text=QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
+            row.addWidget(badge); row.addWidget(text,1); layout.addLayout(row)
+    dialog.exec()
 
 
 def _format_detail_text(value):
@@ -407,51 +520,63 @@ def apply_project_detail_runtime(ProjectDetailPage):
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
         self.add_detail_section(layout, "발견 내용", description_text)
 
-        risk_parts = [
-            f"Impact  {issue['impact'] or '-'}",
-            f"Likelihood  {issue['likelihood'] or '-'}",
-            f"Severity  {issue['severity'] or '-'}",
-        ]
-        self.add_detail_section(layout, "위험도 판정", "  ·  ".join(risk_parts))
-        reason_parts = []
-        if issue["impact_reason"]:
-            reason_parts.append(f"Impact 근거\n{issue['impact_reason']}")
-        if issue["likelihood_reason"]:
-            reason_parts.append(f"Likelihood 근거\n{issue['likelihood_reason']}")
-        if issue["severity_reason"]:
-            reason_parts.append(f"Severity 근거\n{issue['severity_reason']}")
+        layout.addLayout(_section_title_with_help("위험도 판정", lambda: _show_risk_help(self)))
+        risk_row = QHBoxLayout()
+        risk_row.setSpacing(5)
+        impact_value = issue["impact"] or "-"
+        likelihood_value = issue["likelihood"] or "-"
+        severity_value = issue["severity"] or "-"
+        severity_formula = (
+            f"{impact_value} × {likelihood_value}"
+            if issue["impact"] and issue["likelihood"] else ""
+        )
+        risk_row.addWidget(_result_card("Impact", impact_value, "impact"), 1)
+        risk_row.addWidget(_result_card("Likelihood", likelihood_value, "likelihood"), 1)
+        risk_row.addWidget(_result_card("Severity", severity_value, "severity", severity_formula), 1)
+        layout.addLayout(risk_row)
+
         evidence_summary = finding_text
+        reason_box = QFrame()
+        reason_box.setObjectName("detailReasonBox")
+        reason_layout = QVBoxLayout(reason_box)
+        reason_layout.setContentsMargins(8, 7, 8, 7)
+        reason_layout.setSpacing(7)
+        reason_title = QLabel("판정 근거")
+        reason_title.setObjectName("detailTextLabel")
+        reason_layout.addWidget(reason_title)
+        reason_items = []
         if evidence_summary and evidence_summary != description_text:
-            reason_parts.insert(0, f"검사 근거\n{evidence_summary}")
-        self.add_detail_section(layout, "근거", "\n\n".join(reason_parts) if reason_parts else evidence_summary)
+            reason_items.append(("검사 근거", evidence_summary))
+        if issue["impact_reason"]:
+            reason_items.append(("Impact 근거", issue["impact_reason"]))
+        if issue["likelihood_reason"]:
+            reason_items.append(("Likelihood 근거", issue["likelihood_reason"]))
+        if not reason_items and evidence_summary:
+            reason_items.append(("검사 근거", evidence_summary))
+        for heading, body in reason_items:
+            h = QLabel(heading); h.setObjectName("detailReasonTitle")
+            b = QLabel(str(body)); b.setObjectName("detailTextBody"); b.setWordWrap(True)
+            reason_layout.addWidget(h); reason_layout.addWidget(b)
+        layout.addWidget(reason_box)
 
-        audit_title = QLabel("감리 개선판정")
-        audit_title.setObjectName("detailTextLabel")
-        layout.addWidget(audit_title)
-        audit_box = QFrame()
-        audit_box.setObjectName("detailAIBox")
-        audit_layout = QVBoxLayout(audit_box)
-        audit_layout.setContentsMargins(10, 9, 10, 9)
-        audit_layout.setSpacing(3)
-
+        layout.addLayout(_section_title_with_help("감리 개선판정", lambda: _show_audit_help(self)))
         audit_values = (
             issue["audit_recommendation_type"],
             issue["audit_improvement_timing"],
             issue["audit_important"],
         )
         if any(audit_values):
-            audit_text = (
-                f"개선권고유형  {issue['audit_recommendation_type'] or '-'}\n"
-                f"개선시점      {issue['audit_improvement_timing'] or '-'}\n"
-                f"중요 여부     {issue['audit_important'] or '-'}"
-            )
+            audit_row = QHBoxLayout()
+            audit_row.setSpacing(5)
+            audit_row.addWidget(_result_card("개선권고유형", issue["audit_recommendation_type"] or "-", "audit"), 1)
+            audit_row.addWidget(_result_card("개선시점", issue["audit_improvement_timing"] or "-", "audit"), 1)
+            audit_row.addWidget(_result_card("중요 여부", issue["audit_important"] or "-", "audit"), 1)
+            layout.addLayout(audit_row)
         else:
-            audit_text = "판정 정보 없음"
-        audit_label = QLabel(audit_text)
-        audit_label.setObjectName("detailAIText")
-        audit_label.setWordWrap(True)
-        audit_layout.addWidget(audit_label)
-        layout.addWidget(audit_box)
+            audit_box = QFrame(); audit_box.setObjectName("detailAIBox")
+            audit_layout = QVBoxLayout(audit_box); audit_layout.setContentsMargins(10, 9, 10, 9)
+            audit_label = QLabel("판정 정보 없음"); audit_label.setObjectName("detailAIText")
+            audit_layout.addWidget(audit_label); layout.addWidget(audit_box)
 
         category = QLabel(f"카테고리    {issue['category'] or '-'}")
         category.setObjectName("detailTagText")
