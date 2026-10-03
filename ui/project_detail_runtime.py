@@ -280,6 +280,80 @@ def _detail_section_card(title, body, icon, tooltip=""):
     return card
 
 
+def _inspection_evidence_item(value):
+    """Present stored inspection evidence as scan-friendly sub-sections."""
+    text = _format_detail_text(value)
+    checkpoint = ""
+    confirmation = ""
+    judgment = ""
+    document_basis = ""
+
+    checkpoint_match = re.search(r"(?im)^(체크포인트\\s+[A-Z]+-\\d+\\s+위반:)\\s*$", text)
+    if checkpoint_match:
+        checkpoint = checkpoint_match.group(1)
+        text = (text[:checkpoint_match.start()] + text[checkpoint_match.end():]).strip()
+
+    basis_match = re.search(r"(?is)(?:^|\\n)근거:\\s*(.+)$", text)
+    if basis_match:
+        document_basis = basis_match.group(1).strip()
+        text = text[:basis_match.start()].strip()
+
+    paragraphs = [part.strip() for part in re.split(r"\\n\\s*\\n", text) if part.strip()]
+    if paragraphs:
+        confirmation = paragraphs[0]
+    if len(paragraphs) > 1:
+        judgment = "\\n\\n".join(paragraphs[1:])
+
+    item = QFrame()
+    item.setObjectName("detailReasonItem")
+    box = QVBoxLayout(item)
+    box.setContentsMargins(9, 8, 9, 9)
+    box.setSpacing(7)
+
+    header = QHBoxLayout()
+    header.setSpacing(6)
+    icon_label = QLabel("▣")
+    icon_label.setObjectName("detailReasonIcon")
+    icon_label.setFixedSize(16, 16)
+    icon_label.setAlignment(Qt.AlignCenter)
+    title_label = QLabel("검사 근거")
+    title_label.setObjectName("detailReasonTitle")
+    header.addWidget(icon_label)
+    header.addWidget(title_label)
+    header.addStretch()
+    box.addLayout(header)
+
+    sections = []
+    if checkpoint:
+        sections.append(("체크포인트", checkpoint))
+    if confirmation:
+        sections.append(("확인 내용", confirmation))
+    if judgment:
+        sections.append(("판단", judgment))
+    if document_basis:
+        sections.append(("문서 근거", document_basis))
+    if not sections:
+        sections.append(("확인 내용", text or "-"))
+
+    for label_text, body_text in sections:
+        section = QFrame()
+        section.setObjectName("detailEvidenceSubsection")
+        section_box = QVBoxLayout(section)
+        section_box.setContentsMargins(8, 6, 8, 7)
+        section_box.setSpacing(3)
+        label = QLabel(label_text)
+        label.setObjectName("detailEvidenceSubLabel")
+        body = QLabel(body_text)
+        body.setObjectName("detailReasonBody")
+        body.setWordWrap(True)
+        body.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        section_box.addWidget(label)
+        section_box.addWidget(body)
+        box.addWidget(section)
+
+    return item
+
+
 def _numbered_section_title(number, title, icon, help_callback=None):
     """Approved detail header: icon + title only. number kept for call compatibility."""
     row = QHBoxLayout()
@@ -719,7 +793,10 @@ def apply_project_detail_runtime(ProjectDetailPage):
         if not reason_items and evidence_summary:
             reason_items.append(("검사 근거", evidence_summary, "▣"))
         for heading, body, icon in reason_items:
-            reason_layout.addWidget(_reason_item(heading, body, icon))
+            if heading == "검사 근거":
+                reason_layout.addWidget(_inspection_evidence_item(body))
+            else:
+                reason_layout.addWidget(_reason_item(heading, body, icon))
         layout.addWidget(reason_box)
 
         layout.addLayout(_numbered_section_title(4, "감리 개선판정", "✓", lambda: _show_audit_help(self)))
