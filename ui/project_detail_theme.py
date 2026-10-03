@@ -647,3 +647,17 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
     font-size:9px; font-weight:700;
 }
 """
+
+/* USER REVIEW — typography and final compact sizing */
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low,
+#detailIssueListRow QLabel#detailBadge_critical {
+    font-size:11px; font-weight:900;
+}
+#detailRiskBadge_high, #detailRiskBadge_medium,
+#detailRiskBadge_low, #detailRiskBadge_critical {
+    font-size:11px; font-weight:900;
+}
+#detailAuditCard { min-height:52px; max-height:52px; }
+#detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
