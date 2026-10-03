@@ -546,9 +546,9 @@ class ProjectDetailPage(QWidget):
         sort_button.addItem("상태", "status")
         sort_button.addItem("규칙", "rule")
         sort_button.setFixedHeight(22)
-        # 58px is too narrow for Korean text + native combo arrow on Windows.
-        # Keep the control compact, but reserve enough real text width.
-        sort_button.setFixedWidth(72)
+        # Use a compact fixed control; native Windows combo rendering needs enough
+        # width for the arrow, so geometry is controlled here rather than by CSS.
+        sort_button.setFixedWidth(60)
         sort_button.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.issue_sort_button = sort_button
         sort_button.currentIndexChanged.connect(
