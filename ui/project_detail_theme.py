@@ -334,6 +334,15 @@ QComboBox#detailSortCombo::drop-down {
 #detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { color:#ffffff; font-size:11px; font-weight:900; }
 
 #detailHelpSectionNumberPlain { font-size:13px; font-weight:800; }
+
+/* FINAL AUDIT HELP COLOR ROLES */
+#detailAuditHelpBadge_required { color:#fff; background:#dc2626; border:1px solid #ef4444; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_consult { color:#fff; background:#d97706; border:1px solid #f59e0b; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_recommend { color:#fff; background:#7c3aed; border:1px solid #8b5cf6; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_short { color:#fff; background:#7c3aed; border:1px solid #8b5cf6; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_long { color:#fff; background:#0891b2; border:1px solid #06b6d4; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_important { color:#fff; background:#ef4444; border:1px solid #fb7185; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_minor { color:#334155; background:#cbd5e1; border:1px solid #e2e8f0; border-radius:6px; font-size:11px; font-weight:900; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -845,4 +854,13 @@ QComboBox#detailSortCombo::drop-down {
 #detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { font-size:11px; font-weight:900; }
 
 #detailHelpSectionNumberPlain { font-size:13px; font-weight:800; }
+
+/* FINAL AUDIT HELP COLOR ROLES */
+#detailAuditHelpBadge_required { color:#fff; background:#dc2626; border:1px solid #ef4444; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_consult { color:#fff; background:#d97706; border:1px solid #f59e0b; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_recommend { color:#fff; background:#7c3aed; border:1px solid #8b5cf6; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_short { color:#fff; background:#7c3aed; border:1px solid #8b5cf6; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_long { color:#fff; background:#0891b2; border:1px solid #06b6d4; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_important { color:#fff; background:#ef4444; border:1px solid #fb7185; border-radius:6px; font-size:11px; font-weight:900; }
+#detailAuditHelpBadge_minor { color:#334155; background:#cbd5e1; border:1px solid #e2e8f0; border-radius:6px; font-size:11px; font-weight:900; }
 """
