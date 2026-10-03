@@ -196,10 +196,10 @@ class ProjectDetailPage(QWidget):
         body_layout.addLayout(left_column, 3)
 
         issues_card = self.create_issues_card()
-        body_layout.addWidget(issues_card, 6)
+        body_layout.addWidget(issues_card, 5)
 
         detail_card = self.create_issue_detail_card()
-        body_layout.addWidget(detail_card, 14)
+        body_layout.addWidget(detail_card, 15)
 
         main_layout.addLayout(body_layout, 1)
 
