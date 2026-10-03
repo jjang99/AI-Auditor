@@ -167,7 +167,8 @@ def _help_section(layout, number, title, rows, audit=False):
         row.setSpacing(10)
         if audit:
             badge = QLabel(value)
-            badge.setObjectName("detailAuditHelpBadge")
+            audit_name = {"필수":"required", "협의":"consult", "권고":"recommend", "단기":"short", "장기":"long", "O":"important", "-":"minor"}.get(str(value), "default")
+            badge.setObjectName(f"detailAuditHelpBadge_{audit_name}")
             badge.setAlignment(Qt.AlignCenter)
             badge.setFixedSize(56, 24)
         else:
@@ -192,7 +193,7 @@ def _show_risk_help(parent):
     layout.setSpacing(10)
 
     _help_dialog_header(
-        layout, "?", "위험도 기준",
+        layout, "⚖", "위험도 기준",
         "Impact와 Likelihood를 각각 판정한 뒤 Matrix로 최종 Severity를 결정합니다.",
     )
     _help_section(layout, 1, "Impact (영향도)", (
@@ -215,7 +216,7 @@ def _show_risk_help(parent):
     matrix_layout = QVBoxLayout(matrix_card); matrix_layout.setContentsMargins(10,9,10,10); matrix_layout.setSpacing(7)
     note = QLabel("Impact × Likelihood Matrix"); note.setObjectName("detailHelpMatrixNote"); matrix_layout.addWidget(note)
     grid = QGridLayout(); grid.setSpacing(4)
-    grid.setColumnMinimumWidth(0, 108)
+    grid.setColumnMinimumWidth(0, 118)
     grid.setColumnStretch(0, 0)
     grid.setColumnStretch(1, 1)
     grid.setColumnStretch(2, 1)
@@ -249,7 +250,7 @@ def _show_audit_help(parent):
     layout.setSpacing(10)
 
     _help_dialog_header(
-        layout, "✓", "감리 개선판정 기준",
+        layout, "✦", "감리 개선판정 기준",
         "Severity와 별개로 감리 대응 관점에서 개선 유형·시점·중요 여부를 판단합니다.",
     )
     _help_section(layout, 1, "개선권고유형", (
