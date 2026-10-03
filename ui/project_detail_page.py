@@ -540,20 +540,21 @@ class ProjectDetailPage(QWidget):
         title = QLabel("Issues (14)")
         title.setObjectName("detailBodyTitle")
 
-        # Windows native QComboBox kept clipping the label regardless of CSS/width.
-        # Use the already-supported compact sort button + popup menu instead.
-        sort_button = QPushButton("정렬")
-        sort_button.setObjectName("detailSortButton")
-        sort_button.setFixedSize(48, 20)
-        sort_button.setCursor(Qt.PointingHandCursor)
-        sort_menu = QMenu(sort_button)
-        for label, key in (("심각도", "severity"), ("상태", "status"), ("규칙", "rule")):
-            action = sort_menu.addAction(label)
-            action.triggered.connect(
-                lambda checked=False, k=key, text=label: self.set_issue_sort(k, text)
-            )
-        sort_button.setMenu(sort_menu)
+        sort_button = QComboBox()
+        sort_button.setObjectName("detailSortCombo")
+        sort_button.addItem("정렬", None)
+        sort_button.addItem("심각도", "severity")
+        sort_button.addItem("상태", "status")
+        sort_button.addItem("규칙", "rule")
+        sort_button.setFixedHeight(26)
+        sort_button.setFixedWidth(88)
         self.issue_sort_button = sort_button
+        sort_button.currentIndexChanged.connect(
+            lambda index: (
+                self.set_issue_sort(sort_button.itemData(index), sort_button.itemText(index))
+                if sort_button.itemData(index) is not None else None
+            )
+        )
 
         header_layout.addWidget(title)
         header_layout.addStretch()
