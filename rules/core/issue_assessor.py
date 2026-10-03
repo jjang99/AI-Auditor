@@ -37,12 +37,18 @@ class DeferredIssueAssessor(BaseIssueAssessor):
 def apply_issue_assessments(
     issues: tuple[RuleIssue, ...] | list[RuleIssue],
     assessor: BaseIssueAssessor,
+    *,
+    include_audit_judgment: bool = False,
 ) -> tuple[RuleIssue, ...]:
     """Issue에 판정 결과를 붙이고 Matrix로 최종 Severity를 확정한다."""
 
     issue_tuple = tuple(issues)
     assessments = assessor.assess_many(issue_tuple)
-    audit_judgments = assessor.judge_audit_many(issue_tuple)
+    audit_judgments = (
+        assessor.judge_audit_many(issue_tuple)
+        if include_audit_judgment
+        else tuple(issue.audit_judgment for issue in issue_tuple)
+    )
 
     if len(assessments) != len(issue_tuple):
         raise ValueError("Issue 평가 결과 수가 입력 Issue 수와 일치하지 않습니다.")
