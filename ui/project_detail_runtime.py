@@ -105,45 +105,120 @@ def _section_title_with_help(title, callback):
     return row
 
 
+def _help_dialog_header(layout, icon, title, subtitle):
+    head = QFrame()
+    head.setObjectName("detailHelpHero")
+    row = QHBoxLayout(head)
+    row.setContentsMargins(12, 10, 12, 10)
+    row.setSpacing(10)
+    icon_label = QLabel(icon)
+    icon_label.setObjectName("detailHelpHeroIcon")
+    icon_label.setFixedSize(34, 34)
+    icon_label.setAlignment(Qt.AlignCenter)
+    text_box = QVBoxLayout()
+    text_box.setSpacing(1)
+    title_label = QLabel(title)
+    title_label.setObjectName("detailHelpTitle")
+    subtitle_label = QLabel(subtitle)
+    subtitle_label.setObjectName("detailHelpSubtitle")
+    subtitle_label.setWordWrap(True)
+    text_box.addWidget(title_label)
+    text_box.addWidget(subtitle_label)
+    row.addWidget(icon_label)
+    row.addLayout(text_box, 1)
+    layout.addWidget(head)
+
+
+def _help_section(layout, number, title, rows, audit=False):
+    head = QHBoxLayout()
+    head.setSpacing(7)
+    number_label = QLabel(str(number))
+    number_label.setObjectName("detailHelpSectionNumber")
+    number_label.setFixedSize(22, 22)
+    number_label.setAlignment(Qt.AlignCenter)
+    title_label = QLabel(title)
+    title_label.setObjectName("detailHelpSection")
+    head.addWidget(number_label)
+    head.addWidget(title_label)
+    head.addStretch()
+    layout.addLayout(head)
+
+    group = QFrame()
+    group.setObjectName("detailHelpGroup")
+    group_layout = QVBoxLayout(group)
+    group_layout.setContentsMargins(7, 7, 7, 7)
+    group_layout.setSpacing(5)
+    for value, desc in rows:
+        item = QFrame()
+        item.setObjectName("detailHelpItem")
+        row = QHBoxLayout(item)
+        row.setContentsMargins(9, 7, 9, 7)
+        row.setSpacing(10)
+        if audit:
+            badge = QLabel(value)
+            badge.setObjectName("detailAuditHelpBadge")
+            badge.setAlignment(Qt.AlignCenter)
+            badge.setFixedSize(56, 24)
+        else:
+            badge = _level_badge(value, "help")
+        text = QLabel(desc)
+        text.setObjectName("detailHelpText")
+        text.setWordWrap(True)
+        row.addWidget(badge)
+        row.addWidget(text, 1)
+        group_layout.addWidget(item)
+    layout.addWidget(group)
+
+
 def _show_risk_help(parent):
     dialog = QDialog(parent)
     dialog.setObjectName("detailHelpDialog")
     dialog.setWindowTitle("위험도 기준")
     dialog.setModal(True)
-    dialog.setFixedWidth(430)
+    dialog.setFixedWidth(500)
     layout = QVBoxLayout(dialog)
-    layout.setContentsMargins(18, 16, 18, 16)
+    layout.setContentsMargins(16, 14, 16, 16)
     layout.setSpacing(10)
 
-    title = QLabel("위험도 기준 (Help)")
-    title.setObjectName("detailHelpTitle")
-    layout.addWidget(title)
-    for heading, rows in (
-        ("1. Impact (영향도)", (("High", "핵심 기능·보안·중요 검증 또는 광범위한 중대 영향"), ("Medium", "품질·관리·검증 영향이 있으나 범위가 제한적"), ("Low", "국소적 문서·표현 수준의 제한적 영향"))),
-        ("2. Likelihood (발생가능성)", (("High", "영향 현실화 가능성이 높거나 이미 징후가 확인됨"), ("Medium", "후속 영향 가능성이 있으나 근거가 부분적"), ("Low", "현재 징후가 없고 추가 조건이 필요함"))),
-    ):
-        h = QLabel(heading); h.setObjectName("detailHelpSection"); layout.addWidget(h)
-        for level, desc in rows:
-            item = QFrame(); item.setObjectName("detailHelpItem")
-            row = QHBoxLayout(item); row.setContentsMargins(9, 7, 9, 7); row.setSpacing(10)
-            row.addWidget(_level_badge(level, "help"))
-            text = QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
-            row.addWidget(text, 1); layout.addWidget(item)
+    _help_dialog_header(
+        layout, "?", "위험도 기준",
+        "Impact와 Likelihood를 각각 판정한 뒤 Matrix로 최종 Severity를 결정합니다.",
+    )
+    _help_section(layout, 1, "Impact (영향도)", (
+        ("High", "핵심 기능·업무·보안 또는 중요 검증에 중대한 영향"),
+        ("Medium", "품질·관리·검증에 영향이 있으나 범위가 제한적"),
+        ("Low", "국소적 문서·표현 수준의 제한적 영향"),
+    ))
+    _help_section(layout, 2, "Likelihood (발생가능성)", (
+        ("High", "영향 현실화 가능성이 높거나 이미 징후가 확인됨"),
+        ("Medium", "후속 영향 가능성이 있으나 근거가 부분적"),
+        ("Low", "현재 징후가 없고 추가 조건이 필요함"),
+    ))
 
-    h = QLabel("3. Severity (위험도)"); h.setObjectName("detailHelpSection"); layout.addWidget(h)
-    note = QLabel("Impact × Likelihood Matrix로 결정"); note.setObjectName("detailHelpText"); layout.addWidget(note)
-    grid = QGridLayout(); grid.setSpacing(3)
+    head = QHBoxLayout()
+    head.setSpacing(7)
+    num = QLabel("3"); num.setObjectName("detailHelpSectionNumber"); num.setFixedSize(22,22); num.setAlignment(Qt.AlignCenter)
+    title = QLabel("Severity (위험도)"); title.setObjectName("detailHelpSection")
+    head.addWidget(num); head.addWidget(title); head.addStretch(); layout.addLayout(head)
+    matrix_card = QFrame(); matrix_card.setObjectName("detailHelpMatrixCard")
+    matrix_layout = QVBoxLayout(matrix_card); matrix_layout.setContentsMargins(10,9,10,10); matrix_layout.setSpacing(7)
+    note = QLabel("Impact × Likelihood Matrix"); note.setObjectName("detailHelpMatrixNote"); matrix_layout.addWidget(note)
+    grid = QGridLayout(); grid.setSpacing(4)
     matrix = [
-        ("Impact \\ Likelihood", "Low", "Medium", "High"),
+        ("Impact × Likelihood", "Low", "Medium", "High"),
         ("High", "Medium", "High", "Critical"),
         ("Medium", "Low", "Medium", "High"),
         ("Low", "Low", "Low", "Medium"),
     ]
     for r, values in enumerate(matrix):
         for col, value in enumerate(values):
-            cell = QLabel(value); cell.setObjectName("detailMatrixHeader" if r == 0 or col == 0 else f"detailMatrix_{value.lower()}")
-            cell.setAlignment(Qt.AlignCenter); cell.setMinimumHeight(28); grid.addWidget(cell, r, col)
-    layout.addLayout(grid)
+            cell = QLabel(value)
+            cell.setObjectName("detailMatrixHeader" if r == 0 or col == 0 else f"detailMatrix_{value.lower()}")
+            cell.setAlignment(Qt.AlignCenter)
+            cell.setMinimumHeight(30)
+            grid.addWidget(cell, r, col)
+    matrix_layout.addLayout(grid)
+    layout.addWidget(matrix_card)
     dialog.exec()
 
 
@@ -152,24 +227,28 @@ def _show_audit_help(parent):
     dialog.setObjectName("detailHelpDialog")
     dialog.setWindowTitle("감리 개선판정 기준")
     dialog.setModal(True)
-    dialog.setFixedWidth(430)
+    dialog.setFixedWidth(500)
     layout = QVBoxLayout(dialog)
-    layout.setContentsMargins(18, 16, 18, 16)
+    layout.setContentsMargins(16, 14, 16, 16)
     layout.setSpacing(10)
-    title = QLabel("감리 개선판정 기준 (Help)"); title.setObjectName("detailHelpTitle"); layout.addWidget(title)
-    sections = (
-        ("1. 개선권고유형", (("필수", "감리 지적 가능성이 높아 반드시 개선 필요"), ("협의", "감리 검토 후 개선 여부 협의 필요"), ("권고", "품질 향상을 위해 개선 권고"))),
-        ("2. 개선시점", (("단기", "사업 기간 내 조치 권장"), ("장기", "유지보수 등 후속 단계에서 조치"))),
-        ("3. 중요 여부", (("O", "사업·업무에 중요한 영향이 있는 경우"), ("-", "상대적으로 영향이 낮은 경우"))),
+
+    _help_dialog_header(
+        layout, "✓", "감리 개선판정 기준",
+        "Severity와 별개로 감리 대응 관점에서 개선 유형·시점·중요 여부를 판단합니다.",
     )
-    for heading, rows in sections:
-        h=QLabel(heading); h.setObjectName("detailHelpSection"); layout.addWidget(h)
-        for value, desc in rows:
-            item=QFrame(); item.setObjectName("detailHelpItem")
-            row=QHBoxLayout(item); row.setContentsMargins(9,7,9,7); row.setSpacing(10)
-            badge=QLabel(value); badge.setObjectName("detailAuditHelpBadge"); badge.setAlignment(Qt.AlignCenter); badge.setFixedSize(56,24)
-            text=QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
-            row.addWidget(badge); row.addWidget(text,1); layout.addWidget(item)
+    _help_section(layout, 1, "개선권고유형", (
+        ("필수", "감리 지적 가능성이 높아 반드시 개선 필요"),
+        ("협의", "감리 검토 후 개선 여부 협의 필요"),
+        ("권고", "품질 향상을 위해 개선 권고"),
+    ), audit=True)
+    _help_section(layout, 2, "개선시점", (
+        ("단기", "사업 기간 내 조치 권장"),
+        ("장기", "유지보수 등 후속 단계에서 조치"),
+    ), audit=True)
+    _help_section(layout, 3, "중요 여부", (
+        ("O", "사업·업무에 중요한 영향이 있는 경우"),
+        ("-", "상대적으로 영향이 낮은 경우"),
+    ), audit=True)
     dialog.exec()
 
 
@@ -610,9 +689,20 @@ def apply_project_detail_runtime(ProjectDetailPage):
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
 
         layout.addLayout(_numbered_section_title(1, "발견 내용", "▤"))
-        layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "◆"))
-        layout.addWidget(_detail_section_card("검사 파일", source_text, "▣"))
-        layout.addWidget(_detail_section_card("발견 내용", description_text, "▤"))
+        meta = QFrame()
+        meta.setObjectName("detailFindingMeta")
+        meta_box = QVBoxLayout(meta)
+        meta_box.setContentsMargins(9, 7, 9, 7)
+        meta_box.setSpacing(4)
+        meta_title = QLabel(f"◆  {issue['title'] or '-'}")
+        meta_title.setObjectName("detailFindingMetaTitle")
+        meta_file = QLabel(f"▣  {source_text}")
+        meta_file.setObjectName("detailFindingMetaFile")
+        meta_file.setWordWrap(True)
+        meta_box.addWidget(meta_title)
+        meta_box.addWidget(meta_file)
+        layout.addWidget(meta)
+        layout.addWidget(_detail_section_card("체크포인트", description_text, "▤"))
 
         layout.addLayout(_numbered_section_title(2, "위험도 판정", "◆", lambda: _show_risk_help(self)))
         risk_row = QHBoxLayout()
