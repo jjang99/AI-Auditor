@@ -394,3 +394,26 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
 
 """
+
+/* Inspection evidence compact hierarchy */
+#detailEvidenceCard {
+    padding: 8px 10px;
+}
+#detailEvidenceSubsection {
+    padding: 6px 8px;
+    margin: 3px 0;
+    background:#101d27;
+    border:1px solid #29465b;
+    border-radius:6px;
+}
+#detailEvidenceSubLabel {
+    color:#65c7ff;
+    font-size:9px;
+    font-weight:800;
+    margin-bottom:2px;
+}
+#detailEvidenceSubValue {
+    color:#f2f7fb;
+    font-size:10px;
+    line-height:1.25;
+}
