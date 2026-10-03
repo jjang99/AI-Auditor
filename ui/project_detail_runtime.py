@@ -101,7 +101,8 @@ def _result_card(title, value, role, subtext=""):
                 border:1px solid #425466;
             }
         """)
-        card.setMinimumHeight(62)
+        card.setMinimumHeight(66)
+        card.setMaximumHeight(66)
     box.addWidget(heading, 0, Qt.AlignTop)
     box.addWidget(badge, 0, Qt.AlignHCenter | Qt.AlignTop)
     if subtext:
@@ -283,7 +284,7 @@ def _detail_section_card(title, body, icon, tooltip=""):
     row = QHBoxLayout(card)
     row.setContentsMargins(9, 8, 9, 8)
     row.setSpacing(8)
-    icon_label = QLabel(icon)
+    icon_label = QLabel("✓")
     icon_label.setObjectName("detailSectionIcon")
     icon_label.setFixedSize(13, 18)
     icon_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
