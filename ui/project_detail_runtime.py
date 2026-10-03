@@ -70,16 +70,18 @@ def _level_badge(value, role):
 
 def _result_card(title, value, role, subtext=""):
     card = QFrame()
-    card.setObjectName("detailRiskCard")
+    card.setObjectName("detailAuditCard" if role == "audit" else "detailRiskCard")
     box = QVBoxLayout(card)
-    box.setContentsMargins(6, 7, 6, 7)
-    box.setSpacing(5)
+    box.setContentsMargins(7, 8, 7, 8)
+    box.setSpacing(6)
     heading = QLabel(title)
-    heading.setObjectName("detailRiskCardTitle")
+    heading.setObjectName("detailAuditCardTitle" if role == "audit" else "detailRiskCardTitle")
     heading.setAlignment(Qt.AlignCenter)
     badge = _level_badge(value, role)
+    if role == "audit":
+        badge.setObjectName("detailAuditResultBadge")
     box.addWidget(heading)
-    box.addWidget(badge)
+    box.addWidget(badge, 0, Qt.AlignHCenter)
     if subtext:
         sub = QLabel(subtext)
         sub.setObjectName("detailRiskSubtext")
