@@ -4,6 +4,10 @@ from rules.core.issue_assessor import BaseIssueAssessor
 from rules.core.models import RuleIssue
 from rules.core.severity import (
     AssessmentLevel,
+    AuditImprovementJudgment,
+    AuditImprovementTiming,
+    AuditImportantFlag,
+    AuditRecommendationType,
     IssueAssessment,
     IssueSeverity,
 )
@@ -69,6 +73,93 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
                 )
 
         return tuple(assessments)
+
+    def judge_audit_many(
+        self,
+        issues: tuple[RuleIssue, ...],
+        batch_size: int = 2,
+    ) -> tuple[AuditImprovementJudgment | None, ...]:
+        """감리 대응 관점의 개선판정을 Severity와 독립적으로 평가한다."""
+        if not issues:
+            return ()
+
+        judgments = []
+        for start in range(0, len(issues), batch_size):
+            batch = issues[start:start + batch_size]
+            raw_response = self.provider._complete(
+                self._build_audit_batch_prompt(batch),
+                response_format=self._audit_batch_response_format(len(batch)),
+            )
+            payload = json.loads(raw_response)
+            items = payload.get("judgments", [])
+            if len(items) != len(batch):
+                raise LocalAIProviderError("감리 개선판정 결과 수가 올바르지 않습니다.")
+            for item in items:
+                if not item.get("applicable", False):
+                    judgments.append(None)
+                    continue
+                judgments.append(
+                    AuditImprovementJudgment(
+                        recommendation_type=AuditRecommendationType(item["recommendation_type"]),
+                        improvement_timing=AuditImprovementTiming(item["improvement_timing"]),
+                        important=AuditImportantFlag(item["important"]),
+                    )
+                )
+        return tuple(judgments)
+
+    @staticmethod
+    def _build_audit_batch_prompt(issues: tuple[RuleIssue, ...]) -> str:
+        items = "\n".join(
+            (
+                f"[{index}] Rule={issue.rule_code} {issue.rule_name}; "
+                f"Category={issue.category}; Description={issue.description}; "
+                f"Evidence={issue.evidence}"
+            )
+            for index, issue in enumerate(issues)
+        )
+        return (
+            "당신은 정보시스템 감리 개선판정 보조 AI입니다.\n"
+            "Severity와 감리 개선판정은 서로 독립적입니다. Severity를 근거로 자동 매핑하지 마세요.\n"
+            "입력 Issue만 근거로 감리 대응 관점의 개선판정이 의미 있는지 먼저 판단하세요.\n"
+            "의미가 없거나 근거가 부족하면 applicable=false로 반환하세요.\n"
+            "applicable=true인 경우 개선권고유형은 필수/협의/권고, 개선시점은 단기/장기, "
+            "중요 여부는 O/- 중 하나만 선택하세요. 입력에 없는 사실은 추측하지 마세요.\n\n"
+            f"{items}"
+        )
+
+    @staticmethod
+    def _audit_batch_response_format(item_count: int) -> dict:
+        item_schema = {
+            "type": "object",
+            "properties": {
+                "applicable": {"type": "boolean"},
+                "recommendation_type": {"type": "string", "enum": ["필수", "협의", "권고"]},
+                "improvement_timing": {"type": "string", "enum": ["단기", "장기"]},
+                "important": {"type": "string", "enum": ["O", "-"]},
+            },
+            "required": ["applicable", "recommendation_type", "improvement_timing", "important"],
+            "additionalProperties": False,
+        }
+        return {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "audit_improvement_judgments",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "judgments": {
+                            "type": "array",
+                            "minItems": item_count,
+                            "maxItems": item_count,
+                            "items": item_schema,
+                        }
+                    },
+                    "required": ["judgments"],
+                    "additionalProperties": False,
+                },
+            },
+        }
 
     @staticmethod
     def _build_batch_prompt(issues: tuple[RuleIssue, ...]) -> str:
