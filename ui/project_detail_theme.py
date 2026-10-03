@@ -230,6 +230,28 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical { min-height:15px; max-height:15px; font-size:11px; font-weight:900; padding:0 5px; }
 #detailRiskSubtext { margin-top:3px; font-size:9px; font-weight:700; }
 #detailSectionHeaderTitle { margin-top:4px; margin-bottom:3px; }
+
+/* USER REVIEW FINAL COMPACT PASS */
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low,
+#detailIssueListRow QLabel#detailBadge_critical { font-size:10px; font-weight:900; padding:0; }
+#detailIssueListRow QLabel#detailStatusOpen,
+#detailIssueListRow QLabel#detailStatusResolved { font-size:10px; font-weight:900; padding:0; }
+
+#detailRiskCard { min-height:62px; max-height:62px; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical {
+    min-height:14px; max-height:14px; font-size:11px; font-weight:900; padding:0 5px; margin-bottom:3px;
+}
+#detailRiskSubtext { margin-top:4px; font-size:9px; font-weight:700; }
+
+#detailAuditCard { min-height:48px; max-height:48px; padding:0; }
+#detailAuditCardTitle { font-size:10px; font-weight:900; margin:0; padding:0; }
+QLabel#detailAuditResultBadge { min-height:16px; max-height:16px; padding:0 5px; margin:0; }
+QLabel#detailAuditResultBadge[auditPending="true"] {
+    min-height:16px; max-height:16px; padding:0 5px; margin:0;
+    font-size:9px; font-weight:700;
+}
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -602,4 +624,26 @@ QLabel#detailAuditResultBadge[auditPending="true"] { color:#64748b; background:#
 #detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical { min-height:15px; max-height:15px; font-size:11px; font-weight:900; padding:0 5px; }
 #detailRiskSubtext { margin-top:3px; font-size:9px; font-weight:700; }
 #detailSectionHeaderTitle { margin-top:4px; margin-bottom:3px; }
+
+/* USER REVIEW FINAL COMPACT PASS */
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low,
+#detailIssueListRow QLabel#detailBadge_critical { font-size:10px; font-weight:900; padding:0; }
+#detailIssueListRow QLabel#detailStatusOpen,
+#detailIssueListRow QLabel#detailStatusResolved { font-size:10px; font-weight:900; padding:0; }
+
+#detailRiskCard { min-height:62px; max-height:62px; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical {
+    min-height:14px; max-height:14px; font-size:11px; font-weight:900; padding:0 5px; margin-bottom:3px;
+}
+#detailRiskSubtext { margin-top:4px; font-size:9px; font-weight:700; }
+
+#detailAuditCard { min-height:48px; max-height:48px; padding:0; }
+#detailAuditCardTitle { font-size:10px; font-weight:900; margin:0; padding:0; }
+QLabel#detailAuditResultBadge { min-height:16px; max-height:16px; padding:0 5px; margin:0; }
+QLabel#detailAuditResultBadge[auditPending="true"] {
+    min-height:16px; max-height:16px; padding:0 5px; margin:0;
+    font-size:9px; font-weight:700;
+}
 """
