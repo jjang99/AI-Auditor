@@ -274,6 +274,14 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailEvidenceSubLabel { font-size:11px; font-weight:900; }
 #detailSectionHeaderIcon { font-size:15px; font-weight:900; }
 #detailRiskSubtext { font-size:9px; font-weight:700; margin-top:3px; }
+
+/* TARGETED READABILITY — no geometry changes */
+#detailIssueListRow QLabel#detailStatusOpen,
+#detailIssueListRow QLabel#detailStatusResolved { font-size:11px; font-weight:900; }
+#detailMetaLabel { font-size:11px; font-weight:800; }
+#detailMetaValue { font-size:11px; font-weight:600; }
+#detailFindingMetaTitle { font-size:11px; font-weight:800; }
+#detailFindingMetaFile { font-size:11px; font-weight:600; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -707,4 +715,12 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailEvidenceSubLabel { font-size:11px; font-weight:900; }
 #detailSectionHeaderIcon { font-size:15px; font-weight:900; }
 #detailRiskSubtext { font-size:9px; font-weight:700; margin-top:3px; }
+
+/* TARGETED READABILITY — no geometry changes */
+#detailIssueListRow QLabel#detailStatusOpen,
+#detailIssueListRow QLabel#detailStatusResolved { font-size:11px; font-weight:900; }
+#detailMetaLabel { font-size:11px; font-weight:800; }
+#detailMetaValue { font-size:11px; font-weight:600; }
+#detailFindingMetaTitle { font-size:11px; font-weight:800; }
+#detailFindingMetaFile { font-size:11px; font-weight:600; }
 """
