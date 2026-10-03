@@ -294,6 +294,9 @@ QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
 #detailMetaValue, #detailOtherText { color:#f8fafc; font-size:12px; font-weight:600; }
 QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding-left:7px; padding-right:20px; }
 QComboBox#detailSortCombo::drop-down { width:18px; border:0; }
+
+/* FINAL VISUAL ALIGNMENT: finding values follow evidence body */
+#detailSectionCard #detailTextBody { color:#f8fafc; font-size:12px; font-weight:600; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -765,4 +768,7 @@ QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
 #detailMetaValue, #detailOtherText { color:#0f172a; font-size:12px; font-weight:600; }
 QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding-left:7px; padding-right:20px; }
 QComboBox#detailSortCombo::drop-down { width:18px; border:0; }
+
+/* FINAL VISUAL ALIGNMENT: finding values follow evidence body */
+#detailSectionCard #detailTextBody { color:#0f172a; font-size:12px; font-weight:600; }
 """
