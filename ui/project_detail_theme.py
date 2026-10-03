@@ -116,6 +116,28 @@ DETAIL_DARK_REFINEMENTS = """
 #detailHelpMatrixNote { color:#cfe8f8; font-size:10px; font-weight:700; }
 #detailAuditHelpBadge { color:#fff; background:#6d28d9; border:1px solid #8b5cf6; border-radius:7px; font-size:10px; font-weight:800; }
 
+/* Approved detail hierarchy v3 */
+#detailSectionHeaderIcon { color:#38bdf8; background:#102b3d; border:1px solid #24516d; border-radius:5px; font-size:11px; font-weight:900; }
+#detailSectionHeaderTitle { color:#f8fafc; font-size:12px; font-weight:800; }
+#detailHelpButton { color:#7dd3fc; background:#0e2738; border:1px solid #38bdf8; border-radius:8px; font-size:9px; font-weight:900; padding:0; }
+#detailFindingMeta { background:#13212d; border:1px solid #334b5f; border-radius:8px; }
+#detailFindingMetaTitle { color:#f8fafc; font-size:11px; font-weight:800; }
+#detailFindingMetaFile { color:#b8ccdc; font-size:9px; font-weight:500; }
+#detailSectionCard { background:#142532; border:1px solid #36536a; border-radius:8px; }
+#detailSectionTitle { color:#7dd3fc; font-size:10px; font-weight:800; }
+#detailTextBody { color:#f8fafc; font-size:11px; font-weight:500; }
+#detailRiskCard { background:#142532; border:1px solid #36536a; border-radius:8px; min-height:46px; }
+#detailRiskCardTitle { color:#cfe9fa; font-size:10px; font-weight:800; }
+#detailRiskSubtext { color:#cbdde9; font-size:9px; font-weight:600; }
+#detailReasonBox { background:#101c26; border:1px solid #334b5f; border-radius:8px; }
+#detailReasonItem { background:#142532; border:1px solid #2f4a60; border-radius:7px; }
+#detailReasonIcon { color:#c084fc; background:#25163a; border:1px solid #6d3aa8; border-radius:4px; font-size:10px; font-weight:900; }
+#detailReasonTitle { color:#d9f0ff; font-size:10px; font-weight:800; }
+#detailReasonBody { color:#f1f7fb; font-size:10px; font-weight:500; }
+#detailOtherInfo { background:#142532; border:1px solid #36536a; border-radius:8px; }
+#detailOtherLabel { color:#7dd3fc; font-size:9px; font-weight:800; }
+#detailOtherText { color:#f8fafc; font-size:10px; font-weight:700; }
+
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -235,5 +257,27 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailHelpText { color:#1e293b; font-size:11px; font-weight:500; }
 #detailHelpMatrixNote { color:#334155; font-size:10px; font-weight:700; }
 #detailAuditHelpBadge { color:#fff; background:#7c3aed; border:1px solid #6d28d9; border-radius:7px; font-size:10px; font-weight:800; }
+
+/* Approved detail hierarchy v3 */
+#detailSectionHeaderIcon { color:#0369a1; background:#e0f2fe; border:1px solid #7dd3fc; border-radius:5px; font-size:11px; font-weight:900; }
+#detailSectionHeaderTitle { color:#0f172a; font-size:12px; font-weight:800; }
+#detailHelpButton { color:#0369a1; background:#f0f9ff; border:1px solid #0284c7; border-radius:8px; font-size:9px; font-weight:900; padding:0; }
+#detailFindingMeta { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; }
+#detailFindingMetaTitle { color:#0f172a; font-size:11px; font-weight:800; }
+#detailFindingMetaFile { color:#475569; font-size:9px; font-weight:500; }
+#detailSectionCard { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; }
+#detailSectionTitle { color:#0369a1; font-size:10px; font-weight:800; }
+#detailTextBody { color:#0f172a; font-size:11px; font-weight:500; }
+#detailRiskCard { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; min-height:46px; }
+#detailRiskCardTitle { color:#0f3b5b; font-size:10px; font-weight:800; }
+#detailRiskSubtext { color:#475569; font-size:9px; font-weight:600; }
+#detailReasonBox { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
+#detailReasonItem { background:#ffffff; border:1px solid #d3e0ea; border-radius:7px; }
+#detailReasonIcon { color:#7e22ce; background:#f3e8ff; border:1px solid #d8b4fe; border-radius:4px; font-size:10px; font-weight:900; }
+#detailReasonTitle { color:#075985; font-size:10px; font-weight:800; }
+#detailReasonBody { color:#1e293b; font-size:10px; font-weight:500; }
+#detailOtherInfo { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; }
+#detailOtherLabel { color:#0369a1; font-size:9px; font-weight:800; }
+#detailOtherText { color:#0f172a; font-size:10px; font-weight:700; }
 
 """
