@@ -305,6 +305,10 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
  color:#cbd5e1; background:#1f2a35; border:1px solid #526273; border-radius:6px;
  font-size:9px; font-weight:800; padding:0 5px;
 }
+
+/* SORT COMBO CLIPPING FIX */
+QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 2px 0 5px; }
+QComboBox#detailSortCombo::drop-down { width:9px; border:0; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -787,4 +791,8 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
  color:#475569; background:#eef2f6; border:1px solid #94a3b8; border-radius:6px;
  font-size:9px; font-weight:800; padding:0 5px;
 }
+
+/* SORT COMBO CLIPPING FIX */
+QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 2px 0 5px; }
+QComboBox#detailSortCombo::drop-down { width:9px; border:0; }
 """
