@@ -60,7 +60,8 @@ def _clear_layout(layout):
 
 def _format_detail_text(value):
     """Format stored evidence for display without changing its source text."""
-    text = str(value or "-").strip()\n    text = re.sub(r":0(?=\\s*(?:\\||$))", "", text)
+    text = str(value or "-").strip()
+    text = re.sub(r":0(?=\s*(?:\||$))", "", text)
 
     # Stored document evidence uses pipes to separate location/source and
     # finding text. Present those boundaries as paragraphs.
