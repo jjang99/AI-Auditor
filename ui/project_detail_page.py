@@ -324,7 +324,8 @@ class ProjectDetailPage(QWidget):
         icon_label.setAlignment(Qt.AlignCenter)
 
         text_layout = QVBoxLayout()
-        text_layout.setSpacing(1)
+        text_layout.setContentsMargins(0, 4, 0, 4)
+        text_layout.setSpacing(0)
 
         title_label = QLabel(title)
         title_label.setObjectName("detailStatTitle")
@@ -544,8 +545,8 @@ class ProjectDetailPage(QWidget):
         sort_button.addItem("심각도", "severity")
         sort_button.addItem("상태", "status")
         sort_button.addItem("규칙", "rule")
-        sort_button.setFixedHeight(26)
-        sort_button.setFixedWidth(88)
+        sort_button.setFixedHeight(22)
+        sort_button.setFixedWidth(64)
         self.issue_sort_button = sort_button
         sort_button.currentIndexChanged.connect(
             lambda index: (
