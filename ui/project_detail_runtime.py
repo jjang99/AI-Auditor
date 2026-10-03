@@ -387,7 +387,7 @@ def _numbered_section_title(number, title, icon, help_callback=None):
     row.setSpacing(7)
     icon_label = QLabel(icon)
     icon_label.setObjectName("detailSectionHeaderIcon")
-    icon_label.setFixedSize(18, 18)
+    icon_label.setFixedSize(21, 21)
     icon_label.setAlignment(Qt.AlignCenter)
     label = QLabel(title)
     label.setObjectName("detailSectionHeaderTitle")
@@ -700,12 +700,12 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 None,
             )
             if status:
-                status.setFixedWidth(34)
-                status.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                status.setFixedWidth(38)
+                status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             row_layout = row.layout()
             if row_layout:
-                row_layout.setContentsMargins(4, 7, 18, 7)
-                row_layout.setSpacing(5)
+                row_layout.setContentsMargins(8, 7, 9, 7)
+                row_layout.setSpacing(6)
             description = row.findChild(QLabel, "detailIssueDescription")
             if description:
                 description.setWordWrap(True)
@@ -791,12 +791,12 @@ def apply_project_detail_runtime(ProjectDetailPage):
         finding_text = _summarize_evidence(finding_candidate)
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
 
-        layout.addLayout(_numbered_section_title(1, "발견 내용", "⌕"))
+        layout.addLayout(_numbered_section_title(1, "발견 내용", "▣"))
         layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "✓"))
         layout.addWidget(_detail_section_card("검사 파일", compact_source_text, "✓", source_text))
         layout.addWidget(_detail_section_card("체크포인트", description_text, "✓"))
 
-        layout.addLayout(_numbered_section_title(2, "위험도 판정", "▲", lambda: _show_risk_help(self)))
+        layout.addLayout(_numbered_section_title(2, "위험도 판정", "◆", lambda: _show_risk_help(self)))
         impact_value = issue["impact"] or "-"
         likelihood_value = issue["likelihood"] or "-"
         severity_value = issue["severity"] or "-"
@@ -808,7 +808,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
         risk_row.addWidget(_result_card("Severity", severity_value, "severity", severity_formula), 1)
         layout.addLayout(risk_row)
 
-        layout.addLayout(_numbered_section_title(3, "판정 근거", "▥"))
+        layout.addLayout(_numbered_section_title(3, "판정 근거", "≡"))
         evidence_summary = finding_text
         reason_box = QFrame()
         reason_box.setObjectName("detailReasonBox")
@@ -837,7 +837,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 reason_layout.addWidget(_reason_item(heading, body, icon))
         layout.addWidget(reason_box)
 
-        layout.addLayout(_numbered_section_title(4, "감리 개선판정", "✓", lambda: _show_audit_help(self)))
+        layout.addLayout(_numbered_section_title(4, "감리 개선판정", "★", lambda: _show_audit_help(self)))
         audit_row = QHBoxLayout()
         audit_row.setSpacing(6)
         audit_row.setContentsMargins(0, 0, 0, 0)
