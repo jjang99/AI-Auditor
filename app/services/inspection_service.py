@@ -246,7 +246,7 @@ class InspectionService:
             test_change_rule = rule_by_code.get("CHG-012")
             if test_change_rule is not None and change_issues and test_documents:
                 test_context = ParsedDocument(
-                    file_path=Path("change_test_context.txt"),
+                    file_path=test_documents[0].file_path,
                     file_type="change_test_comparison",
                     blocks=tuple(
                         [
@@ -303,7 +303,7 @@ class InspectionService:
                     continue
 
                 synthesis_document = ParsedDocument(
-                    file_path=Path(f"{synthesis_code.lower()}_findings.txt"),
+                    file_path=Path(source_issues[0].file_path),
                     file_type="inspection_findings",
                     blocks=tuple(
                         DocumentBlock(
