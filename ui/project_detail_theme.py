@@ -458,4 +458,31 @@ DETAIL_LIGHT_REFINEMENTS = """
     font-weight:900;
     margin-bottom:5px;
 }
+
+
+/* Audit judgment cards — visual hierarchy */
+#detailAuditCard {
+    background:#132431;
+    border:1px solid #365a72;
+    border-radius:8px;
+    min-height:68px;
+}
+#detailAuditCard:hover {
+    border:1px solid #5e8cab;
+}
+#detailAuditCardTitle {
+    color:#7dd7ff;
+    font-size:10px;
+    font-weight:900;
+}
+#detailAuditResultBadge {
+    color:#ffffff;
+    background:#6d28d9;
+    border:1px solid #a78bfa;
+    border-radius:7px;
+    font-size:10px;
+    font-weight:900;
+    padding:5px 8px;
+    min-width:44px;
+}
 """
