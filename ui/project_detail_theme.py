@@ -73,6 +73,26 @@ DETAIL_DARK_REFINEMENTS = """
 #detailReasonItem { background:#111c27; border:0; border-bottom:1px solid #26394a; border-radius:0; }
 #detailReasonIcon { color:#a78bfa; font-size:11px; font-weight:800; }
 #detailOtherText { color:#dbeafe; font-size:9px; font-weight:600; }
+/* Approved Issue Detail mockup — final overrides */
+#detailSectionNumber { color:#fff; background:#1687e8; border:1px solid #4db7ff; border-radius:13px; font-size:12px; font-weight:800; }
+#detailSectionHeaderIcon { color:#58bfff; font-size:13px; font-weight:800; }
+#detailSectionHeaderTitle { color:#f8fafc; font-size:12px; font-weight:800; }
+#detailHelpButton { color:#7dd3fc; background:#0d2638; border:1px solid #38bdf8; border-radius:8px; font-size:9px; font-weight:800; padding:0; text-align:center; }
+#detailSectionCard { background:#13202b; border:1px solid #31475b; border-radius:7px; }
+#detailSectionIcon { color:#69b9ff; background:#102c42; border:1px solid #2d5876; border-radius:4px; font-size:10px; font-weight:800; }
+#detailSectionTitle { color:#d9edff; font-size:10px; font-weight:800; }
+#detailTextBody { color:#f3f7fb; font-size:11px; font-weight:500; }
+#detailRiskCard { background:#142331; border:1px solid #31475b; border-radius:8px; }
+#detailRiskCardTitle { color:#e7f3ff; font-size:9px; font-weight:800; }
+#detailRiskSubtext { color:#d8e6f3; font-size:8px; font-weight:600; }
+#detailReasonBox { background:#111d27; border:1px solid #31475b; border-radius:8px; }
+#detailReasonItem { background:transparent; border:0; border-bottom:1px solid #294052; border-radius:0; }
+#detailReasonIcon { color:#a78bfa; font-size:11px; font-weight:800; }
+#detailReasonTitle { color:#c8e8ff; font-size:10px; font-weight:800; }
+#detailReasonBody { color:#edf5fb; font-size:10px; font-weight:500; }
+#detailOtherInfo { background:#13202b; border:1px solid #31475b; border-radius:7px; }
+#detailOtherText { color:#dbeafe; font-size:9px; font-weight:600; }
+
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -150,4 +170,24 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailReasonItem { background:#ffffff; border:0; border-bottom:1px solid #e2e8f0; border-radius:0; }
 #detailReasonIcon { color:#7c3aed; font-size:11px; font-weight:800; }
 #detailOtherText { color:#334155; font-size:9px; font-weight:600; }
+/* Approved Issue Detail mockup — final overrides */
+#detailSectionNumber { color:#fff; background:#0284c7; border:1px solid #0369a1; border-radius:13px; font-size:12px; font-weight:800; }
+#detailSectionHeaderIcon { color:#0369a1; font-size:13px; font-weight:800; }
+#detailSectionHeaderTitle { color:#0f172a; font-size:12px; font-weight:800; }
+#detailHelpButton { color:#0369a1; background:#f0f9ff; border:1px solid #0284c7; border-radius:8px; font-size:9px; font-weight:800; padding:0; text-align:center; }
+#detailSectionCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailSectionIcon { color:#2563eb; background:#eff6ff; border:1px solid #bfdbfe; border-radius:4px; font-size:10px; font-weight:800; }
+#detailSectionTitle { color:#1e3a5f; font-size:10px; font-weight:800; }
+#detailTextBody { color:#172033; font-size:11px; font-weight:500; }
+#detailRiskCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
+#detailRiskCardTitle { color:#1e293b; font-size:9px; font-weight:800; }
+#detailRiskSubtext { color:#475569; font-size:8px; font-weight:600; }
+#detailReasonBox { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
+#detailReasonItem { background:transparent; border:0; border-bottom:1px solid #dbe4ee; border-radius:0; }
+#detailReasonIcon { color:#7c3aed; font-size:11px; font-weight:800; }
+#detailReasonTitle { color:#075985; font-size:10px; font-weight:800; }
+#detailReasonBody { color:#1e293b; font-size:10px; font-weight:500; }
+#detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailOtherText { color:#334155; font-size:9px; font-weight:600; }
+
 """
