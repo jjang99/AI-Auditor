@@ -48,6 +48,13 @@ DETAIL_DARK_REFINEMENTS = """
 #detailHelpText { color:#e2e8f0; font-size:11px; }
 #detailMatrixHeader { color:#e2e8f0; background:#1e293b; border:1px solid #475569; font-size:9px; font-weight:700; }
 #detailAuditHelpBadge { color:#fff; background:#5b21b6; border:1px solid #8b5cf6; border-radius:6px; font-size:9px; font-weight:700; }
+#detailResultIcon { color:#7dd3fc; font-size:13px; font-weight:800; }
+#detailHelpItem { background:#151f29; border:1px solid #314155; border-radius:7px; }
+#detailRiskCardTitle { color:#f8fafc; font-size:10px; font-weight:700; }
+#detailRiskSubtext { color:#e2e8f0; font-size:9px; font-weight:600; }
+#detailHelpText { color:#f1f5f9; font-size:12px; font-weight:500; }
+#detailHelpSection { color:#ffffff; font-size:13px; font-weight:700; padding-top:6px; }
+#detailHelpTitle { color:#ffffff; font-size:17px; font-weight:800; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -100,4 +107,11 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailHelpText { color:#334155; font-size:11px; }
 #detailMatrixHeader { color:#334155; background:#f1f5f9; border:1px solid #cbd5e1; font-size:9px; font-weight:700; }
 #detailAuditHelpBadge { color:#5b21b6; background:#ede9fe; border:1px solid #a78bfa; border-radius:6px; font-size:9px; font-weight:700; }
+#detailResultIcon { color:#0369a1; font-size:13px; font-weight:800; }
+#detailHelpItem { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailRiskCardTitle { color:#0f172a; font-size:10px; font-weight:700; }
+#detailRiskSubtext { color:#475569; font-size:9px; font-weight:600; }
+#detailHelpText { color:#1e293b; font-size:12px; font-weight:500; }
+#detailHelpSection { color:#0f172a; font-size:13px; font-weight:700; padding-top:6px; }
+#detailHelpTitle { color:#0f172a; font-size:17px; font-weight:800; }
 """
