@@ -286,6 +286,14 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 /* ACTUAL ISSUES SORT COMBO */
 QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 5px; }
 QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
+
+/* EXACT DETAIL CONTENT TYPOGRAPHY */
+#detailFindingMetaTitle { color:#7dd3fc; font-size:11px; font-weight:900; }
+#detailFindingMetaFile { color:#f8fafc; font-size:12px; font-weight:600; }
+#detailMetaLabel, #detailOtherLabel { color:#7dd3fc; font-size:11px; font-weight:900; }
+#detailMetaValue, #detailOtherText { color:#f8fafc; font-size:12px; font-weight:600; }
+QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding-left:7px; padding-right:20px; }
+QComboBox#detailSortCombo::drop-down { width:18px; border:0; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -749,4 +757,12 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 /* ACTUAL ISSUES SORT COMBO */
 QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 5px; }
 QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
+
+/* EXACT DETAIL CONTENT TYPOGRAPHY */
+#detailFindingMetaTitle { color:#075985; font-size:11px; font-weight:900; }
+#detailFindingMetaFile { color:#0f172a; font-size:12px; font-weight:600; }
+#detailMetaLabel, #detailOtherLabel { color:#0369a1; font-size:11px; font-weight:900; }
+#detailMetaValue, #detailOtherText { color:#0f172a; font-size:12px; font-weight:600; }
+QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding-left:7px; padding-right:20px; }
+QComboBox#detailSortCombo::drop-down { width:18px; border:0; }
 """
