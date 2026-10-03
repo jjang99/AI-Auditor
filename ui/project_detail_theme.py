@@ -316,6 +316,17 @@ QComboBox#detailSortCombo::drop-down {
     width:8px;
     border:0;
 }
+
+/* AUTHORITATIVE HELP DIALOG TYPOGRAPHY */
+#detailHelpTitle { font-size:17px; font-weight:800; }
+#detailHelpSubtitle { font-size:11px; font-weight:600; }
+#detailHelpSection { font-size:13px; font-weight:800; }
+#detailHelpSectionNumber { font-size:11px; font-weight:900; }
+#detailHelpText { font-size:12px; font-weight:600; }
+#detailHelpMatrixNote { font-size:11px; font-weight:800; }
+#detailMatrixHeader { font-size:10px; font-weight:800; }
+#detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { font-size:10px; font-weight:800; }
+#detailAuditHelpBadge { font-size:11px; font-weight:900; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -809,4 +820,15 @@ QComboBox#detailSortCombo::drop-down {
     width:8px;
     border:0;
 }
+
+/* AUTHORITATIVE HELP DIALOG TYPOGRAPHY */
+#detailHelpTitle { font-size:17px; font-weight:800; }
+#detailHelpSubtitle { font-size:11px; font-weight:600; }
+#detailHelpSection { font-size:13px; font-weight:800; }
+#detailHelpSectionNumber { font-size:11px; font-weight:900; }
+#detailHelpText { font-size:12px; font-weight:600; }
+#detailHelpMatrixNote { font-size:11px; font-weight:800; }
+#detailMatrixHeader { font-size:10px; font-weight:800; }
+#detailMatrix_high, #detailMatrix_medium, #detailMatrix_low, #detailMatrix_critical { font-size:10px; font-weight:800; }
+#detailAuditHelpBadge { font-size:11px; font-weight:900; }
 """
