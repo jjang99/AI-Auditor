@@ -650,4 +650,17 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
     min-height:16px; max-height:16px; padding:0 5px; margin:0;
     font-size:9px; font-weight:700;
 }
+
+/* USER REVIEW — FINAL ACTIVE OVERRIDES */
+#detailBadge_high, #detailBadge_medium, #detailBadge_low, #detailBadge_critical {
+    font-size:11px; font-weight:900;
+}
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low,
+#detailIssueListRow QLabel#detailBadge_critical {
+    font-size:11px; font-weight:900;
+}
+#detailAuditCard { min-height:55px; max-height:55px; }
+#detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
 """
