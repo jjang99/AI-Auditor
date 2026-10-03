@@ -223,6 +223,13 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailReasonBox #detailReasonItem { background:transparent; border:0; border-radius:0; }
 #detailReasonBox #detailEvidenceSubsection { background:transparent; border:0; }
 #detailReasonSeparator { background:#365a72; border:0; min-height:1px; max-height:1px; }
+
+/* USER FINAL SPACING REVIEW */
+#detailIssueListRow QLabel#detailStatusOpen, #detailIssueListRow QLabel#detailStatusResolved { padding-left:0; padding-right:0; }
+#detailRiskCard { min-height:60px; max-height:60px; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical { min-height:15px; max-height:15px; font-size:11px; font-weight:900; padding:0 5px; }
+#detailRiskSubtext { margin-top:3px; font-size:9px; font-weight:700; }
+#detailSectionHeaderTitle { margin-top:4px; margin-bottom:3px; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -588,4 +595,11 @@ QLabel#detailAuditResultBadge[auditPending="true"] { color:#64748b; background:#
 #detailReasonBox #detailReasonItem { background:transparent; border:0; border-radius:0; }
 #detailReasonBox #detailEvidenceSubsection { background:transparent; border:0; }
 #detailReasonSeparator { background:#cbd5e1; border:0; min-height:1px; max-height:1px; }
+
+/* USER FINAL SPACING REVIEW */
+#detailIssueListRow QLabel#detailStatusOpen, #detailIssueListRow QLabel#detailStatusResolved { padding-left:0; padding-right:0; }
+#detailRiskCard { min-height:60px; max-height:60px; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical { min-height:15px; max-height:15px; font-size:11px; font-weight:900; padding:0 5px; }
+#detailRiskSubtext { margin-top:3px; font-size:9px; font-weight:700; }
+#detailSectionHeaderTitle { margin-top:4px; margin-bottom:3px; }
 """
