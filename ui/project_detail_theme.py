@@ -395,26 +395,36 @@ DETAIL_LIGHT_REFINEMENTS = """
 
 
 
-/* Inspection evidence compact hierarchy */
+/* Inspection evidence readability — approved direction */
 #detailEvidenceCard {
-    padding: 8px 10px;
+    padding: 9px 10px;
 }
 #detailEvidenceSubsection {
-    padding: 6px 8px;
-    margin: 3px 0;
-    background:#101d27;
-    border:1px solid #29465b;
-    border-radius:6px;
+    padding: 8px 9px;
+    margin: 4px 0;
+    background:#132431;
+    border:1px solid #365a72;
+    border-radius:7px;
 }
 #detailEvidenceSubLabel {
-    color:#65c7ff;
-    font-size:9px;
+    color:#72d0ff;
+    font-size:10px;
     font-weight:800;
-    margin-bottom:2px;
+    margin-bottom:4px;
 }
 #detailEvidenceSubValue {
-    color:#f2f7fb;
-    font-size:10px;
-    line-height:1.25;
+    color:#f5f9fc;
+    font-size:11px;
+    font-weight:600;
+}
+#detailReasonTitle {
+    color:#75d0ff;
+    font-size:11px;
+    font-weight:800;
+}
+#detailReasonBody {
+    color:#f1f6fa;
+    font-size:11px;
+    font-weight:500;
 }
 """
