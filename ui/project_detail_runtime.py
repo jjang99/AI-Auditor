@@ -96,9 +96,10 @@ def _result_card(title, value, role, subtext=""):
                 padding:2px 5px;
             }
             QLabel#detailAuditResultBadge[auditPending="true"] {
-                color:#9fb0bf;
-                background-color:transparent;
-                border:1px solid #425466;
+                color:#475569;
+                background-color:#f1f5f9;
+                border:1px solid #94a3b8;
+                font-weight:800;
             }
         """)
         card.setMinimumHeight(54)
