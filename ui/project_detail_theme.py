@@ -266,6 +266,14 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailAuditCard { min-height:59px; max-height:59px; }
 #detailSectionHeaderIcon { font-size:15px; font-weight:900; }
 #detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
+
+/* FINAL READABILITY PASS */
+#detailAuditCard { min-height:54px; max-height:54px; }
+#detailReasonTitle { font-size:11px; font-weight:900; }
+#detailReasonBody { font-size:12px; font-weight:600; }
+#detailEvidenceSubLabel { font-size:11px; font-weight:900; }
+#detailSectionHeaderIcon { font-size:15px; font-weight:900; }
+#detailRiskSubtext { font-size:9px; font-weight:700; margin-top:3px; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -691,4 +699,12 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailAuditCard { min-height:59px; max-height:59px; }
 #detailSectionHeaderIcon { font-size:15px; font-weight:900; }
 #detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
+
+/* FINAL READABILITY PASS */
+#detailAuditCard { min-height:54px; max-height:54px; }
+#detailReasonTitle { font-size:11px; font-weight:900; }
+#detailReasonBody { font-size:12px; font-weight:600; }
+#detailEvidenceSubLabel { font-size:11px; font-weight:900; }
+#detailSectionHeaderIcon { font-size:15px; font-weight:900; }
+#detailRiskSubtext { font-size:9px; font-weight:700; margin-top:3px; }
 """
