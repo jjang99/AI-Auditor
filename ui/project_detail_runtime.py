@@ -83,26 +83,34 @@ def _result_card(title, value, role, subtext=""):
         badge.setMinimumWidth(64)
         badge.setMaximumWidth(72)
         badge.setFixedHeight(24)
+        is_pending = str(value or "").strip() in {"", "-", "판정 없음"}
+        badge.setProperty("auditPending", is_pending)
         badge.setStyleSheet("""
             QLabel#detailAuditResultBadge {
                 color: #ffffff;
                 background-color: #6d28d9;
                 border: 1px solid #a78bfa;
                 border-radius: 6px;
-                font-size: 9px;
+                font-size: 10px;
                 font-weight: 700;
                 padding: 2px 5px;
             }
+            QLabel#detailAuditResultBadge[auditPending="true"] {
+                color: #cbd5e1;
+                background-color: #1b2732;
+                border: 1px solid #425466;
+            }
         """)
         card.setMinimumHeight(68)
-    box.addWidget(heading)
-    box.addWidget(badge, 0, Qt.AlignHCenter)
+    box.addWidget(heading, 0, Qt.AlignTop)
+    box.addWidget(badge, 0, Qt.AlignHCenter | Qt.AlignTop)
     if subtext:
         sub = QLabel(subtext)
         sub.setObjectName("detailRiskSubtext")
         sub.setAlignment(Qt.AlignCenter)
         sub.setWordWrap(True)
-        box.addWidget(sub)
+        box.addWidget(sub, 0, Qt.AlignTop)
+    box.addStretch()
     return card
 
 
@@ -777,9 +785,9 @@ def apply_project_detail_runtime(ProjectDetailPage):
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
 
         layout.addLayout(_numbered_section_title(1, "발견 내용", "▤"))
-        layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "◆"))
-        layout.addWidget(_detail_section_card("검사 파일", compact_source_text, "▣", source_text))
-        layout.addWidget(_detail_section_card("체크포인트", description_text, "▤"))
+        layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "✓"))
+        layout.addWidget(_detail_section_card("검사 파일", compact_source_text, "✓", source_text))
+        layout.addWidget(_detail_section_card("체크포인트", description_text, "✓"))
 
         layout.addLayout(_numbered_section_title(2, "위험도 판정", "◆", lambda: _show_risk_help(self)))
         impact_value = issue["impact"] or "-"
