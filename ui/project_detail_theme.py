@@ -393,7 +393,7 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailReasonBody { color:#1e293b; font-size:10px; font-weight:500; }
 #detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
 
-"""
+
 
 /* Inspection evidence compact hierarchy */
 #detailEvidenceCard {
@@ -417,3 +417,4 @@ DETAIL_LIGHT_REFINEMENTS = """
     font-size:10px;
     line-height:1.25;
 }
+"""
