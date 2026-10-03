@@ -252,7 +252,7 @@ def _show_audit_help(parent):
     dialog.exec()
 
 
-def _detail_section_card(title, body, icon):
+def _detail_section_card(title, body, icon, tooltip=""):
     card = QFrame()
     card.setObjectName("detailSectionCard")
     row = QHBoxLayout(card)
@@ -270,6 +270,9 @@ def _detail_section_card(title, body, icon):
     body_label.setObjectName("detailTextBody")
     body_label.setWordWrap(True)
     body_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+    if tooltip:
+        card.setToolTip(tooltip)
+        body_label.setToolTip(tooltip)
     text_box.addWidget(title_label)
     text_box.addWidget(body_label)
     row.addWidget(icon_label, 0, Qt.AlignTop)
@@ -683,11 +686,16 @@ def apply_project_detail_runtime(ProjectDetailPage):
         finding_text = _summarize_evidence("\n".join(finding_lines) if finding_lines else evidence_text)
 
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
+        compact_sources = []
+        for source_line in source_lines:
+            normalized = source_line.replace("\\", "/")
+            compact_sources.append(normalized.rsplit("/", 1)[-1] if "/" in normalized else source_line)
+        compact_source_text = "\n".join(compact_sources) if compact_sources else "-"
 
         layout.addLayout(_numbered_section_title(1, "발견 내용", "▤"))
-        layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "◆"))
-        layout.addWidget(_detail_section_card("검사 파일", source_text, "▣"))
         layout.addWidget(_detail_section_card("체크포인트", description_text, "▤"))
+        layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "◆"))
+        layout.addWidget(_detail_section_card("검사 파일", compact_source_text, "▣", source_text))
 
         layout.addLayout(_numbered_section_title(2, "위험도 판정", "◆", lambda: _show_risk_help(self)))
         impact_value = issue["impact"] or "-"
