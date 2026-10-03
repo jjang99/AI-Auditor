@@ -835,6 +835,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
         layout.addLayout(_numbered_section_title(4, "감리 개선판정", "✓", lambda: _show_audit_help(self)))
         audit_row = QHBoxLayout()
         audit_row.setSpacing(6)
+        audit_row.setContentsMargins(0, 0, 0, 0)
         audit_row.addWidget(_result_card("개선권고유형", issue["audit_recommendation_type"] or "판정 없음", "audit"), 1)
         audit_row.addWidget(_result_card("개선시점", issue["audit_improvement_timing"] or "판정 없음", "audit"), 1)
         audit_row.addWidget(_result_card("중요 여부", issue["audit_important"] or "판정 없음", "audit"), 1)
