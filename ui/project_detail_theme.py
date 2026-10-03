@@ -252,6 +252,20 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
     min-height:16px; max-height:16px; padding:0 5px; margin:0;
     font-size:9px; font-weight:700;
 }
+
+/* FINAL USER VISUAL REVIEW */
+#detailBadge_critical, #detailBadge_high, #detailBadge_medium, #detailBadge_low {
+    font-size:11px; font-weight:900;
+}
+#detailIssueListRow QLabel#detailBadge_critical,
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low {
+    font-size:11px; font-weight:900;
+}
+#detailAuditCard { min-height:59px; max-height:59px; }
+#detailSectionHeaderIcon { font-size:15px; font-weight:900; }
+#detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -662,5 +676,19 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
     font-size:11px; font-weight:900;
 }
 #detailAuditCard { min-height:55px; max-height:55px; }
+#detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
+
+/* FINAL USER VISUAL REVIEW */
+#detailBadge_critical, #detailBadge_high, #detailBadge_medium, #detailBadge_low {
+    font-size:11px; font-weight:900;
+}
+#detailIssueListRow QLabel#detailBadge_critical,
+#detailIssueListRow QLabel#detailBadge_high,
+#detailIssueListRow QLabel#detailBadge_medium,
+#detailIssueListRow QLabel#detailBadge_low {
+    font-size:11px; font-weight:900;
+}
+#detailAuditCard { min-height:59px; max-height:59px; }
+#detailSectionHeaderIcon { font-size:15px; font-weight:900; }
 #detailReasonIcon { color:#0284c7; background:transparent; border:0; font-size:12px; font-weight:900; }
 """
