@@ -74,14 +74,9 @@ def _result_card(title, value, role, subtext=""):
     box = QVBoxLayout(card)
     box.setContentsMargins(6, 7, 6, 7)
     box.setSpacing(5)
-    icon_map = {"impact": "◆", "likelihood": "◷", "severity": "!", "audit": "✓"}
-    icon = QLabel(icon_map.get(role, "•"))
-    icon.setObjectName("detailResultIcon")
-    icon.setAlignment(Qt.AlignCenter)
     heading = QLabel(title)
     heading.setObjectName("detailRiskCardTitle")
     heading.setAlignment(Qt.AlignCenter)
-    box.addWidget(icon)
     badge = _level_badge(value, role)
     box.addWidget(heading)
     box.addWidget(badge)
@@ -101,7 +96,7 @@ def _section_title_with_help(title, callback):
     label.setObjectName("detailTextLabel")
     help_button = QPushButton("?")
     help_button.setObjectName("detailHelpButton")
-    help_button.setFixedSize(18, 18)
+    help_button.setFixedSize(16, 16)
     help_button.setCursor(Qt.PointingHandCursor)
     help_button.clicked.connect(callback)
     row.addWidget(label)
@@ -176,6 +171,57 @@ def _show_audit_help(parent):
             text=QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
             row.addWidget(badge); row.addWidget(text,1); layout.addWidget(item)
     dialog.exec()
+
+
+def _detail_section_card(title, body, icon):
+    card = QFrame()
+    card.setObjectName("detailSectionCard")
+    box = QVBoxLayout(card)
+    box.setContentsMargins(9, 8, 9, 8)
+    box.setSpacing(6)
+    header = QHBoxLayout()
+    header.setSpacing(6)
+    icon_label = QLabel(icon)
+    icon_label.setObjectName("detailSectionIcon")
+    icon_label.setFixedWidth(14)
+    icon_label.setAlignment(Qt.AlignCenter)
+    title_label = QLabel(title)
+    title_label.setObjectName("detailSectionTitle")
+    header.addWidget(icon_label)
+    header.addWidget(title_label)
+    header.addStretch()
+    body_label = QLabel(str(body or "-"))
+    body_label.setObjectName("detailTextBody")
+    body_label.setWordWrap(True)
+    body_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+    box.addLayout(header)
+    box.addWidget(body_label)
+    return card
+
+
+def _reason_item(title, body, icon):
+    item = QFrame()
+    item.setObjectName("detailReasonItem")
+    box = QVBoxLayout(item)
+    box.setContentsMargins(8, 7, 8, 7)
+    box.setSpacing(5)
+    header = QHBoxLayout()
+    header.setSpacing(6)
+    icon_label = QLabel(icon)
+    icon_label.setObjectName("detailReasonIcon")
+    icon_label.setFixedWidth(14)
+    icon_label.setAlignment(Qt.AlignCenter)
+    title_label = QLabel(title)
+    title_label.setObjectName("detailReasonTitle")
+    header.addWidget(icon_label)
+    header.addWidget(title_label)
+    header.addStretch()
+    body_label = QLabel(str(body or "-"))
+    body_label.setObjectName("detailTextBody")
+    body_label.setWordWrap(True)
+    box.addLayout(header)
+    box.addWidget(body_label)
+    return item
 
 
 def _format_detail_text(value):
@@ -531,10 +577,10 @@ def apply_project_detail_runtime(ProjectDetailPage):
         source_text = "\n".join(source_lines) if source_lines else "-"
         finding_text = _summarize_evidence("\n".join(finding_lines) if finding_lines else evidence_text)
 
-        self.add_detail_section(layout, "제목", issue["title"] or "-")
-        self.add_detail_section(layout, "검사 파일", source_text)
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
-        self.add_detail_section(layout, "발견 내용", description_text)
+        layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "◆"))
+        layout.addWidget(_detail_section_card("검사 파일", source_text, "▣"))
+        layout.addWidget(_detail_section_card("발견 내용", description_text, "◎"))
 
         layout.addLayout(_section_title_with_help("위험도 판정", lambda: _show_risk_help(self)))
         risk_row = QHBoxLayout()
@@ -569,10 +615,13 @@ def apply_project_detail_runtime(ProjectDetailPage):
             reason_items.append(("Likelihood 근거", issue["likelihood_reason"]))
         if not reason_items and evidence_summary:
             reason_items.append(("검사 근거", evidence_summary))
+        reason_icons = {
+            "검사 근거": "≡",
+            "Impact 근거": "↗",
+            "Likelihood 근거": "◇",
+        }
         for heading, body in reason_items:
-            h = QLabel(heading); h.setObjectName("detailReasonTitle")
-            b = QLabel(str(body)); b.setObjectName("detailTextBody"); b.setWordWrap(True)
-            reason_layout.addWidget(h); reason_layout.addWidget(b)
+            reason_layout.addWidget(_reason_item(heading, body, reason_icons.get(heading, "•")))
         layout.addWidget(reason_box)
 
         layout.addLayout(_section_title_with_help("감리 개선판정", lambda: _show_audit_help(self)))
@@ -589,10 +638,12 @@ def apply_project_detail_runtime(ProjectDetailPage):
             audit_row.addWidget(_result_card("중요 여부", issue["audit_important"] or "-", "audit"), 1)
             layout.addLayout(audit_row)
         else:
-            audit_box = QFrame(); audit_box.setObjectName("detailAIBox")
-            audit_layout = QVBoxLayout(audit_box); audit_layout.setContentsMargins(10, 9, 10, 9)
-            audit_label = QLabel("판정 정보 없음"); audit_label.setObjectName("detailAIText")
-            audit_layout.addWidget(audit_label); layout.addWidget(audit_box)
+            audit_row = QHBoxLayout()
+            audit_row.setSpacing(5)
+            audit_row.addWidget(_result_card("개선권고유형", "판정 없음", "audit"), 1)
+            audit_row.addWidget(_result_card("개선시점", "판정 없음", "audit"), 1)
+            audit_row.addWidget(_result_card("중요 여부", "판정 없음", "audit"), 1)
+            layout.addLayout(audit_row)
 
         category = QLabel(f"카테고리    {issue['category'] or '-'}")
         category.setObjectName("detailTagText")
