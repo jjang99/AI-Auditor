@@ -72,36 +72,36 @@ def _result_card(title, value, role, subtext=""):
     card = QFrame()
     card.setObjectName("detailAuditCard" if role == "audit" else "detailRiskCard")
     box = QVBoxLayout(card)
-    box.setContentsMargins(7, 8, 7, 8)
-    box.setSpacing(6)
+    box.setContentsMargins(6, 7, 6, 7)
+    box.setSpacing(4)
     heading = QLabel(title)
     heading.setObjectName("detailAuditCardTitle" if role == "audit" else "detailRiskCardTitle")
     heading.setAlignment(Qt.AlignCenter)
     badge = _level_badge(value, role)
     if role == "audit":
         badge.setObjectName("detailAuditResultBadge")
-        badge.setMinimumWidth(64)
-        badge.setMaximumWidth(72)
+        badge.setMinimumWidth(54)
+        badge.setMaximumWidth(64)
         badge.setFixedHeight(24)
         is_pending = str(value or "").strip() in {"", "-", "판정 없음"}
         badge.setProperty("auditPending", is_pending)
         badge.setStyleSheet("""
             QLabel#detailAuditResultBadge {
-                color: #ffffff;
-                background-color: #6d28d9;
-                border: 1px solid #a78bfa;
-                border-radius: 6px;
-                font-size: 10px;
-                font-weight: 700;
-                padding: 2px 5px;
+                color:#ffffff;
+                background-color:#6d28d9;
+                border:1px solid #a78bfa;
+                border-radius:6px;
+                font-size:10px;
+                font-weight:700;
+                padding:2px 5px;
             }
             QLabel#detailAuditResultBadge[auditPending="true"] {
-                color: #cbd5e1;
-                background-color: #1b2732;
-                border: 1px solid #425466;
+                color:#9fb0bf;
+                background-color:transparent;
+                border:1px solid #425466;
             }
         """)
-        card.setMinimumHeight(68)
+        card.setMinimumHeight(62)
     box.addWidget(heading, 0, Qt.AlignTop)
     box.addWidget(badge, 0, Qt.AlignHCenter | Qt.AlignTop)
     if subtext:
@@ -337,7 +337,7 @@ def _inspection_evidence_item(value):
 
     header = QHBoxLayout()
     header.setSpacing(6)
-    icon_label = QLabel("▣")
+    icon_label = QLabel("✓")
     icon_label.setObjectName("detailReasonIcon")
     icon_label.setFixedSize(16, 16)
     icon_label.setAlignment(Qt.AlignCenter)
@@ -812,9 +812,9 @@ def apply_project_detail_runtime(ProjectDetailPage):
         if evidence_summary and evidence_summary != description_text:
             reason_items.append(("검사 근거", evidence_summary, "▣"))
         if issue["impact_reason"]:
-            reason_items.append(("Impact 근거", issue["impact_reason"], "↗"))
+            reason_items.append(("Impact 근거", issue["impact_reason"], "✓"))
         if issue["likelihood_reason"]:
-            reason_items.append(("Likelihood 근거", issue["likelihood_reason"], "◔"))
+            reason_items.append(("Likelihood 근거", issue["likelihood_reason"], "✓"))
         if not reason_items and evidence_summary:
             reason_items.append(("검사 근거", evidence_summary, "▣"))
         for heading, body, icon in reason_items:
