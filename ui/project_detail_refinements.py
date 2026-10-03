@@ -174,19 +174,19 @@ def _refine_issue_row(row):
 
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
-        badge.setFixedWidth(28)
+        badge.setFixedWidth(25)
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
 
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
-        status.setFixedWidth(34)
+        status.setFixedWidth(38)
         status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
     layout = row.layout()
     if layout:
-        layout.setContentsMargins(5, 7, 3, 7)
-        layout.setSpacing(3)
+        layout.setContentsMargins(2, 7, 7, 7)
+        layout.setSpacing(2)
 
     for label in row.findChildren(QLabel):
         if label.objectName() == "detailIssueCode":
