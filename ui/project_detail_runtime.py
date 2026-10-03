@@ -101,16 +101,17 @@ def _result_card(title, value, role, subtext=""):
                 border:1px solid #425466;
             }
         """)
-        card.setMinimumHeight(56)
-        card.setMaximumHeight(56)
+        card.setMinimumHeight(54)
+        card.setMaximumHeight(54)
     box.addWidget(heading, 0, Qt.AlignTop)
     box.addWidget(badge, 0, Qt.AlignHCenter | Qt.AlignTop)
     if subtext:
         sub = QLabel(subtext)
         sub.setObjectName("detailRiskSubtext")
         sub.setAlignment(Qt.AlignCenter)
-        sub.setWordWrap(True)
-        box.addWidget(sub, 0, Qt.AlignTop)
+        sub.setWordWrap(False)
+        sub.setMinimumWidth(72)
+        box.addWidget(sub, 0, Qt.AlignHCenter | Qt.AlignTop)
     box.addStretch()
     return card
 
@@ -384,7 +385,7 @@ def _numbered_section_title(number, title, icon, help_callback=None):
     """Approved detail header: icon + title only. number kept for call compatibility."""
     row = QHBoxLayout()
     row.setContentsMargins(0, 10, 0, 2)
-    row.setSpacing(7)
+    row.setSpacing(4)
     icon_label = QLabel(icon)
     icon_label.setObjectName("detailSectionHeaderIcon")
     icon_label.setFixedSize(21, 21)
@@ -692,7 +693,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 None,
             )
             if badge:
-                badge.setFixedSize(44, 20)
+                badge.setFixedSize(48, 20)
                 badge.setAlignment(Qt.AlignCenter)
             status = next(
                 (label for label in row.findChildren(QLabel)
@@ -704,7 +705,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             row_layout = row.layout()
             if row_layout:
-                row_layout.setContentsMargins(8, 7, 9, 7)
+                row_layout.setContentsMargins(9, 7, 8, 7)
                 row_layout.setSpacing(6)
             description = row.findChild(QLabel, "detailIssueDescription")
             if description:
