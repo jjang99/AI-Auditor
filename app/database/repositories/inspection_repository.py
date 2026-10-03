@@ -50,7 +50,10 @@ def save_inspection_result(project_id: int, summary: InspectionSummary, inspecti
     inspection_id = cursor.lastrowid
 
     for issue in summary.issues:
-        evidence = f"{issue.file_path}:{issue.line_number} | {issue.evidence}"
+        source = str(issue.file_path)
+        if issue.line_number:
+            source = f"{source}:{issue.line_number}"
+        evidence = f"{source} | {issue.evidence}"
         assessment = issue.assessment
         audit_judgment = issue.audit_judgment
         stored_severity = (
