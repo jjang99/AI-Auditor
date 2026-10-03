@@ -85,23 +85,6 @@ def _result_card(title, value, role, subtext=""):
         badge.setFixedHeight(20)
         is_pending = str(value or "").strip() in {"", "-", "판정 없음"}
         badge.setProperty("auditPending", is_pending)
-        badge.setStyleSheet("""
-            QLabel#detailAuditResultBadge {
-                color:#ffffff;
-                background-color:#6d28d9;
-                border:1px solid #a78bfa;
-                border-radius:6px;
-                font-size:10px;
-                font-weight:700;
-                padding:2px 5px;
-            }
-            QLabel#detailAuditResultBadge[auditPending="true"] {
-                color:#475569;
-                background-color:#f1f5f9;
-                border:1px solid #94a3b8;
-                font-weight:800;
-            }
-        """)
         card.setMinimumHeight(54)
         card.setMaximumHeight(54)
     box.addWidget(heading, 0, Qt.AlignTop)
