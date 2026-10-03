@@ -282,6 +282,10 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailMetaValue { font-size:11px; font-weight:600; }
 #detailFindingMetaTitle { font-size:11px; font-weight:800; }
 #detailFindingMetaFile { font-size:11px; font-weight:600; }
+
+/* ACTUAL ISSUES SORT COMBO */
+QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 5px; }
+QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -741,4 +745,8 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailOtherLabel { color:#0369a1; }
 #detailOtherText { color:#0f172a; }
 #detailSortButton { font-size:10px; font-weight:700; padding:0 4px; }
+
+/* ACTUAL ISSUES SORT COMBO */
+QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 5px; }
+QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
 """
