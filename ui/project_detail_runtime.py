@@ -60,7 +60,7 @@ def _clear_layout(layout):
 
 def _format_detail_text(value):
     """Format stored evidence for display without changing its source text."""
-    text = str(value or "-").strip()
+    text = str(value or "-").strip()\n    text = re.sub(r":0(?=\\s*(?:\\||$))", "", text)
 
     # Stored document evidence uses pipes to separate location/source and
     # finding text. Present those boundaries as paragraphs.
@@ -398,7 +398,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
         ai_box.setObjectName("detailAIBox")
         ai_layout = QHBoxLayout(ai_box)
         ai_layout.setContentsMargins(10, 9, 10, 9)
-        ai_text = QLabel(issue["ai_recommendation"] or "AI 권고는 후속 AI 분석 단계에서 제공됩니다.")
+        ai_text = QLabel(issue["ai_recommendation"] or "별도 권고사항 없음")
         ai_text.setObjectName("detailAIText")
         ai_text.setWordWrap(True)
         ai_layout.addWidget(ai_text)
