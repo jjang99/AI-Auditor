@@ -72,11 +72,16 @@ def _result_card(title, value, role, subtext=""):
     card = QFrame()
     card.setObjectName("detailRiskCard")
     box = QVBoxLayout(card)
-    box.setContentsMargins(5, 6, 5, 6)
-    box.setSpacing(4)
+    box.setContentsMargins(6, 7, 6, 7)
+    box.setSpacing(5)
+    icon_map = {"impact": "◆", "likelihood": "◷", "severity": "!", "audit": "✓"}
+    icon = QLabel(icon_map.get(role, "•"))
+    icon.setObjectName("detailResultIcon")
+    icon.setAlignment(Qt.AlignCenter)
     heading = QLabel(title)
     heading.setObjectName("detailRiskCardTitle")
     heading.setAlignment(Qt.AlignCenter)
+    box.addWidget(icon)
     badge = _level_badge(value, role)
     box.addWidget(heading)
     box.addWidget(badge)
@@ -124,10 +129,11 @@ def _show_risk_help(parent):
     ):
         h = QLabel(heading); h.setObjectName("detailHelpSection"); layout.addWidget(h)
         for level, desc in rows:
-            row = QHBoxLayout(); row.setSpacing(9)
+            item = QFrame(); item.setObjectName("detailHelpItem")
+            row = QHBoxLayout(item); row.setContentsMargins(9, 7, 9, 7); row.setSpacing(10)
             row.addWidget(_level_badge(level, "help"))
             text = QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
-            row.addWidget(text, 1); layout.addLayout(row)
+            row.addWidget(text, 1); layout.addWidget(item)
 
     h = QLabel("3. Severity (위험도)"); h.setObjectName("detailHelpSection"); layout.addWidget(h)
     note = QLabel("Impact × Likelihood Matrix로 결정"); note.setObjectName("detailHelpText"); layout.addWidget(note)
@@ -164,10 +170,11 @@ def _show_audit_help(parent):
     for heading, rows in sections:
         h=QLabel(heading); h.setObjectName("detailHelpSection"); layout.addWidget(h)
         for value, desc in rows:
-            row=QHBoxLayout(); row.setSpacing(9)
+            item=QFrame(); item.setObjectName("detailHelpItem")
+            row=QHBoxLayout(item); row.setContentsMargins(9,7,9,7); row.setSpacing(10)
             badge=QLabel(value); badge.setObjectName("detailAuditHelpBadge"); badge.setAlignment(Qt.AlignCenter); badge.setFixedSize(56,24)
             text=QLabel(desc); text.setObjectName("detailHelpText"); text.setWordWrap(True)
-            row.addWidget(badge); row.addWidget(text,1); layout.addLayout(row)
+            row.addWidget(badge); row.addWidget(text,1); layout.addWidget(item)
     dialog.exec()
 
 
@@ -409,8 +416,17 @@ def apply_project_detail_runtime(ProjectDetailPage):
             layout.addStretch()
             return
         for index, issue in enumerate(issues):
+            display_title = str(issue["title"] or "").strip()
+            rule_code = str(issue["rule_code"] or "").strip()
+            if rule_code:
+                display_title = re.sub(
+                    rf"^(?:{re.escape(rule_code)}[\s:·\-]*)+",
+                    "",
+                    display_title,
+                    flags=re.IGNORECASE,
+                ).strip() or display_title
             row = self.create_issue_row(
-                issue["severity"], issue["rule_code"], issue["title"], issue["status"]
+                issue["severity"], issue["rule_code"], display_title, issue["status"]
             )
             # Runtime-created rows are added after the initial UI refinement pass,
             # so apply the same final sizing here as the frozen Project Detail UI.
