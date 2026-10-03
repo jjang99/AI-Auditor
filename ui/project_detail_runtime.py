@@ -380,11 +380,11 @@ def _summarize_evidence(value):
         if block in kept:
             continue
         # Keep semantic headings and the most useful first evidence statements.
-        if char_count + len(block) > 420 and kept:
+        if char_count + len(block) > 280 and kept:
             break
         kept.append(block)
         char_count += len(block)
-        if len(kept) >= 6:
+        if len(kept) >= 4:
             break
 
     return "\n\n".join(kept) if kept else "-"
@@ -666,36 +666,29 @@ def apply_project_detail_runtime(ProjectDetailPage):
 
         # Preserve the frozen card layout while presenting the stored result
         # in the Issue Detail fields agreed for the severity/audit design.
-        evidence_text = _format_detail_text(issue["evidence"])
-        source_lines = [
-            line.strip()
-            for line in evidence_text.splitlines()
-            if line.strip() and (
-                "\\" in line
-                or re.search(r"(?i)\.(?:hwp|hwpx|docx?|xlsx?|pdf|pptx?)$", line.strip())
-                or line.startswith(("[시험 산출물]", "[이전 산출물]", "[현재 산출물]"))
-            )
-        ]
-        finding_lines = [
-            line.strip()
-            for line in evidence_text.splitlines()
-            if line.strip() and line.strip() not in source_lines
-        ]
+        # Stored evidence is "source | finding". Split that boundary before
+        # display formatting so a long Windows path can never absorb finding text.
+        raw_evidence = str(issue["evidence"] or "").strip()
+        raw_source, separator, raw_finding = raw_evidence.partition("|")
+        source_candidate = raw_source.strip() if separator else ""
+        finding_candidate = raw_finding.strip() if separator else raw_evidence
 
-        source_text = "\n".join(source_lines) if source_lines else "-"
-        finding_text = _summarize_evidence("\n".join(finding_lines) if finding_lines else evidence_text)
+        source_match = re.search(
+            r"(?i)(.+?\.(?:hwp|hwpx|docx?|xlsx?|xls|pdf|pptx?|ppt))(?=\s|$)",
+            source_candidate,
+        )
+        source_text = source_match.group(1).strip() if source_match else (source_candidate or "-")
+        source_text = re.sub(r":0$", "", source_text)
+        normalized_source = source_text.replace("\\", "/")
+        compact_source_text = normalized_source.rsplit("/", 1)[-1] if "/" in normalized_source else source_text
 
+        finding_text = _summarize_evidence(finding_candidate)
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
-        compact_sources = []
-        for source_line in source_lines:
-            normalized = source_line.replace("\\", "/")
-            compact_sources.append(normalized.rsplit("/", 1)[-1] if "/" in normalized else source_line)
-        compact_source_text = "\n".join(compact_sources) if compact_sources else "-"
 
         layout.addLayout(_numbered_section_title(1, "발견 내용", "▤"))
-        layout.addWidget(_detail_section_card("체크포인트", description_text, "▤"))
         layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "◆"))
         layout.addWidget(_detail_section_card("검사 파일", compact_source_text, "▣", source_text))
+        layout.addWidget(_detail_section_card("체크포인트", description_text, "▤"))
 
         layout.addLayout(_numbered_section_title(2, "위험도 판정", "◆", lambda: _show_risk_help(self)))
         impact_value = issue["impact"] or "-"
