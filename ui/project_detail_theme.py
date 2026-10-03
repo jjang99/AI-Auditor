@@ -522,4 +522,21 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailReasonBody { font-size:11px; font-weight:600; }
 #detailAuditCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; min-height:62px; max-height:62px; }
 #detailAuditCardTitle { font-size:9px; font-weight:800; }
+
+
+/* USER REVIEW FIX v2 */
+#detailSectionIcon { color:#0284c7; background:transparent; border:0; border-radius:0; font-size:12px; font-weight:900; }
+#detailSectionTitle { color:#0369a1; font-size:10px; font-weight:900; }
+#detailTextBody { font-size:11px; font-weight:600; }
+#detailRiskCard { min-height:64px; max-height:64px; }
+#detailRiskCardTitle { font-size:10px; font-weight:900; }
+#detailRiskBadge_high, #detailRiskBadge_medium, #detailRiskBadge_low, #detailRiskBadge_critical { min-height:20px; max-height:20px; font-size:10px; font-weight:900; }
+#detailRiskSubtext { font-size:9px; font-weight:700; }
+#detailReasonIcon { color:#0284c7; background:transparent; border:0; border-radius:0; font-size:11px; font-weight:900; }
+#detailReasonTitle { color:#075985; font-size:10px; font-weight:900; }
+#detailEvidenceSubsection { background:transparent; border:0; border-top:1px solid #cbd5e1; border-radius:0; padding:0; margin:0; }
+#detailEvidenceSubLabel { color:#b45309; font-size:10px; font-weight:900; }
+#detailReasonBody { font-size:11px; font-weight:600; }
+#detailAuditCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; min-height:64px; max-height:64px; }
+#detailAuditCardTitle { color:#075985; font-size:9px; font-weight:900; }
 """
