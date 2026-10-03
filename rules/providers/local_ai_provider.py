@@ -159,6 +159,8 @@ class LlamaCppAIProvider(BaseAIProvider):
             return self._inspect_change_comparison(document, rule)
         if rule.code == "CHG-012" and document.file_type == "change_test_comparison":
             return self._inspect_change_test_comparison(document, rule)
+        if rule.code == "CHG-018" and document.file_type == "inspection_findings":
+            return self._inspect_change_risk_synthesis(document, rule)
 
         prompt = self._build_prompt(document, rule, context)
         try:
@@ -346,6 +348,52 @@ class LlamaCppAIProvider(BaseAIProvider):
         return AIInspectionResult(
             rule_code=rule.code,
             findings=self._parse_findings(raw),
+            raw_response=raw,
+            provider_name=self.__class__.__name__,
+        )
+
+    def _inspect_change_risk_synthesis(self, document, rule):
+        """Synthesize only evidence-backed unresolved change-impact risks."""
+        evidence = [
+            block.text.strip()
+            for block in document.blocks
+            if block.text and block.text.strip()
+        ]
+        if not evidence:
+            return AIInspectionResult(
+                rule_code=rule.code,
+                findings=(),
+                raw_response='{"findings":[]}',
+                provider_name=self.__class__.__name__,
+            )
+
+        prompt = (
+            "당신은 변경영향도 종합 위험 점검 AI입니다. "
+            "아래에는 이미 확인된 변경·영향·시험반영 결과만 제공됩니다. "
+            "이 근거들 사이에서 실제 미반영, 불일치 또는 미해소 위험이 확인될 때만 findings를 작성하세요. "
+            "정상, 위반 없음, 점검 수행됨, 문제 없음 같은 결론은 절대로 finding으로 작성하지 마세요. "
+            "근거가 부족하거나 위험을 확정할 수 없으면 findings는 반드시 빈 배열이어야 합니다. "
+            "입력에 없는 변경·영향·위험을 만들지 마세요. 최대 4건, 각 140자 이내의 한국어로 작성하세요. "
+            "JSON 객체 하나만 출력하세요.\n\n"
+            "[확인된 변경영향 근거]\n" + "\n".join(evidence[:16]) +
+            '\n\n{"findings":["근거가 확인된 미반영 또는 불일치 위험"]}'
+        )
+        try:
+            raw = self._complete(prompt)
+        except LocalAIProviderError as exc:
+            raise LocalAIProviderError(
+                f"{rule.code} ({rule.name}) 검사 중 오류: {exc}"
+            ) from exc
+        findings = tuple(
+            finding for finding in self._parse_findings(raw)
+            if not any(
+                phrase in finding
+                for phrase in ("위반이 확인되지", "문제 없음", "이상 없음", "위반 없음", "점검이 수행")
+            )
+        )
+        return AIInspectionResult(
+            rule_code=rule.code,
+            findings=findings,
             raw_response=raw,
             provider_name=self.__class__.__name__,
         )
