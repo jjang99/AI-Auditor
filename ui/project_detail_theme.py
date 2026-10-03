@@ -182,6 +182,20 @@ DETAIL_DARK_REFINEMENTS = """
 #detailHelpMatrixNote { color:#d8efff; font-size:10px; font-weight:800; }
 #detailAuditHelpBadge { color:#fff; background:#6d28d9; border:1px solid #a78bfa; border-radius:7px; font-size:10px; font-weight:800; }
 
+/* DETAIL READABILITY PASS */
+#detailSectionHeaderTitle { font-size:12px; font-weight:800; }
+#detailSectionCard { background:#142330; border:1px solid #36516a; border-radius:8px; }
+#detailSectionCard:hover { border:1px solid #47708f; }
+#detailSectionTitle { color:#7dd3fc; font-size:9px; font-weight:800; }
+#detailTextBody { color:#f8fafc; font-size:10px; font-weight:600; }
+#detailRiskCard { background:#142330; border:1px solid #36516a; border-radius:8px; min-height:66px; }
+#detailRiskCardTitle { color:#d9efff; font-size:9px; font-weight:800; }
+#detailReasonBox { background:transparent; border:0; }
+#detailReasonItem { background:#142330; border:1px solid #36516a; border-radius:8px; }
+#detailReasonTitle { color:#bfe6ff; font-size:10px; font-weight:800; }
+#detailReasonBody { color:#f8fafc; font-size:10px; font-weight:500; }
+#detailOtherInfo { background:#111f2b; border:1px solid #30495d; border-radius:8px; }
+
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -352,5 +366,19 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailHelpText { color:#1e293b; font-size:11px; font-weight:500; }
 #detailHelpMatrixNote { color:#334155; font-size:10px; font-weight:800; }
 #detailAuditHelpBadge { color:#fff; background:#7c3aed; border:1px solid #6d28d9; border-radius:7px; font-size:10px; font-weight:800; }
+
+/* DETAIL READABILITY PASS */
+#detailSectionHeaderTitle { font-size:12px; font-weight:800; }
+#detailSectionCard { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; }
+#detailSectionCard:hover { border:1px solid #7aa7c5; }
+#detailSectionTitle { color:#0369a1; font-size:9px; font-weight:800; }
+#detailTextBody { color:#0f172a; font-size:10px; font-weight:600; }
+#detailRiskCard { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; min-height:66px; }
+#detailRiskCardTitle { color:#164e63; font-size:9px; font-weight:800; }
+#detailReasonBox { background:transparent; border:0; }
+#detailReasonItem { background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; }
+#detailReasonTitle { color:#075985; font-size:10px; font-weight:800; }
+#detailReasonBody { color:#1e293b; font-size:10px; font-weight:500; }
+#detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; }
 
 """
