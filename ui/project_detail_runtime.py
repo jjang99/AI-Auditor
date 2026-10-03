@@ -288,21 +288,21 @@ def _inspection_evidence_item(value):
     judgment = ""
     document_basis = ""
 
-    checkpoint_match = re.search(r"(?im)^(체크포인트\\s+[A-Z]+-\\d+\\s+위반:)\\s*$", text)
+    checkpoint_match = re.search(r"(?im)^(체크포인트\s+[A-Z]+-\d+\s+위반:)\s*$", text)
     if checkpoint_match:
         checkpoint = checkpoint_match.group(1)
         text = (text[:checkpoint_match.start()] + text[checkpoint_match.end():]).strip()
 
-    basis_match = re.search(r"(?is)(?:^|\\n)근거:\\s*(.+)$", text)
+    basis_match = re.search(r"(?is)(?:^|\n)근거:\s*(.+)$", text)
     if basis_match:
         document_basis = basis_match.group(1).strip()
         text = text[:basis_match.start()].strip()
 
-    paragraphs = [part.strip() for part in re.split(r"\\n\\s*\\n", text) if part.strip()]
+    paragraphs = [part.strip() for part in re.split(r"\n\s*\n", text) if part.strip()]
     if paragraphs:
         confirmation = paragraphs[0]
     if len(paragraphs) > 1:
-        judgment = "\\n\\n".join(paragraphs[1:])
+        judgment = "\n\n".join(paragraphs[1:])
 
     item = QFrame()
     item.setObjectName("detailReasonItem")
