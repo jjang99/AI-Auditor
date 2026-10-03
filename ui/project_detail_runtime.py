@@ -101,8 +101,8 @@ def _result_card(title, value, role, subtext=""):
                 border:1px solid #425466;
             }
         """)
-        card.setMinimumHeight(66)
-        card.setMaximumHeight(66)
+        card.setMinimumHeight(56)
+        card.setMaximumHeight(56)
     box.addWidget(heading, 0, Qt.AlignTop)
     box.addWidget(badge, 0, Qt.AlignHCenter | Qt.AlignTop)
     if subtext:
@@ -365,7 +365,7 @@ def _inspection_evidence_item(value):
         section = QFrame()
         section.setObjectName("detailEvidenceSubsection")
         section_box = QVBoxLayout(section)
-        section_box.setContentsMargins(8, 6, 8, 7)
+        section_box.setContentsMargins(0, 6, 0, 7)
         section_box.setSpacing(3)
         label = QLabel(label_text)
         label.setObjectName("detailEvidenceSubLabel")
@@ -383,6 +383,7 @@ def _inspection_evidence_item(value):
 def _numbered_section_title(number, title, icon, help_callback=None):
     """Approved detail header: icon + title only. number kept for call compatibility."""
     row = QHBoxLayout()
+    row.setContentsMargins(0, 5, 0, 0)
     row.setSpacing(7)
     icon_label = QLabel(icon)
     icon_label.setObjectName("detailSectionHeaderIcon")
@@ -818,7 +819,13 @@ def apply_project_detail_runtime(ProjectDetailPage):
             reason_items.append(("Likelihood 근거", issue["likelihood_reason"], "✓"))
         if not reason_items and evidence_summary:
             reason_items.append(("검사 근거", evidence_summary, "▣"))
-        for heading, body, icon in reason_items:
+        for index, (heading, body, icon) in enumerate(reason_items):
+            if index:
+                separator = QFrame()
+                separator.setObjectName("detailReasonSeparator")
+                separator.setFrameShape(QFrame.HLine)
+                separator.setFixedHeight(1)
+                reason_layout.addWidget(separator)
             if heading == "검사 근거":
                 reason_layout.addWidget(_inspection_evidence_item(body))
             else:
