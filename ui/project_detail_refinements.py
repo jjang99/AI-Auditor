@@ -49,7 +49,7 @@ def apply_project_detail_refinements(ProjectDetailPage):
         detail = _card_by_title(body_cards, "Issue Detail")
 
         # Fixed 840px window: reserve more width for Issue Detail.
-        # 좌측 145 < 가운데 205 < 우측 273
+        # 좌측 145 < 가운데 190 < 우측 288
         if distribution:
             distribution.setFixedWidth(145)
             _refine_distribution(distribution)
@@ -57,14 +57,14 @@ def apply_project_detail_refinements(ProjectDetailPage):
             history.setFixedWidth(145)
             _refine_history(history)
         if issues:
-            issues.setFixedWidth(205)
+            issues.setFixedWidth(190)
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
             if scroll:
                 scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
                 scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                 scroll.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         if detail:
-            detail.setFixedWidth(273)
+            detail.setFixedWidth(288)
 
         issue_rows = self.findChildren(QFrame, "detailIssueListRow")
         for index, row in enumerate(issue_rows):
