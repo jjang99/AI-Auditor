@@ -101,8 +101,11 @@ class ProjectDetailPage(QWidget):
         score_row.addWidget(score_max, 0, Qt.AlignBottom)
         score_row.addStretch()
 
+        score_area.addStretch(1)
         score_area.addWidget(score_label)
+        score_area.addSpacing(-2)
         score_area.addLayout(score_row)
+        score_area.addStretch(1)
 
         summary_layout.addLayout(score_area)
 
@@ -121,8 +124,11 @@ class ProjectDetailPage(QWidget):
         grade_value = QLabel("B")
         grade_value.setObjectName("detailSummaryGrade")
 
+        grade_area.addStretch(1)
         grade_area.addWidget(grade_label)
+        grade_area.addSpacing(-2)
         grade_area.addWidget(grade_value)
+        grade_area.addStretch(1)
 
         summary_layout.addLayout(grade_area)
 
