@@ -63,6 +63,16 @@ DETAIL_DARK_REFINEMENTS = """
 #detailHelpButton { color:#7dd3fc; background:#102536; border:1px solid #38bdf8; border-radius:8px; font-size:9px; font-weight:800; padding:0px; text-align:center; }
 #detailHelpButton:hover { background:#0c4a6e; border-color:#7dd3fc; }
 #detailRiskBadge_판정 없음 { color:#cbd5e1; background:#1f2937; border:1px solid #475569; border-radius:6px; font-size:8px; font-weight:700; }
+#detailSectionNumber { color:#ffffff; background:#1687e8; border:1px solid #38bdf8; border-radius:11px; font-size:11px; font-weight:800; }
+#detailSectionHeaderIcon { color:#7dd3fc; font-size:11px; font-weight:800; }
+#detailSectionHeaderTitle { color:#ffffff; font-size:11px; font-weight:800; }
+#detailOtherInfo { background:#111c27; border:1px solid #2f4357; border-radius:7px; }
+#detailSectionCard { background:#111c27; border:1px solid #2f4357; border-radius:7px; }
+#detailSectionIcon { color:#60a5fa; background:#102536; border:1px solid #27445e; border-radius:4px; font-size:10px; font-weight:800; }
+#detailReasonBox { background:#0f1822; border:1px solid #2f4357; border-radius:7px; }
+#detailReasonItem { background:#111c27; border:0; border-bottom:1px solid #26394a; border-radius:0; }
+#detailReasonIcon { color:#a78bfa; font-size:11px; font-weight:800; }
+#detailOtherText { color:#dbeafe; font-size:9px; font-weight:600; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -130,4 +140,14 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailHelpButton { color:#0369a1; background:#f0f9ff; border:1px solid #0284c7; border-radius:8px; font-size:9px; font-weight:800; padding:0px; text-align:center; }
 #detailHelpButton:hover { background:#e0f2fe; border-color:#0369a1; }
 #detailRiskBadge_판정 없음 { color:#64748b; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; font-size:8px; font-weight:700; }
+#detailSectionNumber { color:#ffffff; background:#0284c7; border:1px solid #0369a1; border-radius:11px; font-size:11px; font-weight:800; }
+#detailSectionHeaderIcon { color:#0369a1; font-size:11px; font-weight:800; }
+#detailSectionHeaderTitle { color:#0f172a; font-size:11px; font-weight:800; }
+#detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailSectionCard { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailSectionIcon { color:#2563eb; background:#eff6ff; border:1px solid #bfdbfe; border-radius:4px; font-size:10px; font-weight:800; }
+#detailReasonBox { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
+#detailReasonItem { background:#ffffff; border:0; border-bottom:1px solid #e2e8f0; border-radius:0; }
+#detailReasonIcon { color:#7c3aed; font-size:11px; font-weight:800; }
+#detailOtherText { color:#334155; font-size:9px; font-weight:600; }
 """
