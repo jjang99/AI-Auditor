@@ -366,6 +366,7 @@ class InspectionService:
             all_issues = apply_issue_assessments(
                 all_issues,
                 self.issue_assessor,
+                include_audit_judgment=True,
             )
 
             summary = InspectionSummary(
