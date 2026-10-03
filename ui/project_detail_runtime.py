@@ -63,8 +63,8 @@ def _level_badge(value, role):
     label.setObjectName(f"detailRiskBadge_{str(value or 'none').lower()}")
     label.setProperty("riskRole", role)
     label.setAlignment(Qt.AlignCenter)
-    label.setFixedHeight(24)
-    label.setMinimumWidth(56)
+    label.setFixedHeight(20)
+    label.setMinimumWidth(52)
     return label
 
 
@@ -82,7 +82,7 @@ def _result_card(title, value, role, subtext=""):
         badge.setObjectName("detailAuditResultBadge")
         badge.setMinimumWidth(54)
         badge.setMaximumWidth(64)
-        badge.setFixedHeight(24)
+        badge.setFixedHeight(20)
         is_pending = str(value or "").strip() in {"", "-", "판정 없음"}
         badge.setProperty("auditPending", is_pending)
         badge.setStyleSheet("""
@@ -285,8 +285,8 @@ def _detail_section_card(title, body, icon, tooltip=""):
     row.setSpacing(8)
     icon_label = QLabel(icon)
     icon_label.setObjectName("detailSectionIcon")
-    icon_label.setFixedSize(18, 18)
-    icon_label.setAlignment(Qt.AlignCenter)
+    icon_label.setFixedSize(13, 18)
+    icon_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
     text_box = QVBoxLayout()
     text_box.setSpacing(3)
     title_label = QLabel(title)
