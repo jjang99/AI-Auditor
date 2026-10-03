@@ -485,4 +485,25 @@ DETAIL_LIGHT_REFINEMENTS = """
     padding:5px 8px;
     min-width:44px;
 }
+
+
+/* FINAL detail alignment/readability pass */
+#detailIssueDetailCode { font-size:17px; font-weight:800; }
+#detailStatusOpen, #detailStatusResolved { font-size:11px; font-weight:800; }
+#detailSectionHeaderTitle { font-size:13px; font-weight:800; }
+#detailSectionTitle { font-size:11px; font-weight:800; }
+#detailTextBody { font-size:11px; font-weight:600; }
+#detailSectionIcon { color:#0369a1; background:#e0f2fe; border:1px solid #7dd3fc; border-radius:4px; font-size:11px; font-weight:900; }
+#detailRiskCard { min-height:78px; }
+#detailRiskCardTitle { font-size:10px; }
+#detailRiskSubtext { font-size:9px; }
+#detailReasonBox { background:transparent; border:0; }
+#detailReasonItem { margin:0; }
+#detailReasonTitle { font-size:11px; }
+#detailReasonBody { font-size:11px; }
+#detailEvidenceSubLabel { font-size:11px; }
+#detailAuditCard { min-height:72px; }
+#detailAuditCardTitle { font-size:10px; }
+#detailOtherLabel { font-size:10px; }
+#detailOtherText { font-size:11px; }
 """
