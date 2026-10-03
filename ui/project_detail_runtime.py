@@ -692,7 +692,7 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 None,
             )
             if badge:
-                badge.setFixedSize(54, 20)
+                badge.setFixedSize(44, 20)
                 badge.setAlignment(Qt.AlignCenter)
             status = next(
                 (label for label in row.findChildren(QLabel)
@@ -700,7 +700,12 @@ def apply_project_detail_runtime(ProjectDetailPage):
                 None,
             )
             if status:
-                status.setFixedWidth(38)
+                status.setFixedWidth(34)
+                status.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            row_layout = row.layout()
+            if row_layout:
+                row_layout.setContentsMargins(4, 7, 18, 7)
+                row_layout.setSpacing(5)
             description = row.findChild(QLabel, "detailIssueDescription")
             if description:
                 description.setWordWrap(True)
@@ -786,12 +791,12 @@ def apply_project_detail_runtime(ProjectDetailPage):
         finding_text = _summarize_evidence(finding_candidate)
         description_text = _format_detail_text(issue["description"]) if issue["description"] else finding_text
 
-        layout.addLayout(_numbered_section_title(1, "발견 내용", "▤"))
+        layout.addLayout(_numbered_section_title(1, "발견 내용", "⌕"))
         layout.addWidget(_detail_section_card("제목", issue["title"] or "-", "✓"))
         layout.addWidget(_detail_section_card("검사 파일", compact_source_text, "✓", source_text))
         layout.addWidget(_detail_section_card("체크포인트", description_text, "✓"))
 
-        layout.addLayout(_numbered_section_title(2, "위험도 판정", "◆", lambda: _show_risk_help(self)))
+        layout.addLayout(_numbered_section_title(2, "위험도 판정", "▲", lambda: _show_risk_help(self)))
         impact_value = issue["impact"] or "-"
         likelihood_value = issue["likelihood"] or "-"
         severity_value = issue["severity"] or "-"
@@ -812,13 +817,13 @@ def apply_project_detail_runtime(ProjectDetailPage):
         reason_layout.setSpacing(6)
         reason_items = []
         if evidence_summary and evidence_summary != description_text:
-            reason_items.append(("검사 근거", evidence_summary, "▣"))
+            reason_items.append(("검사 근거", evidence_summary, "✓"))
         if issue["impact_reason"]:
             reason_items.append(("Impact 근거", issue["impact_reason"], "✓"))
         if issue["likelihood_reason"]:
             reason_items.append(("Likelihood 근거", issue["likelihood_reason"], "✓"))
         if not reason_items and evidence_summary:
-            reason_items.append(("검사 근거", evidence_summary, "▣"))
+            reason_items.append(("검사 근거", evidence_summary, "✓"))
         for index, (heading, body, icon) in enumerate(reason_items):
             if index:
                 separator = QFrame()
