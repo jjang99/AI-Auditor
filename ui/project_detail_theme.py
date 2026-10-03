@@ -427,4 +427,35 @@ DETAIL_LIGHT_REFINEMENTS = """
     font-size:11px;
     font-weight:500;
 }
+
+
+/* FINAL reason-card readability refinement */
+#detailReasonItem {
+    background:#132431;
+    border:1px solid #365a72;
+    border-radius:8px;
+}
+#detailReasonTitle {
+    color:#78d3ff;
+    font-size:11px;
+    font-weight:800;
+}
+#detailReasonBody {
+    color:#f5f9fc;
+    font-size:11px;
+    font-weight:600;
+}
+#detailEvidenceSubsection {
+    padding:9px 10px;
+    margin:5px 0;
+    background:#172b39;
+    border:1px solid #3d6178;
+    border-radius:7px;
+}
+#detailEvidenceSubLabel {
+    color:#7dd7ff;
+    font-size:10px;
+    font-weight:900;
+    margin-bottom:5px;
+}
 """
