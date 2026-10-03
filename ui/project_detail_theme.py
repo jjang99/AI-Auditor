@@ -293,6 +293,18 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
 #detailOtherText { color:#334155; font-size:9px; font-weight:600; }
 
+
+/* Structured inspection evidence — final visual override */
+#detailEvidenceSubsection {
+    background:#0f1b25;
+    border:1px solid #2f485c;
+    border-radius:6px;
+}
+#detailEvidenceSubLabel {
+    color:#69c4ff;
+    font-size:9px;
+    font-weight:800;
+}
 /* Approved mockup polish v2 */
 #detailFindingMeta { background:#ffffff; border:0; border-bottom:1px solid #dbe4ee; }
 #detailFindingMetaTitle { color:#0f172a; font-size:10px; font-weight:700; }
