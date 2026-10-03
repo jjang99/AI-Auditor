@@ -546,7 +546,7 @@ class ProjectDetailPage(QWidget):
         sort_button.addItem("상태", "status")
         sort_button.addItem("규칙", "rule")
         sort_button.setFixedHeight(22)
-        sort_button.setFixedWidth(62)
+        sort_button.setFixedWidth(66)
         self.issue_sort_button = sort_button
         sort_button.currentIndexChanged.connect(
             lambda index: (
