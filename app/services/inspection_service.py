@@ -261,10 +261,12 @@ class InspectionService:
                                 block_type="test_document",
                                 text=(
                                     f"[시험 산출물] {document.file_path.name}\n"
-                                    f"{document.text}"
+                                    f"{block.location or block.block_type} | {block.text}"
                                 ),
                             )
                             for document in test_documents
+                            for block in document.blocks
+                            if block.text and block.text.strip()
                         ]
                     ),
                     metadata={"source": "confirmed_changes_and_test_documents"},
