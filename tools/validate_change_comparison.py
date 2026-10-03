@@ -15,15 +15,15 @@ from rules.providers.local_ai_provider import LlamaCppAIProvider, LocalAISetting
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
         raise SystemExit(
-            "usage: python tools/validate_change_comparison.py <previous> <current>"
+            "usage: python tools/validate_change_comparison.py <previous> <current> [test_document ...]"
         )
 
     paths = tuple(Path(arg) for arg in sys.argv[1:])
     rules = tuple(
         rule for rule in get_document_mvp_rules()
-        if rule.code in {"CHG-001", "CHG-006"}
+        if rule.code in {"CHG-001", "CHG-006", "CHG-012"}
     )
 
     runtime = get_local_ai_runtime()
@@ -45,7 +45,7 @@ def main():
 
         started = time.perf_counter()
         _inspection_id, summary = service.run(paths)
-        for rule_code in ("CHG-001", "CHG-006"):
+        for rule_code in ("CHG-001", "CHG-006", "CHG-012"):
             issues = tuple(
                 issue for issue in summary.issues
                 if issue.rule_code == rule_code
