@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 
 from rules.core.models import RuleIssue
-from rules.core.severity import IssueAssessment, calculate_severity
+from rules.core.severity import AuditImprovementJudgment, IssueAssessment, calculate_severity
 
 
 class BaseIssueAssessor(ABC):
@@ -18,6 +18,13 @@ class BaseIssueAssessor(ABC):
     ) -> tuple[IssueAssessment | None, ...]:
         """기본 구현은 기존 호환성을 위해 개별 평가를 사용한다."""
         return tuple(self.assess(issue) for issue in issues)
+
+    def judge_audit_many(
+        self,
+        issues: tuple[RuleIssue, ...],
+    ) -> tuple[AuditImprovementJudgment | None, ...]:
+        """감리 개선판정은 Severity와 독립적이며 필요한 Issue에만 적용한다."""
+        return tuple(None for _ in issues)
 
 
 class DeferredIssueAssessor(BaseIssueAssessor):
@@ -35,16 +42,19 @@ def apply_issue_assessments(
 
     issue_tuple = tuple(issues)
     assessments = assessor.assess_many(issue_tuple)
+    audit_judgments = assessor.judge_audit_many(issue_tuple)
 
     if len(assessments) != len(issue_tuple):
         raise ValueError("Issue 평가 결과 수가 입력 Issue 수와 일치하지 않습니다.")
+    if len(audit_judgments) != len(issue_tuple):
+        raise ValueError("감리 개선판정 결과 수가 입력 Issue 수와 일치하지 않습니다.")
 
     assessed_issues = []
 
-    for issue, assessment in zip(issue_tuple, assessments):
+    for issue, assessment, audit_judgment in zip(issue_tuple, assessments, audit_judgments):
 
         if assessment is None:
-            assessed_issues.append(issue)
+            assessed_issues.append(replace(issue, audit_judgment=audit_judgment))
             continue
 
         calculated_severity = calculate_severity(
@@ -67,6 +77,7 @@ def apply_issue_assessments(
                 issue,
                 severity=calculated_severity.value,
                 assessment=normalized_assessment,
+                audit_judgment=audit_judgment,
             )
         )
 
