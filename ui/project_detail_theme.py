@@ -312,6 +312,9 @@ QComboBox#detailSortCombo::drop-down { width:9px; border:0; }
 
 /* SORT FONT SIZE REVIEW */
 QComboBox#detailSortCombo { font-size:9px; font-weight:700; padding:0 2px 0 5px; }
+
+/* SORT FONT SIZE REVIEW 2 */
+QComboBox#detailSortCombo { font-size:8px; font-weight:700; padding:0 2px 0 5px; }
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -801,4 +804,7 @@ QComboBox#detailSortCombo::drop-down { width:9px; border:0; }
 
 /* SORT FONT SIZE REVIEW */
 QComboBox#detailSortCombo { font-size:9px; font-weight:700; padding:0 2px 0 5px; }
+
+/* SORT FONT SIZE REVIEW 2 */
+QComboBox#detailSortCombo { font-size:8px; font-weight:700; padding:0 2px 0 5px; }
 """
