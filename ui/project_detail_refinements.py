@@ -49,7 +49,7 @@ def apply_project_detail_refinements(ProjectDetailPage):
         detail = _card_by_title(body_cards, "Issue Detail")
 
         # Fixed 840px window: reserve more width for Issue Detail.
-        # 좌측 145 < 가운데 190 < 우측 288
+        # 좌측 145 < 가운데 205 < 우측 273
         if distribution:
             distribution.setFixedWidth(145)
             _refine_distribution(distribution)
@@ -57,14 +57,14 @@ def apply_project_detail_refinements(ProjectDetailPage):
             history.setFixedWidth(145)
             _refine_history(history)
         if issues:
-            issues.setFixedWidth(190)
+            issues.setFixedWidth(205)
             scroll = issues.findChild(QScrollArea, "detailIssueScroll")
             if scroll:
                 scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
                 scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
                 scroll.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         if detail:
-            detail.setFixedWidth(288)
+            detail.setFixedWidth(273)
 
         issue_rows = self.findChildren(QFrame, "detailIssueListRow")
         for index, row in enumerate(issue_rows):
@@ -174,15 +174,19 @@ def _refine_issue_row(row):
 
     badge = next((x for x in row.findChildren(QLabel) if x.objectName().startswith("detailBadge_")), None)
     if badge:
-        badge.setMinimumWidth(38)
-        badge.setMaximumWidth(54)
+        badge.setFixedWidth(34)
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
 
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
-        status.setFixedWidth(38)
+        status.setFixedWidth(34)
         status.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+    layout = row.layout()
+    if layout:
+        layout.setContentsMargins(6, 7, 5, 7)
+        layout.setSpacing(5)
 
     for label in row.findChildren(QLabel):
         if label.objectName() == "detailIssueCode":
