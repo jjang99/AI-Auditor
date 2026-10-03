@@ -284,37 +284,38 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailFindingMetaFile { font-size:11px; font-weight:600; }
 
 /* ACTUAL ISSUES SORT COMBO */
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 5px; }
-QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
 
 /* EXACT DETAIL CONTENT TYPOGRAPHY */
 #detailFindingMetaTitle { color:#7dd3fc; font-size:11px; font-weight:900; }
 #detailFindingMetaFile { color:#f8fafc; font-size:12px; font-weight:600; }
 #detailMetaLabel, #detailOtherLabel { color:#7dd3fc; font-size:11px; font-weight:900; }
 #detailMetaValue, #detailOtherText { color:#f8fafc; font-size:12px; font-weight:600; }
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding-left:6px; padding-right:14px; }
-QComboBox#detailSortCombo::drop-down { width:13px; border:0; }
 
 /* FINAL VISUAL ALIGNMENT: finding values follow evidence body */
 #detailSectionCard #detailTextBody { color:#f8fafc; font-size:12px; font-weight:600; }
 
 /* AUTHORITATIVE FINAL: sort + audit pending */
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 12px 0 5px; }
-QComboBox#detailSortCombo::drop-down { width:10px; border:0; }
 QLabel#detailAuditResultBadge[auditPending="true"] {
  color:#cbd5e1; background:#1f2a35; border:1px solid #526273; border-radius:6px;
  font-size:9px; font-weight:800; padding:0 5px;
 }
 
 /* SORT COMBO CLIPPING FIX */
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 2px 0 5px; }
-QComboBox#detailSortCombo::drop-down { width:9px; border:0; }
 
 /* SORT FONT SIZE REVIEW */
-QComboBox#detailSortCombo { font-size:9px; font-weight:700; padding:0 2px 0 5px; }
 
 /* SORT FONT SIZE REVIEW 2 */
-QComboBox#detailSortCombo { font-size:8px; font-weight:700; padding:0 2px 0 5px; }
+
+/* AUTHORITATIVE ISSUES SORT COMBO */
+QComboBox#detailSortCombo {
+    font-size:7px;
+    font-weight:700;
+    padding:0 1px 0 4px;
+}
+QComboBox#detailSortCombo::drop-down {
+    width:8px;
+    border:0;
+}
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -776,35 +777,36 @@ QLabel#detailAuditResultBadge[auditPending="true"] {
 #detailSortButton { font-size:10px; font-weight:700; padding:0 4px; }
 
 /* ACTUAL ISSUES SORT COMBO */
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 5px; }
-QComboBox#detailSortCombo::drop-down { width:16px; border:0; }
 
 /* EXACT DETAIL CONTENT TYPOGRAPHY */
 #detailFindingMetaTitle { color:#075985; font-size:11px; font-weight:900; }
 #detailFindingMetaFile { color:#0f172a; font-size:12px; font-weight:600; }
 #detailMetaLabel, #detailOtherLabel { color:#0369a1; font-size:11px; font-weight:900; }
 #detailMetaValue, #detailOtherText { color:#0f172a; font-size:12px; font-weight:600; }
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding-left:6px; padding-right:14px; }
-QComboBox#detailSortCombo::drop-down { width:13px; border:0; }
 
 /* FINAL VISUAL ALIGNMENT: finding values follow evidence body */
 #detailSectionCard #detailTextBody { color:#0f172a; font-size:12px; font-weight:600; }
 
 /* AUTHORITATIVE FINAL: sort + audit pending */
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 12px 0 5px; }
-QComboBox#detailSortCombo::drop-down { width:10px; border:0; }
 QLabel#detailAuditResultBadge[auditPending="true"] {
  color:#475569; background:#eef2f6; border:1px solid #94a3b8; border-radius:6px;
  font-size:9px; font-weight:800; padding:0 5px;
 }
 
 /* SORT COMBO CLIPPING FIX */
-QComboBox#detailSortCombo { font-size:10px; font-weight:700; padding:0 2px 0 5px; }
-QComboBox#detailSortCombo::drop-down { width:9px; border:0; }
 
 /* SORT FONT SIZE REVIEW */
-QComboBox#detailSortCombo { font-size:9px; font-weight:700; padding:0 2px 0 5px; }
 
 /* SORT FONT SIZE REVIEW 2 */
-QComboBox#detailSortCombo { font-size:8px; font-weight:700; padding:0 2px 0 5px; }
+
+/* AUTHORITATIVE ISSUES SORT COMBO */
+QComboBox#detailSortCombo {
+    font-size:7px;
+    font-weight:700;
+    padding:0 1px 0 4px;
+}
+QComboBox#detailSortCombo::drop-down {
+    width:8px;
+    border:0;
+}
 """
