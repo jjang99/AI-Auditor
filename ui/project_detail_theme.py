@@ -93,6 +93,29 @@ DETAIL_DARK_REFINEMENTS = """
 #detailOtherInfo { background:#13202b; border:1px solid #31475b; border-radius:7px; }
 #detailOtherText { color:#dbeafe; font-size:9px; font-weight:600; }
 
+/* Approved mockup polish v2 */
+#detailFindingMeta { background:#0f1923; border:0; border-bottom:1px solid #2c4052; }
+#detailFindingMetaTitle { color:#f8fafc; font-size:10px; font-weight:700; }
+#detailFindingMetaFile { color:#94a3b8; font-size:8px; font-weight:500; }
+#detailSectionCard { background:#142330; border:1px solid #345067; border-radius:8px; }
+#detailSectionTitle { color:#8fd3ff; font-size:9px; font-weight:800; }
+#detailTextBody { color:#f8fafc; font-size:10px; font-weight:500; }
+#detailSectionNumber { min-width:26px; max-width:26px; min-height:26px; max-height:26px; color:#fff; background:#1687e8; border:1px solid #5bc0ff; border-radius:13px; font-size:12px; font-weight:800; }
+#detailSectionHeaderIcon { color:#62c4ff; font-size:12px; font-weight:800; }
+#detailSectionHeaderTitle { color:#ffffff; font-size:11px; font-weight:800; }
+#detailHelpDialog { background:#0d1720; }
+#detailHelpHero { background:#122332; border:1px solid #31516a; border-radius:10px; }
+#detailHelpHeroIcon { color:#ffffff; background:#1687e8; border:1px solid #5bc0ff; border-radius:17px; font-size:17px; font-weight:900; }
+#detailHelpTitle { color:#ffffff; font-size:17px; font-weight:800; }
+#detailHelpSubtitle { color:#a9bfd0; font-size:10px; font-weight:500; }
+#detailHelpSectionNumber { color:#ffffff; background:#1687e8; border:1px solid #5bc0ff; border-radius:11px; font-size:10px; font-weight:800; }
+#detailHelpSection { color:#f8fafc; font-size:12px; font-weight:800; padding:0; }
+#detailHelpGroup, #detailHelpMatrixCard { background:#111f2b; border:1px solid #30495d; border-radius:9px; }
+#detailHelpItem { background:#152633; border:1px solid #29475d; border-radius:7px; }
+#detailHelpText { color:#eaf4fb; font-size:11px; font-weight:500; }
+#detailHelpMatrixNote { color:#cfe8f8; font-size:10px; font-weight:700; }
+#detailAuditHelpBadge { color:#fff; background:#6d28d9; border:1px solid #8b5cf6; border-radius:7px; font-size:10px; font-weight:800; }
+
 """
 
 DETAIL_LIGHT_REFINEMENTS = """
@@ -189,5 +212,28 @@ DETAIL_LIGHT_REFINEMENTS = """
 #detailReasonBody { color:#1e293b; font-size:10px; font-weight:500; }
 #detailOtherInfo { background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; }
 #detailOtherText { color:#334155; font-size:9px; font-weight:600; }
+
+/* Approved mockup polish v2 */
+#detailFindingMeta { background:#ffffff; border:0; border-bottom:1px solid #dbe4ee; }
+#detailFindingMetaTitle { color:#0f172a; font-size:10px; font-weight:700; }
+#detailFindingMetaFile { color:#64748b; font-size:8px; font-weight:500; }
+#detailSectionCard { background:#f8fbfe; border:1px solid #bfd2e1; border-radius:8px; }
+#detailSectionTitle { color:#0369a1; font-size:9px; font-weight:800; }
+#detailTextBody { color:#0f172a; font-size:10px; font-weight:500; }
+#detailSectionNumber { min-width:26px; max-width:26px; min-height:26px; max-height:26px; color:#fff; background:#0284c7; border:1px solid #0369a1; border-radius:13px; font-size:12px; font-weight:800; }
+#detailSectionHeaderIcon { color:#0369a1; font-size:12px; font-weight:800; }
+#detailSectionHeaderTitle { color:#0f172a; font-size:11px; font-weight:800; }
+#detailHelpDialog { background:#f8fafc; }
+#detailHelpHero { background:#eff8ff; border:1px solid #bae6fd; border-radius:10px; }
+#detailHelpHeroIcon { color:#fff; background:#0284c7; border:1px solid #0369a1; border-radius:17px; font-size:17px; font-weight:900; }
+#detailHelpTitle { color:#0f172a; font-size:17px; font-weight:800; }
+#detailHelpSubtitle { color:#475569; font-size:10px; font-weight:500; }
+#detailHelpSectionNumber { color:#fff; background:#0284c7; border:1px solid #0369a1; border-radius:11px; font-size:10px; font-weight:800; }
+#detailHelpSection { color:#0f172a; font-size:12px; font-weight:800; padding:0; }
+#detailHelpGroup, #detailHelpMatrixCard { background:#ffffff; border:1px solid #cbd5e1; border-radius:9px; }
+#detailHelpItem { background:#f8fafc; border:1px solid #dbe4ee; border-radius:7px; }
+#detailHelpText { color:#1e293b; font-size:11px; font-weight:500; }
+#detailHelpMatrixNote { color:#334155; font-size:10px; font-weight:700; }
+#detailAuditHelpBadge { color:#fff; background:#7c3aed; border:1px solid #6d28d9; border-radius:7px; font-size:10px; font-weight:800; }
 
 """
