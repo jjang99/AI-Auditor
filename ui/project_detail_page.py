@@ -548,7 +548,7 @@ class ProjectDetailPage(QWidget):
         sort_button.setFixedHeight(22)
         # Use a compact fixed control; native Windows combo rendering needs enough
         # width for the arrow, so geometry is controlled here rather than by CSS.
-        sort_button.setFixedWidth(54)
+        sort_button.setFixedWidth(58)
         sort_button.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         sort_button.view().setMinimumWidth(84)
         self.issue_sort_button = sort_button
