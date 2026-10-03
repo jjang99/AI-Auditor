@@ -59,41 +59,61 @@ def _clear_layout(layout):
 
 
 def _format_detail_text(value):
-    """Format stored evidence for display without changing its source text."""
+    """Format stored evidence into short, readable audit paragraphs."""
     text = str(value or "-").strip()
     text = re.sub(r":0(?=\s*(?:\||$))", "", text)
-
-    # Stored document evidence uses pipes to separate location/source and
-    # finding text. Present those boundaries as paragraphs.
     text = re.sub(r"\s*\|\s*", "\n", text)
 
-    # AI findings often contain semantic labels in one long string.
-    labels = (
-        "체크포인트", "위반사항", "위반 내용", "근거",
-        "위험", "권고", "판단", "사유",
-    )
-    label_pattern = "|".join(re.escape(label) for label in labels)
+    # Put semantic labels on their own line and visually separate sections.
     text = re.sub(
-        rf"(?<!^)(?<!\n)({label_pattern})\s*:",
-        r"\n\1: ",
+        r"(?i)\s*(체크포인트\s+[A-Z]+-\d+\s+위반)\s*:\s*",
+        r"\1:\n",
         text,
     )
+    text = re.sub(
+        r"(?<!^)(?<!\n)(위반사항|위반 내용|근거|판단|사유|권고)\s*:\s*",
+        r"\n\n\1:\n",
+        text,
+    )
+    text = re.sub(r"(?<=[.!?])\s+(?=[가-힣A-Za-z0-9'\"])", "\n\n", text)
 
-    # Keep each complete sentence visually separate when AI returned prose as
-    # one paragraph.
-    text = re.sub(r"(?<=[.!?])\s+(?=[가-힣A-Za-z0-9'\"])", "\n", text)
-
-    # Long Windows paths contain no spaces, so QLabel cannot wrap them by
-    # itself. Add zero-width wrap opportunities for display only.
     lines = []
-    for line in text.splitlines():
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            if lines and lines[-1] != "":
+                lines.append("")
+            continue
         if "\\" in line and len(line) > 34:
             line = line.replace("\\", "\\\u200b")
         lines.append(line)
 
-    text = "\n".join(lines)
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()
+    return "\n".join(lines).strip()
+
+
+def _summarize_evidence(value):
+    """Keep the finding understandable at a glance without changing DB evidence."""
+    text = _format_detail_text(value)
+    if text == "-":
+        return text
+
+    kept = []
+    char_count = 0
+    for block in re.split(r"\n\s*\n|\n", text):
+        block = block.strip(" \t•-")
+        if not block or "\\" in block:
+            continue
+        if block in kept:
+            continue
+        # Keep semantic headings and the most useful first evidence statements.
+        if char_count + len(block) > 420 and kept:
+            break
+        kept.append(block)
+        char_count += len(block)
+        if len(kept) >= 6:
+            break
+
+    return "\n\n".join(kept) if kept else "-"
 
 
 def apply_project_detail_runtime(ProjectDetailPage):
@@ -361,15 +381,15 @@ def apply_project_detail_runtime(ProjectDetailPage):
         header.addWidget(status)
         layout.addLayout(header)
 
-        # Keep the frozen card layout, but present runtime inspection data in
-        # audit-friendly semantic sections instead of generic description/evidence labels.
+        # Preserve the frozen card layout while presenting the stored result
+        # in the Issue Detail fields agreed for the severity/audit design.
         evidence_text = _format_detail_text(issue["evidence"])
         source_lines = [
             line.strip()
             for line in evidence_text.splitlines()
             if line.strip() and (
                 "\\" in line
-                or re.search(r"(?i)\\.(?:hwp|hwpx|docx?|xlsx?|pdf|pptx?)$", line.strip())
+                or re.search(r"(?i)\.(?:hwp|hwpx|docx?|xlsx?|pdf|pptx?)$", line.strip())
                 or line.startswith(("[시험 산출물]", "[이전 산출물]", "[현재 산출물]"))
             )
         ]
@@ -380,30 +400,47 @@ def apply_project_detail_runtime(ProjectDetailPage):
         ]
 
         source_text = "\n".join(source_lines) if source_lines else "-"
-        finding_text = "\n".join(finding_lines) if finding_lines else evidence_text
+        finding_text = _summarize_evidence("\n".join(finding_lines) if finding_lines else evidence_text)
 
         self.add_detail_section(layout, "제목", issue["title"] or "-")
         self.add_detail_section(layout, "검사 파일", source_text)
-        self.add_detail_section(
-            layout,
-            "발견 내용",
-            _format_detail_text(issue["description"]) if issue["description"] else finding_text,
-        )
-        self.add_detail_section(layout, "영향 대상", issue["impact"] or "분석 예정")
+        self.add_detail_section(layout, "발견 내용", finding_text)
+
+        risk_parts = [
+            f"Impact  {issue['impact'] or '-'}",
+            f"Likelihood  {issue['likelihood'] or '-'}",
+            f"Severity  {issue['severity'] or '-'}",
+        ]
+        self.add_detail_section(layout, "위험도 판정", "  ·  ".join(risk_parts))
         self.add_detail_section(layout, "근거", finding_text)
 
-        ai_title = QLabel("AI 권고")
-        ai_title.setObjectName("detailTextLabel")
-        layout.addWidget(ai_title)
-        ai_box = QFrame()
-        ai_box.setObjectName("detailAIBox")
-        ai_layout = QHBoxLayout(ai_box)
-        ai_layout.setContentsMargins(10, 9, 10, 9)
-        ai_text = QLabel(issue["ai_recommendation"] or "별도 권고사항 없음")
-        ai_text.setObjectName("detailAIText")
-        ai_text.setWordWrap(True)
-        ai_layout.addWidget(ai_text)
-        layout.addWidget(ai_box)
+        audit_title = QLabel("감리 개선판정")
+        audit_title.setObjectName("detailTextLabel")
+        layout.addWidget(audit_title)
+        audit_box = QFrame()
+        audit_box.setObjectName("detailAIBox")
+        audit_layout = QVBoxLayout(audit_box)
+        audit_layout.setContentsMargins(10, 9, 10, 9)
+        audit_layout.setSpacing(3)
+
+        audit_values = (
+            issue["audit_recommendation_type"],
+            issue["audit_improvement_timing"],
+            issue["audit_important"],
+        )
+        if any(audit_values):
+            audit_text = (
+                f"개선권고유형  {issue['audit_recommendation_type'] or '-'}\n"
+                f"개선시점      {issue['audit_improvement_timing'] or '-'}\n"
+                f"중요 여부     {issue['audit_important'] or '-'}"
+            )
+        else:
+            audit_text = "판정 정보 없음"
+        audit_label = QLabel(audit_text)
+        audit_label.setObjectName("detailAIText")
+        audit_label.setWordWrap(True)
+        audit_layout.addWidget(audit_label)
+        layout.addWidget(audit_box)
 
         category = QLabel(f"카테고리    {issue['category'] or '-'}")
         category.setObjectName("detailTagText")
