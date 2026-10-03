@@ -360,10 +360,36 @@ def apply_project_detail_runtime(ProjectDetailPage):
         header.addWidget(status)
         layout.addLayout(header)
 
+        # Keep the frozen card layout, but present runtime inspection data in
+        # audit-friendly semantic sections instead of generic description/evidence labels.
+        evidence_text = _format_detail_text(issue["evidence"])
+        source_lines = [
+            line.strip()
+            for line in evidence_text.splitlines()
+            if line.strip() and (
+                "\\" in line
+                or re.search(r"(?i)\\.(?:hwp|hwpx|docx?|xlsx?|pdf|pptx?)$", line.strip())
+                or line.startswith(("[시험 산출물]", "[이전 산출물]", "[현재 산출물]"))
+            )
+        ]
+        finding_lines = [
+            line.strip()
+            for line in evidence_text.splitlines()
+            if line.strip() and line.strip() not in source_lines
+        ]
+
+        source_text = "\n".join(source_lines) if source_lines else "-"
+        finding_text = "\n".join(finding_lines) if finding_lines else evidence_text
+
         self.add_detail_section(layout, "제목", issue["title"] or "-")
-        self.add_detail_section(layout, "설명", _format_detail_text(issue["description"]))
-        self.add_detail_section(layout, "근거", _format_detail_text(issue["evidence"]))
-        self.add_detail_section(layout, "영향", issue["impact"] or "분석 예정")
+        self.add_detail_section(layout, "검사 파일", source_text)
+        self.add_detail_section(
+            layout,
+            "발견 내용",
+            _format_detail_text(issue["description"]) if issue["description"] else finding_text,
+        )
+        self.add_detail_section(layout, "영향 대상", issue["impact"] or "분석 예정")
+        self.add_detail_section(layout, "근거", finding_text)
 
         ai_title = QLabel("AI 권고")
         ai_title.setObjectName("detailTextLabel")
