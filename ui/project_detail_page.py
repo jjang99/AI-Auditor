@@ -1,7 +1,4 @@
 from pathlib import Path
-import html
-import zipfile
-from xml.etree import ElementTree as ET
 
 from docx import Document
 from openpyxl import Workbook
@@ -396,17 +393,19 @@ class ProjectDetailPage(QWidget):
         workbook.save(path)
 
     def _export_report_hwpx(self, path, report):
-        # HWPX is an OPC/ZIP package. This minimal standards-based report
-        # preserves Korean text and can be opened/edited by Hancom Office.
-        paragraphs = ["AI Auditor 검사 보고서"]
-        paragraphs.extend(f"{label}: {value}" for label, value in report["summary"])
-        paragraphs.append("Issues")
+        # HWPX를 임의 ZIP/XML로 만들지 않고 설치된 한/글의 저장 엔진을 사용한다.
+        from pyhwpx import Hwp
+
+        lines = ["AI Auditor 검사 보고서"]
+        lines.extend(f"{label}: {value}" for label, value in report["summary"])
+        lines.extend(["", "Issues"])
         rows = self._issue_rows(report)
         if not rows:
-            paragraphs.append("이슈 없음")
+            lines.append("이슈 없음")
         else:
             for row in rows:
-                paragraphs.extend([
+                lines.extend([
+                    "",
                     f"{row[0]}. [{row[1]}] {row[2]} - {row[3]}",
                     f"상태: {row[4]}",
                     f"설명: {row[5]}",
@@ -415,37 +414,14 @@ class ProjectDetailPage(QWidget):
                     f"권고: {row[8]}",
                 ])
 
-        def xml_text(value):
-            return html.escape(str(value), quote=False)
-
-        section_body = "".join(
-            f'<hp:p id="{index}" paraPrIDRef="0" styleIDRef="0"><hp:run charPrIDRef="0"><hp:t>{xml_text(text)}</hp:t></hp:run></hp:p>'
-            for index, text in enumerate(paragraphs, 1)
-        )
-        section_xml = (
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            '<hs:sec xmlns:hs="http://www.hancom.co.kr/hwpml/2011/section" '
-            'xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph">'
-            + section_body + '</hs:sec>'
-        )
-        content_hpf = (
-            '<?xml version="1.0" encoding="UTF-8"?>'
-            '<opf:package xmlns:opf="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="AI-Auditor">'
-            '<opf:metadata><opf:title>AI Auditor 검사 보고서</opf:title></opf:metadata>'
-            '<opf:manifest><opf:item id="section0" href="Contents/section0.xml" media-type="application/xml"/></opf:manifest>'
-            '<opf:spine><opf:itemref idref="section0"/></opf:spine></opf:package>'
-        )
-        container_xml = (
-            '<?xml version="1.0" encoding="UTF-8"?>'
-            '<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">'
-            '<rootfiles><rootfile full-path="Contents/content.hpf" media-type="application/oebps-package+xml"/>'
-            '</rootfiles></container>'
-        )
-        with zipfile.ZipFile(path, "w") as archive:
-            archive.writestr("mimetype", "application/hwp+zip", compress_type=zipfile.ZIP_STORED)
-            archive.writestr("META-INF/container.xml", container_xml)
-            archive.writestr("Contents/content.hpf", content_hpf)
-            archive.writestr("Contents/section0.xml", section_xml)
+        hwp = Hwp(visible=False)
+        try:
+            hwp.insert_text("\r\n".join(str(line) for line in lines))
+            result = hwp.save_as(str(path.resolve()), format="HWPX")
+            if result is False:
+                raise RuntimeError("한/글 HWPX 저장에 실패했습니다.")
+        finally:
+            hwp.quit()
 
     def create_stat_card(
         self,
