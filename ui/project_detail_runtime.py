@@ -80,6 +80,26 @@ def _result_card(title, value, role, subtext=""):
     badge = _level_badge(value, role)
     if role == "audit":
         badge.setObjectName("detailAuditResultBadge")
+        card.setStyleSheet("""
+            QFrame#detailAuditCard {
+                background-color: rgba(25, 48, 64, 210);
+                border: 1px solid #365a72;
+                border-radius: 8px;
+            }
+            QLabel#detailAuditCardTitle {
+                color: #8fdcff;
+                font-weight: 700;
+            }
+            QLabel#detailAuditResultBadge {
+                color: #ffffff;
+                background-color: #6d28d9;
+                border: 1px solid #a78bfa;
+                border-radius: 6px;
+                font-weight: 700;
+                padding: 4px 8px;
+            }
+        """)
+        card.setMinimumHeight(68)
     box.addWidget(heading)
     box.addWidget(badge, 0, Qt.AlignHCenter)
     if subtext:
