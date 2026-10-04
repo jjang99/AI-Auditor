@@ -423,3 +423,53 @@ def test_chg012_rejects_unsupported_deletion_test_change_claim():
     ):
         result = provider.inspect(document, rule)
     assert result.findings == ()
+
+
+def test_chg018_skips_synthesis_when_only_change_facts_and_impact_candidates_exist():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-018")
+    document = ParsedDocument(
+        file_path=Path("chg-018-confirmed-findings.txt"),
+        file_type="inspection_findings",
+        blocks=(
+            DocumentBlock(
+                block_type="inspection_finding",
+                text="CHG-001 | 변경사항 식별 점검 | 기능 범위가 확장됨",
+            ),
+            DocumentBlock(
+                block_type="inspection_finding",
+                text="CHG-006 | 변경 영향대상 식별 | 화면 영향 후보임",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+
+    with patch.object(provider, "_complete") as complete:
+        result = provider.inspect(document, rule)
+
+    complete.assert_not_called()
+    assert result.findings == ()
+
+
+def test_chg018_calls_synthesis_when_unresolved_evidence_exists():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-018")
+    document = ParsedDocument(
+        file_path=Path("chg-018-confirmed-findings.txt"),
+        file_type="inspection_findings",
+        blocks=(
+            DocumentBlock(
+                block_type="inspection_finding",
+                text="CHG-012 | 관련 시험 변경 미반영 점검 | 변경 기능이 시험항목에 미반영됨",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+
+    with patch.object(
+        provider,
+        "_complete",
+        return_value='{"findings":["변경 기능의 시험 미반영 위험이 확인됨"]}',
+    ) as complete:
+        result = provider.inspect(document, rule)
+
+    complete.assert_called_once()
+    assert result.findings == ("변경 기능의 시험 미반영 위험이 확인됨",)
