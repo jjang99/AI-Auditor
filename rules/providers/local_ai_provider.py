@@ -425,9 +425,33 @@ class LlamaCppAIProvider(BaseAIProvider):
             raise LocalAIProviderError(
                 f"{rule.code} ({rule.name}) 검사 중 오류: {exc}"
             ) from exc
+        findings = self._parse_findings(raw)
+        selected_text_lower = "\n".join(selected).lower()
+        verified_findings = []
+        absence_markers = (
+            "존재하지 않", "없음", "확인되지 않", "찾을 수 없", "시험행이 없",
+        )
+        for finding in findings:
+            finding_ids = tuple(
+                dict.fromkeys(
+                    item.upper()
+                    for item in re.findall(r"[A-Za-z]{2,}-\d+(?:-[A-Za-z]+)?-\d+", finding)
+                )
+            )
+            # AI가 특정 요구사항 ID의 시험행 부재를 단정했지만 실제 선별 시험근거에
+            # 그 ID가 있으면 명백한 사실 모순이므로 finding을 제거한다.
+            contradicted_absence = (
+                finding_ids
+                and any(marker in finding for marker in absence_markers)
+                and all(item.lower() in selected_text_lower for item in finding_ids)
+            )
+            if contradicted_absence:
+                continue
+            verified_findings.append(finding)
+
         return AIInspectionResult(
             rule_code=rule.code,
-            findings=self._parse_findings(raw),
+            findings=tuple(verified_findings),
             raw_response=raw,
             provider_name=self.__class__.__name__,
         )
