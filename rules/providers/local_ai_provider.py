@@ -327,15 +327,46 @@ class LlamaCppAIProvider(BaseAIProvider):
         if not selected:
             selected = [block.text.strip()[:900] for block in test_blocks[:8]]
 
+        direct_coverage = []
+        selected_text = "\n".join(selected).lower()
+        for change in change_texts[:8]:
+            requirement_ids = tuple(
+                dict.fromkeys(
+                    item.upper()
+                    for item in re.findall(r"[A-Za-z]{2,}-\\d+(?:-[A-Za-z]+)?-\\d+", change)
+                )
+            )
+            if requirement_ids and all(item.lower() in selected_text for item in requirement_ids):
+                direct_coverage.append(
+                    f"- 요구사항 ID 직접 확인: {', '.join(requirement_ids)}"
+                )
+
+            normalized_change = re.sub(r"[^가-힣A-Za-z0-9]+", " ", change).strip().lower()
+            phrases = [
+                phrase.strip()
+                for phrase in re.split(r"(?:으로|로|및|등|기능|구현|추가|확장|변경)", normalized_change)
+                if len(phrase.strip()) >= 8
+            ]
+            for phrase in phrases:
+                if phrase in selected_text:
+                    direct_coverage.append(f"- 시험문구 직접 확인: {phrase}")
+                    break
+
+        direct_coverage = list(dict.fromkeys(direct_coverage))
+
         prompt = (
             "당신은 변경영향 시험반영 점검 AI입니다. "
             "확인된 변경사항과 관련 시험행만 비교하세요. "
             "변경된 요구·기능이 시험항목, 시험조건, 입력 또는 예상결과에 반영되지 않은 것이 "
             "근거로 확인될 때만 findings를 작성하세요. "
             "관련 시험행이 없다는 사실만으로 누락을 단정하지 마세요. "
+            "아래 [직접 반영 근거]에 요구사항 ID나 핵심 시험문구가 확인되어 있으면, "
+            "그 근거와 모순되게 해당 요구·기능이 시험에 없다고 판단하지 마세요. "
+            "단, 일부 ID만 존재하거나 유사한 다른 기능만 존재하면 반영 완료로 간주하지 마세요. "
             "입력에 없는 사실을 만들지 말고 최대 4건, 각 140자 이내로 작성하세요. "
             "한국어 JSON 객체 하나만 출력하세요.\n\n"
             "[확인된 변경]\n" + "\n".join(change_texts[:8]) +
+            "\n\n[직접 반영 근거]\n" + ("\n".join(direct_coverage) or "- 없음") +
             "\n\n[관련 시험행]\n" + "\n".join(selected) +
             '\n\n{"findings":["시험 변경 미반영 근거"]}'
         )
