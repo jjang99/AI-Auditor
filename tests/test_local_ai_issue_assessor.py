@@ -89,6 +89,15 @@ def test_assessment_prompt_forbids_keyword_only_high_and_invention():
     assert '"impact":"Low|Medium|High"' in prompt
 
 
+def test_batch_prompt_defines_likelihood_as_unresolved_impact_risk():
+    prompt = LocalAIIssueAssessor._build_batch_prompt((_issue(),))
+
+    assert "Issue 자체가 존재하거나 다시 발생할 가능성이 아니라" in prompt
+    assert "조치하지 않고 그대로 둘 때" in prompt
+    assert "다시 나타날 수 있다는 이유만으로 Likelihood를 High" in prompt
+    assert "방치 시 후속 영향 가능성" in prompt
+
+
 def test_issue_assessor_uses_assessment_json_schema():
     response_format = LocalAIIssueAssessor._assessment_response_format()
     schema = response_format["json_schema"]["schema"]
