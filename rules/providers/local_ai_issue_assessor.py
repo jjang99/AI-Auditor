@@ -98,11 +98,16 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
                 if not item.get("applicable", False):
                     judgments.append(None)
                     continue
+                recommendation_type = AuditRecommendationType(item["recommendation_type"])
+                # 정보시스템 감리기준 제8조: 중요 표시는 필수/협의 중 중대한 사항에만 적용한다.
+                important = AuditImportantFlag(item["important"])
+                if recommendation_type == AuditRecommendationType.RECOMMENDED:
+                    important = AuditImportantFlag.NO
                 judgments.append(
                     AuditImprovementJudgment(
-                        recommendation_type=AuditRecommendationType(item["recommendation_type"]),
+                        recommendation_type=recommendation_type,
                         improvement_timing=AuditImprovementTiming(item["improvement_timing"]),
-                        important=AuditImportantFlag(item["important"]),
+                        important=important,
                     )
                 )
         return tuple(judgments)
@@ -122,8 +127,19 @@ class LocalAIIssueAssessor(BaseIssueAssessor):
             "Severity와 감리 개선판정은 서로 독립적입니다. Severity를 근거로 자동 매핑하지 마세요.\n"
             "입력 Issue만 근거로 감리 대응 관점의 개선판정이 의미 있는지 먼저 판단하세요.\n"
             "의미가 없거나 근거가 부족하면 applicable=false로 반환하세요.\n"
-            "applicable=true인 경우 개선권고유형은 필수/협의/권고, 개선시점은 단기/장기, "
-            "중요 여부는 O/- 중 하나만 선택하세요. 입력에 없는 사실은 추측하지 마세요.\n\n"
+            "[개선권고유형 - 정보시스템 감리기준 제8조]\n"
+            "필수: 사업목표를 달성하기 위하여 반드시 개선하여야 할 사항.\n"
+            "협의: 사업목표 달성을 위하여 개선하는 것이 바람직한 사항 중 발주기관과 피감리인이 "
+            "상호 협의를 거쳐 반영 여부를 결정할 수 있는 사항.\n"
+            "권고: 감리 대상범위를 벗어나지만 사업목표 달성에 도움이 되는 사항.\n"
+            "[개선시점]\n"
+            "단기: 해당 구축단계 종료 이전에 개선하여야 하는 사항.\n"
+            "장기: 장기적인 관점에서 지속적으로 개선하여야 하는 사항.\n"
+            "[중요 여부]\n"
+            "O: 필수 또는 협의 사항 중 사업목표 달성에 영향을 미칠 수 있는 중대한 사항에만 부여.\n"
+            "-: 그 밖의 경우. 권고에는 중요 O를 부여하지 마세요.\n"
+            "각 Issue를 서로 독립적으로 판정하고 입력에 없는 사실은 추측하지 마세요. "
+            "단순히 Issue가 발견되었다는 이유만으로 필수/단기/O를 선택하지 마세요.\n\n"
             f"{items}"
         )
 
