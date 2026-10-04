@@ -382,3 +382,44 @@ def test_chg012_prompt_rejects_revision_history_as_deletion_test_evidence():
     prompt = complete.call_args.args[0]
     assert "개정이력의 일반적인 추가/수정/삭제 안내문" in prompt
     assert "시험 수정·제거 근거가 아닙니다" in prompt
+
+
+def test_chg012_rejects_positive_coverage_statements_as_non_issues():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(block_type="confirmed_change", text="SFR-044-ID-01 기능 변경"),
+            DocumentBlock(block_type="test_document", text="SFR-044-ID-01 | 기관 담당자 등록승인"),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    with patch.object(
+        provider, "_complete",
+        return_value='{"findings":["SFR-044-ID-01이 시험행에 반영됨.","이용현황 기능이 시험에 확인됨."]}',
+    ):
+        result = provider.inspect(document, rule)
+    assert result.findings == ()
+
+
+def test_chg012_rejects_unsupported_deletion_test_change_claim():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(block_type="confirmed_change", text="수행방안 및 보안항목식별 내용이 삭제됨"),
+            DocumentBlock(
+                block_type="test_document",
+                text="개정이력 | 제정 또는 개정 내용이 이전 문서에 대해 추가/수정/삭제인지 선택 기입",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    with patch.object(
+        provider, "_complete",
+        return_value='{"findings":["보안항목식별 내용 삭제로 인해 시험 수정이 필요함."]}',
+    ):
+        result = provider.inspect(document, rule)
+    assert result.findings == ()
