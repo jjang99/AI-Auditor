@@ -274,3 +274,57 @@ def test_chg012_marks_deleted_change_separately():
     assert "[삭제 변경]" in captured["prompt"]
     assert "수행방안 및 보안항목식별 내용이 삭제됨" in captured["prompt"]
     assert "삭제 자체만을 이유로 시험 미반영 finding을 만들지 마세요" in captured["prompt"]
+
+
+def test_chg012_rejects_absence_finding_when_requirement_id_exists_in_test_evidence():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="SFR-044-ID-01 기관 담당자 서비스 기능 변경",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="ITS-ID-010 | SFR-044-ID-01 | 기관 담당자 등록승인",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    with patch.object(
+        provider,
+        "_complete",
+        return_value='{"findings":["SFR-044-ID-01에 해당하는 시험행이 존재하지 않음."]}',
+    ):
+        result = provider.inspect(document, rule)
+
+    assert result.findings == ()
+
+
+def test_chg012_keeps_semantic_finding_when_it_is_not_mechanically_disproved():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="이용/제공현황 모니터링 기능이 추가됨",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="ITS-ID-005 | 이용기관 송수신현황 조회",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    with patch.object(
+        provider,
+        "_complete",
+        return_value='{"findings":["이용/제공현황 모니터링 기능이 시험행에 반영되지 않음."]}',
+    ):
+        result = provider.inspect(document, rule)
+
+    assert result.findings == ("이용/제공현황 모니터링 기능이 시험행에 반영되지 않음.",)
