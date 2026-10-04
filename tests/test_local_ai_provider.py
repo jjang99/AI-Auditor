@@ -328,3 +328,57 @@ def test_chg012_keeps_semantic_finding_when_it_is_not_mechanically_disproved():
         result = provider.inspect(document, rule)
 
     assert result.findings == ("이용/제공현황 모니터링 기능이 시험행에 반영되지 않음.",)
+
+
+def test_chg012_prompt_distinguishes_id_mismatch_from_covered_function():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="SFR-043-ID-02 및 SFR-044-ID-01 요구사항 분리 및 취합됨",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="SFR-043-ID-01 | 이용기관 송수신현황 및 차트 조회",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="SFR-044-ID-01 | 기관 담당자 등록승인",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    with patch.object(provider, "_complete", return_value='{"findings":[]}') as complete:
+        provider.inspect(document, rule)
+
+    prompt = complete.call_args.args[0]
+    assert "ID 불일치는 별도의 추적성 위험" in prompt
+    assert "근거가 없는 ID만 정확히 특정" in prompt
+
+
+def test_chg012_prompt_rejects_revision_history_as_deletion_test_evidence():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="수행방안 및 보안항목식별 내용이 삭제됨",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="개정이력 | 제정 또는 개정 내용이 이전 문서에 대해 추가/수정/삭제인지 선택 기입",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    with patch.object(provider, "_complete", return_value='{"findings":[]}') as complete:
+        provider.inspect(document, rule)
+
+    prompt = complete.call_args.args[0]
+    assert "개정이력의 일반적인 추가/수정/삭제 안내문" in prompt
+    assert "시험 수정·제거 근거가 아닙니다" in prompt
