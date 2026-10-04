@@ -4,7 +4,7 @@ import pytest
 
 from rules.core.issue_assessor import apply_issue_assessments
 from rules.core.models import RuleIssue
-from rules.core.severity import AssessmentLevel, IssueSeverity
+from rules.core.severity import AssessmentLevel, AuditImportantFlag, AuditRecommendationType, IssueSeverity
 from rules.providers.local_ai_issue_assessor import LocalAIIssueAssessor
 from rules.providers.local_ai_provider import LlamaCppAIProvider, LocalAIProviderError
 
@@ -113,3 +113,34 @@ def test_issue_assessor_uses_assessment_json_schema():
         "likelihood_reason",
     }
     assert schema["additionalProperties"] is False
+
+
+def test_audit_prompt_uses_official_improvement_judgment_definitions():
+    prompt = LocalAIIssueAssessor._build_audit_batch_prompt((_issue(),))
+
+    assert "사업목표를 달성하기 위하여 반드시 개선" in prompt
+    assert "발주기관과 피감리인이 상호 협의를 거쳐 반영 여부" in prompt
+    assert "감리 대상범위를 벗어나지만 사업목표 달성에 도움이" in prompt
+    assert "해당 구축단계 종료 이전" in prompt
+    assert "장기적인 관점에서 지속적으로 개선" in prompt
+    assert "필수 또는 협의" in prompt
+    assert "권고에는 중요 O를 부여하지" in prompt
+
+
+def test_audit_recommended_judgment_cannot_be_marked_important():
+    provider = LlamaCppAIProvider()
+    assessor = LocalAIIssueAssessor(provider)
+    raw = (
+        '{"judgments":[{'
+        '"applicable":true,'
+        '"recommendation_type":"권고",'
+        '"improvement_timing":"장기",'
+        '"important":"O"'
+        '}]}'
+    )
+
+    with patch.object(provider, "_complete", return_value=raw):
+        judgment = assessor.judge_audit_many((_issue(),))[0]
+
+    assert judgment.recommendation_type == AuditRecommendationType.RECOMMENDED
+    assert judgment.important == AuditImportantFlag.NO
