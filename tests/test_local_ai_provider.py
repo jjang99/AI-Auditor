@@ -195,3 +195,82 @@ def test_chg012_does_not_mark_partial_requirement_id_coverage():
         "\n\n[관련 시험행]", 1
     )[0]
     assert "요구사항 ID 직접 확인" not in direct_section
+
+
+def test_chg012_selects_evidence_per_change_instead_of_global_top_rows():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    noisy_rows = tuple(
+        DocumentBlock(
+            block_type="test_document",
+            text=f"공통 이용현황 대시보드 일반 시험행 {index}",
+        )
+        for index in range(30)
+    )
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="SFR-043-ID-01 이용기관 송수신현황 모니터링 기능 변경",
+            ),
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="SFR-044-ID-01 기관 담당자 등록승인 기능 변경",
+            ),
+            *noisy_rows,
+            DocumentBlock(
+                block_type="test_document",
+                text="ITS-ID-005 | SFR-043-ID-01 | 이용기관 송수신현황 조회 및 차트",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="ITS-ID-010 | SFR-044-ID-01 | 기관 담당자 등록승인",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    captured = {}
+
+    def fake_complete(prompt, response_format=None):
+        captured["prompt"] = prompt
+        return '{"findings":[]}'
+
+    with patch.object(provider, "_complete", side_effect=fake_complete):
+        provider.inspect(document, rule)
+
+    assert "ITS-ID-005 | SFR-043-ID-01" in captured["prompt"]
+    assert "ITS-ID-010 | SFR-044-ID-01" in captured["prompt"]
+    assert "요구사항 ID 직접 확인: SFR-043-ID-01" in captured["prompt"]
+    assert "요구사항 ID 직접 확인: SFR-044-ID-01" in captured["prompt"]
+
+
+def test_chg012_marks_deleted_change_separately():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="수행방안 및 보안항목식별 내용이 삭제됨",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="기존 보안 관련 통합시험 결과",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    captured = {}
+
+    def fake_complete(prompt, response_format=None):
+        captured["prompt"] = prompt
+        return '{"findings":[]}'
+
+    with patch.object(provider, "_complete", side_effect=fake_complete):
+        provider.inspect(document, rule)
+
+    assert "[삭제 변경]" in captured["prompt"]
+    assert "수행방안 및 보안항목식별 내용이 삭제됨" in captured["prompt"]
+    assert "삭제 자체만을 이유로 시험 미반영 finding을 만들지 마세요" in captured["prompt"]
