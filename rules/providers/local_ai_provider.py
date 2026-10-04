@@ -487,15 +487,31 @@ class LlamaCppAIProvider(BaseAIProvider):
         absence_markers = (
             "존재하지 않", "없음", "확인되지 않", "찾을 수 없", "시험행이 없",
         )
+        non_issue_markers = (
+            "반영됨", "반영되어 있", "확인됨", "존재함", "포함됨", "적용됨",
+        )
+        deletion_terms = tuple(
+            term
+            for change in deletion_changes
+            for term in re.findall(r"[가-힣A-Za-z0-9_-]{4,}", change)
+            if term not in {"내용이", "삭제됨", "삭제되", "제거됨", "제거되", "폐기됨", "폐기되"}
+        )
+        deletion_has_test_evidence = any(
+            term.lower() in selected_text_lower
+            for term in deletion_terms
+        )
+
         for finding in findings:
+            # CHG-012는 '미반영' 검출 규칙이다. 반영/존재/확인 같은 정상 결론은 Issue가 아니다.
+            if any(marker in finding for marker in non_issue_markers):
+                continue
+
             finding_ids = tuple(
                 dict.fromkeys(
                     item.upper()
                     for item in re.findall(r"[A-Za-z]{2,}-\d+(?:-[A-Za-z]+)?-\d+", finding)
                 )
             )
-            # AI가 특정 요구사항 ID의 시험행 부재를 단정했지만 실제 선별 시험근거에
-            # 그 ID가 있으면 명백한 사실 모순이므로 finding을 제거한다.
             contradicted_absence = (
                 finding_ids
                 and any(marker in finding for marker in absence_markers)
@@ -503,6 +519,17 @@ class LlamaCppAIProvider(BaseAIProvider):
             )
             if contradicted_absence:
                 continue
+
+            # 삭제 변경은 실제 시험행에 삭제 대상의 구체적 내용이 남아 있을 때만
+            # 시험 수정/제거 필요 finding을 허용한다. 개정이력의 일반 안내문은 근거가 아니다.
+            deletion_claim = (
+                deletion_changes
+                and any(marker in finding for marker in ("삭제", "제거", "폐기"))
+                and any(marker in finding for marker in ("시험 수정", "시험 제거", "수정이 필요", "제거가 필요"))
+            )
+            if deletion_claim and not deletion_has_test_evidence:
+                continue
+
             verified_findings.append(finding)
 
         return AIInspectionResult(
