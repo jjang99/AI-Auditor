@@ -299,63 +299,106 @@ class LlamaCppAIProvider(BaseAIProvider):
                 provider_name=self.__class__.__name__,
             )
 
-        terms = []
         stop_terms = {"확인된", "변경", "현재", "문서", "기능", "내용", "요구사항", "산출물"}
-        for text in change_texts:
-            for term in re.findall(r"[가-힣A-Za-z0-9_-]{2,}", text):
-                normalized = term.lower()
-                if normalized not in stop_terms and normalized not in terms:
-                    terms.append(normalized)
-
-        ranked = []
-        for index, block in enumerate(test_blocks):
-            text = block.text.strip()
-            score = sum(1 for term in terms if term in text.lower())
-            if score:
-                ranked.append((-score, index, text))
-        ranked.sort()
-
         selected = []
-        used = 0
-        for _score, _index, text in ranked[:24]:
-            snippet = text[:900]
-            if used + len(snippet) > 7000:
-                break
-            selected.append(snippet)
-            used += len(snippet) + 1
-
-        if not selected:
-            selected = [block.text.strip()[:900] for block in test_blocks[:8]]
-
+        selected_indexes = set()
         direct_coverage = []
-        selected_text = "\n".join(selected).lower()
+        deletion_changes = []
+
         for change in change_texts[:8]:
+            change_lower = change.lower()
+            is_deletion = any(
+                marker in change
+                for marker in ("삭제됨", "삭제되", "제거됨", "제거되", "폐기됨", "폐기되")
+            )
+            if is_deletion:
+                deletion_changes.append(change)
+
             requirement_ids = tuple(
                 dict.fromkeys(
                     item.upper()
                     for item in re.findall(r"[A-Za-z]{2,}-\\d+(?:-[A-Za-z]+)?-\\d+", change)
                 )
             )
-            if requirement_ids and all(item.lower() in selected_text for item in requirement_ids):
-                direct_coverage.append(
-                    f"- 요구사항 ID 직접 확인: {', '.join(requirement_ids)}"
-                )
+            terms = []
+            for term in re.findall(r"[가-힣A-Za-z0-9_-]{2,}", change):
+                normalized = term.lower()
+                if normalized not in stop_terms and normalized not in terms:
+                    terms.append(normalized)
 
             normalized_change = re.sub(r"[^가-힣A-Za-z0-9]+", " ", change).strip().lower()
-            normalized_selected = re.sub(
-                r"[^가-힣A-Za-z0-9]+", " ", selected_text
-            ).strip().lower()
             phrases = [
                 phrase.strip()
                 for phrase in re.split(r"(?:으로|로|및|등|기능|구현|추가|확장|변경)", normalized_change)
                 if len(phrase.strip()) >= 8
             ]
-            for phrase in phrases:
-                if phrase in normalized_selected:
-                    direct_coverage.append(f"- 시험문구 직접 확인: {phrase}")
-                    break
+
+            ranked = []
+            matched_ids = set()
+            matched_phrase = None
+            for index, block in enumerate(test_blocks):
+                text = block.text.strip()
+                text_lower = text.lower()
+                normalized_text = re.sub(
+                    r"[^가-힣A-Za-z0-9]+", " ", text_lower
+                ).strip()
+
+                id_matches = sum(
+                    1 for item in requirement_ids if item.lower() in text_lower
+                )
+                phrase_matches = sum(
+                    1 for phrase in phrases if phrase in normalized_text
+                )
+                term_matches = sum(1 for term in terms if term in text_lower)
+                if not (id_matches or phrase_matches or term_matches):
+                    continue
+
+                # 변경별로 정확한 요구사항 ID > 핵심 기능문구 > 일반 키워드 순으로 보장한다.
+                score = (id_matches * 100) + (phrase_matches * 20) + term_matches
+                ranked.append((-score, index, text))
+                for item in requirement_ids:
+                    if item.lower() in text_lower:
+                        matched_ids.add(item)
+                if matched_phrase is None:
+                    for phrase in phrases:
+                        if phrase in normalized_text:
+                            matched_phrase = phrase
+                            break
+
+            ranked.sort()
+            # 변경 1건당 최대 5행을 확보해 특정 변경의 근거가 전역 순위에 밀리지 않게 한다.
+            for _score, index, text in ranked[:5]:
+                if index in selected_indexes:
+                    continue
+                selected_indexes.add(index)
+                selected.append(text[:900])
+
+            if requirement_ids and set(requirement_ids).issubset(matched_ids):
+                direct_coverage.append(
+                    f"- 요구사항 ID 직접 확인: {', '.join(requirement_ids)}"
+                )
+            if matched_phrase:
+                direct_coverage.append(f"- 시험문구 직접 확인: {matched_phrase}")
+
+        if not selected:
+            selected = [block.text.strip()[:900] for block in test_blocks[:8]]
+
+        # 변경별 선별 결과의 총 입력량만 제한한다. 앞선 변경이 뒤 변경의 근거를 독점하지 않는다.
+        bounded_selected = []
+        used = 0
+        for text in selected:
+            if used + len(text) > 9000:
+                break
+            bounded_selected.append(text)
+            used += len(text) + 1
+        selected = bounded_selected
 
         direct_coverage = list(dict.fromkeys(direct_coverage))
+        deletion_notice = (
+            "\n".join(f"- {item}" for item in deletion_changes)
+            if deletion_changes
+            else "- 없음"
+        )
 
         prompt = (
             "당신은 변경영향 시험반영 점검 AI입니다. "
@@ -366,10 +409,13 @@ class LlamaCppAIProvider(BaseAIProvider):
             "아래 [직접 반영 근거]에 요구사항 ID나 핵심 시험문구가 확인되어 있으면, "
             "그 근거와 모순되게 해당 요구·기능이 시험에 없다고 판단하지 마세요. "
             "단, 일부 ID만 존재하거나 유사한 다른 기능만 존재하면 반영 완료로 간주하지 마세요. "
+            "아래 [삭제 변경]은 삭제 자체만을 이유로 시험 미반영 finding을 만들지 마세요. "
+            "삭제로 인해 기존 시험의 수정·제거가 필요하다는 구체적 모순 근거가 시험행에서 확인될 때만 지적하세요. "
             "입력에 없는 사실을 만들지 말고 최대 4건, 각 140자 이내로 작성하세요. "
             "한국어 JSON 객체 하나만 출력하세요.\n\n"
             "[확인된 변경]\n" + "\n".join(change_texts[:8]) +
             "\n\n[직접 반영 근거]\n" + ("\n".join(direct_coverage) or "- 없음") +
+            "\n\n[삭제 변경]\n" + deletion_notice +
             "\n\n[관련 시험행]\n" + "\n".join(selected) +
             '\n\n{"findings":["시험 변경 미반영 근거"]}'
         )
