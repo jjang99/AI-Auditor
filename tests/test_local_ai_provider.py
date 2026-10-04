@@ -126,3 +126,72 @@ def test_local_provider_limits_large_document_prompt_to_relevant_evidence():
     assert "REQ-101과 REQ-205" in prompt
     assert len(prompt) < 9000
     assert "[관련 문서근거]" in prompt
+
+
+def test_chg012_prompt_marks_direct_test_coverage():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="서비스별 이용현황(송수신현황) 모니터링 기능이 추가됨",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text=(
+                    "[시험 산출물] 통합테스트.xlsx\n"
+                    "ITS-ID-003 | 서비스별 이용현황(송수신현황) 모니터링 | "
+                    "검색조건을 입력하여 조회 | 조건에 맞는 현황목록이 조회된다."
+                ),
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    captured = {}
+
+    def fake_complete(prompt, response_format=None):
+        captured["prompt"] = prompt
+        return '{"findings":[]}'
+
+    with patch.object(provider, "_complete", side_effect=fake_complete):
+        result = provider.inspect(document, rule)
+
+    assert result.findings == ()
+    assert "[직접 반영 근거]" in captured["prompt"]
+    assert "시험문구 직접 확인" in captured["prompt"]
+    assert "서비스별 이용현황 송수신현황 모니터링" in captured["prompt"]
+    assert "그 근거와 모순되게" in captured["prompt"]
+
+
+def test_chg012_does_not_mark_partial_requirement_id_coverage():
+    rule = next(rule for rule in get_document_mvp_rules() if rule.code == "CHG-012")
+    document = ParsedDocument(
+        file_path=Path("change-test"),
+        file_type="change_test_comparison",
+        blocks=(
+            DocumentBlock(
+                block_type="confirmed_change",
+                text="SFR-043-ID-02 및 SFR-044-ID-01 요구사항이 분리 및 취합됨",
+            ),
+            DocumentBlock(
+                block_type="test_document",
+                text="SFR-044-ID-01 | 사용자 관리 | 이용/보유기관 담당자 등록신청",
+            ),
+        ),
+    )
+    provider = LlamaCppAIProvider()
+    captured = {}
+
+    def fake_complete(prompt, response_format=None):
+        captured["prompt"] = prompt
+        return '{"findings":[]}'
+
+    with patch.object(provider, "_complete", side_effect=fake_complete):
+        provider.inspect(document, rule)
+
+    direct_section = captured["prompt"].split("[직접 반영 근거]\n", 1)[1].split(
+        "\n\n[관련 시험행]", 1
+    )[0]
+    assert "요구사항 ID 직접 확인" not in direct_section
