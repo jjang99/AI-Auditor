@@ -554,6 +554,22 @@ class LlamaCppAIProvider(BaseAIProvider):
                 provider_name=self.__class__.__name__,
             )
 
+        unresolved_markers = (
+            "미반영", "불일치", "누락", "미해소", "미조치",
+            "반영되지 않", "해소되지 않", "조치되지 않",
+        )
+        if not any(
+            marker in item
+            for item in evidence
+            for marker in unresolved_markers
+        ):
+            return AIInspectionResult(
+                rule_code=rule.code,
+                findings=(),
+                raw_response='{"findings":[]}',
+                provider_name=self.__class__.__name__,
+            )
+
         prompt = (
             "당신은 변경영향도 종합 위험 점검 AI입니다. "
             "아래에는 이미 확인된 변경·영향·시험반영 결과만 제공됩니다. "
