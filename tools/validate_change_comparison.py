@@ -26,9 +26,10 @@ def diagnose_chg012(paths):
     if len(pairs) != 1:
         raise SystemExit("[FAIL] exactly one explicit version pair was not identified")
     previous, current = pairs[0]
+    version_paths = {previous.file_path, current.file_path}
     test_documents = tuple(
         document for document in parsed
-        if document not in {previous, current}
+        if document.file_path not in version_paths
     )
     if not test_documents:
         raise SystemExit("[FAIL] test document was not identified")
