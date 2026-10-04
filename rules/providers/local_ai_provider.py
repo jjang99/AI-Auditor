@@ -279,6 +279,58 @@ class LlamaCppAIProvider(BaseAIProvider):
             provider_name=self.__class__.__name__,
         )
 
+    def diagnose_change_test_evidence(self, document):
+        """Return CHG-012 per-change evidence selection without calling the AI."""
+        change_texts = [
+            block.text.strip()
+            for block in document.blocks
+            if block.block_type == "confirmed_change" and block.text and block.text.strip()
+        ]
+        test_blocks = [
+            block for block in document.blocks
+            if block.block_type == "test_document" and block.text and block.text.strip()
+        ]
+        stop_terms = {"확인된", "변경", "현재", "문서", "기능", "내용", "요구사항", "산출물"}
+        diagnostics = []
+        for change in change_texts[:8]:
+            requirement_ids = tuple(dict.fromkeys(
+                item.upper()
+                for item in re.findall(r"[A-Za-z]{2,}-\d+(?:-[A-Za-z]+)?-\d+", change)
+            ))
+            terms = []
+            for term in re.findall(r"[가-힣A-Za-z0-9_-]{2,}", change):
+                normalized = term.lower()
+                if normalized not in stop_terms and normalized not in terms:
+                    terms.append(normalized)
+            normalized_change = re.sub(r"[^가-힣A-Za-z0-9]+", " ", change).strip().lower()
+            phrases = [
+                phrase.strip()
+                for phrase in re.split(r"(?:으로|로|및|등|기능|구현|추가|확장|변경)", normalized_change)
+                if len(phrase.strip()) >= 8
+            ]
+            ranked = []
+            for index, block in enumerate(test_blocks):
+                text = block.text.strip()
+                text_lower = text.lower()
+                normalized_text = re.sub(r"[^가-힣A-Za-z0-9]+", " ", text_lower).strip()
+                id_matches = sum(1 for item in requirement_ids if item.lower() in text_lower)
+                phrase_matches = sum(1 for phrase in phrases if phrase in normalized_text)
+                term_matches = sum(1 for term in terms if term in text_lower)
+                if id_matches or phrase_matches or term_matches:
+                    score = (id_matches * 100) + (phrase_matches * 20) + term_matches
+                    ranked.append((-score, index, text))
+            ranked.sort()
+            diagnostics.append({
+                "change": change,
+                "requirement_ids": requirement_ids,
+                "is_deletion": any(
+                    marker in change
+                    for marker in ("삭제됨", "삭제되", "제거됨", "제거되", "폐기됨", "폐기되")
+                ),
+                "rows": tuple(text for _score, _index, text in ranked[:5]),
+            })
+        return tuple(diagnostics)
+
     def _inspect_change_test_comparison(self, document, rule):
         """Inspect confirmed changes against a bounded set of relevant test rows."""
         change_texts = [
