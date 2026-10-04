@@ -317,7 +317,7 @@ class LlamaCppAIProvider(BaseAIProvider):
             requirement_ids = tuple(
                 dict.fromkeys(
                     item.upper()
-                    for item in re.findall(r"[A-Za-z]{2,}-\\d+(?:-[A-Za-z]+)?-\\d+", change)
+                    for item in re.findall(r"[A-Za-z]{2,}-\d+(?:-[A-Za-z]+)?-\d+", change)
                 )
             )
             terms = []
