@@ -342,13 +342,16 @@ class LlamaCppAIProvider(BaseAIProvider):
                 )
 
             normalized_change = re.sub(r"[^가-힣A-Za-z0-9]+", " ", change).strip().lower()
+            normalized_selected = re.sub(
+                r"[^가-힣A-Za-z0-9]+", " ", selected_text
+            ).strip().lower()
             phrases = [
                 phrase.strip()
                 for phrase in re.split(r"(?:으로|로|및|등|기능|구현|추가|확장|변경)", normalized_change)
                 if len(phrase.strip()) >= 8
             ]
             for phrase in phrases:
-                if phrase in selected_text:
+                if phrase in normalized_selected:
                     direct_coverage.append(f"- 시험문구 직접 확인: {phrase}")
                     break
 
