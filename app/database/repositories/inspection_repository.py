@@ -18,7 +18,7 @@ def calculate_score_grade(summary: InspectionSummary):
     elif score >= 60:
         grade = "D"
     else:
-        grade = "F"
+        grade = "E"
     return score, grade
 
 
