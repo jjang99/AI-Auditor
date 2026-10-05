@@ -16,9 +16,66 @@ from PySide6.QtWidgets import (
 )
 
 
+class _IssueStatusLabel(QLabel):
+    """Protect the frozen issue-row status width from later runtime overrides."""
+
+    def setFixedWidth(self, width):
+        super().setFixedWidth(max(44, int(width)))
+
+
+def _compact_issue_description(value, limit=22):
+    """Keep repeated-rule rows distinguishable without crowding the status column."""
+    text = " ".join(str(value or "").split()).strip()
+    if len(text) <= limit:
+        return text
+    return f"{text[:limit - 1].rstrip()}…"
+
+
 def apply_project_detail_refinements(ProjectDetailPage):
     """Apply final UI refinements without changing Project Detail behavior/data."""
     original_init = ProjectDetailPage.__init__
+    original_create_issue_row = ProjectDetailPage.create_issue_row
+
+    def refined_create_issue_row(self, severity, code, description, status):
+        full_description = str(description or "").strip()
+        display_description = (
+            _compact_issue_description(full_description)
+            if str(code or "").strip().upper() == "CHG-001"
+            else full_description
+        )
+        row = original_create_issue_row(
+            self, severity, code, display_description, status
+        )
+
+        layout = row.layout()
+        old_status = next(
+            (
+                label
+                for label in row.findChildren(QLabel)
+                if label.objectName() in ("detailStatusResolved", "detailStatusOpen")
+            ),
+            None,
+        )
+        if layout is not None and old_status is not None:
+            index = layout.indexOf(old_status)
+            layout.removeWidget(old_status)
+            old_status.deleteLater()
+
+            status_label = _IssueStatusLabel(status)
+            status_label.setObjectName(
+                "detailStatusResolved" if status == "조치완료" else "detailStatusOpen"
+            )
+            status_label.setFixedWidth(44)
+            status_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            layout.insertWidget(index, status_label)
+
+        description_label = row.findChild(QLabel, "detailIssueDescription")
+        if description_label is not None and display_description != full_description:
+            description_label.setToolTip(full_description)
+
+        return row
+
+    ProjectDetailPage.create_issue_row = refined_create_issue_row
 
     def refined_init(self):
         original_init(self)
@@ -180,7 +237,7 @@ def _refine_issue_row(row):
 
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
-        status.setFixedWidth(38)
+        status.setFixedWidth(44)
         status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
     layout = row.layout()
