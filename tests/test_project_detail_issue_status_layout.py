@@ -40,12 +40,12 @@ def test_issue_row_uses_independent_header_status_column():
     assert description is not None
     assert description.wordWrap() is True
     assert description.toolTip() == description.text()
-    assert description.font().pointSizeF() >= 9.5
-    assert description.font().bold() is True
+    assert "font-size:12px" in description.styleSheet()
+    assert "font-weight:800" in description.styleSheet()
 
     assert code is not None and code.text() == "CHG-001"
-    assert code.font().pointSizeF() >= 9.5
-    assert code.font().bold() is True
+    assert "font-size:12px" in code.styleSheet()
+    assert "font-weight:900" in code.styleSheet()
 
 
 def test_long_description_requires_more_than_legacy_row_height():
