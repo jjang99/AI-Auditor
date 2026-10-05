@@ -23,7 +23,7 @@ class _IssueStatusLabel(QLabel):
         super().setFixedWidth(max(44, int(width)))
 
 
-def _compact_issue_description(value, limit=22):
+def _compact_issue_description(value, limit=16):
     """Keep repeated-rule rows distinguishable without crowding the status column."""
     text = " ".join(str(value or "").split()).strip()
     if len(text) <= limit:
@@ -68,6 +68,11 @@ def apply_project_detail_refinements(ProjectDetailPage):
             status_label.setFixedWidth(44)
             status_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             layout.insertWidget(index, status_label)
+
+            # Runtime later rewrites margins and status width.  A real spacer
+            # survives those overrides and keeps the status away from the
+            # vertical scrollbar/card edge.
+            layout.addSpacing(10)
 
         description_label = row.findChild(QLabel, "detailIssueDescription")
         if description_label is not None and display_description != full_description:
