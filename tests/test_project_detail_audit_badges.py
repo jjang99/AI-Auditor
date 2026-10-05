@@ -38,11 +38,11 @@ def test_pending_badge_is_readable_and_result_badges_are_styled():
     _style_audit_result_badges(page)
 
     for label in labels:
-        assert label.minimumWidth() == 58
-        assert label.maximumWidth() == 70
-        assert label.height() == 22
+        assert label.minimumWidth() == 60
+        assert label.maximumWidth() == 74
+        assert label.height() == 24
         style = label.styleSheet()
-        assert "font-size:11px" in style
+        assert "font-size:12px" in style
         assert "font-weight:900" in style
 
     assert "background:#334155" in _audit_badge_style("판정 없음")
