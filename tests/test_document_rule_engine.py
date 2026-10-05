@@ -44,6 +44,7 @@ def test_aud_001_detects_missing_deliverable():
     assert issues[0].rule_code == "AUD-001"
     assert issues[0].evidence == "필수 산출물 누락: 테이블정의서"
 
+
 def test_aud_001_passes_when_all_deliverables_exist():
     documents = [
         ParsedDocument(
@@ -89,7 +90,8 @@ def test_aud_001_passes_when_all_deliverables_exist():
 
     issues = engine.inspect_documents(documents)
 
-    assert len(issues) == 0    
+    assert len(issues) == 0
+
 
 def test_req_001_detects_duplicate_requirement_id():
     document = ParsedDocument(
@@ -176,6 +178,51 @@ def test_req_001_passes_valid_requirements():
     issues = engine.inspect_document(document)
 
     assert len(issues) == 0
+
+
+def test_req_001_ignores_non_requirement_document():
+    document = ParsedDocument(
+        file_path=Path("통합테스트상세결과.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="cell",
+                text="기관 담당자에게 서비스를 제공한다.",
+                sheet="ITS-ID-008",
+                location="A5",
+            ),
+        ),
+    )
+
+    engine = DocumentRuleEngine(get_document_mvp_rules())
+
+    issues = engine.inspect_document(document)
+
+    assert all(issue.rule_code != "REQ-001" for issue in issues)
+
+
+def test_req_001_accepts_project_requirement_id_formats():
+    document = ParsedDocument(
+        file_path=Path("요구사항기술서.hwp"),
+        file_type="hwp",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text="SFR-043-ID-02 이용현황 대시보드 기능을 제공한다.",
+            ),
+            DocumentBlock(
+                block_type="paragraph",
+                text="UI-SFR-043-ID-01-001 대시보드 화면을 지원한다.",
+            ),
+        ),
+    )
+
+    engine = DocumentRuleEngine(get_document_mvp_rules())
+
+    issues = engine.inspect_document(document)
+
+    assert all(issue.rule_code != "REQ-001" for issue in issues)
+
 
 def test_fp_009_detects_incorrect_calculation():
     document = ParsedDocument(
