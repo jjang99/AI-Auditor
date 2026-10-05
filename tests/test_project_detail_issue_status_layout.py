@@ -2,12 +2,13 @@ import os
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QLabel
 
 from ui.project_detail_status_patch import (
+    ISSUE_ROW_MIN_HEIGHT,
     ISSUE_STATUS_WIDTH,
-    _fix_issue_status_columns,
+    _build_issue_row,
+    _required_description_height,
 )
 
 
@@ -15,32 +16,42 @@ def _app():
     return QApplication.instance() or QApplication([])
 
 
-def test_issue_status_width_is_locked_to_unclipped_column():
+def test_issue_row_uses_independent_header_status_column():
     _app()
-    assert ISSUE_STATUS_WIDTH == 50
+    row = _build_issue_row(
+        "Medium",
+        "CHG-001",
+        "SFR-043-ID-02 및 SFR-044-ID-01 등 요구사항 분리 및 취합됨",
+        "미조치",
+    )
 
+    status = row.findChild(QLabel, "detailStatusOpen")
+    description = row.findChild(QLabel, "detailIssueDescription")
+    code = row.findChild(QLabel, "detailIssueCode")
 
-def test_issue_status_column_has_no_padding_and_keeps_full_text_space():
-    _app()
-    page = QWidget()
-    row = QFrame(page)
-    row.setObjectName("detailIssueListRow")
-    layout = QHBoxLayout(row)
-
-    description = QLabel("설명")
-    description.setObjectName("detailIssueDescription")
-    status = QLabel("미조치")
-    status.setObjectName("detailStatusOpen")
-    status.setFixedWidth(38)
-    status.setContentsMargins(0, 0, 10, 0)
-    layout.addWidget(description)
-    layout.addWidget(status)
-
-    _fix_issue_status_columns(page)
-
-    assert status.width() == ISSUE_STATUS_WIDTH
+    assert ISSUE_STATUS_WIDTH == 38
+    assert status is not None
     assert status.minimumWidth() == ISSUE_STATUS_WIDTH
     assert status.maximumWidth() == ISSUE_STATUS_WIDTH
     assert status.contentsMargins().right() == 0
-    assert status.alignment() == (Qt.AlignCenter | Qt.AlignVCenter)
-    assert description.contentsMargins().right() == 0
+    assert description is not None
+    assert description.wordWrap() is True
+    assert description.toolTip() == description.text()
+    assert code is not None and code.text() == "CHG-001"
+
+
+def test_long_description_requires_more_than_legacy_row_height():
+    _app()
+    row = _build_issue_row(
+        "Low",
+        "CHG-001",
+        "현재 문서에 이용기관·보유기관 서비스 이용현황 대시보드 기능과 기관 담당자 서비스 제공 기능이 추가됨",
+        "미조치",
+    )
+    description = row.findChild(QLabel, "detailIssueDescription")
+    description_height = _required_description_height(description)
+
+    calculated_row_height = 7 * 2 + 20 + 4 + description_height
+    assert ISSUE_ROW_MIN_HEIGHT == 78
+    assert description_height > 18
+    assert calculated_row_height > ISSUE_ROW_MIN_HEIGHT
