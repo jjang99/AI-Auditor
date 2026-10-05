@@ -18,6 +18,14 @@ ISSUE_ROW_HEADER_SPACING = 6
 ISSUE_ROW_BODY_SPACING = 5
 
 
+def _strengthen_issue_text(code_label, description_label):
+    """Use widget-local font rules so global theme QSS cannot shrink issue text."""
+    if code_label is not None:
+        code_label.setStyleSheet("font-size:12px; font-weight:900;")
+    if description_label is not None:
+        description_label.setStyleSheet("font-size:12px; font-weight:800;")
+
+
 def _build_issue_row(severity, code, description, status):
     """Build a readable issue row without competing text/status columns."""
     row = QFrame()
@@ -45,10 +53,6 @@ def _build_issue_row(severity, code, description, status):
     code_label = QLabel(str(code or ""))
     code_label.setObjectName("detailIssueCode")
     code_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-    code_font = code_label.font()
-    code_font.setPointSizeF(max(code_font.pointSizeF(), 9.5))
-    code_font.setBold(True)
-    code_label.setFont(code_font)
 
     status_label = QLabel(str(status or ""))
     status_label.setObjectName(
@@ -69,10 +73,8 @@ def _build_issue_row(severity, code, description, status):
     description_label.setMinimumWidth(0)
     description_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
     description_label.setToolTip(str(description or ""))
-    desc_font = description_label.font()
-    desc_font.setPointSizeF(max(desc_font.pointSizeF(), 9.5))
-    desc_font.setBold(True)
-    description_label.setFont(desc_font)
+
+    _strengthen_issue_text(code_label, description_label)
 
     outer.addLayout(header)
     outer.addWidget(description_label)
@@ -109,21 +111,13 @@ def _finalize_issue_rows(page):
             status.setFixedWidth(ISSUE_STATUS_WIDTH)
             status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
-        if code_label is not None:
-            code_font = code_label.font()
-            code_font.setPointSizeF(max(code_font.pointSizeF(), 9.5))
-            code_font.setBold(True)
-            code_label.setFont(code_font)
+        _strengthen_issue_text(code_label, description)
 
         if description is None:
             continue
 
         description.setWordWrap(True)
         description.setMinimumWidth(0)
-        desc_font = description.font()
-        desc_font.setPointSizeF(max(desc_font.pointSizeF(), 9.5))
-        desc_font.setBold(True)
-        description.setFont(desc_font)
         description_height = _required_description_height(description)
         description.setMinimumHeight(description_height)
 
