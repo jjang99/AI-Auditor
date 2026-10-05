@@ -49,3 +49,30 @@ def test_calculated_severity_is_used_by_score_flow():
     assert assessed_issue.severity == "Critical"
     assert score == 80
     assert grade == "B"
+
+
+def test_score_below_60_uses_frozen_e_grade():
+    issues = tuple(
+        RuleIssue(
+            rule_code=f"TEST-{index:03d}",
+            rule_name="등급 기준 테스트",
+            category="감리 사전점검",
+            severity="Medium",
+            file_path="sample.docx",
+            line_number=index,
+            evidence="근거",
+            description="설명",
+        )
+        for index in range(1, 10)
+    )
+    summary = InspectionSummary(
+        file_count=1,
+        rule_count=1,
+        executed_rule_count=1,
+        issues=issues,
+    )
+
+    score, grade = calculate_score_grade(summary)
+
+    assert score == 55
+    assert grade == "E"
