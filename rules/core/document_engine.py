@@ -121,9 +121,9 @@ class DocumentRuleEngine:
         issues: list[DocumentRuleIssue] = []
 
         # 일반 REQ-001 형식과 실제 사업 산출물의 SFR-043-ID-02,
-        # UI-SFR-043-ID-01-001 같은 계층형 ID를 함께 인정한다.
+        # UI-SFR-043-ID-01-001 같은 요구사항 계층형 ID를 함께 인정한다.
         requirement_id_pattern = re.compile(
-            r"\b(?:REQ-\d+|[A-Z]{2,}(?:-[A-Z0-9]+){2,})\b",
+            r"\b(?:REQ-\d+|(?:UI-)?[A-Z]{2,}-\d+-ID-\d+(?:-\d+)*)\b",
             re.IGNORECASE,
         )
 
