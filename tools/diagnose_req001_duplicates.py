@@ -11,6 +11,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app.database.database import get_connection
 from app.parsers.parser_factory import parse_document
+from rules.core.document_engine import DocumentRuleEngine
+from rules.definitions.document_mvp_rules import get_document_mvp_rules
 
 ID_PATTERN = re.compile(
     r"\b(?:REQ-\d+|(?:UI-)?[A-Z]{2,}-\d+-ID-\d+(?:-\d+)*)\b",
@@ -82,6 +84,8 @@ def main() -> None:
         print("No duplicate-ID REQ-001 findings in the latest inspection.")
         return
 
+    engine = DocumentRuleEngine(get_document_mvp_rules())
+
     for source in sorted(sources, key=lambda item: str(item).lower()):
         print(f"\n=== {source} ===")
         if not source.exists():
@@ -89,6 +93,17 @@ def main() -> None:
             continue
 
         document = parse_document(source)
+        current_req001 = tuple(
+            issue
+            for issue in engine.inspect_document(document)
+            if issue.rule_code == "REQ-001"
+        )
+
+        print(f"[PARSED BLOCKS] {document.block_count}")
+        print(f"[CURRENT REQ-001 ISSUES] {len(current_req001)}")
+        for issue in current_req001:
+            print(f"  - {issue.evidence}")
+
         occurrences: dict[str, list[tuple[int, object]]] = defaultdict(list)
         for index, block in enumerate(document.blocks, 1):
             for match in ID_PATTERN.findall(block.text or ""):
@@ -97,7 +112,6 @@ def main() -> None:
                     occurrences[normalized].append((index, block))
 
         source_ids = sorted(occurrences)
-        print(f"[PARSED BLOCKS] {document.block_count}")
         print(f"[FLAGGED IDS FOUND HERE] {len(source_ids)}")
 
         for requirement_id in source_ids:
