@@ -17,10 +17,16 @@ from PySide6.QtWidgets import (
 
 
 class _IssueStatusLabel(QLabel):
-    """Protect the frozen issue-row status width from later runtime overrides."""
+    """Protect the frozen issue-row status position from later runtime overrides."""
 
     def setFixedWidth(self, width):
         super().setFixedWidth(max(44, int(width)))
+
+    def setAlignment(self, _alignment):
+        # Runtime re-applies centered alignment after creating each row.
+        # Keep the actual text pinned to the left side of its reserved status
+        # column so it cannot visually collide with the vertical scrollbar.
+        super().setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
 
 def _compact_issue_description(value, limit=16):
@@ -66,12 +72,12 @@ def apply_project_detail_refinements(ProjectDetailPage):
                 "detailStatusResolved" if status == "조치완료" else "detailStatusOpen"
             )
             status_label.setFixedWidth(44)
-            status_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+            status_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             layout.insertWidget(index, status_label)
 
             # Runtime later rewrites margins and status width.  A real spacer
-            # survives those overrides and keeps the status away from the
-            # vertical scrollbar/card edge.
+            # survives those overrides and keeps the status column away from
+            # the vertical scrollbar/card edge.
             layout.addSpacing(10)
 
         description_label = row.findChild(QLabel, "detailIssueDescription")
@@ -243,7 +249,7 @@ def _refine_issue_row(row):
     status = next((x for x in row.findChildren(QLabel) if x.objectName() in ("detailStatusResolved", "detailStatusOpen")), None)
     if status:
         status.setFixedWidth(44)
-        status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        status.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
     layout = row.layout()
     if layout:
