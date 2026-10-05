@@ -1222,3 +1222,131 @@ Severity 및 감리 개선판정 구현은
 - 최종 문서 현행화 및 학습자료 작성
 - 위 항목 완료 후 5단계 종료 및 6단계 진입
 
+
+---
+
+# 2026-10-05 — 5단계 최종 현행화
+
+## 5단계 구현 상태
+
+- 5-1 공통 검사기준 데이터 정리 — 완료
+- 5-2 Administration 최종 통일 — 완료
+- 5-3 Inspection 최종 통일 — 완료
+- 5-4 MVP 20개 ↔ 문서검사 Engine 실제 연결 — 완료
+- 5-5 Issue Severity / 감리 개선판정 / Local AI 연결 — 완료
+- 5-6 제품 전체 데이터·UI 정합성 — 완료
+- 5-7 전체 회귀테스트 — 완료
+- 5-8 최종 문서화 / 학습자료 / Git 마감 — 진행 중
+
+## Local AI 최종 기준
+
+- 기본 모델: Qwen3-4B Q4_K_M
+- Runtime: llama.cpp b11312
+- Reasoning: off
+- Temperature: 0.7
+- Top-P: 0.8
+- Top-K: 20
+- Min-P: 0
+- Seed: 42
+- AI는 Impact / Likelihood 및 각각의 판정근거를 반환한다.
+- 최종 Severity는 AI가 직접 결정하지 않고 deterministic Severity Matrix가 계산한다.
+
+## Severity / 감리 개선판정
+
+- Severity는 `Impact × Likelihood → Severity` Matrix로 산정한다.
+- Critical은 Impact=High AND Likelihood=High에서만 산정한다.
+- 감리 개선판정은 Severity와 별도 관리한다.
+- 개선권고유형: 필수 / 협의 / 권고
+- 개선시점: 단기 / 장기
+- 중요 여부: O / -
+- 모든 Issue에 감리 개선판정을 강제로 부여하지 않는다.
+- CHG-001은 변경사실 식별용 Rule이므로 감리 개선판정 비적용(NULL) 정책을 사용한다.
+- 감리 개선판정 자체의 별도 audit_reason 필드는 MVP 확정범위가 아니므로 추가하지 않는다.
+
+## 실문서 대표 Rule 최종 결과
+
+- REQ-001: 실제 요구사항 HWP 2건 검증 결과 오탐 0
+- REQ-003: PASS
+- REQ-004: PASS
+- REQ-018: PASS
+- CHG-001: PASS
+- CHG-006: PASS
+- CHG-012: 최종 0 Issue PASS
+- CHG-018: 최종 0 Issue PASS
+- Impact / Likelihood 실제 배치 판정 PASS
+
+REQ-001은 문서 구조상 반복되는 ID를 실제 중복 요구사항으로 잘못 판단하던 문제를 수정하였다.
+요구사항 문서 범위 제한, 실제 요구사항 정의문장 식별, 동일 구조 반복 제거 기준을 적용하였다.
+
+CHG-012의 과거 stale fixture는 최종 실문서 결과와 맞지 않아
+`tools/validate_change_synthesis.py`에서 제거한다.
+
+## 최신 실제 Re-Inspect 최종 진단
+
+- Project: tawga
+- Inspection ID: 40
+- 검사시각: 2026-10-05 16:24:23
+- Score: 95
+- Grade: A
+- Issues: 7
+- Distribution:
+  - Critical 0
+  - High 0
+  - Medium 4
+  - Low 3
+
+Issue 구성:
+- CHG-001: 5건
+- CHG-006: 1건
+- AUD-024: 1건
+
+CHG-001 5건은 모두 감리 개선판정 NULL 정상 확인.
+CHG-006은 협의 / 장기 / -.
+AUD-024는 필수 / 단기 / O.
+
+DB 결과와 Project Detail UI의 Issue 수, Severity 분포, 감리 개선판정이 일치함을 확인하였다.
+
+## Score / Grade 최종 기준
+
+- A: 90 이상
+- B: 80 이상
+- C: 70 이상
+- D: 60 이상
+- E: 0~59
+
+과거 F 표기는 사용하지 않는다.
+
+## Export Report 최종 기준
+
+MVP 지원 형식:
+- DOCX
+- XLSX
+- TXT
+
+HWPX:
+- 직접 생성 파일은 한/글에서 손상으로 확인
+- pyhwpx는 사용자 환경에서 한글 COM Type Library 미등록으로 사용 불가
+- HWPX 하나를 위해 COM 등록을 제품 필수조건으로 만들지 않음
+- MVP 지원대상에서 제외
+
+## Project Detail 최종 UI
+
+- Issue 행은 Header(Severity / Rule ID / 상태) + Body(실제 Issue 내용) 구조
+- 긴 Issue 내용은 전체 폭 사용 및 높이 자동 확장
+- 정렬 컨트롤은 기존 QComboBox 방식 유지
+- 감리 개선판정 배지는 실제 값별 색상 규칙 적용
+- 판정 없음은 Dark / Light 테마별 중립색 적용
+- Issues Rule ID / 실제 내용 가독성 강화
+- 2026-10-05 사용자 최종 화면 확인 완료
+
+## 최신 전체 회귀테스트
+
+`166 passed, 51 subtests passed in 2.80s`
+
+실패 0건.
+
+## 5단계 남은 마감
+
+- 사용자 학습용 5단계 정리문서 작성
+- Git 최종 정리 / commit / push / working tree clean
+- 완료 후 6단계 Administration 데이터 관리로 이동

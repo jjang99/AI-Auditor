@@ -1017,3 +1017,90 @@ AI Issue Assessor가 요구하는 최소 구조는 다음 네 필드다.
 - 한국어 생성, non-thinking, Impact/Likelihood 판정, JSON 출력, 동일 조건 반복 재현성을 실제 CLI로 검증하였다.
 - 기본 sampling 미고정 시 동일 입력 판정 변동을 확인했으므로 제품 Provider에서는 생성 설정을 명시적으로 관리한다.
 
+
+---
+
+# 2026-10-05 — 5단계 Rule / 판정 로직 최종 현행화
+
+## REQ-001 구조 오탐 개선
+
+과거 실제 HWP 요구사항 문서에서 동일 ID가 목차·참조·구조 반복으로 여러 번 등장하여
+28건의 중복 오탐이 발생하였다.
+
+최종 판정 기준:
+- 요구사항 정의 문서 범위에서만 REQ-001 실행
+- 단순 목차 / 참조 / ID 단독 반복은 중복 요구사항으로 판단하지 않음
+- 동일 ID에 대해 서로 다른 실제 요구사항 정의문장이 존재하는 경우만 중복 후보로 판단
+- 동일한 실질 요구문장은 dedup
+- 요구사항 정의문장 식별에는 `해야 한다`, `하여야 한다`, `제공한다`, `지원한다`,
+  `처리한다`, `조회한다`, `수정한다`, `가능해야 한다`, `할 수 있어야 한다` 등을 사용
+- ID 누락 검사는 유지
+
+실제 요구사항 HWP 2건 최종 검증 결과 REQ-001 Issue 0.
+
+## CHG Rule 연계구조
+
+변경영향도 MVP 실행흐름:
+`CHG-001 변경 식별`
+→ `CHG-006 영향대상 식별`
+→ `CHG-012 시험 변경 미반영`
+→ `CHG-018 종합 위험 후보`
+
+CHG-012:
+- 구체적 시험행 근거 없이 미반영을 단정하던 과거 결과를 제거
+- 확인 가능한 unresolved evidence가 있는 경우만 Issue 생성
+- 최종 실문서 검증: 0 Issue PASS
+
+CHG-018:
+- 위반 없음 / 근거 없음 결과를 Issue로 저장하지 않음
+- unresolved evidence gate를 통과한 경우만 종합 위험 후보 생성
+- 최종 실문서 검증: 0 Issue PASS
+
+## Issue Assessment
+
+AI 반환:
+- Impact
+- Impact Reason
+- Likelihood
+- Likelihood Reason
+
+허용값:
+- Low
+- Medium
+- High
+
+최종 Severity:
+`Impact × Likelihood → deterministic Severity Matrix`
+
+Matrix:
+| Impact \ Likelihood | Low | Medium | High |
+|---|---|---|---|
+| High | Medium | High | Critical |
+| Medium | Low | Medium | High |
+| Low | Low | Low | Medium |
+
+AI가 최종 Severity를 직접 출력값으로 결정하지 않는다.
+
+## 감리 개선판정
+
+별도 구조:
+- Recommendation: 필수 / 협의 / 권고
+- Timing: 단기 / 장기
+- Important: O / -
+
+적용 대상 Issue에만 저장한다.
+CHG-001은 변경 식별 근거 데이터 역할이므로 감리 개선판정 NULL.
+
+## 최종 실제 검증 Snapshot
+
+Inspection ID 40:
+- Score 95
+- Grade A
+- Issues 7
+- Medium 4 / Low 3
+- CHG-001 5
+- CHG-006 1
+- AUD-024 1
+
+최종 전체 자동검증:
+`166 passed, 51 subtests passed in 2.80s`

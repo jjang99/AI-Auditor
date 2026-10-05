@@ -1053,3 +1053,52 @@ Rule 관리, Issue 판정, Severity 산정 및 감리 개선판정 구현의 기
 - 최종 문서 현행화 및 학습자료 작성
 - 위 항목 완료 후 5단계 종료 및 6단계 진입
 
+
+---
+
+# 2026-10-05 — 5단계 최종 확정사항
+
+## Local AI
+- 기본 Local AI는 Qwen3-4B Q4_K_M으로 확정한다.
+- llama.cpp b11312를 Runtime으로 사용한다.
+- reasoning off / temp 0.7 / top-p 0.8 / top-k 20 / min-p 0 / seed 42를 검증 기준으로 사용한다.
+- AI는 Impact / Likelihood 및 각 판정근거를 판단한다.
+- 최종 Severity는 deterministic Matrix가 계산한다.
+
+## 감리 개선판정
+- Severity와 감리 개선판정은 서로 다른 개념으로 유지한다.
+- 개선권고유형: 필수 / 협의 / 권고
+- 개선시점: 단기 / 장기
+- 중요 여부: O / -
+- 모든 Issue에 강제 적용하지 않는다.
+- CHG-001은 감리 개선판정 비적용(NULL)으로 확정한다.
+- 감리 개선판정 자체에 별도 판정근거(audit_reason)를 저장하는 기능은 현재 MVP 확정범위에 포함하지 않는다.
+
+## Score / Grade
+최종 Grade는 A / B / C / D / E만 사용한다.
+
+- A: 90 이상
+- B: 80 이상
+- C: 70 이상
+- D: 60 이상
+- E: 0~59
+
+과거 F 표기는 폐기한다.
+
+## Export Report
+MVP 지원 형식은 DOCX / XLSX / TXT로 확정한다.
+HWPX는 직접 생성 손상 및 사용자 환경의 COM Type Library 문제 때문에 MVP에서 제외한다.
+
+## Project Detail
+- Issue 목록 최종 구조는 Severity / Rule ID / 상태 Header와 실제 Issue 내용 Body의 2단 구조를 사용한다.
+- 긴 Issue는 행 높이를 자동 확장한다.
+- 정렬 UI는 기존 QComboBox 방식으로 고정하며 다시 임의 변경하지 않는다.
+- 감리 개선판정 결과 배지의 값별 색상 규칙과 Light/Dark 판정 없음 표현을 현재 상태로 유지한다.
+
+## Local AI 실행자산
+- `models/`, `runtime/`은 대용량 Local AI 실행자산으로 Git 소스관리 대상에서 제외한다.
+- 소스코드와 실행자산을 구분하여 관리한다.
+
+## 다음 단계
+5단계 종료 후 별도 6단계에서 Administration `3. 데이터 관리` 기능을 구현한다.
+최종적으로 PyInstaller EXE 재빌드 및 폐쇄망 독립 실행 검증을 수행한다.
