@@ -10,12 +10,12 @@ from PySide6.QtWidgets import (
 
 ISSUE_STATUS_WIDTH = 38
 ISSUE_ROW_TEXT_WIDTH = 150
-ISSUE_ROW_MIN_HEIGHT = 78
+ISSUE_ROW_MIN_HEIGHT = 82
 ISSUE_ROW_HORIZONTAL_MARGIN = 9
 ISSUE_ROW_RIGHT_MARGIN = 10
 ISSUE_ROW_VERTICAL_MARGIN = 7
 ISSUE_ROW_HEADER_SPACING = 6
-ISSUE_ROW_BODY_SPACING = 4
+ISSUE_ROW_BODY_SPACING = 5
 
 
 def _build_issue_row(severity, code, description, status):
@@ -45,6 +45,10 @@ def _build_issue_row(severity, code, description, status):
     code_label = QLabel(str(code or ""))
     code_label.setObjectName("detailIssueCode")
     code_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+    code_font = code_label.font()
+    code_font.setPointSizeF(max(code_font.pointSizeF(), 9.5))
+    code_font.setBold(True)
+    code_label.setFont(code_font)
 
     status_label = QLabel(str(status or ""))
     status_label.setObjectName(
@@ -65,6 +69,10 @@ def _build_issue_row(severity, code, description, status):
     description_label.setMinimumWidth(0)
     description_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
     description_label.setToolTip(str(description or ""))
+    desc_font = description_label.font()
+    desc_font.setPointSizeF(max(desc_font.pointSizeF(), 9.5))
+    desc_font.setBold(True)
+    description_label.setFont(desc_font)
 
     outer.addLayout(header)
     outer.addWidget(description_label)
@@ -75,15 +83,15 @@ def _required_description_height(label, width=ISSUE_ROW_TEXT_WIDTH):
     """Calculate wrapped text height for the frozen Issues-card width."""
     metrics = label.fontMetrics()
     rect = metrics.boundingRect(
-        QRect(0, 0, width, 2000),
+        QRect(0, 0, width, 2400),
         Qt.TextWordWrap | Qt.AlignLeft | Qt.AlignTop,
         label.text(),
     )
-    return max(18, rect.height() + 2)
+    return max(20, rect.height() + 4)
 
 
 def _finalize_issue_rows(page):
-    """Undo runtime's legacy 78px row lock and fit each real finding completely."""
+    """Undo runtime's legacy row lock and fit each real finding completely."""
     for row in page.findChildren(QFrame, "detailIssueListRow"):
         status = next(
             (
@@ -94,17 +102,28 @@ def _finalize_issue_rows(page):
             None,
         )
         description = row.findChild(QLabel, "detailIssueDescription")
+        code_label = row.findChild(QLabel, "detailIssueCode")
 
         if status is not None:
             status.setContentsMargins(0, 0, 0, 0)
             status.setFixedWidth(ISSUE_STATUS_WIDTH)
             status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
+        if code_label is not None:
+            code_font = code_label.font()
+            code_font.setPointSizeF(max(code_font.pointSizeF(), 9.5))
+            code_font.setBold(True)
+            code_label.setFont(code_font)
+
         if description is None:
             continue
 
         description.setWordWrap(True)
         description.setMinimumWidth(0)
+        desc_font = description.font()
+        desc_font.setPointSizeF(max(desc_font.pointSizeF(), 9.5))
+        desc_font.setBold(True)
+        description.setFont(desc_font)
         description_height = _required_description_height(description)
         description.setMinimumHeight(description_height)
 
