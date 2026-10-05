@@ -66,6 +66,10 @@ class RuleIssue:
 
     @property
     def title(self) -> str:
+        if self.rule_code == "CHG-001":
+            finding = " ".join(str(self.evidence or "").split()).strip()
+            if finding:
+                return f"{self.rule_code} {finding}"
         return f"{self.rule_code} {self.rule_name}"
 
 
