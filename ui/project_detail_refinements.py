@@ -16,9 +16,38 @@ from PySide6.QtWidgets import (
 )
 
 
+# Center-aligned status text moves left by half of this right content padding.
+# 10px therefore gives the approved ~5px visual inset from the scrollbar.
+ISSUE_STATUS_RIGHT_CONTENT_PADDING = 10
+
+
+def _apply_issue_status_inset(row):
+    status = next(
+        (
+            label
+            for label in row.findChildren(QLabel)
+            if label.objectName() in ("detailStatusResolved", "detailStatusOpen")
+        ),
+        None,
+    )
+    if status is not None:
+        status.setContentsMargins(0, 0, ISSUE_STATUS_RIGHT_CONTENT_PADDING, 0)
+    return status
+
+
 def apply_project_detail_refinements(ProjectDetailPage):
     """Apply final UI refinements without changing Project Detail behavior/data."""
     original_init = ProjectDetailPage.__init__
+    original_create_issue_row = ProjectDetailPage.create_issue_row
+
+    def refined_create_issue_row(self, severity, code, description, status):
+        row = original_create_issue_row(self, severity, code, description, status)
+        _apply_issue_status_inset(row)
+        return row
+
+    # Runtime-created DB rows also call self.create_issue_row(), so this single
+    # refinement applies to both the initial frozen rows and live inspection rows.
+    ProjectDetailPage.create_issue_row = refined_create_issue_row
 
     def refined_init(self):
         original_init(self)
@@ -182,6 +211,7 @@ def _refine_issue_row(row):
     if status:
         status.setFixedWidth(38)
         status.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        status.setContentsMargins(0, 0, ISSUE_STATUS_RIGHT_CONTENT_PADDING, 0)
 
     layout = row.layout()
     if layout:
