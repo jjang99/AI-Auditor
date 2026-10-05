@@ -37,7 +37,11 @@ def test_issue_row_uses_independent_header_status_column():
     assert description is not None
     assert description.wordWrap() is True
     assert description.toolTip() == description.text()
+    assert "font-size:12px" in description.styleSheet()
+    assert "font-weight:700" in description.styleSheet()
     assert code is not None and code.text() == "CHG-001"
+    assert "font-size:12px" in code.styleSheet()
+    assert "font-weight:800" in code.styleSheet()
 
 
 def test_long_description_requires_more_than_legacy_row_height():
@@ -52,6 +56,6 @@ def test_long_description_requires_more_than_legacy_row_height():
     description_height = _required_description_height(description)
 
     calculated_row_height = 7 * 2 + 20 + 4 + description_height
-    assert ISSUE_ROW_MIN_HEIGHT == 78
+    assert ISSUE_ROW_MIN_HEIGHT == 82
     assert description_height > 18
-    assert calculated_row_height > ISSUE_ROW_MIN_HEIGHT
+    assert calculated_row_height > 78
