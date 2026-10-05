@@ -20,6 +20,19 @@ class HighHighAssessor(BaseIssueAssessor):
         )
 
 
+def _issue(rule_code, severity, line_number=1):
+    return RuleIssue(
+        rule_code=rule_code,
+        rule_name="점수 정책 테스트",
+        category="변경영향도",
+        severity=severity,
+        file_path="sample.docx",
+        line_number=line_number,
+        evidence="근거",
+        description="설명",
+    )
+
+
 def test_calculated_severity_is_used_by_score_flow():
     original = RuleIssue(
         rule_code="TEST-004",
@@ -76,3 +89,43 @@ def test_score_below_60_uses_frozen_e_grade():
 
     assert score == 55
     assert grade == "E"
+
+
+def test_informational_and_synthesis_findings_do_not_double_penalize_score():
+    issues = (
+        _issue("CHG-001", "Low", 1),
+        _issue("CHG-001", "Medium", 2),
+        _issue("CHG-001", "Low", 3),
+        _issue("CHG-001", "Medium", 4),
+        _issue("CHG-001", "Low", 5),
+        _issue("CHG-006", "Medium", 6),
+        _issue("AUD-024", "Medium", 7),
+    )
+    summary = InspectionSummary(
+        file_count=3,
+        rule_count=20,
+        executed_rule_count=20,
+        issues=issues,
+    )
+
+    score, grade = calculate_score_grade(summary)
+
+    assert score == 95
+    assert grade == "A"
+
+
+def test_real_defect_rule_still_reduces_score():
+    summary = InspectionSummary(
+        file_count=1,
+        rule_count=20,
+        executed_rule_count=20,
+        issues=(
+            _issue("CHG-012", "Medium"),
+            _issue("CHG-018", "Medium", 2),
+        ),
+    )
+
+    score, grade = calculate_score_grade(summary)
+
+    assert score == 95
+    assert grade == "A"
