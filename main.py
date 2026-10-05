@@ -10,12 +10,14 @@ from ui.inspection_rule_ui_patch import apply_inspection_rule_ui_patch
 from ui.inspection_visual_polish_patch import apply_inspection_visual_polish
 from ui.project_detail_page import ProjectDetailPage
 from ui.project_detail_status_patch import apply_project_detail_status_patch
+from ui.project_detail_audit_badge_patch import apply_project_detail_audit_badge_patch
 
 
 initialize_database()
 apply_inspection_rule_ui_patch(InspectionPage)
 apply_inspection_visual_polish(InspectionPage)
 apply_project_detail_status_patch(ProjectDetailPage)
+apply_project_detail_audit_badge_patch(ProjectDetailPage)
 
 app = QApplication(sys.argv)
 
