@@ -377,3 +377,81 @@ MVP 최종 지원:
 - message: `test: cover theme-aware audit badge polish`
 
 이 `CURRENT_HANDOFF.md` 생성 커밋 이후에는 main SHA가 달라지므로, 다음 세션에서는 main 최신 SHA를 다시 조회한다.
+
+---
+
+# 2026-10-05 - 5단계 최종 완료
+
+## 최종 판정
+5단계 Administration·Inspection 통일 및 실제 문서검사 제품 연계를 최종 완료하였다.
+
+완료 범위:
+- 5-1 공통 검사기준 데이터 정리 완료
+- 5-2 Administration 최종 통일 완료
+- 5-3 Inspection 최종 통일 완료
+- 5-4 MVP 20개 ↔ 문서검사 Engine 실제 연결 완료
+- 5-5 Issue Severity / Local AI / 감리 개선판정 완료
+- 5-6 DB ↔ UI ↔ Reports 정합성 확인 완료
+- 5-7 최신 전체 회귀테스트 완료
+- 5-8 문서 현행화 및 학습자료 작성 완료
+
+## 최종 실제 검사
+- Project: tawga
+- Inspection ID: 40
+- 검사시각: 2026-10-05 16:24:23
+- Score: 95
+- Grade: A
+- Issues: 7
+- Medium 4 / Low 3 / High 0 / Critical 0
+- REQ-001 오탐 0건
+- CHG-001 5건 감리 개선판정 NULL 정상
+- CHG-006: 협의 / 장기 / -
+- AUD-024: 필수 / 단기 / O
+- DB와 Project Detail UI 결과 일치 확인
+
+## 최종 자동테스트
+- 166 passed
+- 51 subtests passed
+- 실패 0건
+- 실행시간 2.80s
+
+## 최종 확정사항
+- Grade는 A/B/C/D/E만 사용
+- HWPX Export는 MVP 제외
+- Export 지원: DOCX / XLSX / TXT
+- Qwen3-4B Q4_K_M + llama.cpp b11312
+- AI는 Impact/Likelihood와 근거를 판단
+- 최종 Severity는 deterministic Matrix 계산
+- 감리 개선판정은 Severity와 독립
+- 감리 개선판정 별도 audit_reason은 MVP 범위에 추가하지 않음
+- CHG-001은 감리 개선판정 비적용
+- Project Detail 최종 UI는 사용자 확인 완료 상태로 고정
+
+## 다음 개발 단계
+다음 작업은 6단계 Administration 데이터 관리이다.
+
+구현 예정:
+- Administration `3. 데이터 관리`
+- 전체 검사 이력 정리
+- 프로젝트 관리
+- 검사 이력 삭제 시 Project 유지
+- Project 삭제 시 Inspection + Issues 함께 삭제
+- 삭제 전 영향범위 및 복구불가 확인 Modal
+
+6단계 이후:
+- 최신 PyInstaller EXE 재빌드
+- Qwen3-4B / llama.cpp 포함 확인
+- 폐쇄망 독립 실행 검증
+- 실제 Inspection / DB 저장·조회 / Export 검증
+- 제출용 최종 정리
+
+## 다음 세션 시작 전 확인 순서
+1. GitHub main
+2. CURRENT_HANDOFF.md
+3. DECISIONS.md
+4. RULE_DESIGN.md
+5. DEV_STATUS.md
+6. 실제 관련 코드 및 테스트
+
+5단계는 다시 구현하거나 재검토하지 않는다.
+새로운 명시적 결함이 확인된 경우에만 해당 부분을 수정한다.
