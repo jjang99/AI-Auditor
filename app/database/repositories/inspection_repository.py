@@ -4,10 +4,24 @@ from app.database.database import get_connection
 from rules.core.models import InspectionSummary
 
 
+NON_SCORING_RULE_CODES = frozenset({
+    # 변경 사실 자체를 식별하는 정보성 결과다.
+    "CHG-001",
+    # 앞선 변경 관련 결과를 종합하는 후처리 위험 후보다.
+    "CHG-018",
+    # 앞선 검사결과를 종합한 감리 예상 지적 후보다.
+    "AUD-024",
+})
+
+
 def calculate_score_grade(summary: InspectionSummary):
-    """Return a deterministic MVP quality score and grade from issue severity."""
+    """Return the deterministic MVP quality score from independently scorable issues."""
     weights = {"Critical": 20, "High": 10, "Medium": 5, "Low": 2}
-    deduction = sum(weights.get(issue.severity, 0) for issue in summary.issues)
+    deduction = sum(
+        weights.get(issue.severity, 0)
+        for issue in summary.issues
+        if issue.rule_code not in NON_SCORING_RULE_CODES
+    )
     score = max(0, 100 - deduction)
     if score >= 90:
         grade = "A"
@@ -163,7 +177,6 @@ def get_issues_for_inspection(inspection_id: int):
     ).fetchall()
     connection.close()
     return [dict(row) for row in rows]
-
 
 
 def get_report_rows():
