@@ -5,6 +5,22 @@ from rules.core.models import RuleIssue
 from rules.core.severity import AuditImprovementJudgment, IssueAssessment, calculate_severity
 
 
+_AUDIT_JUDGMENT_EXCLUDED_RULE_CODES = {
+    # 변경사항 자체를 식별한 사실 결과다. 개선 필요성은 CHG-006/012/018 등
+    # 후속 영향·미반영·위험 Rule에서 판단한다.
+    "CHG-001",
+}
+
+
+def _normalize_audit_judgment(
+    issue: RuleIssue,
+    judgment: AuditImprovementJudgment | None,
+) -> AuditImprovementJudgment | None:
+    if issue.rule_code in _AUDIT_JUDGMENT_EXCLUDED_RULE_CODES:
+        return None
+    return judgment
+
+
 class BaseIssueAssessor(ABC):
     """Issue의 Impact/Likelihood를 평가하는 교체 가능한 인터페이스."""
 
@@ -58,6 +74,7 @@ def apply_issue_assessments(
     assessed_issues = []
 
     for issue, assessment, audit_judgment in zip(issue_tuple, assessments, audit_judgments):
+        audit_judgment = _normalize_audit_judgment(issue, audit_judgment)
 
         if assessment is None:
             assessed_issues.append(replace(issue, audit_judgment=audit_judgment))
