@@ -17,7 +17,7 @@ initialize_database()
 apply_inspection_rule_ui_patch(InspectionPage)
 apply_inspection_visual_polish(InspectionPage)
 apply_project_detail_status_patch(ProjectDetailPage)
-apply_project_detail_audit_badge_patch(ProjectDetailPage)
+apply_project_detail_audit_badge_patch(ProjectDetailPage, MainWindow)
 
 app = QApplication(sys.argv)
 
