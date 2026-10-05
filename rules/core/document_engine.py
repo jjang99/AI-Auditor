@@ -137,7 +137,9 @@ class DocumentRuleEngine:
             "할 수 있어야 한다",
         )
 
-        requirement_ids: list[str] = []
+        # 단순 참조/목차/ID 단독 반복은 중복 요구사항 정의가 아니다.
+        # 동일 ID가 서로 다른 실질 요구사항 문장에 붙은 경우만 중복으로 본다.
+        requirement_definition_texts: dict[str, set[str]] = {}
 
         for block in document.blocks:
             text = block.text.strip()
@@ -145,21 +147,25 @@ class DocumentRuleEngine:
             if not text:
                 continue
 
-            matches = requirement_id_pattern.findall(text)
-
-            requirement_ids.extend(
+            matches = [
                 match.upper()
-                for match in matches
-            )
+                for match in requirement_id_pattern.findall(text)
+            ]
 
             has_requirement_keyword = any(
                 keyword in text
                 for keyword in requirement_keywords
             )
 
-            has_requirement_id = bool(
-                requirement_id_pattern.search(text)
-            )
+            has_requirement_id = bool(matches)
+
+            if has_requirement_keyword and has_requirement_id:
+                normalized_text = " ".join(text.split()).lower()
+                for requirement_id in matches:
+                    requirement_definition_texts.setdefault(
+                        requirement_id,
+                        set(),
+                    ).add(normalized_text)
 
             if has_requirement_keyword and not has_requirement_id:
                 issues.append(
@@ -179,11 +185,11 @@ class DocumentRuleEngine:
                     )
                 )
 
-        duplicate_ids = sorted({
+        duplicate_ids = sorted(
             requirement_id
-            for requirement_id in requirement_ids
-            if requirement_ids.count(requirement_id) > 1
-        })
+            for requirement_id, definition_texts in requirement_definition_texts.items()
+            if len(definition_texts) > 1
+        )
 
         for duplicate_id in duplicate_ids:
             issues.append(
