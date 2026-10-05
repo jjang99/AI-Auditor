@@ -8,6 +8,15 @@ from rules.core.models import (
 )
 
 
+def _is_requirement_document(document: ParsedDocument) -> bool:
+    """REQ 계열의 문서 자체에만 요구사항 ID Rule을 적용한다."""
+    name = document.file_path.stem.lower()
+    return any(
+        marker in name
+        for marker in ("요구사항", "requirement", "requirements", "srs")
+    )
+
+
 class DocumentRuleEngine:
     """ParsedDocument를 대상으로 deterministic 문서 Rule 검사를 수행한다."""
 
@@ -33,9 +42,10 @@ class DocumentRuleEngine:
 
         for rule in self.rules:
             if rule.code == "REQ-001":
-                issues.extend(
-                    self._inspect_req_001(document, rule)
-                )
+                if _is_requirement_document(document):
+                    issues.extend(
+                        self._inspect_req_001(document, rule)
+                    )
 
             elif rule.code == "FP-009":
                 issues.extend(
@@ -110,8 +120,10 @@ class DocumentRuleEngine:
         """REQ-001 요구사항 ID 누락·중복 점검."""
         issues: list[DocumentRuleIssue] = []
 
+        # 일반 REQ-001 형식과 실제 사업 산출물의 SFR-043-ID-02,
+        # UI-SFR-043-ID-01-001 같은 계층형 ID를 함께 인정한다.
         requirement_id_pattern = re.compile(
-            r"\bREQ-\d+\b",
+            r"\b(?:REQ-\d+|[A-Z]{2,}(?:-[A-Z0-9]+){2,})\b",
             re.IGNORECASE,
         )
 
