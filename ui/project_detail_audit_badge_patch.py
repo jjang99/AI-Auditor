@@ -10,7 +10,7 @@ AUDIT_BADGE_STYLES = {
     "장기": ("#ffffff", "#0891b2", "#06b6d4"),
     "O": ("#ffffff", "#ef4444", "#fb7185"),
     "-": ("#334155", "#cbd5e1", "#e2e8f0"),
-    "판정 없음": ("#f8fafc", "#334155", "#64748b"),
+    "판정 없음": ("#ffffff", "#334155", "#64748b"),
 }
 
 
@@ -23,9 +23,9 @@ def _audit_badge_style(value):
         f"background:{background};"
         f"border:1px solid {border};"
         "border-radius:7px;"
-        "font-size:11px;"
+        "font-size:12px;"
         "font-weight:900;"
-        "padding:0 6px;"
+        "padding:0 7px;"
     )
 
 
@@ -33,9 +33,9 @@ def _style_audit_result_badges(page):
     """Make actual audit-result badges match the approved audit-help color roles."""
     for badge in page.findChildren(QLabel, "detailAuditResultBadge"):
         value = badge.text().strip() or "판정 없음"
-        badge.setMinimumWidth(58)
-        badge.setMaximumWidth(70)
-        badge.setFixedHeight(22)
+        badge.setMinimumWidth(60)
+        badge.setMaximumWidth(74)
+        badge.setFixedHeight(24)
         badge.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         badge.setStyleSheet(_audit_badge_style(value))
 
