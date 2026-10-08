@@ -3,16 +3,20 @@ import os
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QComboBox, QFrame, QHBoxLayout, QLabel,
+    QComboBox, QFrame, QHBoxLayout, QLabel, QScrollArea,
     QPushButton, QVBoxLayout, QWidget,
 )
 
 from ui.sidebar import Sidebar
 from ui.administration_rules_dialog import AdministrationRulesDialog
+from app.database.repositories.data_management_repository import (
+    get_data_management_summary,
+)
 from rules.definitions.document_rule_catalog import (
     get_document_rule_categories,
     get_total_rule_count,
 )
+
 
 class AdministrationPage(QWidget):
     def __init__(self):
@@ -28,12 +32,20 @@ class AdministrationPage(QWidget):
         self.sidebar = Sidebar("Administration")
         page_layout.addWidget(self.sidebar)
 
+        scroll = QScrollArea()
+        scroll.setObjectName("adminScrollArea")
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        page_layout.addWidget(scroll, 1)
+
         content = QWidget()
         content.setObjectName("projectsContent")
         main_layout = QVBoxLayout(content)
         main_layout.setContentsMargins(20, 18, 20, 14)
         main_layout.setSpacing(0)
-        page_layout.addWidget(content, 1)
+        scroll.setWidget(content)
 
         title = QLabel("Administration")
         title.setObjectName("pageTitle")
@@ -212,6 +224,73 @@ class AdministrationPage(QWidget):
         settings_layout.addWidget(settings_body)
         settings_card.setFixedHeight(166)
         main_layout.addWidget(settings_card)
+        main_layout.addSpacing(14)
+
+        data_card = QFrame()
+        data_card.setObjectName("adminSectionCard")
+        data_layout = QVBoxLayout(data_card)
+        data_layout.setContentsMargins(16, 12, 16, 14)
+        data_layout.setSpacing(0)
+
+        data_title = QLabel("3. 데이터 관리")
+        data_title.setObjectName("adminSectionTitle")
+        data_layout.addWidget(data_title)
+        data_layout.addSpacing(8)
+
+        try:
+            data_summary = get_data_management_summary()
+        except Exception:
+            data_summary = {"projects": 0, "inspections": 0, "issues": 0}
+
+        self.data_summary_label = QLabel(
+            "현재 데이터  ·  "
+            f"프로젝트 {data_summary['projects']}개  /  "
+            f"검사 이력 {data_summary['inspections']}건  /  "
+            f"이슈 {data_summary['issues']}건"
+        )
+        self.data_summary_label.setObjectName("adminDataSummary")
+        data_layout.addWidget(self.data_summary_label)
+        data_layout.addSpacing(8)
+
+        data_body = QFrame()
+        data_body.setObjectName("adminDataBody")
+        data_body_layout = QVBoxLayout(data_body)
+        data_body_layout.setContentsMargins(12, 6, 12, 6)
+        data_body_layout.setSpacing(0)
+
+        self.clear_history_button = QPushButton("정리")
+        self.clear_history_button.setObjectName("adminDangerButton")
+        self.clear_history_button.setFixedSize(74, 32)
+        self.clear_history_button.setCursor(Qt.PointingHandCursor)
+        data_body_layout.addLayout(
+            self.data_management_row(
+                "전체 검사 이력 정리",
+                "모든 검사 이력과 이슈를 삭제하며 프로젝트 정보는 유지합니다.",
+                self.clear_history_button,
+            )
+        )
+
+        divider = QFrame()
+        divider.setObjectName("adminDataDivider")
+        divider.setFixedHeight(1)
+        data_body_layout.addWidget(divider)
+
+        self.manage_projects_button = QPushButton("관리")
+        self.manage_projects_button.setObjectName("adminManageButton")
+        self.manage_projects_button.setFixedSize(74, 32)
+        self.manage_projects_button.setCursor(Qt.PointingHandCursor)
+        data_body_layout.addLayout(
+            self.data_management_row(
+                "프로젝트 관리",
+                "프로젝트별 검사 이력과 이슈 범위를 확인한 뒤 프로젝트를 삭제합니다.",
+                self.manage_projects_button,
+            )
+        )
+
+        data_layout.addWidget(data_body)
+        data_card.setFixedHeight(202)
+        main_layout.addWidget(data_card)
+        main_layout.addSpacing(14)
 
         self.apply_theme(True)
 
@@ -237,9 +316,38 @@ class AdministrationPage(QWidget):
         row.addWidget(control, 0, Qt.AlignVCenter)
         return row
 
+    def data_management_row(self, title, description, button):
+        row = QHBoxLayout()
+        row.setContentsMargins(8, 0, 4, 0)
+        row.setSpacing(12)
+
+        text_widget = QWidget()
+        text_layout = QVBoxLayout(text_widget)
+        text_layout.setContentsMargins(0, 6, 0, 6)
+        text_layout.setSpacing(2)
+
+        title_label = QLabel(title)
+        title_label.setObjectName("adminDataTitle")
+        description_label = QLabel(description)
+        description_label.setObjectName("adminDataDescription")
+        description_label.setWordWrap(True)
+
+        text_layout.addWidget(title_label)
+        text_layout.addWidget(description_label)
+        row.addWidget(text_widget, 1)
+        row.addWidget(button, 0, Qt.AlignVCenter)
+        return row
+
     def apply_theme(self, is_dark):
         if is_dark:
             self.setStyleSheet("""
+                QScrollArea#adminScrollArea { border:none; background:transparent; }
+                QScrollArea#adminScrollArea > QWidget > QWidget { background:transparent; }
+                QScrollBar:vertical { background:transparent; width:9px; margin:2px 1px; }
+                QScrollBar::handle:vertical { background:#40576b; min-height:28px; border-radius:4px; }
+                QScrollBar::handle:vertical:hover { background:#557187; }
+                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
+                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }
                 #adminAccentLabel { color:#46a3ff; font-size:13px; font-weight:800; }
                 #adminSummaryFrame { background:#0b1219; border:1px solid #40576b; border-radius:9px; }
                 #adminSummaryValue, #adminSummaryActive, #adminSummaryInactive { color:#ffffff; font-size:24px; font-weight:850; }
@@ -248,7 +356,7 @@ class AdministrationPage(QWidget):
                 #adminSummaryText { color:#f8fafc; font-size:13px; font-weight:750; }
                 #adminSectionCard { background:#101b25; border:1px solid #2f4659; border-radius:8px; }
                 #adminSectionTitle { color:#ffffff; font-size:16px; font-weight:850; }
-                #adminRulesTable, #adminSettingsBody { background:#0d1b27; border:1px solid #21384a; border-radius:7px; }
+                #adminRulesTable, #adminSettingsBody, #adminDataBody { background:#0d1b27; border:1px solid #21384a; border-radius:7px; }
                 #adminRulesHeader { background:#162b3c; border-bottom:1px solid #476174; }
                 #adminHeaderText { color:#ffffff; font-size:12px; font-weight:850; }
                 #adminCategoryRow { background:#0d1b27; border-bottom:1px solid #30485a; }
@@ -258,8 +366,14 @@ class AdministrationPage(QWidget):
                 #adminCount { color:#ffffff; font-size:15px; font-weight:850; }
                 #adminActiveCount { color:#28d768; font-size:15px; font-weight:900; }
                 #adminInactiveCount { color:#ff613e; font-size:15px; font-weight:900; }
-                #adminViewButton, #adminBrowseButton { background:#1b3347; color:#ffffff; border:1px solid #46647b; border-radius:6px; font-size:12px; font-weight:850; }
-                #adminViewButton:hover, #adminBrowseButton:hover { background:#27465e; }
+                #adminViewButton, #adminBrowseButton, #adminManageButton { background:#1b3347; color:#ffffff; border:1px solid #46647b; border-radius:6px; font-size:12px; font-weight:850; }
+                #adminViewButton:hover, #adminBrowseButton:hover, #adminManageButton:hover { background:#27465e; }
+                #adminDangerButton { background:#4a2222; color:#ffdddd; border:1px solid #8f4141; border-radius:6px; font-size:12px; font-weight:850; }
+                #adminDangerButton:hover { background:#672929; border-color:#b55454; }
+                #adminDataSummary { color:#d7e1eb; font-size:11px; font-weight:750; }
+                #adminDataTitle { color:#ffffff; font-size:13px; font-weight:850; }
+                #adminDataDescription { color:#bac8d4; font-size:11px; font-weight:650; }
+                #adminDataDivider { background:#30485a; border:none; }
                 #adminNote { color:#d7e1eb; font-size:11px; font-weight:700; }
                 #adminSettingLabel { color:#ffffff; font-size:13px; font-weight:850; }
                 #adminPath { background:#102331; color:#ffffff; border:1px solid #476174; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
@@ -272,6 +386,13 @@ class AdministrationPage(QWidget):
             """)
         else:
             self.setStyleSheet("""
+                QScrollArea#adminScrollArea { border:none; background:transparent; }
+                QScrollArea#adminScrollArea > QWidget > QWidget { background:transparent; }
+                QScrollBar:vertical { background:transparent; width:9px; margin:2px 1px; }
+                QScrollBar::handle:vertical { background:#aebdcb; min-height:28px; border-radius:4px; }
+                QScrollBar::handle:vertical:hover { background:#91a6b8; }
+                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
+                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }
                 #adminAccentLabel { color:#1d70d6; font-size:13px; font-weight:800; }
                 #adminSummaryFrame { background:#ffffff; border:1px solid #9fb0c1; border-radius:9px; }
                 #adminSummaryValue { color:#152333; font-size:24px; font-weight:850; }
@@ -280,7 +401,7 @@ class AdministrationPage(QWidget):
                 #adminSummaryText { color:#26384a; font-size:13px; font-weight:750; }
                 #adminSectionCard { background:#ffffff; border:1px solid #c2ced9; border-radius:8px; }
                 #adminSectionTitle { color:#142435; font-size:16px; font-weight:850; }
-                #adminRulesTable, #adminSettingsBody { background:#f8fafc; border:1px solid #b6c4d1; border-radius:7px; }
+                #adminRulesTable, #adminSettingsBody, #adminDataBody { background:#f8fafc; border:1px solid #b6c4d1; border-radius:7px; }
                 #adminRulesHeader { background:#e7eef5; border-bottom:1px solid #aebdcb; }
                 #adminHeaderText { color:#243648; font-size:12px; font-weight:850; }
                 #adminCategoryRow { background:#ffffff; border-bottom:1px solid #d2dce5; }
@@ -290,8 +411,14 @@ class AdministrationPage(QWidget):
                 #adminCount { color:#142435; font-size:15px; font-weight:850; }
                 #adminActiveCount { color:#149447; font-size:15px; font-weight:900; }
                 #adminInactiveCount { color:#e2492d; font-size:15px; font-weight:900; }
-                #adminViewButton, #adminBrowseButton { background:#edf3f8; color:#17324a; border:1px solid #a9bac8; border-radius:6px; font-size:12px; font-weight:850; }
-                #adminViewButton:hover, #adminBrowseButton:hover { background:#e0eaf2; }
+                #adminViewButton, #adminBrowseButton, #adminManageButton { background:#edf3f8; color:#17324a; border:1px solid #a9bac8; border-radius:6px; font-size:12px; font-weight:850; }
+                #adminViewButton:hover, #adminBrowseButton:hover, #adminManageButton:hover { background:#e0eaf2; }
+                #adminDangerButton { background:#fff1f0; color:#b42318; border:1px solid #e3a19a; border-radius:6px; font-size:12px; font-weight:850; }
+                #adminDangerButton:hover { background:#ffe4e1; border-color:#cf7d74; }
+                #adminDataSummary { color:#4a5e72; font-size:11px; font-weight:750; }
+                #adminDataTitle { color:#142435; font-size:13px; font-weight:850; }
+                #adminDataDescription { color:#607386; font-size:11px; font-weight:650; }
+                #adminDataDivider { background:#d2dce5; border:none; }
                 #adminNote { color:#4a5e72; font-size:11px; font-weight:700; }
                 #adminSettingLabel { color:#142435; font-size:13px; font-weight:850; }
                 #adminPath { background:#ffffff; color:#172a3c; border:1px solid #aab9c7; border-radius:6px; padding:0 9px; font-size:12px; font-weight:650; }
