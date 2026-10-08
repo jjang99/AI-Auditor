@@ -61,5 +61,7 @@ def test_cancel_marks_worker_and_stops_owned_local_runtime():
         return_value=runtime,
     ):
         worker.request_cancel()
+        assert worker._cancel_runtime_thread is not None
+        worker._cancel_runtime_thread.join(timeout=1.0)
     assert worker.is_cancel_requested() is True
     runtime.stop.assert_called_once_with()
