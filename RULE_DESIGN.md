@@ -1,15 +1,13 @@
 # AI Auditor 검사기준 설계서
 
 ## 1. 문서 목적
-AI Auditor의 최종 5대 검사영역과 105개 검사기준을 관리한다. 각 검사기준은 사용자에게는 하나의 검사기준으로 보이지만 내부 수행 방식은 `Rule`, `AI`, `Hybrid`로 구분한다.
+AI Auditor의 최종 검사기준 체계, MVP 실행 범위, 검사결과 판정구조, 데이터 관리 원칙을 기록한다.
+과거 상세 설계 이력은 Git history에 보존되며, 본 문서는 현재 구현과 일치하는 최신 기준이다.
 
-- Rule: 명확한 구조·값·산식·누락·참조 등을 결정적으로 검사
-- AI: 의미 비교·문맥 판단·영향 추론·위험 후보 도출
-- Hybrid: Rule 기반 1차 식별과 AI 기반 의미 판단을 함께 사용
-- 본 문서는 제품 전체 검사체계이며, 105개가 모두 해커톤 MVP에서 실행 구현된다는 의미가 아니다.
-- MVP 실제 구현 대상은 후속 단계에서 약 20개를 별도로 선정한다.
+---
 
-## 2. 검사영역 요약
+## 2. 최종 5대 검사영역 / 105개
+
 | 영역 | ID | 수량 |
 |---|---|---:|
 | 감리 사전점검 | AUD | 24 |
@@ -19,968 +17,184 @@ AI Auditor의 최종 5대 검사영역과 105개 검사기준을 관리한다. �
 | AI 특화 검증 | AI | 23 |
 | **합계** |  | **105** |
 
-## 3. 감리 사전점검 — 24개
-| ID | 검사기준 | 주요 검사내용 | 방식 |
-|---|---|---|---|
-| AUD-001 | 필수 산출물 누락 점검 | 사업/단계별 필수 산출물 제출 여부 | Rule |
-| AUD-002 | 산출물 작성완전성 점검 | 필수항목, 공란, TBD 등 미작성 영역 | Hybrid |
-| AUD-003 | 산출물 기본정보 일치 점검 | 프로젝트명, 작성일, 작성자, 버전 등 일치 여부 | Rule |
-| AUD-004 | 문서 버전정보 적정성 점검 | 버전, 개정일, 변경이력 관리 적정성 | Rule |
-| AUD-005 | 문서 간 용어 일관성 점검 | 동일 대상을 서로 다른 용어로 기술하는지 | AI |
-| AUD-006 | 문서 내 참조 오류 점검 | 존재하지 않는 표·그림·절·문서 참조 | Rule |
-| AUD-007 | 미확정 표현 점검 | TBD, 미정, 추후협의 등 미확정 표현 | Hybrid |
-| AUD-008 | 계획 대비 산출물 작성상태 점검 | 계획된 산출물과 실제 작성·제출상태 비교 | Rule |
-| AUD-009 | 일정정보 일관성 점검 | 계획서·WBS 등 일정정보 간 불일치 | Rule |
-| AUD-010 | WBS 완전성·비정상 항목 점검 | 작업, 기간, 담당자 누락 및 비정상 기간 후보 | Hybrid |
-| AUD-011 | 일정 선후행 관계 점검 | WBS 선행·후행 관계의 논리적 오류 | Rule |
-| AUD-012 | 형상관리 대상 누락 점검 | 관리대상 산출물의 형상관리 등록 누락 | Rule |
-| AUD-013 | 형상 버전·변경이력 일치 점검 | 형상대장과 실제 버전 및 변경이력 비교 | Rule |
-| AUD-014 | 시험계획 완전성 점검 | 시험항목, 방법, 예상결과 등 필수정보 | Rule |
-| AUD-015 | 시험 수행·결과 완전성 점검 | 대상 시험의 결과 작성 및 수행상태 | Rule |
-| AUD-016 | 시험결함 조치상태 점검 | 미조치·미종결 결함 존재 여부 | Rule |
-| AUD-017 | 시험 증적 적정성 점검 | 시험결과를 뒷받침하는 증적의 존재·연결 | Hybrid |
-| AUD-018 | 품질활동 계획 대비 수행 점검 | 계획된 품질활동의 실제 수행 여부 | Hybrid |
-| AUD-019 | 품질지적사항 미조치 점검 | 검토·품질점검 지적사항의 미조치 여부 | Rule |
-| AUD-020 | 인터페이스 정의 완전성 점검 | 필요한 연계/인터페이스 정의 누락 | Hybrid |
-| AUD-021 | 인터페이스 문서정보 일치 점검 | 시스템, 방식, 주기 등 문서 간 불일치 | Hybrid |
-| AUD-022 | 계약·과업내용 반영 및 이행 증적 점검 | 계약/RFP/과업의 계획·산출물 반영과 수행 증거 | Hybrid |
-| AUD-023 | 관련 기준·지침 준수 점검 | 적용 법령·지침·표준의 준수 여부와 증적 | Hybrid |
-| AUD-024 | 감리 예상 지적사항 후보 도출 | 개별 결과를 종합해 근거 기반 지적 후보 제시 | AI |
-
-## 4. 요구사항 정합성 — 28개
-| ID | 검사기준 | 주요 검사내용 | 방식 |
-|---|---|---|---|
-| REQ-001 | 요구사항 ID 누락·중복 점검 | ID 미부여 및 중복 여부 | Rule |
-| REQ-002 | 요구사항 내용 중복 점검 | 표현은 다르지만 의미가 같은 요구사항 후보 | AI |
-| REQ-003 | 요구사항 모호성 점검 | 적절히, 필요시 등 판단기준 불명확 표현·문맥 | Hybrid |
-| REQ-004 | 요구사항 상충 점검 | 동시에 만족하기 어려운 요구사항 후보 | AI |
-| REQ-005 | 요구사항 필수정보 누락 점검 | 명칭, 내용, 분류, 우선순위 등 필수정보 | Rule |
-| REQ-006 | 요구사항 완전성 점검 | 구현대상·조건·범위가 충분히 정의됐는지 | AI |
-| REQ-007 | 요구사항 검증가능성·검증방법 점검 | 객관적 검증 가능성과 시험/분석/검토 방법 정의 | Hybrid |
-| REQ-008 | 요구사항 분류 적정성 점검 | 기능/비기능 등 분류와 실제 내용의 적합성 | Hybrid |
-| REQ-009 | 요구사항 설계 반영 정합성 점검 | 요구사항의 설계·화면·데이터·인터페이스 반영 | Hybrid |
-| REQ-010 | 설계 근거 요구사항 누락 점검 | 설계 요소의 상위 요구 근거 부재 | AI |
-| REQ-011 | 요구사항-설계 내용 불일치 점검 | 조건·처리내용 등 의미 불일치 | AI |
-| REQ-012 | 요구사항 시험항목 누락 점검 | 요구사항에 대응하는 시험항목 부재 | Hybrid |
-| REQ-013 | 시험항목 근거 요구사항 누락 점검 | 시험항목의 상위 요구 근거 부재 | Hybrid |
-| REQ-014 | 요구사항-시험내용 불일치 점검 | 요구내용과 시험방법·조건 불일치 | AI |
-| REQ-015 | 요구사항-예상결과 불일치 점검 | 요구조건과 시험 예상결과 불일치 | AI |
-| REQ-016 | 중요 요구사항 시험범위 누락 점검 | 중요 요구사항의 시험 제외·누락 | Rule |
-| REQ-017 | 요구사항 추적관계 누락 점검 | 후속 산출물과의 추적 링크 누락 | Hybrid |
-| REQ-018 | 양방향 추적성 점검 | 상위→하위 및 하위→상위 추적 가능 여부 | Hybrid |
-| REQ-019 | 추적표와 실제 산출물 불일치 점검 | 추적표 연결과 실제 내용의 일치 여부 | AI |
-| REQ-020 | 잘못된 요구사항 참조 점검 | 존재하지 않거나 잘못된 ID 참조 | Rule |
-| REQ-021 | 요구사항 상태·승인정보 정합성 점검 | 완료/보류/삭제 및 승인·확정상태 불일치 | Hybrid |
-| REQ-022 | 동일 기능 명칭 불일치 점검 | 문서별 동일 기능의 명칭 차이 | AI |
-| REQ-023 | 업무규칙 불일치 점검 | 요구와 설계의 조건·처리규칙 불일치 | AI |
-| REQ-024 | 입력·출력 정의 불일치 점검 | 요구와 설계의 입력/출력 차이 | AI |
-| REQ-025 | 예외처리 정의 불일치 점검 | 요구된 예외조건의 설계·시험 반영 누락 | AI |
-| REQ-026 | 사용자·권한 정의 불일치 점검 | 사용자/역할/권한 정의의 문서 간 불일치 | AI |
-| REQ-027 | 요구사항 출처·상위요구 및 추가기능 근거 점검 | RFP/계약 등 출처 추적과 근거 없는 추가기능 후보 | Hybrid |
-| REQ-028 | 요구사항 정합성 종합 위험 후보 도출 | 정합성 결과를 종합해 근거 기반 위험 후보 제시 | AI |
-
-## 5. 변경영향도 — 18개
-| ID | 검사기준 | 주요 검사내용 | 방식 |
-|---|---|---|---|
-| CHG-001 | 변경사항 식별 점검 | 이전/현재 산출물 간 실제 변경 식별 | Hybrid |
-| CHG-002 | 변경이력 누락 점검 | 실제 변경 대비 변경이력 미기록 | Hybrid |
-| CHG-003 | 변경이력-실제내용 불일치 점검 | 기록된 변경과 실제 변경의 차이 | AI |
-| CHG-004 | 변경사유 누락·불명확 점검 | 변경 목적·근거의 부재 또는 모호성 | Hybrid |
-| CHG-005 | 변경 승인상태 점검 | 미승인 변경의 후속 반영 여부 | Rule |
-| CHG-006 | 변경 영향대상 식별 | 설계·화면·데이터·인터페이스·시험 영향 후보 | AI |
-| CHG-007 | 프로젝트 영향범위 식별 | 일정/WBS·공수·운영·이해관계자 영향 후보 | AI |
-| CHG-008 | 관련 설계 변경 미반영 점검 | 영향받는 설계의 미갱신 | Hybrid |
-| CHG-009 | 관련 화면 변경 미반영 점검 | 영향받는 화면정의의 미갱신 | Hybrid |
-| CHG-010 | 관련 데이터설계 변경 미반영 점검 | 영향받는 데이터 정의의 미갱신 | Hybrid |
-| CHG-011 | 관련 인터페이스 변경 미반영 점검 | 영향받는 연계 정의의 미갱신 | Hybrid |
-| CHG-012 | 관련 시험 변경 미반영 점검 | 시험항목·조건·예상결과의 변경 누락 | Hybrid |
-| CHG-013 | 관련 문서 변경 미반영 점검 | 운영·사용자 등 관련 문서의 미갱신 | AI |
-| CHG-014 | 삭제 요구사항·기능 잔존 점검 | 삭제 대상의 설계·화면·시험 잔존 | Hybrid |
-| CHG-015 | 폐기 인터페이스·데이터 정의 잔존 점검 | 폐기 대상 정의의 문서 잔존 | AI |
-| CHG-016 | 변경 영향범위 누락 후보 도출 | 선언된 영향범위 밖의 추가 영향 후보 | AI |
-| CHG-017 | 회귀검증 필요성 점검 | 변경으로 재검증이 필요한 기존 기능·시험 후보 | Hybrid |
-| CHG-018 | 변경영향도 종합 위험 후보 도출 | 변경·영향·반영 결과를 종합한 위험 후보 | AI |
-
-## 6. FP 검증 — 12개
-| ID | 검사기준 | 주요 검사내용 | 방식 |
-|---|---|---|---|
-| FP-001 | FP 산정대상 누락 점검 | 요구기능 대비 FP 미산정 대상 | Hybrid |
-| FP-002 | FP 산정대상 중복 점검 | 동일 기능의 중복 산정 | Hybrid |
-| FP-003 | FP 산정 제외대상 적정성 점검 | 제외 기능과 제외사유의 적정성 | AI |
-| FP-004 | 애플리케이션 경계 설정 적정성 점검 | FP 산정 경계와 기능 사용자 관점의 적정성 | Hybrid |
-| FP-005 | 기능유형 분류 적정성 점검 | EI/EO/EQ/ILF/EIF 분류의 적정성 | Hybrid |
-| FP-006 | 기능 단위 분할·통합 적정성 점검 | 과도한 분할 또는 서로 다른 기능의 부적절한 통합 | AI |
-| FP-007 | FP 산정방식·적용기준 적정성 점검 | 적용 산정방식과 기준의 적합성 | Rule |
-| FP-008 | 상세 산정정보 적정성 점검 | 적용 방식에 따라 필요한 DET/FTR/RET 등 근거정보 | Rule |
-| FP-009 | FP 산정값 재계산 검증 | 입력 근거와 산식에 따른 수치 재계산 | Rule |
-| FP-010 | 요구사항-FP 추적성 점검 | FP 항목과 근거 요구사항 연결 | Hybrid |
-| FP-011 | FP 변경반영 누락 점검 | 요구 변경에 따른 FP 갱신 누락 | Hybrid |
-| FP-012 | 비기능 요구사항 FP 포함 적정성 점검 | 비기능 요구의 일반 FP 오산정 여부 | Hybrid |
-
-## 7. AI 특화 검증 — 23개
-| ID | 검사기준 | 주요 검사내용 | 방식 |
-|---|---|---|---|
-| AI-001 | AI 적용 목적·범위 정의 점검 | AI 사용 목적, 대상 업무, 책임범위 명확성 | Hybrid |
-| AI-002 | AI 기능 요구사항 정의 점검 | 입력·출력·처리조건 등 AI 기능 요구사항 | Hybrid |
-| AI-003 | AI 성능·품질 목표 정의 점검 | 평가기준·목표값·허용수준 정의 | Hybrid |
-| AI-004 | AI 모델·서비스 정보 관리 점검 | 모델/서비스명, 버전, 용도 등 관리 | Rule |
-| AI-005 | AI 출력 신뢰성·환각 대응 점검 | 정확성·근거성 검증과 허위/환각 대응 | AI |
-| AI-006 | AI 출력 일관성 점검 | 동일·유사 입력에 대한 과도한 모순 여부 | AI |
-| AI-007 | AI 실패·불확실성 처리 점검 | 낮은 확신·실패 상황의 처리 및 안내 | AI |
-| AI-008 | 민감정보 입력·출력 통제 점검 | 개인정보·기밀의 부적절한 입력/노출 방지 | Hybrid |
-| AI-009 | Prompt Injection 대응 점검 | 악의적 지시에 의한 통제 우회 대응 | Hybrid |
-| AI-010 | 시스템 프롬프트 보안설계 점검 | 민감정보 포함 및 프롬프트에 대한 보안통제 의존 | Hybrid |
-| AI-011 | AI 권한·자율행위 통제 점검 | 도구·시스템 접근권한과 자율행위 최소화 | Hybrid |
-| AI-012 | AI 출력 후속처리 안전성 점검 | AI 출력을 검증 없이 명령/API/DB 등에 실행하는 위험 | Hybrid |
-| AI-013 | 학습·참조데이터 적정성 점검 | 데이터 출처·품질·적합성 관리 | Hybrid |
-| AI-014 | 데이터·모델 오염 위험 점검 | 악성·오류 데이터에 의한 오염 위험 | Hybrid |
-| AI-015 | RAG 검색근거 적정성 점검 | 검색 문서와 실제 답변 근거의 적합성 | AI |
-| AI-016 | RAG·Embedding 접근통제 점검 | 권한 없는 자료의 검색·노출 위험 | Hybrid |
-| AI-017 | AI 평가·테스트 체계 적정성 점검 | 대표성 있는 평가데이터와 정상/예외/위험 입력 시험 | Hybrid |
-| AI-018 | AI 편향·공정성 위험 점검 | 데이터·사용자 조건별 편향 및 결과 편차 위험 | AI |
-| AI-019 | Human-in-the-loop 점검 | 중요 판단의 사람 확인·승인 구조 | Hybrid |
-| AI-020 | AI 판단 설명·근거 제공 점검 | 중요한 결과의 근거·설명 제공 가능성 | AI |
-| AI-021 | AI 로그·추적성 및 운영 모니터링 점검 | 입력·모델·조건·결과 추적과 운영 품질/이상 모니터링 | Hybrid |
-| AI-022 | AI 모델·프롬프트 변경관리 점검 | 모델/프롬프트 변경기록 및 재검증 | Hybrid |
-| AI-023 | AI 자원사용·호출 제한 적정성 점검 | 요청·입력·출력·반복호출 등 자원사용 통제 | Rule |
-
-## 8. 후속 단계
-1. 본 105개 검사기준을 제품 전체 기준으로 사용한다.
-2. 다음 단계에서 5대 영역을 대표하면서 해커톤 시연 가치가 높은 약 20개 MVP 실행 검사기준을 선정한다.
-3. MVP 선정 시 단순 구현 난이도만으로 고르지 않고 대표성, 시연효과, 실제 검사 가치, 폐쇄망 구현가능성, 필요한 입력 산출물을 함께 평가한다.
-4. 기존 소스코드 보안/코드품질/성능 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 보존한다.
-
-
-## 해커톤 MVP 20개 확정 — 2026-09-19
-- 감리 사전점검(4): AUD-001, AUD-002, AUD-007, AUD-024
-- 요구사항 정합성(6): REQ-001, REQ-002, REQ-003, REQ-004, REQ-009, REQ-018
-- 변경영향도(4): CHG-001, CHG-006, CHG-012, CHG-018
-- FP 검증(2): FP-005, FP-009
-- AI 특화 검증(4): AI-005, AI-009, AI-019, AI-022
-- 선정 원칙: 제품 정체성, 실제 검사 가치, AI 활용 가치, 시연 효과, 폐쇄망 구현 가능성, 입력 산출물 확보 가능성을 함께 고려하며 Rule / AI / Hybrid 방식을 모두 포함한다.
+105개 Full Catalog는 제품 전체 검사체계이다.
+해커톤 MVP에서 실제 실행되는 Rule 전체 수와 동일하지 않다.
 
 ---
 
-# 검사결과 Severity 및 감리 개선판정 상세 설계 — 2026-09-23
+## 3. MVP 실행 Rule 20개
 
-## 1. 설계 목적
+### 감리 사전점검 4개
+- AUD-001
+- AUD-002
+- AUD-007
+- AUD-024
 
-본 절은 AI Auditor의 5대 검사영역에서 검사 결과로 생성되는 Issue의
-Severity 산정방법과 감리 개선판정 처리방법을 정의한다.
+### 요구사항 정합성 6개
+- REQ-001
+- REQ-002
+- REQ-003
+- REQ-004
+- REQ-009
+- REQ-018
 
-핵심 설계원칙은 다음과 같다.
+### 변경영향도 4개
+- CHG-001
+- CHG-006
+- CHG-012
+- CHG-018
 
-`Rule → 검사 정의`
-`Issue → 실제 발견 결과`
-`Impact × Likelihood → Severity`
-`감리 개선판정 → 필요한 Issue에 별도 적용`
+### FP 검증 2개
+- FP-005
+- FP-009
 
-Rule 자체에 Severity를 미리 고정하지 않는다.
+### AI 특화 검증 4개
+- AI-005
+- AI-009
+- AI-019
+- AI-022
+
+실행방식:
+- Rule: 3
+- AI: 6
+- Hybrid: 11
 
 ---
 
-## 2. Rule 데이터 설계
+## 4. 문서 Parser 설계
 
-### 2.1 Rule의 역할
+지원 형식:
+- DOCX
+- DOC
+- XLSX
+- XLS
+- PDF
+- PPTX
+- PPT
+- HWPX
+- HWP
 
-Rule은 다음 내용을 정의한다.
+모든 문서는 형식별 Parser를 거쳐 공통 구조로 변환한다.
 
-- 무엇을 검사할 것인가
-- 어떤 조건을 확인할 것인가
-- 어떤 방식으로 검사할 것인가
-- 어떤 검사영역에 속하는가
-- MVP 대상인지 여부
-- 활성/비활성 상태
+`원본 문서 → Parser → ParsedDocument / DocumentBlock`
 
-### 2.2 Rule 주요 속성
+검사 Engine은 원본 형식에 직접 의존하지 않고 표준화 데이터 구조를 사용한다.
 
-Rule의 기본 설계 속성은 다음을 기준으로 한다.
+현재 제외:
+- 스캔 이미지 기반 PDF OCR
 
-- `code`
-- `name`
-- `category`
-- `description`
-- `execution_type`
-- `is_mvp`
-- `enabled`
+---
 
-### 2.3 execution_type
+## 5. 문서 검사 실행구조
 
-`execution_type`은 다음 3가지 값을 사용한다.
+`Inspection`
+→ `Full Catalog 105 선택상태`
+→ `MVP 20 선택 추출`
+→ `Parser / ParsedDocument`
+→ `Rule / AI / Hybrid 라우팅`
+→ `DocumentInspectionEngine`
+→ `Issue 생성`
+→ `Issue Assessment`
+→ `DB 저장`
+→ `Project Detail / Reports`
 
-#### RULE
-명확하고 결정적인 조건으로 판정할 수 있는 검사.
+기존 소스코드 정적분석 Rule Engine은 삭제하지 않는다.
+
+---
+
+## 6. Rule 실행방식
+
+### Rule
+결정적 조건으로 판정 가능한 검사.
 
 예:
-- 필수 항목 존재 여부
-- 특정 값 누락
-- 문서 버전 형식 확인
-- 정형 데이터 비교
+- 존재/누락
+- 정형 값 비교
+- 산식 재계산
+- ID 중복
 
-#### AI
-문맥·의미·내용의 적절성 등 AI 판단이 필요한 검사.
-
-예:
-- 요구사항 모호성
-- 문서 내용 적절성
-- 의미적 불일치
-- 감리 예상 지적사항 후보 도출
-
-#### HYBRID
-Rule 검사와 AI 판단을 함께 사용하는 검사.
+### AI
+문맥·의미·영향 판단이 필요한 검사.
 
 예:
-- Rule로 후보를 탐지한 후 AI가 문맥을 판단
-- 문서 간 구조적 차이를 Rule로 찾고 의미적 영향은 AI로 평가
+- 상충 후보
+- 의미 중복
+- 영향범위 후보
+- 종합 위험 후보
 
-### 2.4 Rule에서 제거할 개념
-
-Rule 자체의 고정 Severity는 사용하지 않는다.
-
-즉 다음과 같이 설계하지 않는다.
-
-`AUD-001 → High`
-`REQ-003 → Critical`
-
-같은 Rule이라도 실제 발견상황, 대상, 영향범위 등에 따라
-Issue의 Severity가 달라질 수 있기 때문이다.
+### Hybrid
+Rule 기반 사전분석 + AI 의미판단 조합.
 
 ---
 
-## 3. Issue 데이터 설계
+## 7. Rule과 Issue 분리
 
-Issue는 Rule을 실행한 결과 실제로 발견된 문제이다.
+Rule:
+- 무엇을 검사할지 정의
+- 검사방식 정의
+- 카테고리 정의
+- 활성/비활성 관리
 
-Issue에는 향후 다음 정보를 관리할 수 있도록 설계한다.
+Issue:
+- 실제 검사 결과로 발견된 문제
+- 발견 내용과 근거 저장
+- Impact / Likelihood / Severity 저장
+- 필요한 경우 감리 개선판정 저장
 
-### 기본정보
-- Issue ID
-- Rule Code
-- Rule Name
-- Category
-- 발견내용
-- 근거 위치/문서
-- 상태
-
-### Severity 관련정보
-- `impact_level`
-- `impact_reason`
-- `likelihood_level`
-- `likelihood_reason`
-- `severity`
-- `severity_reason`
-
-### 감리 개선판정 관련정보
-해당되는 Issue에 한하여 다음 정보를 관리한다.
-
-- `audit_recommendation_type`
-- `improvement_timing`
-- `is_important`
-- `audit_reason`
-
-감리 개선판정 정보는 모든 Issue의 필수값으로 강제하지 않는다.
+Rule 자체에 고정 Severity를 사용하지 않는다.
 
 ---
 
-# 4. Severity 산정 기본원칙
+## 8. Issue Assessment
 
-Severity는 다음 공식으로 산정한다.
-
-`Impact × Likelihood → Severity`
-
-최종 Severity 값은 다음 4단계이다.
-
-- `CRITICAL`
-- `HIGH`
-- `MEDIUM`
-- `LOW`
-
-Severity는 Rule의 종류나 카테고리만으로 결정하지 않는다.
-
-실제 발견된 Issue의 Impact와 Likelihood를 각각 평가한 후
-정해진 Matrix를 이용하여 결정한다.
-
----
-
-# 5. Impact 상세 판정기준
-
-## 5.1 정의
-
-Impact는 다음을 의미한다.
-
-> 발견된 Issue를 조치하지 않았을 때
-> 사업·업무·기능·품질·데이터·보안 등에 미칠
-> 부정적 영향의 크기
-
-Impact는 다음 4개 요소를 종합적으로 판단한다.
-
----
-
-## 5.2 사업·업무 영향
-
-판단 질문:
-
-> 해당 문제가 사업목표 또는 핵심업무 수행에 어느 정도 영향을 주는가?
-
-확인 예:
-
-- 핵심 사업목표 달성 저해
-- 핵심 업무 수행 장애
-- 주요 사용자 업무 영향
-- 사업 일정 또는 성과 영향
-
----
-
-## 5.3 기능·품질 영향
-
-판단 질문:
-
-> 해당 문제가 시스템 또는 산출물의 기능·품질에 어느 정도 영향을 주는가?
-
-확인 예:
-
-- 요구사항 누락/오류
-- 주요 기능 오류
-- 데이터 정확성·무결성 문제
-- 시험 및 검증 문제
-- 보안 문제
-- 산출물 품질 저하
-
----
-
-## 5.4 영향범위
-
-판단 질문:
-
-> 문제가 특정 항목에 국한되는가,
-> 아니면 여러 산출물·기능·후속 단계로 확산되는가?
-
-확인 예:
-
-- 단일 문구/항목
-- 단일 산출물
-- 여러 산출물
-- 설계 → 구현
-- 구현 → 시험
-- 운영까지 파급
-
----
-
-## 5.5 준거 중요성
-
-판단 질문:
-
-> 법령·계약·필수 요구사항·핵심 보안통제 등
-> 반드시 준수해야 할 중요한 기준과 관련되는가?
-
-확인 예:
-
-- 법령
-- 계약/과업내용
-- 필수 요구사항
-- 주요 정보화사업 기준
-- 핵심 보안통제
-- 감리 필수 확인사항
-
----
-
-# 6. Impact 등급
-
-## LOW
-
-다음과 같은 경우를 기준으로 한다.
-
-- 영향이 경미하다.
-- 영향범위가 국소적이다.
-- 핵심업무 또는 핵심기능에 미치는 영향이 거의 없다.
-- 후속 단계에 미치는 영향이 제한적이다.
-
-## MEDIUM
-
-다음과 같은 경우를 기준으로 한다.
-- 품질·정합성·기능 등에 명확한 영향이 있다.
-- 일부 산출물·기능·후속 작업에 영향을 줄 수 있다.
-- 수정이 필요하지만 핵심 사업목표에 미치는 영향은 제한적이다.
-
-## HIGH
-
-다음 중 하나 이상에 중대한 영향을 줄 수 있는 경우를 기준으로 한다.
-
-- 사업목표
-- 핵심업무
-- 핵심기능
-- 중요 데이터
-- 보안
-- 법령·계약·필수 요구사항 등 핵심 준거
-
-또는 문제가 여러 산출물·기능·후속 개발단계로
-광범위하게 파급될 수 있는 경우 High로 판단할 수 있다.
-
----
-
-# 7. Likelihood 상세 판정기준
-
-## 7.1 정의
-
-Likelihood는 다음을 의미한다.
-
-> 발견된 Issue를 조치하지 않고 그대로 진행할 경우
-> 그 Issue로 인한 부정적 영향이 실제로 현실화될 가능성
-
-### 주의
-
-Likelihood는 다음 의미가 아니다.
-
-`Issue가 존재할 가능성`
-
-AI Auditor가 Issue를 생성했다는 것은
-이미 문제가 발견됐다는 의미이다.
-
-따라서 Likelihood에서 평가하는 것은 다음이다.
-
-`발견된 Issue를 방치했을 때 그로 인한 부정적인 결과가 실제로 나타날 가능성`
-
----
-
-# 8. Likelihood 등급
-
-## LOW
-
-- 부정적 영향이 발생하려면 추가적인 특정 조건이나 사건이 필요하다.
-- 현재 상태만으로는 실제 영향 발생 가능성이 낮다.
-- 영향 현실화 경로가 제한적이다.
-
-## MEDIUM
-
-- 후속 개발·시험·운영 과정에서 영향이 나타날 가능성이 있다.
-- 다만 조건 또는 상황에 따라 영향이 발생하지 않을 수도 있다.
-- 현실화 여부에 불확실성이 존재한다.
-
-## HIGH
-
-- 현재 상태로 후속 단계를 진행하면 영향이 현실화될 가능성이 높다.
-- 문제가 후속 단계로 직접 이어지는 구조이다.
-- 또는 이미 부정적 영향의 징후가 확인되고 있다.
-
----
-
-# 9. Severity Matrix
-
-최종 Severity는 다음 Matrix를 사용한다.
-
-| Impact \ Likelihood | LOW | MEDIUM | HIGH |
-|---|---|---|---|
-| HIGH | MEDIUM | HIGH | CRITICAL |
-| MEDIUM | LOW | MEDIUM | HIGH |
-| LOW | LOW | LOW | MEDIUM |
-
-구현 시 임의의 별도 계산식을 추가하지 않고
-위 Matrix를 기준으로 deterministic하게 산정한다.
-
----
-
-# 10. Critical 제한원칙
-
-Critical은 남용하지 않는다.
-
-기본적으로 다음 조건을 모두 만족할 때만 Critical로 판정한다.
-
-`Impact == HIGH`
-AND
-`Likelihood == HIGH`
-
-즉 다음과 같은 이유만으로 Critical을 부여하지 않는다.
-
-- 보안 Rule이기 때문에
-- AI Rule이기 때문에
-- 감리 관련 Rule이기 때문에
-- 특정 Rule Code이기 때문에
-- 과거에 해당 Rule의 기본 Severity가 Critical이었기 때문에
-
-실제 Issue의 Impact와 Likelihood가 모두 High인지 확인해야 한다.
-
----
-
-# 11. Severity 산정 처리절차
-
-Issue가 발견되면 다음 순서로 처리한다.
-
-### STEP 1. Issue 발견
-Rule / AI / Hybrid 검사 결과 문제 후보를 생성한다.
-
-### STEP 2. Impact 판정
-다음을 확인한다.
-
-1. 사업·업무 영향
-2. 기능·품질 영향
-3. 영향범위
-4. 준거 중요성
-
-결과:
-
-`LOW / MEDIUM / HIGH`
-
-### STEP 3. Likelihood 판정
-해당 Issue를 조치하지 않았을 경우
-부정적 영향이 현실화될 가능성을 판단한다.
-
-결과:
-
-`LOW / MEDIUM / HIGH`
-
-### STEP 4. Matrix 적용
-Impact와 Likelihood 값을 Severity Matrix에 적용한다.
-
-### STEP 5. Severity 확정
-결과:
-
-`LOW / MEDIUM / HIGH / CRITICAL`
-
-### STEP 6. 판정근거 저장
-최종 등급만 저장하지 않고
-Impact / Likelihood의 판단근거도 함께 저장한다.
-
----
-
-# 12. Severity 판정 예시
-
-## 예시 1. 핵심 요구사항 상세설계 누락
-
-발견:
-
-`핵심 요구사항이 상세설계서에 반영되지 않음`
-
-Impact:
-
-`HIGH`
-
-근거:
-- 핵심 요구사항 관련
-- 구현 단계 영향 가능
-- 시험 단계까지 영향 확산 가능
-
-Likelihood:
-
-`HIGH`
-
-근거:
-- 현재 설계를 기준으로 개발할 경우
-  해당 요구사항이 구현에서 누락될 가능성이 높음
-
-Matrix:
-
-`HIGH × HIGH`
-
-Severity:
-
-`CRITICAL`
-
----
-
-## 예시 2. 비핵심 문서 일부 용어 불일치
-
-Impact:
-
-`LOW`
-
-근거:
-- 특정 문구에 국한
-- 핵심기능 영향 없음
-- 사업목표 영향 없음
-
-Likelihood:
-
-`MEDIUM`
-
-근거:
-- 후속 문서에 동일 표현이 사용될 가능성은 있으나
-  기능상 문제로 이어질 가능성은 제한적임
-
-Matrix:
-
-`LOW × MEDIUM`
-
-Severity:
-
-`LOW`
-
----
-
-# 13. 감리 개선판정 설계
-
-Severity와 감리 개선판정은 서로 분리한다.
-
-## 13.1 Severity가 답하는 질문
-
-> 이 Issue는 얼마나 위험한가?
-
-값:
-
-- Critical
-- High
-- Medium
-- Low
-
-## 13.2 감리 개선판정이 답하는 질문
-
-> 감리 대응 관점에서 이 Issue를 어떻게 개선해야 하는가?
-
-필요한 Issue에는 다음 정보를 별도로 관리한다.
-
-### 개선권고유형
-
-- `필수`
-- `협의`
-- `권고`
-
-### 개선시점
-
-- `단기`
-- `장기`
-
-### 중요 여부
-
-- `O`
-- `-`
-
----
-
-# 14. 감리 개선판정 적용원칙
-
-모든 Issue에 감리 개선판정을 강제로 부여하지 않는다.
-
-감리 관점에서 개선판정이 의미 있는 Issue에 적용한다.
-
-따라서 다음과 같은 구조가 가능하다.
-
-예:
-
-`Severity = HIGH`
-`감리 개선권고 = 필수`
-`개선시점 = 단기`
-`중요 = O`
-
-이는 서로 모순되지 않는다.
-
-Severity는 위험수준이고,
-감리 개선판정은 개선방법 및 조치 관점이기 때문이다.
-
----
-
-# 15. 5대 검사영역 적용
-
-다음 5대 검사영역에서 발생한 Issue는
-동일한 Severity 산정구조를 사용한다.
-
-1. 감리 사전점검(AUD)
-2. 요구사항 정합성(REQ)
-3. 변경영향도(CHG)
-4. FP 검증(FP)
-5. AI 특화 검증(AI)
-
-각 영역에서 Impact와 Likelihood를 판단할 때 사용하는
-구체적인 증거와 맥락은 달라질 수 있다.
-
-그러나 최종 산정구조는 다음으로 통일한다.
-
-`Impact × Likelihood → Severity`
-
-감리 개선판정은 필요한 Issue에 추가 적용한다.
-
----
-
-# 16. UI 데이터 연결원칙
-
-## Administration
-
-기존:
-
-`Code / 규칙 제목 / 설명 / 심각도 / 상태`
-
-변경:
-
-`Code / 규칙 제목 / 설명 / 검사방식 / 상태`
-
-검사방식:
-
-`Rule / AI / Hybrid`
-
-Rule Detail에서도 고정 Severity를 표시하지 않는다.
-
----
-
-## Project Detail
-
-Issue Distribution은 다음 기존 4단계를 유지한다.
-
-- Critical
-- High
-- Medium
-- Low
-
-단, 표시되는 Severity는 Rule의 고정값이 아니라
-Issue 발생 후 산정된 결과값이어야 한다.
-
----
-
-## Issue Detail
-
-향후 다음 정보를 표시할 수 있도록 데이터 구조를 준비한다.
-
-- Severity
+AI가 반환하는 값:
 - Impact
-- Impact 판정근거
+- Impact Reason
 - Likelihood
-- Likelihood 판정근거
-- 최종 Severity 판정근거
-- 감리 개선권고유형(해당 시)
-- 개선시점(해당 시)
-- 중요 여부(해당 시)
-- 상태
+- Likelihood Reason
 
-UI의 구체적인 배치·크기·표현방법은
-실제 구현 단계에서 기존 UI Freeze를 기준으로
-사용성과 가독성을 확인하며 보정한다.
+Impact / Likelihood 허용값:
+- Low
+- Medium
+- High
+
+최종 Severity는 AI 출력이 아니라 deterministic Matrix로 계산한다.
 
 ---
 
-# 17. Reports
+## 9. Severity Matrix
 
-Reports의 기존 Severity 통계는 유지한다.
+| Impact \ Likelihood | Low | Medium | High |
+|---|---|---|---|
+| High | Medium | High | Critical |
+| Medium | Low | Medium | High |
+| Low | Low | Low | Medium |
 
-즉 다음 집계는 계속 사용할 수 있다.
+Critical:
+- Impact = High
+- Likelihood = High
 
-- Critical 건수
-- High 건수
-- Medium 건수
-- Low 건수
-
-감리 개선판정 통계는 향후 필요 시 다음과 같이 확장할 수 있다.
-
-- 필수 건수
-- 협의 건수
-- 권고 건수
-- 단기 개선 건수
-- 장기 개선 건수
-- 중요 Issue 건수
-
-MVP 구현범위를 고려하여
-필요하지 않은 통계는 현재 단계에서 무리하게 추가하지 않는다.
+두 조건이 모두 만족될 때만 산정한다.
 
 ---
 
-# 18. 판정근거 및 설명가능성 원칙
+## 10. Local AI
 
-AI Auditor는 단순히 Severity 값만 출력하는 구조를 지향하지 않는다.
+현재 기본 모델:
+- Qwen3-4B Q4_K_M
 
-사용자가 다음 질문에 답을 확인할 수 있어야 한다.
+Runtime:
+- llama.cpp b11312
 
-> 왜 이 Issue가 High인가?
-> 왜 Impact가 High인가?
-> 왜 Likelihood가 Medium인가?
+검증 설정:
+- reasoning off
+- temperature 0.7
+- top-p 0.8
+- top-k 20
+- min-p 0
+- seed 42
 
-따라서 가능한 경우 다음 정보를 보존한다.
-
-`발견 사실`
-→ `Impact 판단 및 근거`
-→ `Likelihood 판단 및 근거`
-→ `Matrix 적용`
-→ `최종 Severity`
-
-AI 판정을 사용하는 경우에도
-가능한 범위에서 판정근거를 사용자에게 설명할 수 있도록 한다.
-
----
-
-# 19. 기준자료 적용 우선순위
-
-감리 관련 Rule과 판정기준을 설계·검토할 때
-다음 우선순위를 사용한다.
-1. 현행 정보시스템 감리기준
-2. NIA 정보시스템 감리 수행 가이드
-3. NIA 지능정보기술 감리 실무 가이드 및 분야별 감리 가이드
-4. 실제 감리에서 사용하는 지적사항·개선권고 등의 판정/조치 체계
-5. 보조자료: NIST / OWASP / CVSS 등
-
-국내 정보시스템 감리와 직접 관련된 사항은
-국내 감리기준과 NIA 자료를 우선한다.
-
-NIST / OWASP / CVSS 등은
-위험도·보안·AI 분야 판단 및
-공통 Severity 체계를 보완하기 위한 자료로 활용한다.
-
----
-
-# 20. 기존 설계와의 관계
-
-기존 Rule 설계에서 Rule별 `severity` 값이 존재하는 경우,
-해당 값은 향후 Issue의 최종 Severity를 결정하는 고정값으로 사용하지 않는다.
-
-기존 Severity 데이터의 실제 제거·마이그레이션 시점은
-코드 구조와 DB 영향범위를 확인한 후 결정한다.
-
-기존 데이터를 확인하지 않고 즉시 삭제하지 않는다.
-
-2026-09-18 Administration UI Freeze 중
-Rule Detail의 `심각도` 표시 관련 결정은
-2026-09-23 확정한 본 설계로 대체한다.
-
-그 외 기존 UI Freeze 사항은 가능한 한 유지한다.
-
----
-
-# 21. 구현 시 금지사항
-
-다음 방식으로 구현하지 않는다.
-
-- Rule Code만 보고 Severity 결정
-- Rule Category만 보고 Severity 결정
-- Rule에 저장된 과거 Severity를 Issue Severity로 그대로 복사
-- 보안이라는 이유만으로 Critical 지정
-- AI 관련이라는 이유만으로 High/Critical 지정
-- 감리의 `필수/협의/권고`를 Severity로 변환
-- Severity를 감리 개선판정으로 자동 치환
-- 근거 없이 AI가 임의의 Severity를 출력
-
-Severity는 반드시 실제 Issue의
-Impact와 Likelihood 평가결과를 기준으로 산정한다.
-
----
-
-# 22. 최종 구현 흐름
-
-전체 흐름은 다음을 기준으로 한다.
-
-`Rule 선택`
-→ `Rule / AI / Hybrid 검사 실행`
-→ `Issue 발견`
-→ `Impact 평가`
-→ `Likelihood 평가`
-→ `Severity Matrix 적용`
-→ `Severity 확정`
-→ `판정근거 저장`
-→ `필요한 경우 감리 개선판정 추가`
-→ `DB 저장`
-→ `Project Detail / Reports 표시`
-
----
-
-# 23. 최종 설계 정의
-
-AI Auditor 검사결과 판정체계는 다음 원칙으로 통일한다.
-
-`Rule`
-= 무엇을 어떤 방식으로 검사할 것인가
-
-`Issue`
-= 실제 검사 결과 무엇이 발견되었는가
-
-`Impact`
-= 발견된 Issue를 방치했을 때 부정적 영향이 얼마나 큰가
-
-`Likelihood`
-= Issue를 방치했을 때 그 부정적 영향이 현실화될 가능성이 얼마나 높은가
-
-`Severity`
-= Impact × Likelihood를 Matrix에 적용한 최종 위험등급
-
-`감리 개선판정`
-= 감리 대응 관점에서 해당 Issue를 어떻게 개선할 것인가
-
-본 설계를 이후 Rule Engine, AI/Hybrid 검사,
-Issue 저장구조, Project Detail, Reports 및
-감리 개선판정 기능 구현의 기준으로 사용한다.
-
-## 2026-09-28 — Full Catalog 표시와 MVP 실행 범위
-
-- Full Rule Catalog: 5대 영역 105개(AUD 24 / REQ 28 / CHG 18 / FP 12 / AI 23)
-- Administration과 Inspection의 검사기준 표시·선택 UI는 Full Rule Catalog 105개를 기준으로 한다.
-- 해커톤 실제 문서검사 실행 범위는 별도로 확정한 MVP 20개를 기준으로 한다.
-- 따라서 UI의 105개 Full Catalog와 실제 실행 대상 MVP 20개를 동일 개념으로 취급하지 않는다.
-- 5-3에서는 Administration·Inspection의 카탈로그 기준을 통일한다.
-- 5-4에서는 Inspection 실행 경로를 DocumentInspectionEngine의 Rule / AI / Hybrid MVP 20개 실행구조와 연결한다.
-- 기존 소스코드 정적분석 Rule은 삭제하지 않고 향후 확장영역으로 유지한다.
-
-
-## 2026-09-28 — 5-4 문서검사 실행 연결 구현 기준 반영
-
-- 제품 전체 검사기준은 기존과 동일하게 5대 영역 / Full Rule Catalog 105개를 유지한다.
-- 해커톤 실제 문서검사 실행대상은 확정된 MVP 20개이며, Full Catalog 선택상태에서 Rule Code를 기준으로 MVP 실행대상을 추출한다.
-- MVP 20개의 실행방식은 기존 설계대로 Rule 3 / AI 6 / Hybrid 11을 유지한다.
-- 실제 실행 흐름은 다음을 기준으로 한다.
-
-`Inspection → Full Catalog 선택상태 → MVP 20 선택 추출 → Parser / ParsedDocument → Rule / AI / Hybrid → DocumentInspectionEngine → Issue 변환 → DB 저장 → Inspection 완료 UI`
-
-- 문서검사 결과는 기존 Issue 저장모델에 연결할 수 있도록 변환하여 기존 프로젝트/검사결과 흐름을 유지한다.
-- 기존 소스코드 정적분석 Rule 실행경로는 문서 MVP 실행경로와 분리하여 보존한다.
-- 실제 로컬 AI 모델은 본 단계에서 고정하지 않으며 `BaseAIProvider`의 교체 가능한 구조를 유지한다.
-- Inspection 검사기준 팝업은 Full Rule Catalog의 실제 Rule 정보를 표시하고, 개별 선택상태가 MVP 실행대상에 반영되도록 한다.
-- 본 연결은 검사기준 105개 전체가 실행 구현되었다는 의미가 아니며, 실제 실행 구현 범위는 MVP 20개이다.
-- 다음 설계·구현 단계는 Issue의 Impact / Likelihood / Severity 및 필요한 감리 개선판정 정보를 실제 데이터·실행 흐름에 적용하는 5-5이다.
-
-
----
-
-# 2026-10-01 — 5-5 판정 파이프라인 실제 구현 상태
-
-현재 구현된 판정 파이프라인은 다음과 같다.
-
-`Issue 발견`
-→ `BaseIssueAssessor.assess(issue)`
-→ `Impact / Impact 근거`
-→ `Likelihood / Likelihood 근거`
-→ `Severity Matrix`
-→ `최종 Issue Severity`
-→ `IssueAssessment`
-→ `DB 저장`
-→ `기존 점수/결과 흐름`
-
-## 구현 구성
-
-- `rules/core/severity.py`
-  - `AssessmentLevel`
-  - `IssueSeverity`
-  - `IssueAssessment`
-  - `calculate_severity()`
-  - 감리 개선판정 Enum / `AuditImprovementJudgment`
-- `rules/core/issue_assessor.py`
-  - `BaseIssueAssessor`
-  - `DeferredIssueAssessor`
-  - `apply_issue_assessments()`
-- `RuleIssue`
-  - 선택적 `assessment`
-  - 선택적 `audit_judgment`
-- DB Issue 판정정보
-  - `impact`
-  - `impact_reason`
-  - `likelihood`
-  - `likelihood_reason`
-  - `severity_reason`
-  - `audit_recommendation_type`
-  - `audit_improvement_timing`
-  - `audit_important`
-
-기존 DB는 삭제/재생성하지 않고 컬럼 존재 여부를 확인한 뒤 필요한 컬럼만 추가한다.
-
-현재 `DeferredIssueAssessor`는 실제 판정을 수행하지 않는다. 이는 임시 고정 Severity를 새 Severity로 간주하기 위한 것이 아니라, 실제 AI 판정기 연결 전 기존 동작을 보존하기 위한 호환 계층이다.
-
-실제 AI 판정기가 연결되면 판정기가 제시한 Impact/Likelihood를 사용하되 **최종 Severity 자체는 AI가 임의 출력한 값을 신뢰하지 않고 확정 Matrix로 재계산**한다.
-
-실제 AI Provider/Issue Assessor 연결은 6단계 전에 수행하며, 모델 선정·Provider 구현·실문서 판정 검증을 별도 작업으로 진행한다.
-
----
-
-# 2026-10-01 — Local AI Provider 입력·출력 설계 기준
-
-## 기본 모델
-- 현재 검증된 기본 모델: **Qwen3-4B GGUF Q4_K_M**
-- runtime: **llama.cpp**
-- 기본 실행은 non-thinking으로 한다.
-- 검증 기준 sampling: `temperature=0.7`, `top_p=0.8`, `top_k=20`, `min_p=0`.
-- 판정 재현성을 위해 Provider에서 seed를 명시적으로 관리한다. 초기 검증 기준 seed는 `42`이다.
-
-## IssueAssessment AI 출력 계약
-AI Issue Assessor가 요구하는 최소 구조는 다음 네 필드다.
+출력계약:
 
 ```json
 {
@@ -991,133 +205,258 @@ AI Issue Assessor가 요구하는 최소 구조는 다음 네 필드다.
 }
 ```
 
-- JSON 객체 외 설명/Markdown/code fence를 정상 출력으로 간주하지 않는다.
-- `impact`, `likelihood`는 반드시 Low/Medium/High 중 하나여야 한다.
-- 네 필드는 모두 필수로 검증한다.
-- 근거는 입력 Issue 및 제공된 문서/검사근거에 기반해야 한다.
-- 입력에 없는 사실을 실제 발생 사실처럼 생성하지 않도록 프롬프트에서 명시한다.
-
-## Severity 경계
-- AI Provider/Issue Assessor는 Severity를 반환하지 않는다.
-- AI가 반환한 Impact/Likelihood를 검증한 뒤 기존 `calculate_severity()` Matrix가 Severity를 결정한다.
-- 따라서 AI 응답에 Severity가 포함되더라도 최종값으로 사용하지 않는다.
-- `High × High → Critical` 등 기존 9조합 Matrix가 유일한 최종 Severity 계산 기준이다.
-
-## 오류 처리 방향
-- JSON 파싱 실패
-- 필수 필드 누락
-- Impact/Likelihood 허용값 위반
-- 빈 판정근거
-등은 정상 IssueAssessment로 저장하지 않는다.
-- Provider/Assessor 구현 시 재시도 횟수와 최종 실패 처리 정책을 코드와 테스트로 명시한다.
-- AI 실패가 기존 Rule Engine 또는 전체 Inspection 흐름을 임의로 오염시키지 않도록 Provider 경계를 유지한다.
-
-## 검증 근거
-- i5-1135G7 / RAM 8GB / Windows 11 CPU 환경에서 Qwen3-4B Q4_K_M 실제 실행 확인.
-- 한국어 생성, non-thinking, Impact/Likelihood 판정, JSON 출력, 동일 조건 반복 재현성을 실제 CLI로 검증하였다.
-- 기본 sampling 미고정 시 동일 입력 판정 변동을 확인했으므로 제품 Provider에서는 생성 설정을 명시적으로 관리한다.
-
+잘못된 JSON / 허용되지 않은 값 / 빈 근거는 정상 판정으로 저장하지 않는다.
 
 ---
 
-# 2026-10-05 — 5단계 Rule / 판정 로직 최종 현행화
+## 11. 감리 개선판정
 
-## REQ-001 구조 오탐 개선
+Severity와 독립적으로 관리한다.
 
-과거 실제 HWP 요구사항 문서에서 동일 ID가 목차·참조·구조 반복으로 여러 번 등장하여
-28건의 중복 오탐이 발생하였다.
+- 개선권고유형: 필수 / 협의 / 권고
+- 개선시점: 단기 / 장기
+- 중요 여부: O / -
 
-최종 판정 기준:
-- 요구사항 정의 문서 범위에서만 REQ-001 실행
-- 단순 목차 / 참조 / ID 단독 반복은 중복 요구사항으로 판단하지 않음
-- 동일 ID에 대해 서로 다른 실제 요구사항 정의문장이 존재하는 경우만 중복 후보로 판단
-- 동일한 실질 요구문장은 dedup
-- 요구사항 정의문장 식별에는 `해야 한다`, `하여야 한다`, `제공한다`, `지원한다`,
-  `처리한다`, `조회한다`, `수정한다`, `가능해야 한다`, `할 수 있어야 한다` 등을 사용
-- ID 누락 검사는 유지
+모든 Issue에 강제하지 않는다.
+CHG-001은 감리 개선판정 비적용(NULL) 정책이다.
 
-실제 요구사항 HWP 2건 최종 검증 결과 REQ-001 Issue 0.
+---
 
-## CHG Rule 연계구조
+## 12. REQ-001 구조 오탐 처리
 
-변경영향도 MVP 실행흐름:
+실제 HWP 요구사항 문서에서 목차·참조·반복 구조 때문에 동일 ID가 여러 번 등장하는 문제를 확인했다.
+
+최종 처리기준:
+- 요구사항 정의 문서 범위 중심 검사
+- 목차/참조/ID 단독 반복 제외
+- 실제 요구사항 정의문장 식별
+- 동일 실질 문장 dedup
+- 서로 다른 실제 요구사항 정의문장이 동일 ID를 사용하는 경우만 중복 후보
+
+실제 HWP 2건 재검증 결과 REQ-001 Issue 0.
+
+---
+
+## 13. 변경영향도 연계구조
+
+MVP 변경영향도 흐름:
+
 `CHG-001 변경 식별`
 → `CHG-006 영향대상 식별`
 → `CHG-012 시험 변경 미반영`
 → `CHG-018 종합 위험 후보`
 
 CHG-012:
-- 구체적 시험행 근거 없이 미반영을 단정하던 과거 결과를 제거
-- 확인 가능한 unresolved evidence가 있는 경우만 Issue 생성
-- 최종 실문서 검증: 0 Issue PASS
+- 구체적 unresolved evidence가 있을 때만 Issue 생성
+- 최종 실문서 검증 0 Issue PASS
 
 CHG-018:
 - 위반 없음 / 근거 없음 결과를 Issue로 저장하지 않음
-- unresolved evidence gate를 통과한 경우만 종합 위험 후보 생성
-- 최종 실문서 검증: 0 Issue PASS
+- unresolved evidence gate 적용
+- 최종 실문서 검증 0 Issue PASS
 
-## Issue Assessment
-
-AI 반환:
-- Impact
-- Impact Reason
-- Likelihood
-- Likelihood Reason
-
-허용값:
-- Low
-- Medium
-- High
-
-최종 Severity:
-`Impact × Likelihood → deterministic Severity Matrix`
-
-Matrix:
-| Impact \ Likelihood | Low | Medium | High |
-|---|---|---|---|
-| High | Medium | High | Critical |
-| Medium | Low | Medium | High |
-| Low | Low | Low | Medium |
-
-AI가 최종 Severity를 직접 출력값으로 결정하지 않는다.
-
-## 감리 개선판정
-
-별도 구조:
-- Recommendation: 필수 / 협의 / 권고
-- Timing: 단기 / 장기
-- Important: O / -
-
-적용 대상 Issue에만 저장한다.
-CHG-001은 변경 식별 근거 데이터 역할이므로 감리 개선판정 NULL.
-
-## 최종 실제 검증 Snapshot
-
-Inspection ID 40:
-- Score 95
-- Grade A
-- Issues 7
-- Medium 4 / Low 3
-- CHG-001 5
-- CHG-006 1
-- AUD-024 1
-
-최종 전체 자동검증:
-`166 passed, 51 subtests passed in 2.80s`
 ---
 
-## 2026-10-08 Inspection Runtime 보완
+## 14. Inspection 실행 Runtime
 
-이번 변경은 MVP Rule 정의나 Severity/감리 개선판정 기준 변경이 아니라 실행 Runtime/UX 보완이다.
-
-실행 흐름:
-`파일/Rule 선택 → 예상시간 계산 → 검사 실행 → 현재 Rule/진행률/남은시간 표시 → 정상 완료 시 DB 저장`
+정상 흐름:
+`파일/Rule 선택 → 예상시간 계산 → 검사 실행 → Rule/진행률/남은시간 표시 → 정상 완료 → DB 저장`
 
 취소 흐름:
-`검사 취소 요청 → cancel flag 설정 → Local AI runtime 비동기 종료 → 검사 중단 → DB 미저장 → 기존 입력/파일/Rule 선택상태 유지`
+`취소 요청 → cancel flag → Local AI runtime 비동기 종료 → 검사 중단 → DB 미저장 → 입력상태 유지`
 
-확정 원칙:
-- 정상 완료된 검사만 DB 저장
-- 취소된 검사는 결과 저장 금지
-- Local AI 중단 과정에서 UI thread block 금지
-- Rule/Severity/감리판정 기존 확정 로직은 변경하지 않음
+원칙:
+- 정상 완료 검사만 DB 저장
+- 취소된 검사 저장 금지
+- UI thread block 금지
+- 취소 후 프로젝트/파일/Rule 선택 유지
+
+---
+
+## 15. Score / Grade
+
+최종 Grade:
+- A: 90 이상
+- B: 80 이상
+- C: 70 이상
+- D: 60 이상
+- E: 0~59
+
+F는 사용하지 않는다.
+
+---
+
+## 16. Export
+
+지원:
+- DOCX
+- XLSX
+- TXT
+
+제외:
+- HWPX
+
+HWPX는 직접 생성 파일 손상 및 COM Type Library 문제로 MVP 제외한다.
+
+---
+
+# 17. Administration 데이터 관리 설계 — Stage 6
+
+## 17.1 목적
+사용자가 검사결과와 프로젝트 데이터를 안전하게 정리할 수 있도록 한다.
+
+Administration 구성:
+1. 검사 기준 관리
+2. 환경 설정
+3. 데이터 관리
+
+---
+
+## 17.2 데이터 관계
+
+기본 관계:
+
+`Project → Inspection → Issue`
+
+DB FK는 기존 구조를 유지하며 Stage 6에서 `ON DELETE CASCADE`를 새로 강제하지 않는다.
+삭제는 Repository에서 명시적으로 수행한다.
+
+---
+
+## 17.3 전체 검사 이력 정리
+
+삭제 대상:
+- 모든 Issue
+- 모든 Inspection
+
+유지 대상:
+- Project
+
+삭제순서:
+`Issues → Inspections`
+
+사용자 표시:
+- 프로젝트 정보: N개 (유지)
+- 검사 이력: N건 (삭제)
+- 이슈: N건 (삭제)
+
+삭제는 하나의 transaction으로 처리하며 실패 시 rollback한다.
+
+---
+
+## 17.4 프로젝트 삭제
+
+선택한 Project 삭제 시 함께 삭제:
+- 해당 Project의 Issues
+- 해당 Project의 Inspections
+- 해당 Project
+
+삭제순서:
+`Issues → Inspections → Project`
+
+다른 Project의 데이터는 보존해야 한다.
+
+---
+
+## 17.5 Repository API
+
+`app/database/repositories/data_management_repository.py`
+
+주요 함수:
+- `get_data_management_summary()`
+- `get_projects_with_delete_impact()`
+- `get_project_delete_impact(project_id)`
+- `delete_all_inspection_history()`
+- `delete_project_with_history(project_id)`
+
+---
+
+## 17.6 UI
+
+`ui/administration_page.py`
+- 데이터 관리 카드
+- 전체 데이터 요약
+- 전체 검사 이력 정리 진입
+- 프로젝트 관리 진입
+
+`ui/data_management_dialogs.py`
+- `DeleteConfirmDialog`
+- `ProjectManagementDialog`
+
+---
+
+## 17.7 Danger Action 계층
+
+진입과 최종 실행의 위험 수준을 시각적으로 구분한다.
+
+- Administration `정리`: 낮은 강조 Danger
+- Administration `관리`: 기본 버튼
+- Project 목록 `삭제`: Outline Danger
+- 최종 실행 `정리 실행 / 프로젝트 삭제`: Filled Danger
+
+최종 비가역 실행 단계가 가장 강한 강조를 가진다.
+
+---
+
+## 17.8 프로젝트 관리 목록 UI
+
+표시정보:
+- 프로젝트명
+- 부서
+- 검사 이력 수
+- 이슈 수
+
+설계원칙:
+- 프로젝트명과 메타정보는 충분한 시인성 확보
+- 불필요하게 큰 카드 높이는 사용하지 않음
+- 카드 간격은 리스트 밀도를 해치지 않는 수준으로 유지
+- Dark / Light 모두 삭제 버튼 식별 가능
+
+---
+
+## 17.9 실제 삭제 검증
+
+Project 삭제 검증:
+- 임시 Project / Inspection / Issue 생성
+- UI 삭제 실행
+- Project 삭제 확인
+- 연결 Inspection 삭제 확인
+- 연결 Issue 삭제 확인
+- orphan Inspection 0
+- orphan Issue 0
+
+전체 검사 이력 정리 검증:
+- DB 백업
+- 실제 전체 정리 실행
+- Project 수 유지 확인
+- Inspection 0
+- Issue 0
+- 원본 DB 복원
+
+---
+
+## 17.10 자동테스트
+
+`tests/test_data_management_repository.py`
+
+검증:
+- summary count
+- project impact list
+- clear history preserves projects
+- project delete impact
+- selected project tree delete
+- missing project safe handling
+
+결과:
+- 6 passed
+
+최신 전체 회귀:
+- `python -m pytest -q`
+- 실패 0건
+
+---
+
+## 18. 완료 상태
+
+1~6단계는 완료 상태로 유지한다.
+다음 개발은 기능추가가 아니라 최종 EXE / 폐쇄망 / 제출 마감 단계이다.
