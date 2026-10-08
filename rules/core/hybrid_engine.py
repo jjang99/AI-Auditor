@@ -75,7 +75,7 @@ class DocumentHybridEngine:
 
         terms = []
         for value in (rule.name, rule.description, *rule.check_points):
-            for term in re.split(r"[\\s·/,()]+", str(value)):
+            for term in re.split(r"[\s·/,()]+", str(value)):
                 normalized = term.strip("[]{}.,:;'\"")
                 if len(normalized) >= 2 and normalized not in terms:
                     terms.append(normalized)
@@ -106,15 +106,60 @@ class DocumentHybridEngine:
         self,
         document: ParsedDocument,
     ) -> tuple[str, ...]:
-        """REQ-003: 판단기준이 불명확할 수 있는 표현 후보를 찾는다."""
+        """REQ-003: 표현뿐 아니라 정량기준·조건 미구체화 후보도 찾는다."""
 
         ambiguous_terms = (
             "적절히",
             "필요시",
             "필요 시",
+            "가능한 범위",
+            "최대한",
+            "충분히",
+            "신속히",
+            "원활히",
+        )
+        unresolved_terms = (
+            "미정",
+            "미확정",
+            "추후협의",
+            "추후 협의",
+            "협의 후 확정",
+            "협의하여 확정",
+            "확정 필요",
+            "구체화 필요",
+            "불명확",
+            "미구체화",
+        )
+        quantitative_terms = (
+            "응답시간",
+            "응답 시간",
+            "처리시간",
+            "처리 시간",
+            "처리량",
+            "tps",
+            "동시접속",
+            "동시 접속",
+            "동시사용자",
+            "동시 사용자",
+            "수행횟수",
+            "수행 횟수",
+            "수행회수",
+            "수행 회수",
+            "용량",
+            "가용률",
+            "정확도",
+            "성능목표",
+            "성능 목표",
+            "목표값",
+            "목표 값",
+        )
+        numeric_pattern = re.compile(
+            r"\d+(?:\.\d+)?\s*(?:ms|초|분|시간|%|건|회|명|tps|gb|mb|tb)?",
+            re.IGNORECASE,
         )
 
         evidence: list[str] = []
+        seen = set()
 
         for block in document.blocks:
             text = block.text.strip()
@@ -124,14 +169,31 @@ class DocumentHybridEngine:
 
             matched_terms = [
                 term
-                for term in ambiguous_terms
+                for term in (*ambiguous_terms, *unresolved_terms)
                 if term in text
             ]
-
+            reasons = []
             if matched_terms:
-                evidence.append(
-                    f"모호 표현 후보({', '.join(matched_terms)}): {text}"
+                reasons.append(f"모호/미확정 표현({', '.join(matched_terms)})")
+
+            matched_metrics = [
+                term
+                for term in quantitative_terms
+                if term.lower() in text.lower()
+            ]
+            if matched_metrics and not numeric_pattern.search(text):
+                reasons.append(
+                    f"정량기준 누락 가능성({', '.join(dict.fromkeys(matched_metrics))})"
                 )
+
+            if not reasons:
+                continue
+
+            item = f"REQ-003 후보({' / '.join(reasons)}): {text}"
+            if item in seen:
+                continue
+            seen.add(item)
+            evidence.append(item)
 
         return tuple(evidence)
 
@@ -224,14 +286,14 @@ class DocumentHybridEngine:
             missing = []
             for label, index in trace_columns.items():
                 value = columns[index].strip() if index < len(columns) else ""
-                normalized_value = re.sub(r"[.\\s/]", "", value).upper()
+                normalized_value = re.sub(r"[.\s/]", "", value).upper()
                 companion_value = (
                     columns[index + 1].strip()
                     if label in {"화면", "프로그램"} and index + 1 < len(columns)
                     else ""
                 )
                 normalized_companion = re.sub(
-                    r"[.\\s/]", "", companion_value
+                    r"[.\s/]", "", companion_value
                 ).upper()
                 # ID/명칭 쌍 중 어느 한쪽이 N/A이면 해당 추적항목을 비적용으로 본다.
                 if (
