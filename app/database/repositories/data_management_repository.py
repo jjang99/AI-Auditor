@@ -25,6 +25,33 @@ def get_data_management_summary():
         connection.close()
 
 
+def get_projects_with_delete_impact():
+    """Return projects with the inspection / issue counts affected by deletion."""
+    connection = get_connection()
+
+    try:
+        rows = connection.execute(
+            """
+            SELECT
+                p.id AS project_id,
+                p.name AS project_name,
+                p.department,
+                p.project_type,
+                COUNT(DISTINCT i.id) AS inspections,
+                COUNT(DISTINCT iss.id) AS issues
+            FROM projects p
+            LEFT JOIN inspections i ON i.project_id = p.id
+            LEFT JOIN issues iss ON iss.inspection_id = i.id
+            GROUP BY p.id, p.name, p.department, p.project_type
+            ORDER BY p.id DESC
+            """
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+    finally:
+        connection.close()
+
+
 def get_project_delete_impact(project_id: int):
     """Return the data affected when one project is deleted."""
     connection = get_connection()
