@@ -8,6 +8,7 @@ from ui.main_window import MainWindow
 from ui.inspection_page import InspectionPage
 from ui.inspection_rule_ui_patch import apply_inspection_rule_ui_patch
 from ui.inspection_visual_polish_patch import apply_inspection_visual_polish
+from ui.inspection_execution_patch import apply_inspection_execution_patch
 from ui.project_detail_page import ProjectDetailPage
 from ui.project_detail_status_patch import apply_project_detail_status_patch
 from ui.project_detail_audit_badge_patch import apply_project_detail_audit_badge_patch
@@ -16,6 +17,7 @@ from ui.project_detail_audit_badge_patch import apply_project_detail_audit_badge
 initialize_database()
 apply_inspection_rule_ui_patch(InspectionPage)
 apply_inspection_visual_polish(InspectionPage)
+apply_inspection_execution_patch(InspectionPage)
 apply_project_detail_status_patch(ProjectDetailPage)
 apply_project_detail_audit_badge_patch(ProjectDetailPage, MainWindow)
 

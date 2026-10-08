@@ -1,0 +1,460 @@
+import math
+import time
+from pathlib import Path
+
+from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtWidgets import QLabel, QPushButton
+
+from app.database.repositories.inspection_repository import save_inspection_result
+from app.services.inspection_service import InspectionService
+from app.services.local_ai_runtime import get_local_ai_runtime
+from rules.core.engine import InspectionCancelled
+from rules.core.models import RuleExecutionType
+from rules.providers.local_ai_issue_assessor import LocalAIIssueAssessor
+from rules.providers.local_ai_provider import LlamaCppAIProvider
+import ui.inspection_runtime as inspection_runtime
+
+
+def _estimate_inspection_seconds(file_paths, rules):
+    file_count = len(file_paths)
+    rule_count = len(rules)
+    if file_count == 0 or rule_count == 0:
+        return 0
+
+    ai_like_count = sum(
+        1
+        for rule in rules
+        if getattr(rule, "execution_type", None)
+        in {RuleExecutionType.AI, RuleExecutionType.HYBRID}
+    )
+    deterministic_count = max(0, rule_count - ai_like_count)
+
+    total_bytes = 0
+    for raw_path in file_paths:
+        path = Path(raw_path)
+        try:
+            if path.is_file():
+                total_bytes += path.stat().st_size
+        except OSError:
+            pass
+
+    total_mb = total_bytes / (1024 * 1024)
+
+    # CPU 기반 Qwen3-4B의 문서별 AI/Hybrid 호출이 대부분의 시간을 차지한다.
+    # 실제 시간은 문서 길이와 생성 토큰 수에 따라 달라지므로 보수적인 근사치로 표시한다.
+    seconds = (
+        15
+        + deterministic_count * 0.5
+        + ai_like_count * file_count * 4.0
+        + min(90.0, total_mb * 1.5)
+        + (25 if ai_like_count else 0)
+    )
+    return max(20, int(math.ceil(seconds)))
+
+
+def _format_summary_duration(seconds):
+    if seconds <= 0:
+        return "-"
+    if seconds < 60:
+        rounded = max(10, int(round(seconds / 10.0) * 10))
+        return f"약 {rounded}초"
+    minutes = max(1, int(round(seconds / 60.0)))
+    return f"약 {minutes}분"
+
+
+def _format_remaining_duration(seconds):
+    if seconds <= 0:
+        return "마무리 중"
+    seconds = int(math.ceil(seconds))
+    if seconds < 60:
+        return f"약 {seconds}초"
+    minutes, remain = divmod(seconds, 60)
+    if remain < 10:
+        return f"약 {minutes}분"
+    remain = int(round(remain / 10.0) * 10)
+    if remain >= 60:
+        minutes += 1
+        remain = 0
+    return f"약 {minutes}분 {remain}초" if remain else f"약 {minutes}분"
+
+
+class _ExecutionTracker:
+    def __init__(self, rules, callback):
+        self.rules = tuple(rules)
+        self.callback = callback
+        self.total = len(self.rules)
+        self.completed_codes = set()
+        self._rule_codes = {rule.code for rule in self.rules}
+        self._deterministic_codes = {
+            rule.code
+            for rule in self.rules
+            if getattr(rule, "execution_type", None) == RuleExecutionType.RULE
+        }
+        self._ai_started = False
+
+    def _emit(self, current):
+        self.callback(
+            min(len(self.completed_codes), self.total),
+            self.total,
+            current,
+        )
+
+    def phase(self, text):
+        self._emit(text)
+
+    def rule_started(self, rule):
+        # InspectionService는 Rule 방식 검사를 AI/Hybrid보다 먼저 수행한다.
+        # 첫 AI 호출 시점에는 deterministic Rule이 이미 끝난 상태다.
+        if not self._ai_started:
+            self.completed_codes.update(self._deterministic_codes)
+            self._ai_started = True
+        self._emit(f"{rule.code} {rule.name}")
+
+    def rule_finished(self, rule):
+        if rule.code in self._rule_codes:
+            self.completed_codes.add(rule.code)
+        self._emit(f"{rule.code} {rule.name}")
+
+    def complete(self):
+        self.completed_codes.update(self._rule_codes)
+        self._emit("검사 결과 저장")
+
+
+class _ProgressLlamaCppAIProvider(LlamaCppAIProvider):
+    def __init__(self, tracker, cancel_requested):
+        super().__init__()
+        self._tracker = tracker
+        self._cancel_requested = cancel_requested
+
+    def _raise_if_cancelled(self):
+        if self._cancel_requested():
+            raise InspectionCancelled("검사가 취소되었습니다.")
+
+    def _complete(self, *args, **kwargs):
+        self._raise_if_cancelled()
+        try:
+            result = super()._complete(*args, **kwargs)
+        except Exception:
+            if self._cancel_requested():
+                raise InspectionCancelled("검사가 취소되었습니다.")
+            raise
+        self._raise_if_cancelled()
+        return result
+
+    def inspect(self, document, rule, context=None):
+        self._raise_if_cancelled()
+        self._tracker.rule_started(rule)
+        result = super().inspect(document, rule, context)
+        self._raise_if_cancelled()
+        self._tracker.rule_finished(rule)
+        return result
+
+
+class _ProgressIssueAssessor(LocalAIIssueAssessor):
+    def __init__(self, provider, tracker):
+        super().__init__(provider)
+        self._tracker = tracker
+
+    def assess(self, issue):
+        self._tracker.phase("Impact / Likelihood 판정")
+        return super().assess(issue)
+
+    def assess_many(self, issues, batch_size=2):
+        self._tracker.phase("Impact / Likelihood 판정")
+        return super().assess_many(issues, batch_size=batch_size)
+
+    def judge_audit_many(self, issues, batch_size=2):
+        self._tracker.phase("감리 개선판정")
+        return super().judge_audit_many(issues, batch_size=batch_size)
+
+
+class InspectionExecutionWorker(QObject):
+    finished = Signal(object, object, float)
+    failed = Signal(str)
+    cancelled = Signal()
+    progress = Signal(int, int, str)
+
+    def __init__(self, file_paths, project_id, inspection_type, rules, use_local_ai=False):
+        super().__init__()
+        self.file_paths = list(file_paths)
+        self.project_id = project_id
+        self.inspection_type = inspection_type
+        self.rules = list(rules)
+        self.use_local_ai = use_local_ai
+        self._cancel_requested = False
+        self._tracker = _ExecutionTracker(self.rules, self.progress.emit)
+
+    def request_cancel(self):
+        self._cancel_requested = True
+        # 현재 llama.cpp HTTP 호출이 끝날 때까지 기다리지 않도록
+        # AI Auditor가 기동한 로컬 서버를 종료해 진행 중 요청을 즉시 끊는다.
+        try:
+            get_local_ai_runtime().stop()
+        except Exception:
+            pass
+
+    def is_cancel_requested(self):
+        return self._cancel_requested
+
+    def _raise_if_cancelled(self):
+        if self._cancel_requested:
+            raise InspectionCancelled("검사가 취소되었습니다.")
+
+    def run(self):
+        started = time.perf_counter()
+        try:
+            self._tracker.phase("문서 준비 및 기본 Rule 검사")
+            self._raise_if_cancelled()
+
+            if self.use_local_ai:
+                local_ai_runtime = get_local_ai_runtime()
+                local_ai_runtime.start()
+                self._raise_if_cancelled()
+                ai_provider = _ProgressLlamaCppAIProvider(
+                    self._tracker,
+                    self.is_cancel_requested,
+                )
+                issue_assessor = _ProgressIssueAssessor(
+                    ai_provider,
+                    self._tracker,
+                )
+                service = InspectionService(
+                    rules=self.rules,
+                    ai_provider=ai_provider,
+                    issue_assessor=issue_assessor,
+                )
+            else:
+                service = InspectionService(rules=self.rules)
+
+            # 취소된 검사가 DB에 남지 않도록 Service에서는 저장하지 않고,
+            # 모든 검사가 정상 완료된 뒟 Worker가 마지막에 한 벘이만 저장한다.
+            _unused_id, summary = service.run(
+                self.file_paths,
+                project_id=None,
+                inspection_type=self.inspection_type,
+                cancel_requested=self.is_cancel_requested,
+            )
+            self._raise_if_cancelled()
+            self._tracker.complete()
+
+            inspection_id = None
+            if self.project_id is not None:
+                inspection_id = save_inspection_result(
+                    project_id=self.project_id,
+                    summary=summary,
+                    inspection_type=self.inspection_type,
+                )
+
+            self._raise_if_cancelled()
+            self.finished.emit(
+                inspection_id,
+                summary,
+                time.perf_counter() - started,
+            )
+      except InspectionCancelled:
+            self.cancelled.emit()
+        except Exception as exc:
+            if self._cancel_requested:
+                self.cancelled.emit()
+            else:
+                self.failed.emit(str(exc))
+
+
+def apply_inspection_execution_patch(InspectionPage):
+    if getattr(InspectionPage, "_execution_patch_applied", False):
+        return
+
+    inspection_runtime.InspectionWorker = InspectionExecutionWorker
+
+    original_init = InspectionPage.__init__
+    original_refresh_rule_summary = InspectionPage._refresh_rule_summary
+    original_start = InspectionPage.start_real_inspection
+    original_success = InspectionPage._inspection_succeeded
+    original_cancelled = InspectionPage._inspection_cancelled
+    original_failed = InspectionPage._inspection_failed
+
+    def _update_estimate_summary(self):
+        rules = list(self._selected_executable_rules())
+        estimate = _estimate_inspection_seconds(
+            getattr(self, "selected_files", []),
+            rules,
+        )
+        self._inspection_estimated_seconds = estimate
+
+        summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
+        summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
+        if len(summary_values) > 2:
+            summary_values[2].setText(_format_summary_duration(estimate))
+        if len(summary_details) > 2:
+            summary_details[2].setText(
+                "(Local AI 기준 추정)" if estimate else "(파일 등록 후 계산)"
+            )
+
+    def patched_init(self):
+        original_init(self)
+        self._inspection_started_at = None
+        self._inspection_estimated_seconds = 0
+        self._inspection_completed_rules = 0
+        self._inspection_total_rules = 0
+
+        # 사용자가 요첬한 그대로 좌츠 '…/퍼센트' 영역을 없애고
+        # Progress Bar가 그 공간까지 사용하게 한다.
+        percent = getattr(self, "runtime_progress_percent", None)
+        if percent is not None:
+            percent.hide()
+            percent.setMinimumWidth(0)
+            percent.setMaximumWidth(0)
+
+        bar = getattr(self, "runtime_progress_bar", None)
+        if bar is not None:
+            bar.setRange(0, 100)
+            bar.setValue(0)
+
+        self._execution_progress_timer = QTimer(self)
+        self._execution_progress_timer.setInterval(500)
+        self._execution_progress_timer.timeout.connect(
+            lambda: self._tick_execution_progress()
+         )
+        _update_estimate_summary(self)
+
+    def patched_refresh_rule_summary(self):
+        original_refresh_rule_summary(self)
+        _update_estimate_summary(self)
+
+    def set_progress_state(self, status):
+        total = len(self._selected_executable_rules())
+        self._inspection_completed_rules = 0
+        self._inspection_total_rules = total
+        if getattr(self, "runtime_progress_bar", None) is not None:
+            self.runtime_progress_bar.setRange(0, 100)
+            self.runtime_progress_bar.setValue(0)
+        if getattr(self, "runtime_progress_count", None) is not None:
+            self.runtime_progress_count.setText(f"0 / {total}개")
+        if getattr(self, "runtime_progress_rule", None) is not None:
+            self.runtime_progress_rule.setText("검사 준비 중")
+        if getattr(self, "runtime_progress_time", None) is not None:
+            self.runtime_progress_time.setText(
+                _format_remaining_duration(
+                    getattr(self, "_inspection_estimated_seconds", 0)
+                )
+            )
+        if getattr(self, "runtime_progress_status", None) is not None:
+            self.runtime_progress_status.setText(status)
+
+    def on_execution_progress(self, completed, total, current):
+        self._inspection_completed_rules = completed
+        self._inspection_total_rules = total
+        if getattr(self, "runtime_progress_count", None) is not None:
+            self.runtime_progress_count.setText(f"{completed} / {total}개")
+        if getattr(self, "runtime_progress_rule", None) is not None and current:
+            self.runtime_progress_rule.setText(current)
+        self._tick_execution_progress()
+
+    def tick_execution_progress(self):
+        if self._inspection_started_at is None:
+            return
+
+        elapsed = max(0.0, time.perf_counter() - self._inspection_started_at)
+        estimate = max(1.0, float(self._inspection_estimated_seconds or 1))
+        total = max(1, self._inspection_total_rules)
+        completed = min(self._inspection_completed_rules, total)
+
+        time_percent = min(90.0, (elapsed / estimate) * 90.0)
+        rule_percent = min(95.0, (completed / total) * 100.0)
+        percent = int(max(time_percent, rule_percent))
+
+        if getattr(self, "runtime_progress_bar", None) is not None:
+            self.runtime_progress_bar.setRange(0, 100)
+            self.runtime_progress_bar.setValue(percent)
+
+        remaining = estimate - elapsed
+        if getattr(self, "runtime_progress_time", None) is not None:
+            self.runtime_progress_time.setText(
+                _format_remaining_duration(remaining)
+            )
+
+    def patched_start_real_inspection(self):
+        rules = list(self._selected_executable_rules())
+        self._inspection_estimated_seconds = _estimate_inspection_seconds(
+            getattr(self, "selected_files", []),
+            rules,
+        )
+        self._inspection_started_at = time.perf_counter()
+        self._inspection_completed_rules = 0
+        self._inspection_total_rules = len(rules)
+
+        original_start(self)
+
+        worker = getattr(self, "_inspection_worker", None)
+        if worker is None:
+            self._inspection_started_at = None
+            return
+
+        if hasattr(worker, "progress"):
+            worker.progress.connect(self._on_execution_progress)
+
+        self._execution_progress_timer.start()
+        self._tick_execution_progress()
+
+    def patched_cancel_real_inspection(self):
+        worker = getattr(self, "_inspection_worker", None)
+        thread = getattr(self, "_inspection_thread", None)
+        if worker is None or thread is None:
+            return
+
+        if getattr(self, "runtime_progress_status", None) is not None:
+            self.runtime_progress_status.setText("검사 취소 중")
+        if getattr(self, "runtime_progress_rule", None) is not None:
+            self.runtime_progress_rule.setText("현재 작업 중단 중")
+
+        cancel_button = self.progress_card.findChild(
+            QPushButton,
+            "inspectionCancelButton",
+        )
+        if cancel_button is not None:
+            cancel_button.setEnabled(False)
+            cancel_button.setText("취소 중...")
+
+        worker.request_cancel()
+
+    def _reset_execution_ui(self):
+        self._execution_progress_timer.stop()
+        self._inspection_started_at = None
+        cancel_button = self.progress_card.findChild(
+            QPushButton,
+            "inspectionCancelButton",
+        )
+        if cancel_button is not None:
+            cancel_button.setEnabled(True)
+            cancel_button.setText("검사 취소")
+
+    def patched_success(self, inspection_id, summary, elapsed):
+        if getattr(self, "runtime_progress_bar", None) is not None:
+            self.runtime_progress_bar.setRange(0, 100)
+            self.runtime_progress_bar.setValue(100)
+        if getattr(self, "runtime_progress_count", None) is not None:
+            self.runtime_progress_count.setText(
+                f"{summary.rule_count} / {summary.rule_count}개"
+            )
+        _reset_execution_ui(self)
+        original_success(self, inspection_id, summary, elapsed)
+
+    def patched_cancelled(self):
+        _reset_execution_ui(self)
+        original_cancelled(self)
+
+    def patched_failed(self, message):
+        _reset_execution_ui(self)
+        original_failed(self, message)
+
+    InspectionPage.__init__ = patched_init
+    InspectionPage._refresh_rule_summary = patched_refresh_rule_summary
+    InspectionPage._set_progress_state = set_progress_state
+    InspectionPage._on_execution_progress = on_execution_progress
+    InspectionPage._tick_execution_progress = tick_execution_progress
+    InspectionPage.start_real_inspection = patched_start_real_inspection
+    InspectionPage.cancel_real_inspection = patched_cancel_real_inspection
+    InspectionPage._inspection_succeeded = patched_success
+    InspectionPage._inspection_cancelled = patched_cancelled
+    InspectionPage._inspection_failed = patched_failed
+    InspectionPage._execution_patch_applied = True
