@@ -153,7 +153,7 @@ def _export_report_xlsx(self, path, report):
 
 def apply_project_detail_export_patch(ProjectDetailPage):
     """Align all report exports with the final Project Detail assessment model."""
-    ProjectDetailPage._issue_rows = _issue_rows
+    ProjectDetailPage._issue_rows = staticmethod(_issue_rows)
     ProjectDetailPage._export_report_txt = _export_report_txt
     ProjectDetailPage._export_report_docx = _export_report_docx
     ProjectDetailPage._export_report_xlsx = _export_report_xlsx
