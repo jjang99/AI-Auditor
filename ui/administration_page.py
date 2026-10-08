@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QComboBox, QFrame, QHBoxLayout, QLabel, QScrollArea,
+    QComboBox, QFrame, QHBoxLayout, QLabel,
     QPushButton, QVBoxLayout, QWidget,
 )
 
@@ -32,36 +32,28 @@ class AdministrationPage(QWidget):
         self.sidebar = Sidebar("Administration")
         page_layout.addWidget(self.sidebar)
 
-        scroll = QScrollArea()
-        scroll.setObjectName("adminScrollArea")
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        page_layout.addWidget(scroll, 1)
-
         content = QWidget()
         content.setObjectName("projectsContent")
         main_layout = QVBoxLayout(content)
-        main_layout.setContentsMargins(20, 18, 20, 14)
+        main_layout.setContentsMargins(20, 12, 20, 10)
         main_layout.setSpacing(0)
-        scroll.setWidget(content)
+        page_layout.addWidget(content, 1)
 
         title = QLabel("Administration")
         title.setObjectName("pageTitle")
         main_layout.addWidget(title)
-        main_layout.addSpacing(14)
+        main_layout.addSpacing(8)
 
         summary_label = QLabel("검사 기준 요약")
         summary_label.setObjectName("adminAccentLabel")
         main_layout.addWidget(summary_label)
-        main_layout.addSpacing(7)
+        main_layout.addSpacing(4)
 
         summary_frame = QFrame()
         summary_frame.setObjectName("adminSummaryFrame")
-        summary_frame.setFixedHeight(88)
+        summary_frame.setFixedHeight(72)
         summary_layout = QHBoxLayout(summary_frame)
-        summary_layout.setContentsMargins(22, 10, 22, 10)
+        summary_layout.setContentsMargins(22, 6, 22, 6)
         summary_layout.setSpacing(0)
         self.summary_value_labels = {}
         for value, label, object_name in [
@@ -71,8 +63,8 @@ class AdministrationPage(QWidget):
         ]:
             cell = QWidget()
             cell_layout = QVBoxLayout(cell)
-            cell_layout.setContentsMargins(0, 3, 0, 3)
-            cell_layout.setSpacing(2)
+            cell_layout.setContentsMargins(0, 1, 0, 1)
+            cell_layout.setSpacing(0)
             value_label = QLabel(value)
             value_label.setObjectName(object_name)
             value_label.setAlignment(Qt.AlignCenter)
@@ -84,18 +76,18 @@ class AdministrationPage(QWidget):
             cell_layout.addWidget(text_label)
             summary_layout.addWidget(cell, 1)
         main_layout.addWidget(summary_frame)
-        main_layout.addSpacing(16)
+        main_layout.addSpacing(10)
 
         rules_card = QFrame()
         rules_card.setObjectName("adminSectionCard")
         rules_layout = QVBoxLayout(rules_card)
-        rules_layout.setContentsMargins(16, 14, 16, 12)
+        rules_layout.setContentsMargins(16, 10, 16, 8)
         rules_layout.setSpacing(0)
 
         section_title = QLabel("1. 검사 기준 관리")
         section_title.setObjectName("adminSectionTitle")
         rules_layout.addWidget(section_title)
-        rules_layout.addSpacing(12)
+        rules_layout.addSpacing(8)
 
         table = QFrame()
         table.setObjectName("adminRulesTable")
@@ -105,7 +97,7 @@ class AdministrationPage(QWidget):
 
         header = QFrame()
         header.setObjectName("adminRulesHeader")
-        header.setFixedHeight(42)
+        header.setFixedHeight(36)
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(14, 0, 12, 0)
         header_layout.setSpacing(8)
@@ -140,7 +132,7 @@ class AdministrationPage(QWidget):
         for name, total, active, inactive, icon_file in categories:
             row = QFrame()
             row.setObjectName("adminCategoryRow")
-            row.setFixedHeight(66)
+            row.setFixedHeight(50)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(14, 0, 12, 0)
             row_layout.setSpacing(8)
@@ -176,7 +168,7 @@ class AdministrationPage(QWidget):
 
             view = QPushButton("보기")
             view.setObjectName("adminViewButton")
-            view.setFixedSize(58, 34)
+            view.setFixedSize(58, 30)
             view.setCursor(Qt.PointingHandCursor)
             view.clicked.connect(
                 lambda checked=False, n=name, t=total, a=active, i=inactive, icon_name=icon_file:
@@ -186,29 +178,29 @@ class AdministrationPage(QWidget):
             table_layout.addWidget(row)
 
         rules_layout.addWidget(table)
-        rules_layout.addSpacing(9)
+        rules_layout.addSpacing(6)
         note = QLabel("ⓘ  카테고리별 전체/활성/비활성 규칙 현황을 실시간으로 반영합니다.")
         note.setObjectName("adminNote")
         rules_layout.addWidget(note)
-        rules_card.setFixedHeight(500)
+        rules_card.setFixedHeight(365)
         main_layout.addWidget(rules_card)
-        main_layout.addSpacing(14)
+        main_layout.addSpacing(8)
 
         settings_card = QFrame()
         settings_card.setObjectName("adminSectionCard")
         settings_layout = QVBoxLayout(settings_card)
-        settings_layout.setContentsMargins(16, 10, 16, 12)
+        settings_layout.setContentsMargins(16, 8, 16, 8)
         settings_layout.setSpacing(0)
 
         settings_title = QLabel("2. 환경 설정")
         settings_title.setObjectName("adminSectionTitle")
         settings_layout.addWidget(settings_title)
-        settings_layout.addSpacing(6)
+        settings_layout.addSpacing(4)
 
         settings_body = QFrame()
         settings_body.setObjectName("adminSettingsBody")
         body_layout = QVBoxLayout(settings_body)
-        body_layout.setContentsMargins(12, 8, 12, 0)
+        body_layout.setContentsMargins(12, 4, 12, 0)
         body_layout.setSpacing(0)
 
         self.ai_model_combo = QComboBox()
@@ -216,26 +208,26 @@ class AdministrationPage(QWidget):
         self.ai_model_combo.setFixedSize(210, 32)
         self.ai_model_combo.addItem("Qwen3-4B (기본)", "qwen3-4b-q4_k_m")
         self.ai_model_combo.setToolTip("AI Auditor에서 검증된 로컬 AI 모델을 선택합니다.")
-        body_layout.addLayout(self.setting_row("로컬 AI 모델", self.ai_model_combo, 42))
+        body_layout.addLayout(self.setting_row("로컬 AI 모델", self.ai_model_combo, 36))
 
         save_logs = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 42))
+        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 36))
 
         settings_layout.addWidget(settings_body)
-        settings_card.setFixedHeight(166)
+        settings_card.setFixedHeight(130)
         main_layout.addWidget(settings_card)
-        main_layout.addSpacing(14)
+        main_layout.addSpacing(8)
 
         data_card = QFrame()
         data_card.setObjectName("adminSectionCard")
         data_layout = QVBoxLayout(data_card)
-        data_layout.setContentsMargins(16, 12, 16, 14)
+        data_layout.setContentsMargins(16, 8, 16, 10)
         data_layout.setSpacing(0)
 
         data_title = QLabel("3. 데이터 관리")
         data_title.setObjectName("adminSectionTitle")
         data_layout.addWidget(data_title)
-        data_layout.addSpacing(8)
+        data_layout.addSpacing(4)
 
         try:
             data_summary = get_data_management_summary()
@@ -250,17 +242,17 @@ class AdministrationPage(QWidget):
         )
         self.data_summary_label.setObjectName("adminDataSummary")
         data_layout.addWidget(self.data_summary_label)
-        data_layout.addSpacing(8)
+        data_layout.addSpacing(4)
 
         data_body = QFrame()
         data_body.setObjectName("adminDataBody")
         data_body_layout = QVBoxLayout(data_body)
-        data_body_layout.setContentsMargins(12, 6, 12, 6)
+        data_body_layout.setContentsMargins(12, 3, 12, 3)
         data_body_layout.setSpacing(0)
 
         self.clear_history_button = QPushButton("정리")
         self.clear_history_button.setObjectName("adminDangerButton")
-        self.clear_history_button.setFixedSize(74, 32)
+        self.clear_history_button.setFixedSize(74, 30)
         self.clear_history_button.setCursor(Qt.PointingHandCursor)
         data_body_layout.addLayout(
             self.data_management_row(
@@ -277,7 +269,7 @@ class AdministrationPage(QWidget):
 
         self.manage_projects_button = QPushButton("관리")
         self.manage_projects_button.setObjectName("adminManageButton")
-        self.manage_projects_button.setFixedSize(74, 32)
+        self.manage_projects_button.setFixedSize(74, 30)
         self.manage_projects_button.setCursor(Qt.PointingHandCursor)
         data_body_layout.addLayout(
             self.data_management_row(
@@ -288,9 +280,9 @@ class AdministrationPage(QWidget):
         )
 
         data_layout.addWidget(data_body)
-        data_card.setFixedHeight(202)
+        data_card.setFixedHeight(164)
         main_layout.addWidget(data_card)
-        main_layout.addSpacing(14)
+        main_layout.addStretch()
 
         self.apply_theme(True)
 
@@ -323,8 +315,8 @@ class AdministrationPage(QWidget):
 
         text_widget = QWidget()
         text_layout = QVBoxLayout(text_widget)
-        text_layout.setContentsMargins(0, 6, 0, 6)
-        text_layout.setSpacing(2)
+        text_layout.setContentsMargins(0, 3, 0, 3)
+        text_layout.setSpacing(1)
 
         title_label = QLabel(title)
         title_label.setObjectName("adminDataTitle")
@@ -341,13 +333,6 @@ class AdministrationPage(QWidget):
     def apply_theme(self, is_dark):
         if is_dark:
             self.setStyleSheet("""
-                QScrollArea#adminScrollArea { border:none; background:transparent; }
-                QScrollArea#adminScrollArea > QWidget > QWidget { background:transparent; }
-                QScrollBar:vertical { background:transparent; width:9px; margin:2px 1px; }
-                QScrollBar::handle:vertical { background:#40576b; min-height:28px; border-radius:4px; }
-                QScrollBar::handle:vertical:hover { background:#557187; }
-                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
-                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }
                 #adminAccentLabel { color:#46a3ff; font-size:13px; font-weight:800; }
                 #adminSummaryFrame { background:#0b1219; border:1px solid #40576b; border-radius:9px; }
                 #adminSummaryValue, #adminSummaryActive, #adminSummaryInactive { color:#ffffff; font-size:24px; font-weight:850; }
@@ -386,13 +371,6 @@ class AdministrationPage(QWidget):
             """)
         else:
             self.setStyleSheet("""
-                QScrollArea#adminScrollArea { border:none; background:transparent; }
-                QScrollArea#adminScrollArea > QWidget > QWidget { background:transparent; }
-                QScrollBar:vertical { background:transparent; width:9px; margin:2px 1px; }
-                QScrollBar::handle:vertical { background:#aebdcb; min-height:28px; border-radius:4px; }
-                QScrollBar::handle:vertical:hover { background:#91a6b8; }
-                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height:0; }
-                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background:transparent; }
                 #adminAccentLabel { color:#1d70d6; font-size:13px; font-weight:800; }
                 #adminSummaryFrame { background:#ffffff; border:1px solid #9fb0c1; border-radius:9px; }
                 #adminSummaryValue { color:#152333; font-size:24px; font-weight:850; }
