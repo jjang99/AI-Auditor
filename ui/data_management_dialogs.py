@@ -10,7 +10,7 @@ class DeleteConfirmDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setModal(True)
-        self.setFixedSize(520, 330)
+        self.setFixedSize(540, 350)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
@@ -23,7 +23,7 @@ class DeleteConfirmDialog(QDialog):
 
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(26, 22, 26, 22)
-        layout.setSpacing(10)
+        layout.setSpacing(11)
 
         header = QHBoxLayout()
         title_label = QLabel(title)
@@ -46,8 +46,8 @@ class DeleteConfirmDialog(QDialog):
         impact_frame = QFrame()
         impact_frame.setObjectName("deleteConfirmImpact")
         impact_layout = QVBoxLayout(impact_frame)
-        impact_layout.setContentsMargins(14, 10, 14, 10)
-        impact_layout.setSpacing(4)
+        impact_layout.setContentsMargins(14, 11, 14, 11)
+        impact_layout.setSpacing(5)
         for line in impact_lines:
             label = QLabel(line)
             label.setObjectName("deleteConfirmImpactText")
@@ -61,15 +61,16 @@ class DeleteConfirmDialog(QDialog):
         layout.addStretch()
 
         buttons = QHBoxLayout()
+        buttons.setSpacing(10)
         buttons.addStretch()
         cancel = QPushButton("취소")
         cancel.setObjectName("deleteConfirmCancel")
-        cancel.setFixedSize(100, 38)
+        cancel.setFixedSize(105, 40)
         cancel.setCursor(Qt.PointingHandCursor)
         cancel.clicked.connect(self.reject)
         confirm = QPushButton(confirm_text)
         confirm.setObjectName("deleteConfirmDelete")
-        confirm.setFixedSize(110, 38)
+        confirm.setFixedSize(112, 40)
         confirm.setCursor(Qt.PointingHandCursor)
         confirm.clicked.connect(self.accept)
         buttons.addWidget(cancel)
@@ -84,31 +85,31 @@ class DeleteConfirmDialog(QDialog):
         if is_dark:
             self.setStyleSheet("""
                 #deleteConfirmPanel { background:#101f2c; border:1px solid #64748b; border-radius:12px; }
-                #deleteConfirmTitle { color:#ffffff; font-size:21px; font-weight:850; }
+                #deleteConfirmTitle { color:#ffffff; font-size:22px; font-weight:850; }
                 #deleteConfirmClose { color:#ffffff; background:transparent; border:none; font-size:24px; }
                 #deleteConfirmClose:hover { background:#1d3142; border-radius:6px; }
-                #deleteConfirmMessage { color:#e7edf4; font-size:13px; font-weight:700; }
+                #deleteConfirmMessage { color:#f8fafc; font-size:14px; font-weight:750; }
                 #deleteConfirmImpact { background:#142635; border:1px solid #40586c; border-radius:8px; }
-                #deleteConfirmImpactText { color:#ffffff; font-size:12px; font-weight:750; }
-                #deleteConfirmWarning { color:#ff8d82; font-size:12px; font-weight:850; }
-                #deleteConfirmCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:7px; font-size:12px; font-weight:800; }
+                #deleteConfirmImpactText { color:#ffffff; font-size:13px; font-weight:800; }
+                #deleteConfirmWarning { color:#ff8d82; font-size:13px; font-weight:900; }
+                #deleteConfirmCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:7px; font-size:13px; font-weight:800; }
                 #deleteConfirmCancel:hover { background:#30495f; }
-                #deleteConfirmDelete { color:#ffffff; background:#b42318; border:none; border-radius:7px; font-size:12px; font-weight:850; }
+                #deleteConfirmDelete { color:#ffffff; background:#b42318; border:none; border-radius:7px; font-size:13px; font-weight:900; }
                 #deleteConfirmDelete:hover { background:#d92d20; }
             """)
         else:
             self.setStyleSheet("""
                 #deleteConfirmPanel { background:#ffffff; border:1px solid #a8b6c7; border-radius:12px; }
-                #deleteConfirmTitle { color:#0b1220; font-size:21px; font-weight:850; }
+                #deleteConfirmTitle { color:#0b1220; font-size:22px; font-weight:850; }
                 #deleteConfirmClose { color:#0f172a; background:transparent; border:none; font-size:24px; }
                 #deleteConfirmClose:hover { background:#eef2f6; border-radius:6px; }
-                #deleteConfirmMessage { color:#172033; font-size:13px; font-weight:700; }
+                #deleteConfirmMessage { color:#111827; font-size:14px; font-weight:750; }
                 #deleteConfirmImpact { background:#f8fafc; border:1px solid #bdcad8; border-radius:8px; }
-                #deleteConfirmImpactText { color:#0b1220; font-size:12px; font-weight:750; }
-                #deleteConfirmWarning { color:#b42318; font-size:12px; font-weight:850; }
-                #deleteConfirmCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:12px; font-weight:800; }
+                #deleteConfirmImpactText { color:#0b1220; font-size:13px; font-weight:800; }
+                #deleteConfirmWarning { color:#b42318; font-size:13px; font-weight:900; }
+                #deleteConfirmCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:13px; font-weight:800; }
                 #deleteConfirmCancel:hover { background:#dce5ee; }
-                #deleteConfirmDelete { color:#ffffff; background:#b42318; border:none; border-radius:7px; font-size:12px; font-weight:850; }
+                #deleteConfirmDelete { color:#ffffff; background:#b42318; border:none; border-radius:7px; font-size:13px; font-weight:900; }
                 #deleteConfirmDelete:hover { background:#d92d20; }
             """)
 
@@ -120,7 +121,7 @@ class ProjectManagementDialog(QDialog):
         self.delete_callback = delete_callback
         self.setWindowTitle("프로젝트 관리")
         self.setModal(True)
-        self.setFixedSize(680, 470)
+        self.setFixedSize(700, 490)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
@@ -132,7 +133,7 @@ class ProjectManagementDialog(QDialog):
 
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(26, 20, 26, 20)
-        layout.setSpacing(10)
+        layout.setSpacing(11)
 
         header = QHBoxLayout()
         title = QLabel("프로젝트 관리")
@@ -169,7 +170,7 @@ class ProjectManagementDialog(QDialog):
 
         close = QPushButton("닫기")
         close.setObjectName("projectManageCancel")
-        close.setFixedSize(110, 38)
+        close.setFixedSize(112, 40)
         close.setCursor(Qt.PointingHandCursor)
         close.clicked.connect(self.reject)
         button_row = QHBoxLayout()
@@ -197,7 +198,7 @@ class ProjectManagementDialog(QDialog):
         for project in self.projects:
             row = QFrame()
             row.setObjectName("projectManageRow")
-            row.setFixedHeight(68)
+            row.setFixedHeight(76)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(14, 8, 12, 8)
             row_layout.setSpacing(10)
@@ -205,7 +206,7 @@ class ProjectManagementDialog(QDialog):
             text_widget = QWidget()
             text_layout = QVBoxLayout(text_widget)
             text_layout.setContentsMargins(0, 0, 0, 0)
-            text_layout.setSpacing(2)
+            text_layout.setSpacing(3)
             name = QLabel(project.get("project_name") or "-")
             name.setObjectName("projectManageName")
             meta = QLabel(
@@ -219,7 +220,7 @@ class ProjectManagementDialog(QDialog):
 
             delete_button = QPushButton("삭제")
             delete_button.setObjectName("projectManageDelete")
-            delete_button.setFixedSize(72, 32)
+            delete_button.setFixedSize(74, 34)
             delete_button.setCursor(Qt.PointingHandCursor)
             delete_button.clicked.connect(
                 lambda checked=False, p=dict(project): self.delete_project(p)
@@ -248,16 +249,16 @@ class ProjectManagementDialog(QDialog):
                 #projectManageTitle { color:#ffffff; font-size:22px; font-weight:850; }
                 #projectManageClose { color:#ffffff; background:transparent; border:none; font-size:24px; }
                 #projectManageClose:hover { background:#1d3142; border-radius:6px; }
-                #projectManageDescription { color:#d6e0ea; font-size:12px; font-weight:700; }
+                #projectManageDescription { color:#f8fafc; font-size:14px; font-weight:750; }
                 #projectManageRow { background:#142635; border:1px solid #40586c; border-radius:8px; }
                 #projectManageRow:hover { background:#182d3e; border-color:#638099; }
-                #projectManageName { color:#ffffff; font-size:13px; font-weight:850; }
-                #projectManageMeta { color:#b9c7d4; font-size:11px; font-weight:650; }
-                #projectManageDelete { color:#ffdddd; background:#4a2222; border:1px solid #8f4141; border-radius:6px; font-size:12px; font-weight:850; }
-                #projectManageDelete:hover { background:#672929; }
-                #projectManageCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:7px; font-size:12px; font-weight:800; }
+                #projectManageName { color:#ffffff; font-size:14px; font-weight:900; }
+                #projectManageMeta { color:#d6e0ea; font-size:13px; font-weight:750; }
+                #projectManageDelete { color:#ffffff; background:#b42318; border:none; border-radius:6px; font-size:13px; font-weight:900; }
+                #projectManageDelete:hover { background:#d92d20; }
+                #projectManageCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:7px; font-size:13px; font-weight:800; }
                 #projectManageCancel:hover { background:#30495f; }
-                #projectManageEmpty { color:#b9c7d4; font-size:13px; font-weight:700; }
+                #projectManageEmpty { color:#d6e0ea; font-size:14px; font-weight:750; }
                 #projectManageScroll { background:transparent; border:none; }
                 #projectManageScroll QWidget { background:transparent; }
                 #projectManageScroll QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
@@ -271,16 +272,16 @@ class ProjectManagementDialog(QDialog):
                 #projectManageTitle { color:#0b1220; font-size:22px; font-weight:850; }
                 #projectManageClose { color:#0f172a; background:transparent; border:none; font-size:24px; }
                 #projectManageClose:hover { background:#eef2f6; border-radius:6px; }
-                #projectManageDescription { color:#263548; font-size:12px; font-weight:700; }
+                #projectManageDescription { color:#111827; font-size:14px; font-weight:750; }
                 #projectManageRow { background:#ffffff; border:1px solid #bdcad8; border-radius:8px; }
                 #projectManageRow:hover { background:#f8fafc; border-color:#8197ad; }
-                #projectManageName { color:#0b1220; font-size:13px; font-weight:850; }
-                #projectManageMeta { color:#5e7186; font-size:11px; font-weight:650; }
-                #projectManageDelete { color:#b42318; background:#fff1f0; border:1px solid #e3a19a; border-radius:6px; font-size:12px; font-weight:850; }
-                #projectManageDelete:hover { background:#ffe4e1; }
-                #projectManageCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:12px; font-weight:800; }
+                #projectManageName { color:#0b1220; font-size:14px; font-weight:900; }
+                #projectManageMeta { color:#334155; font-size:13px; font-weight:750; }
+                #projectManageDelete { color:#ffffff; background:#b42318; border:none; border-radius:6px; font-size:13px; font-weight:900; }
+                #projectManageDelete:hover { background:#d92d20; }
+                #projectManageCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:13px; font-weight:800; }
                 #projectManageCancel:hover { background:#dce5ee; }
-                #projectManageEmpty { color:#5e7186; font-size:13px; font-weight:700; }
+                #projectManageEmpty { color:#334155; font-size:14px; font-weight:750; }
                 #projectManageScroll { background:transparent; border:none; }
                 #projectManageScroll QWidget { background:transparent; }
                 #projectManageScroll QScrollBar:vertical { background:transparent; width:8px; margin:2px; }
