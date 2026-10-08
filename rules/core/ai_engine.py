@@ -164,6 +164,29 @@ class DocumentAIEngine:
         # 추출한 요구사항명/내용/설명이다. ID는 비교 점수에서 제외한다.
         return " ".join(part for part in parts[1:] if part)
 
+    @staticmethod
+    def _requirement_name_text(text: str) -> str:
+        """비교 후보 선별용 요구사항명을 보수적으로 정규화한다."""
+        import re
+
+        parts = [part.strip() for part in text.split("|")[1:] if part.strip()]
+        if not parts:
+            return ""
+
+        name = re.sub(r"[^가-힣a-z0-9]+", "", parts[0].lower())
+        # 실제 감리에서 '요구사항명 중복'이 반복 확인되므로, 같은 핵심 명칭인데
+        # 끝의 일반 기능어만 다른 경우도 최종 AI 비교 후보로 보낸다.
+        generic_suffixes = ("기능", "서비스", "처리", "관리", "지원", "제공")
+        changed = True
+        while changed and name:
+            changed = False
+            for suffix in generic_suffixes:
+                if name.endswith(suffix) and len(name) > len(suffix) + 1:
+                    name = name[: -len(suffix)]
+                    changed = True
+                    break
+        return name
+
     @classmethod
     def _build_comparison_pairs(
         cls,
@@ -171,12 +194,11 @@ class DocumentAIEngine:
         *,
         rule_code: str = "REQ-002",
     ) -> tuple[tuple[str, str], ...]:
-        """확정적으로 선별 가능한 비교 후보만 만든다.
+        """비교형 Rule의 안전한 사전 후보를 만든다.
 
-        임의 임계값/상위 N개 제한으로 검사 범위를 잘라내지 않는다.
-        REQ-002는 정규화 후 의미 텍스트가 동일한 경우만 확정 후보로 만든다.
-        REQ-004는 현재 평탄화된 XLSX 행만으로 상충 후보를 안전하게 사전선별할
-        근거가 없으므로 추정 후보를 만들지 않는다.
+        REQ-002는 완전 동일 문구뿐 아니라 동일/유사 요구사항명 아래 세부내용이
+        달라진 경우도 후보로 만든 뒤, 실제 의미 중복 여부는 AI가 최종 판정한다.
+        REQ-004는 동일 대상명 아래 서로 다른 조건·내용만 후보로 만든다.
         """
         import re
 
@@ -185,19 +207,29 @@ class DocumentAIEngine:
             return re.sub(r"[^가-힣a-z0-9]+", "", semantic)
 
         if rule_code == "REQ-002":
-            groups: dict[str, list[str]] = {}
+            groups: dict[tuple[str, str], list[str]] = {}
             for item in evidence:
-                key = normalized(item)
-                if key:
-                    groups.setdefault(key, []).append(item)
+                full_key = normalized(item)
+                name_key = cls._requirement_name_text(item)
+                if full_key:
+                    groups.setdefault(("full", full_key), []).append(item)
+                if name_key:
+                    groups.setdefault(("name", name_key), []).append(item)
 
             pairs = []
+            seen_pairs = set()
             for items in groups.values():
                 if len(items) < 2:
                     continue
                 for left_index in range(len(items)):
                     for right_index in range(left_index + 1, len(items)):
-                        pairs.append((items[left_index], items[right_index]))
+                        left = items[left_index]
+                        right = items[right_index]
+                        pair_key = tuple(sorted((left, right)))
+                        if pair_key in seen_pairs:
+                            continue
+                        seen_pairs.add(pair_key)
+                        pairs.append((left, right))
             return tuple(pairs)
 
         if rule_code == "REQ-004":
@@ -246,7 +278,7 @@ class DocumentAIEngine:
 
         terms = []
         for value in (rule.name, rule.description, *rule.check_points):
-            for term in re.split(r"[\\s·/,()]+", str(value)):
+            for term in re.split(r"[\s·/,()]+", str(value)):
                 normalized = term.strip("[]{}.,:;'\"")
                 if len(normalized) >= 2 and normalized not in terms:
                     terms.append(normalized)
@@ -366,4 +398,3 @@ class DocumentAIEngine:
             results.append(result)
 
         return tuple(results)
-    
