@@ -18,67 +18,92 @@
 - 5단계 제품 통합 / Local AI / Severity / 감리 개선판정 — 완료
 - Inspection 실행 UX 보완 — 완료
 - 6단계 Administration 데이터 관리 — 완료
+- 최종 EXE 안정화 — 완료
 
-**1~6단계는 새 결함이 없는 한 다시 구현하거나 재설계하지 않는다.**
+**1~6단계와 최종 EXE 안정화는 새 결함이 없는 한 다시 구현하거나 재설계하지 않는다.**
 
 ---
 
 # 2. 최종 검사체계
 
-Full Rule Catalog:
+Full Rule Catalog 105개:
 - AUD 24
 - REQ 28
 - CHG 18
 - FP 12
 - AI 23
-- 합계 105
 
-MVP 실제 실행:
+MVP 실제 실행 20개:
 - AUD 4
 - REQ 6
 - CHG 4
 - FP 2
 - AI 4
-- 합계 20
 
 실행방식:
 - Rule 3
 - AI 6
 - Hybrid 11
 
----
-
-# 3. 문서 Parser
-
-지원 9종:
-- DOCX / DOC
-- XLSX / XLS
-- PDF
-- PPTX / PPT
-- HWPX / HWP
-
-공통 구조:
-`원본 문서 → Parser → ParsedDocument / DocumentBlock → DocumentInspectionEngine`
-
-OCR 기반 스캔 PDF는 현재 MVP 제외.
+Full Catalog 105개와 MVP 실제 실행 20개는 서로 다른 개념으로 관리한다.
 
 ---
 
-# 4. Local AI / Severity
+# 3. 최종 EXE 안정화 기준 — 2026-10-08 완료
 
-기본 모델:
-- Qwen3-4B Q4_K_M
+최종 배포 구조:
+- `dist/AI_Auditor/AI_Auditor.exe`
+- `dist/AI_Auditor/runtime/llama.cpp/llama-server.exe`
+- `dist/AI_Auditor/models/Qwen3-4B-Q4_K_M.gguf`
+- `dist/AI_Auditor/data/ai_auditor.db`
 
-Runtime:
+확인 완료:
+- PyInstaller onedir 최신 EXE 빌드 정상
+- 최신 EXE 실행 정상
+- SQLite 외부 DB 경로 정상
+- Local AI runtime/model 외부 경로 정상
+- 인터넷 차단 상태에서 DOCX 1개 + REQ-003 Local AI 검사 정상 완료
+- 폐쇄망 독립 실행 가능 확인
+- Project Detail Export: DOCX / XLSX / TXT 정상
+- Reports Export: Project Detail과 동일한 DOCX / XLSX / TXT 정상
+- Export 결과에 최신 판정정보 반영
+  - Impact / 근거
+  - Likelihood / 근거
+  - Severity / 판정근거
+  - 개선권고유형
+  - 개선시점
+  - 중요 여부
+  - 카테고리
+- Administration 데이터 관리 정상
+- 검사 예외 발생 시 빈 오류창 대신 `오류 유형 + 상세 내용` 표시하도록 보완
+- 오류 진단 전용 테스트 정상
+- 전체 `python -m pytest -q` 사용자 PC 정상 PASS
+- 로컬 Git 상태 `## main...origin/main` clean 확인
+
+참고:
+- 다수 실제 문서 + MVP 20개 전체 검사에서 한 차례 예외가 있었으나, 인터넷 차단 상태의 단일 DOCX + REQ-003 검사는 정상 완료되어 폐쇄망 Local AI 자체 문제는 아님을 확인했다.
+- 향후 동일 예외 재현 시 새 오류 진단 메시지로 원인을 특정한다.
+
+---
+
+# 4. Export 최종 기준
+
+지원:
+- DOCX
+- XLSX
+- TXT
+
+Project Detail과 Reports는 동일한 최종 보고서 모델을 사용한다.
+HWPX Export는 MVP에서 제외한다.
+
+---
+
+# 5. Local AI / Severity 기준
+
+기본 Local AI:
+- Qwen3-4B GGUF Q4_K_M
 - llama.cpp b11312
-
-설정:
 - reasoning off
-- temp 0.7
-- top-p 0.8
-- top-k 20
-- min-p 0
-- seed 42
 
 AI 역할:
 - Impact
@@ -87,192 +112,33 @@ AI 역할:
 - Likelihood Reason
 
 최종 Severity:
-- deterministic Matrix 계산
-- AI가 직접 결정하지 않음
+`Impact × Likelihood → deterministic Severity Matrix`
 
-감리 개선판정:
-- 필수 / 협의 / 권고
-- 단기 / 장기
-- O / -
-- Severity와 독립
+AI가 최종 Severity를 직접 결정하지 않는다.
+
+감리 개선판정은 Severity와 별도 관리한다.
+- 개선권고유형: 필수 / 협의 / 권고
+- 개선시점: 단기 / 장기
+- 중요 여부: O / -
 - CHG-001은 비적용(NULL)
 
 ---
 
-# 5. 최신 실제 Inspection 기준
+# 6. Administration 데이터 관리 기준
 
-Project: `tawga`
-- Inspection ID: 40
-- Score: 95
-- Grade: A
-- Issues: 7
-- Critical 0
-- High 0
-- Medium 4
-- Low 3
-
-Grade:
-- A 90+
-- B 80+
-- C 70+
-- D 60+
-- E 0~59
-
-F는 사용하지 않는다.
-
----
-
-# 6. Export
-
-지원:
-- DOCX
-- XLSX
-- TXT
-
-HWPX:
-- MVP 제외
-- 다시 임의 복원/재실험하지 않음
-
----
-
-# 7. Inspection 실행 UX 확정
-
-- 예상 검사시간 표시
-- 현재 Rule/단계 표시
-- 완료 Rule 수 / Progress Bar 표시
-- 예상 남은시간 표시
-- Local AI 실행 중 취소 지원
-- 취소 시 UI thread block 없음
-- 취소 후 프로젝트명 / 파일 / 검사기준 유지
-- 취소 결과 DB 미저장
-- 취소 후 재검사 가능
-
-사용자 화면 확인 완료.
-
----
-
-# 8. Stage 6 Administration 데이터 관리 — 완료
-
-Administration 최종 구성:
-1. 검사 기준 관리
-2. 환경 설정
-3. 데이터 관리
-
-## 전체 검사 이력 정리
-
-기능:
-- 모든 Issue 삭제
-- 모든 Inspection 삭제
-- Project 정보 유지
-
-Modal 표시:
-- 프로젝트 정보: N개 (유지)
-- 검사 이력: N건 (삭제)
-- 이슈: N건 (삭제)
-- 복구 불가 경고
-
-DB 삭제순서:
+전체 검사 이력 정리:
 `Issues → Inspections`
+- Project 유지
 
-## 프로젝트 관리
-
-목록 표시:
-- 프로젝트명
-- 부서
-- 검사 이력 수
-- 이슈 수
-
-Project 삭제 시:
+프로젝트 삭제:
 `Issues → Inspections → Project`
 
-다른 Project 데이터는 유지.
-
-## UI 최종 기준
-
-- Administration 메인 화면은 한 화면 구조 유지
-- 데이터 관리 카드 내부 간격 사용자 확인 완료
-- Project Management Modal 글자/카드 밀도 사용자 확인 완료
-- Dark / Light Delete 버튼 시인성 수정 완료
-- 전체 검사 이력 정리 Modal 크기/폰트 사용자 확인 완료
-
-Danger 계층:
-- `정리`: 낮은 강조 Danger
-- `관리`: 기본 버튼
-- 목록 `삭제`: Outline Danger
-- 최종 `정리 실행 / 프로젝트 삭제`: Filled Danger
+모든 삭제는 transaction으로 처리하고 오류 시 rollback한다.
+실제 DB 검증 완료.
 
 ---
 
-# 9. Stage 6 실제 DB 검증
-
-## 프로젝트 삭제
-
-실제 DB에 삭제전용 임시 데이터 생성:
-- Project 1
-- Inspection 1
-- Issue 1
-
-UI에서 Project 삭제 실행 후 확인:
-- Project 0
-- orphan Inspection 0
-- orphan Issue 0
-
-따라서 Project + 연결 Inspection + Issue 삭제 정상.
-
-## 전체 검사 이력 정리
-
-원본 DB 백업 후 실제 실행.
-
-확인:
-- Project 기존 수 유지
-- Inspection 0
-- Issue 0
-
-검증 후 백업 DB 원복 완료.
-기존 정상 데이터 복원 확인 완료.
-
----
-
-# 10. Stage 6 자동테스트
-
-파일:
-`tests/test_data_management_repository.py`
-
-검증항목:
-- 전체 데이터 summary
-- Project 관리 목록 impact count
-- 전체 검사 이력 삭제 시 Project 유지
-- Project delete impact
-- 선택 Project tree 삭제
-- 없는 Project 삭제 안전성
-
-Targeted 결과:
-- 6 passed
-
-전체 회귀:
-- `python -m pytest -q`
-- 사용자 PC에서 정상 PASS
-- 실패 0건
-
----
-
-# 11. 주요 Stage 6 코드
-
-- `app/database/repositories/data_management_repository.py`
-- `ui/data_management_dialogs.py`
-- `ui/administration_page.py`
-- `tests/test_data_management_repository.py`
-
-Repository API:
-- `get_data_management_summary()`
-- `get_projects_with_delete_impact()`
-- `get_project_delete_impact(project_id)`
-- `delete_all_inspection_history()`
-- `delete_project_with_history(project_id)`
-
----
-
-# 12. 절대 되돌리지 말아야 할 사항
+# 7. 절대 되돌리지 말아야 할 사항
 
 - 2026-09-18 UI Freeze 전체 방향
 - Project Detail 정렬 QComboBox
@@ -284,25 +150,30 @@ Repository API:
 - Qwen3-4B Q4_K_M 기본 Local AI
 - Inspection 취소 후 입력상태 유지 + DB 미저장
 - Stage 6 데이터 삭제 정책
-- `프로젝트 정보: N개 (유지)` 문구
-- 실제 비가역 실행 버튼만 Filled Danger
+- Project Detail / Reports Export 3종 통일
+- 검사 오류는 빈 Modal이 아니라 오류 유형/상세내용 표시
 
 ---
 
-# 13. 다음 작업
+# 8. 다음 단계 — 감리결과서 기반 실무 검증
 
-다음은 **최종 배포/제출 마감 단계**이다.
+최종 EXE 안정화 다음 작업은 감리결과서 분석이다.
 
-순서:
-1. GitHub main / 로컬 working tree 동기화 확인
-2. 최신 PyInstaller EXE 재빌드
-3. SQLite 외부 data 경로 확인
-4. 아이콘/리소스 포함 확인
-5. Qwen3-4B / llama.cpp runtime/model 포함 구조 확인
-6. 인터넷 차단/폐쇄망 독립 실행 검증
-7. EXE에서 실제 Inspection 1회
-8. DB 저장/조회 확인
-9. DOCX / XLSX / TXT Export 확인
-10. 제출용 폴더 및 산출물 정리
+핵심 원칙:
+- 감리결과서를 MVP 20개에만 매핑하지 않는다.
+- 확보한 감리결과서의 지적사항을 추출·중복제거·일반화한 뒤 **Full Rule Catalog 105개 전체와 매핑**한다.
+- 이 매핑 결과는 현재 MVP 20개 검증뿐 아니라 향후 미구현 85개 Rule의 구현 우선순위와 실무 근거로 재사용한다.
+- 향후 85개 구현 때 감리결과서를 처음부터 다시 분석하지 않는다.
+- 105개 어디에도 대응되지 않는 반복적·중요 지적유형은 106번 이후 신규 Rule 후보로 관리한다.
 
-**다음 세션에서 6단계를 다시 시작하지 않는다.**
+진행 순서:
+1. 감리결과서 지적사항 추출
+2. 유사 지적 통합 / 중복 제거 / 일반화
+3. 감리 지적유형 ↔ 105개 전체 Rule 매핑
+4. MVP 20개 구현여부 / 미구현 85개 / 신규 Rule 후보 분류
+5. 실제 감리 사례로 현재 MVP 20개 검증
+6. 해커톤 최종 문서화·제출
+7. 제출 후 나머지 85개 Rule을 우선순위에 따라 순차 구현
+8. 105개 전체 통합 검증
+
+**다음 세션에서 최종 EXE 안정화를 다시 처음부터 반복하지 않는다.**
