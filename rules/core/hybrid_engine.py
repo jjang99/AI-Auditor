@@ -157,6 +157,10 @@ class DocumentHybridEngine:
             r"\d+(?:\.\d+)?\s*(?:ms|초|분|시간|%|건|회|명|tps|gb|mb|tb)?",
             re.IGNORECASE,
         )
+        requirement_id_pattern = re.compile(
+            r"\b[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*\b",
+            re.IGNORECASE,
+        )
 
         evidence: list[str] = []
         seen = set()
@@ -181,7 +185,8 @@ class DocumentHybridEngine:
                 for term in quantitative_terms
                 if term.lower() in text.lower()
             ]
-            if matched_metrics and not numeric_pattern.search(text):
+            numeric_text = requirement_id_pattern.sub("", text)
+            if matched_metrics and not numeric_pattern.search(numeric_text):
                 reasons.append(
                     f"정량기준 누락 가능성({', '.join(dict.fromkeys(matched_metrics))})"
                 )
