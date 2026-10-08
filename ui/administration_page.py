@@ -97,7 +97,7 @@ class AdministrationPage(QWidget):
 
         header = QFrame()
         header.setObjectName("adminRulesHeader")
-        header.setFixedHeight(36)
+        header.setFixedHeight(38)
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(14, 0, 12, 0)
         header_layout.setSpacing(8)
@@ -132,7 +132,7 @@ class AdministrationPage(QWidget):
         for name, total, active, inactive, icon_file in categories:
             row = QFrame()
             row.setObjectName("adminCategoryRow")
-            row.setFixedHeight(50)
+            row.setFixedHeight(54)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(14, 0, 12, 0)
             row_layout.setSpacing(8)
@@ -168,7 +168,7 @@ class AdministrationPage(QWidget):
 
             view = QPushButton("보기")
             view.setObjectName("adminViewButton")
-            view.setFixedSize(58, 30)
+            view.setFixedSize(58, 32)
             view.setCursor(Qt.PointingHandCursor)
             view.clicked.connect(
                 lambda checked=False, n=name, t=total, a=active, i=inactive, icon_name=icon_file:
@@ -182,7 +182,7 @@ class AdministrationPage(QWidget):
         note = QLabel("ⓘ  카테고리별 전체/활성/비활성 규칙 현황을 실시간으로 반영합니다.")
         note.setObjectName("adminNote")
         rules_layout.addWidget(note)
-        rules_card.setFixedHeight(365)
+        rules_card.setFixedHeight(390)
         main_layout.addWidget(rules_card)
         main_layout.addSpacing(8)
 
@@ -208,13 +208,13 @@ class AdministrationPage(QWidget):
         self.ai_model_combo.setFixedSize(210, 32)
         self.ai_model_combo.addItem("Qwen3-4B (기본)", "qwen3-4b-q4_k_m")
         self.ai_model_combo.setToolTip("AI Auditor에서 검증된 로컬 AI 모델을 선택합니다.")
-        body_layout.addLayout(self.setting_row("로컬 AI 모델", self.ai_model_combo, 36))
+        body_layout.addLayout(self.setting_row("로컬 AI 모델", self.ai_model_combo, 38))
 
         save_logs = self.create_toggle(True)
-        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 36))
+        body_layout.addLayout(self.setting_row("로그 저장", save_logs, 38))
 
         settings_layout.addWidget(settings_body)
-        settings_card.setFixedHeight(130)
+        settings_card.setFixedHeight(140)
         main_layout.addWidget(settings_card)
         main_layout.addSpacing(8)
 
@@ -252,7 +252,7 @@ class AdministrationPage(QWidget):
 
         self.clear_history_button = QPushButton("정리")
         self.clear_history_button.setObjectName("adminDangerButton")
-        self.clear_history_button.setFixedSize(74, 30)
+        self.clear_history_button.setFixedSize(74, 32)
         self.clear_history_button.setCursor(Qt.PointingHandCursor)
         data_body_layout.addLayout(
             self.data_management_row(
@@ -269,7 +269,7 @@ class AdministrationPage(QWidget):
 
         self.manage_projects_button = QPushButton("관리")
         self.manage_projects_button.setObjectName("adminManageButton")
-        self.manage_projects_button.setFixedSize(74, 30)
+        self.manage_projects_button.setFixedSize(74, 32)
         self.manage_projects_button.setCursor(Qt.PointingHandCursor)
         data_body_layout.addLayout(
             self.data_management_row(
@@ -280,7 +280,7 @@ class AdministrationPage(QWidget):
         )
 
         data_layout.addWidget(data_body)
-        data_card.setFixedHeight(164)
+        data_card.setFixedHeight(185)
         main_layout.addWidget(data_card)
         main_layout.addStretch()
 
