@@ -232,12 +232,12 @@ class AdministrationPage(QWidget):
         data_title = QLabel("3. 데이터 관리")
         data_title.setObjectName("adminSectionTitle")
         data_layout.addWidget(data_title)
-        data_layout.addSpacing(4)
+        data_layout.addSpacing(1)
 
         self.data_summary_label = QLabel()
         self.data_summary_label.setObjectName("adminDataSummary")
         data_layout.addWidget(self.data_summary_label)
-        data_layout.addSpacing(4)
+        data_layout.addSpacing(8)
 
         data_body = QFrame()
         data_body.setObjectName("adminDataBody")
@@ -258,10 +258,12 @@ class AdministrationPage(QWidget):
             )
         )
 
+        data_body_layout.addSpacing(4)
         divider = QFrame()
         divider.setObjectName("adminDataDivider")
         divider.setFixedHeight(1)
         data_body_layout.addWidget(divider)
+        data_body_layout.addSpacing(4)
 
         self.manage_projects_button = QPushButton("관리")
         self.manage_projects_button.setObjectName("adminManageButton")
