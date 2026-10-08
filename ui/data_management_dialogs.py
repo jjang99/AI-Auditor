@@ -49,7 +49,10 @@ class DeleteConfirmDialog(QDialog):
         impact_layout.setContentsMargins(14, 9, 14, 9)
         impact_layout.setSpacing(4)
         for line in impact_lines:
-            label = QLabel(line)
+            display_line = line
+            if title == "전체 검사 이력 정리" and line.startswith("프로젝트:"):
+                display_line = line.replace("프로젝트:", "프로젝트 정보:", 1)
+            label = QLabel(display_line)
             label.setObjectName("deleteConfirmImpactText")
             impact_layout.addWidget(label)
         layout.addWidget(impact_frame)
@@ -163,7 +166,7 @@ class ProjectManagementDialog(QDialog):
         content.setObjectName("projectManageContent")
         self.list_layout = QVBoxLayout(content)
         self.list_layout.setContentsMargins(0, 0, 0, 0)
-        self.list_layout.setSpacing(8)
+        self.list_layout.setSpacing(5)
         self.refresh_rows()
         scroll.setWidget(content)
         layout.addWidget(scroll, 1)
@@ -198,15 +201,15 @@ class ProjectManagementDialog(QDialog):
         for project in self.projects:
             row = QFrame()
             row.setObjectName("projectManageRow")
-            row.setFixedHeight(76)
+            row.setFixedHeight(66)
             row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(14, 8, 12, 8)
+            row_layout.setContentsMargins(14, 5, 12, 5)
             row_layout.setSpacing(10)
 
             text_widget = QWidget()
             text_layout = QVBoxLayout(text_widget)
             text_layout.setContentsMargins(0, 0, 0, 0)
-            text_layout.setSpacing(3)
+            text_layout.setSpacing(1)
             name = QLabel(project.get("project_name") or "-")
             name.setObjectName("projectManageName")
             meta = QLabel(
@@ -220,7 +223,7 @@ class ProjectManagementDialog(QDialog):
 
             delete_button = QPushButton("삭제")
             delete_button.setObjectName("projectManageDelete")
-            delete_button.setFixedSize(78, 36)
+            delete_button.setFixedSize(76, 34)
             delete_button.setCursor(Qt.PointingHandCursor)
             delete_button.clicked.connect(
                 lambda checked=False, p=dict(project): self.delete_project(p)
@@ -252,8 +255,8 @@ class ProjectManagementDialog(QDialog):
                 #projectManageDescription { color:#f8fafc; font-size:14px; font-weight:750; }
                 #projectManageRow { background:#142635; border:1px solid #40586c; border-radius:8px; }
                 #projectManageRow:hover { background:#182d3e; border-color:#638099; }
-                #projectManageName { color:#ffffff; font-size:14px; font-weight:900; }
-                #projectManageMeta { color:#d6e0ea; font-size:13px; font-weight:750; }
+                #projectManageName { color:#ffffff; font-size:15px; font-weight:900; }
+                #projectManageMeta { color:#e2e8f0; font-size:14px; font-weight:780; }
                 QPushButton#projectManageDelete { color:#ff9b91; background:transparent; border:1px solid #d92d20; border-radius:6px; font-size:13px; font-weight:900; }
                 QPushButton#projectManageDelete:hover { color:#ffffff; background:#b42318; border-color:#b42318; }
                 #projectManageCancel { color:#ffffff; background:#253b4f; border:1px solid #3a5369; border-radius:7px; font-size:13px; font-weight:800; }
@@ -274,8 +277,8 @@ class ProjectManagementDialog(QDialog):
                 #projectManageDescription { color:#111827; font-size:14px; font-weight:750; }
                 #projectManageRow { background:#ffffff; border:1px solid #bdcad8; border-radius:8px; }
                 #projectManageRow:hover { background:#f8fafc; border-color:#8197ad; }
-                #projectManageName { color:#0b1220; font-size:14px; font-weight:900; }
-                #projectManageMeta { color:#334155; font-size:13px; font-weight:750; }
+                #projectManageName { color:#0b1220; font-size:15px; font-weight:900; }
+                #projectManageMeta { color:#263548; font-size:14px; font-weight:780; }
                 QPushButton#projectManageDelete { color:#b42318; background:#ffffff; border:1px solid #d92d20; border-radius:6px; font-size:13px; font-weight:900; }
                 QPushButton#projectManageDelete:hover { color:#ffffff; background:#b42318; border-color:#b42318; }
                 #projectManageCancel { color:#0f172a; background:#e7edf4; border:1px solid #bdc9d6; border-radius:7px; font-size:13px; font-weight:800; }
