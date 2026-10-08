@@ -39,9 +39,6 @@ def _estimate_inspection_seconds(file_paths, rules):
             pass
 
     total_mb = total_bytes / (1024 * 1024)
-
-    # CPU 기반 Qwen3-4B의 문서별 AI/Hybrid 호출이 대부분의 시간을 차지한다.
-    # 실제 시간은 문서 길이와 생성 토큰 수에 따라 달라지므로 보수적인 근사치로 표시한다.
     seconds = (
         15
         + deterministic_count * 0.5
@@ -103,8 +100,6 @@ class _ExecutionTracker:
         self._emit(text)
 
     def rule_started(self, rule):
-        # InspectionService는 Rule 방식 검사를 AI/Hybrid보다 먼저 수행한다.
-        # 첫 AI 호출 시점에는 deterministic Rule이 이미 끝난 상태다.
         if not self._ai_started:
             self.completed_codes.update(self._deterministic_codes)
             self._ai_started = True
@@ -174,7 +169,14 @@ class InspectionExecutionWorker(QObject):
     cancelled = Signal()
     progress = Signal(int, int, str)
 
-    def __init__(self, file_paths, project_id, inspection_type, rules, use_local_ai=False):
+    def __init__(
+        self,
+        file_paths,
+        project_id,
+        inspection_type,
+        rules,
+        use_local_ai=False,
+    ):
         super().__init__()
         self.file_paths = list(file_paths)
         self.project_id = project_id
@@ -186,8 +188,6 @@ class InspectionExecutionWorker(QObject):
 
     def request_cancel(self):
         self._cancel_requested = True
-        # 현재 llama.cpp HTTP 호출이 끝날 때까지 기다리지 않도록
-        # AI Auditor가 기동한 로컬 서버를 종료해 진행 중 요청을 즉시 끊는다.
         try:
             get_local_ai_runtime().stop()
         except Exception:
@@ -207,8 +207,8 @@ class InspectionExecutionWorker(QObject):
             self._raise_if_cancelled()
 
             if self.use_local_ai:
-                local_ai_runtime = get_local_ai_runtime()
-                local_ai_runtime.start()
+                runtime = get_local_ai_runtime()
+                runtime.start()
                 self._raise_if_cancelled()
                 ai_provider = _ProgressLlamaCppAIProvider(
                     self._tracker,
@@ -226,9 +226,7 @@ class InspectionExecutionWorker(QObject):
             else:
                 service = InspectionService(rules=self.rules)
 
-            # 취소된 검사가 DB에 남지 않도록 Service에서는 저장하지 않고,
-            # 모든 검사가 정상 완료된 뒟 Worker가 마지막에 한 벘이만 저장한다.
-            _unused_id, summary = service.run(
+            _inspection_id, summary = service.run(
                 self.file_paths,
                 project_id=None,
                 inspection_type=self.inspection_type,
@@ -251,7 +249,7 @@ class InspectionExecutionWorker(QObject):
                 summary,
                 time.perf_counter() - started,
             )
-      except InspectionCancelled:
+        except InspectionCancelled:
             self.cancelled.emit()
         except Exception as exc:
             if self._cancel_requested:
@@ -273,7 +271,7 @@ def apply_inspection_execution_patch(InspectionPage):
     original_cancelled = InspectionPage._inspection_cancelled
     original_failed = InspectionPage._inspection_failed
 
-    def _update_estimate_summary(self):
+    def update_estimate_summary(self):
         rules = list(self._selected_executable_rules())
         estimate = _estimate_inspection_seconds(
             getattr(self, "selected_files", []),
@@ -281,12 +279,12 @@ def apply_inspection_execution_patch(InspectionPage):
         )
         self._inspection_estimated_seconds = estimate
 
-        summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
-        summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
-        if len(summary_values) > 2:
-            summary_values[2].setText(_format_summary_duration(estimate))
-        if len(summary_details) > 2:
-            summary_details[2].setText(
+        values = self.findChildren(QLabel, "inspectionSummaryValue")
+        details = self.findChildren(QLabel, "inspectionSummaryDetail")
+        if len(values) > 2:
+            values[2].setText(_format_summary_duration(estimate))
+        if len(details) > 2:
+            details[2].setText(
                 "(Local AI 기준 추정)" if estimate else "(파일 등록 후 계산)"
             )
 
@@ -297,8 +295,6 @@ def apply_inspection_execution_patch(InspectionPage):
         self._inspection_completed_rules = 0
         self._inspection_total_rules = 0
 
-        # 사용자가 요첬한 그대로 좌츠 '…/퍼센트' 영역을 없애고
-        # Progress Bar가 그 공간까지 사용하게 한다.
         percent = getattr(self, "runtime_progress_percent", None)
         if percent is not None:
             percent.hide()
@@ -313,40 +309,35 @@ def apply_inspection_execution_patch(InspectionPage):
         self._execution_progress_timer = QTimer(self)
         self._execution_progress_timer.setInterval(500)
         self._execution_progress_timer.timeout.connect(
-            lambda: self._tick_execution_progress()
-         )
-        _update_estimate_summary(self)
+            self._tick_execution_progress
+        )
+        update_estimate_summary(self)
 
     def patched_refresh_rule_summary(self):
         original_refresh_rule_summary(self)
-        _update_estimate_summary(self)
+        update_estimate_summary(self)
 
     def set_progress_state(self, status):
         total = len(self._selected_executable_rules())
         self._inspection_completed_rules = 0
         self._inspection_total_rules = total
-        if getattr(self, "runtime_progress_bar", None) is not None:
-            self.runtime_progress_bar.setRange(0, 100)
-            self.runtime_progress_bar.setValue(0)
-        if getattr(self, "runtime_progress_count", None) is not None:
-            self.runtime_progress_count.setText(f"0 / {total}개")
-        if getattr(self, "runtime_progress_rule", None) is not None:
-            self.runtime_progress_rule.setText("검사 준비 중")
-        if getattr(self, "runtime_progress_time", None) is not None:
-            self.runtime_progress_time.setText(
-                _format_remaining_duration(
-                    getattr(self, "_inspection_estimated_seconds", 0)
-                )
+
+        self.runtime_progress_bar.setRange(0, 100)
+        self.runtime_progress_bar.setValue(0)
+        self.runtime_progress_count.setText(f"0 / {total}개")
+        self.runtime_progress_rule.setText("검사 준비 중")
+        self.runtime_progress_time.setText(
+            _format_remaining_duration(
+                getattr(self, "_inspection_estimated_seconds", 0)
             )
-        if getattr(self, "runtime_progress_status", None) is not None:
-            self.runtime_progress_status.setText(status)
+        )
+        self.runtime_progress_status.setText(status)
 
     def on_execution_progress(self, completed, total, current):
         self._inspection_completed_rules = completed
         self._inspection_total_rules = total
-        if getattr(self, "runtime_progress_count", None) is not None:
-            self.runtime_progress_count.setText(f"{completed} / {total}개")
-        if getattr(self, "runtime_progress_rule", None) is not None and current:
+        self.runtime_progress_count.setText(f"{completed} / {total}개")
+        if current:
             self.runtime_progress_rule.setText(current)
         self._tick_execution_progress()
 
@@ -355,7 +346,10 @@ def apply_inspection_execution_patch(InspectionPage):
             return
 
         elapsed = max(0.0, time.perf_counter() - self._inspection_started_at)
-        estimate = max(1.0, float(self._inspection_estimated_seconds or 1))
+        estimate = max(
+            1.0,
+            float(getattr(self, "_inspection_estimated_seconds", 0) or 1),
+        )
         total = max(1, self._inspection_total_rules)
         completed = min(self._inspection_completed_rules, total)
 
@@ -363,15 +357,11 @@ def apply_inspection_execution_patch(InspectionPage):
         rule_percent = min(95.0, (completed / total) * 100.0)
         percent = int(max(time_percent, rule_percent))
 
-        if getattr(self, "runtime_progress_bar", None) is not None:
-            self.runtime_progress_bar.setRange(0, 100)
-            self.runtime_progress_bar.setValue(percent)
-
-        remaining = estimate - elapsed
-        if getattr(self, "runtime_progress_time", None) is not None:
-            self.runtime_progress_time.setText(
-                _format_remaining_duration(remaining)
-            )
+        self.runtime_progress_bar.setRange(0, 100)
+        self.runtime_progress_bar.setValue(percent)
+        self.runtime_progress_time.setText(
+            _format_remaining_duration(estimate - elapsed)
+        )
 
     def patched_start_real_inspection(self):
         rules = list(self._selected_executable_rules())
@@ -402,49 +392,45 @@ def apply_inspection_execution_patch(InspectionPage):
         if worker is None or thread is None:
             return
 
-        if getattr(self, "runtime_progress_status", None) is not None:
-            self.runtime_progress_status.setText("검사 취소 중")
-        if getattr(self, "runtime_progress_rule", None) is not None:
-            self.runtime_progress_rule.setText("현재 작업 중단 중")
+        self.runtime_progress_status.setText("검사 취소 중")
+        self.runtime_progress_rule.setText("현재 작업 중단 중")
 
-        cancel_button = self.progress_card.findChild(
+        button = self.progress_card.findChild(
             QPushButton,
             "inspectionCancelButton",
         )
-        if cancel_button is not None:
-            cancel_button.setEnabled(False)
-            cancel_button.setText("취소 중...")
+        if button is not None:
+            button.setEnabled(False)
+            button.setText("취소 중...")
 
         worker.request_cancel()
 
-    def _reset_execution_ui(self):
+    def reset_execution_ui(self):
         self._execution_progress_timer.stop()
         self._inspection_started_at = None
-        cancel_button = self.progress_card.findChild(
+        button = self.progress_card.findChild(
             QPushButton,
             "inspectionCancelButton",
         )
-        if cancel_button is not None:
-            cancel_button.setEnabled(True)
-            cancel_button.setText("검사 취소")
+        if button is not None:
+            button.setEnabled(True)
+            button.setText("검사 취소")
 
     def patched_success(self, inspection_id, summary, elapsed):
-        if getattr(self, "runtime_progress_bar", None) is not None:
-            self.runtime_progress_bar.setRange(0, 100)
-            self.runtime_progress_bar.setValue(100)
-        if getattr(self, "runtime_progress_count", None) is not None:
-            self.runtime_progress_count.setText(
-                f"{summary.rule_count} / {summary.rule_count}개"
-            )
-        _reset_execution_ui(self)
+        self.runtime_progress_bar.setRange(0, 100)
+        self.runtime_progress_bar.setValue(100)
+        self.runtime_progress_count.setText(
+            f"{summary.rule_count} / {summary.rule_count}개"
+        )
+        reset_execution_ui(self)
         original_success(self, inspection_id, summary, elapsed)
 
     def patched_cancelled(self):
-        _reset_execution_ui(self)
+        reset_execution_ui(self)
         original_cancelled(self)
 
     def patched_failed(self, message):
-        _reset_execution_ui(self)
+        reset_execution_ui(self)
         original_failed(self, message)
 
     InspectionPage.__init__ = patched_init
