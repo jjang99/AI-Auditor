@@ -1,4 +1,5 @@
 import math
+import threading
 import time
 from pathlib import Path
 
@@ -184,14 +185,25 @@ class InspectionExecutionWorker(QObject):
         self.rules = list(rules)
         self.use_local_ai = use_local_ai
         self._cancel_requested = False
+        self._cancel_runtime_thread = None
         self._tracker = _ExecutionTracker(self.rules, self.progress.emit)
 
     def request_cancel(self):
+        if self._cancel_requested:
+            return
+
         self._cancel_requested = True
-        try:
-            get_local_ai_runtime().stop()
-        except Exception:
-            pass
+
+        # UI 스레드에서 LocalAIRuntimeManager.stop()을 직접 호출하면
+        # process.wait() 동안 창이 '응답 없음'으로 보일 수 있다.
+        # 별도 daemon thread에서 llama.cpp를 종료해 UI는 즉시 반응하게 한다.
+        runtime = get_local_ai_runtime()
+        self._cancel_runtime_thread = threading.Thread(
+            target=runtime.stop,
+            name="ai-auditor-cancel-local-ai",
+            daemon=True,
+        )
+        self._cancel_runtime_thread.start()
 
     def is_cancel_requested(self):
         return self._cancel_requested
