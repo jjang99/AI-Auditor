@@ -1104,3 +1104,20 @@ Inspection ID 40:
 
 최종 전체 자동검증:
 `166 passed, 51 subtests passed in 2.80s`
+---
+
+## 2026-10-08 Inspection Runtime 보완
+
+이번 변경은 MVP Rule 정의나 Severity/감리 개선판정 기준 변경이 아니라 실행 Runtime/UX 보완이다.
+
+실행 흐름:
+`파일/Rule 선택 → 예상시간 계산 → 검사 실행 → 현재 Rule/진행률/남은시간 표시 → 정상 완료 시 DB 저장`
+
+취소 흐름:
+`검사 취소 요청 → cancel flag 설정 → Local AI runtime 비동기 종료 → 검사 중단 → DB 미저장 → 기존 입력/파일/Rule 선택상태 유지`
+
+확정 원칙:
+- 정상 완료된 검사만 DB 저장
+- 취소된 검사는 결과 저장 금지
+- Local AI 중단 과정에서 UI thread block 금지
+- Rule/Severity/감리판정 기존 확정 로직은 변경하지 않음
