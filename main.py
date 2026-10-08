@@ -15,6 +15,8 @@ from ui.project_detail_page import ProjectDetailPage
 from ui.project_detail_status_patch import apply_project_detail_status_patch
 from ui.project_detail_audit_badge_patch import apply_project_detail_audit_badge_patch
 from ui.project_detail_export_patch import apply_project_detail_export_patch
+from ui.reports_page import ReportsPage
+from ui.reports_export_patch import apply_reports_export_patch
 
 
 initialize_database()
@@ -26,6 +28,7 @@ apply_inspection_cancel_state_patch(InspectionPage)
 apply_project_detail_status_patch(ProjectDetailPage)
 apply_project_detail_audit_badge_patch(ProjectDetailPage, MainWindow)
 apply_project_detail_export_patch(ProjectDetailPage)
+apply_reports_export_patch(ReportsPage)
 
 app = QApplication(sys.argv)
 
