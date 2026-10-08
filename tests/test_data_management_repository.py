@@ -96,6 +96,22 @@ class DataManagementRepositoryTests(unittest.TestCase):
             {"projects": 2, "inspections": 2, "issues": 2},
         )
 
+    def test_projects_with_delete_impact_returns_project_counts(self):
+        projects = repository.get_projects_with_delete_impact()
+
+        self.assertEqual(len(projects), 2)
+        by_id = {project["project_id"]: project for project in projects}
+
+        self.assertEqual(by_id[1]["project_name"], "Project A")
+        self.assertEqual(by_id[1]["department"], "Dept A")
+        self.assertEqual(by_id[1]["inspections"], 1)
+        self.assertEqual(by_id[1]["issues"], 1)
+
+        self.assertEqual(by_id[2]["project_name"], "Project B")
+        self.assertEqual(by_id[2]["department"], "Dept B")
+        self.assertEqual(by_id[2]["inspections"], 1)
+        self.assertEqual(by_id[2]["issues"], 1)
+
     def test_delete_all_inspection_history_preserves_projects(self):
         result = repository.delete_all_inspection_history()
 
