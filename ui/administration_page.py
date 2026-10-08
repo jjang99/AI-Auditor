@@ -3,14 +3,19 @@ import os
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QComboBox, QFrame, QHBoxLayout, QLabel,
+    QComboBox, QDialog, QFrame, QHBoxLayout, QLabel,
     QPushButton, QVBoxLayout, QWidget,
 )
 
 from ui.sidebar import Sidebar
 from ui.administration_rules_dialog import AdministrationRulesDialog
+from ui.data_management_dialogs import DeleteConfirmDialog, ProjectManagementDialog
 from app.database.repositories.data_management_repository import (
+    delete_all_inspection_history,
+    delete_project_with_history,
     get_data_management_summary,
+    get_project_delete_impact,
+    get_projects_with_delete_impact,
 )
 from rules.definitions.document_rule_catalog import (
     get_document_rule_categories,
@@ -229,17 +234,7 @@ class AdministrationPage(QWidget):
         data_layout.addWidget(data_title)
         data_layout.addSpacing(4)
 
-        try:
-            data_summary = get_data_management_summary()
-        except Exception:
-            data_summary = {"projects": 0, "inspections": 0, "issues": 0}
-
-        self.data_summary_label = QLabel(
-            "현재 데이터  ·  "
-            f"프로젝트 {data_summary['projects']}개  /  "
-            f"검사 이력 {data_summary['inspections']}건  /  "
-            f"이슈 {data_summary['issues']}건"
-        )
+        self.data_summary_label = QLabel()
         self.data_summary_label.setObjectName("adminDataSummary")
         data_layout.addWidget(self.data_summary_label)
         data_layout.addSpacing(4)
@@ -254,6 +249,7 @@ class AdministrationPage(QWidget):
         self.clear_history_button.setObjectName("adminDangerButton")
         self.clear_history_button.setFixedSize(74, 32)
         self.clear_history_button.setCursor(Qt.PointingHandCursor)
+        self.clear_history_button.clicked.connect(self.confirm_clear_history)
         data_body_layout.addLayout(
             self.data_management_row(
                 "전체 검사 이력 정리",
@@ -271,6 +267,7 @@ class AdministrationPage(QWidget):
         self.manage_projects_button.setObjectName("adminManageButton")
         self.manage_projects_button.setFixedSize(74, 32)
         self.manage_projects_button.setCursor(Qt.PointingHandCursor)
+        self.manage_projects_button.clicked.connect(self.open_project_management)
         data_body_layout.addLayout(
             self.data_management_row(
                 "프로젝트 관리",
@@ -284,6 +281,7 @@ class AdministrationPage(QWidget):
         main_layout.addWidget(data_card)
         main_layout.addStretch()
 
+        self.refresh_data_summary()
         self.apply_theme(True)
 
     def create_toggle(self, checked):
@@ -329,6 +327,85 @@ class AdministrationPage(QWidget):
         row.addWidget(text_widget, 1)
         row.addWidget(button, 0, Qt.AlignVCenter)
         return row
+
+    def refresh_data_summary(self):
+        try:
+            summary = get_data_management_summary()
+        except Exception:
+            summary = {"projects": 0, "inspections": 0, "issues": 0}
+        self.data_summary_label.setText(
+            "현재 데이터  ·  "
+            f"프로젝트 {summary['projects']}개  /  "
+            f"검사 이력 {summary['inspections']}건  /  "
+            f"이슈 {summary['issues']}건"
+        )
+
+    def confirm_clear_history(self):
+        try:
+            summary = get_data_management_summary()
+        except Exception:
+            return
+
+        dialog = DeleteConfirmDialog(
+            "전체 검사 이력 정리",
+            "모든 검사 이력과 이슈를 삭제합니다. 프로젝트 정보는 유지됩니다.",
+            [
+                f"프로젝트: {summary['projects']}개 (유지)",
+                f"검사 이력: {summary['inspections']}건 (삭제)",
+                f"이슈: {summary['issues']}건 (삭제)",
+            ],
+            confirm_text="정리 실행",
+            parent=self,
+        )
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        delete_all_inspection_history()
+        self.refresh_data_summary()
+
+    def open_project_management(self):
+        try:
+            projects = get_projects_with_delete_impact()
+        except Exception:
+            projects = []
+
+        dialog = ProjectManagementDialog(
+            projects=projects,
+            delete_callback=self.confirm_delete_project,
+            parent=self,
+        )
+        dialog.exec()
+        self.refresh_data_summary()
+
+    def confirm_delete_project(self, project):
+        project_id = project.get("project_id")
+        if project_id is None:
+            return False
+
+        impact = get_project_delete_impact(project_id)
+        if impact is None:
+            return False
+
+        dialog = DeleteConfirmDialog(
+            "프로젝트 삭제",
+            f"'{impact['project_name']}' 프로젝트와 연결된 데이터를 함께 삭제합니다.",
+            [
+                f"프로젝트: {impact['project_name']}",
+                f"검사 이력: {impact['inspections']}건",
+                f"이슈: {impact['issues']}건",
+            ],
+            confirm_text="프로젝트 삭제",
+            parent=self,
+        )
+        if dialog.exec() != QDialog.Accepted:
+            return False
+
+        result = delete_project_with_history(project_id)
+        if result is None:
+            return False
+
+        self.refresh_data_summary()
+        return True
 
     def apply_theme(self, is_dark):
         if is_dark:
