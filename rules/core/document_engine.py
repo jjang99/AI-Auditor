@@ -6,6 +6,7 @@ from rules.core.deliverable_baseline import (
     deliverable_matches_file,
     derive_required_deliverables,
 )
+from rules.core.fp_calculator import find_fp_mismatches
 from rules.core.models import (
     DocumentRule,
     DocumentRuleIssue,
@@ -255,9 +256,39 @@ class DocumentRuleEngine:
         document: ParsedDocument,
         rule: DocumentRule,
     ) -> tuple[DocumentRuleIssue, ...]:
-        """FP-009 FP 산정값 재계산 검증."""
+        """FP-009 FP 산정값 재계산 검증.
+
+        실제 XLS/XLSX FP 산정표에서는 기능유형 + 복잡도 또는 RET/FTR·DET +
+        기능개수 + 보고 FP를 이용해 재계산한다. 기존 한 줄 덧셈 산식 검증은
+        호환용으로 유지한다.
+        """
         issues: list[DocumentRuleIssue] = []
 
+        # 1) 실제 FP 표 구조 기반 재계산
+        for mismatch in find_fp_mismatches(document):
+            issues.append(
+                DocumentRuleIssue(
+                    rule_code=rule.code,
+                    rule_name=rule.name,
+                    category=rule.category,
+                    severity=rule.severity,
+                    file_path=str(document.file_path),
+                    block_type="sheet_row",
+                    evidence=(
+                        "FP 산정값 불일치: "
+                        f"{mismatch.function_type}/{mismatch.complexity}, "
+                        f"기능개수 {mismatch.count:g}, "
+                        f"보고값 {mismatch.reported_fp:g} FP, "
+                        f"재계산 결과 {mismatch.calculated_fp:g} FP "
+                        f"(근거: {mismatch.basis})"
+                    ),
+                    description=rule.description,
+                    location=mismatch.location,
+                    sheet=mismatch.sheet,
+                )
+            )
+
+        # 2) 기존 텍스트 한 줄 산식 검증도 유지
         fp_expression_pattern = re.compile(
             r"(?:총\s*)?FP\s*[:=]?\s*"
             r"((?:\d+(?:\.\d+)?\s*\+\s*)+\d+(?:\.\d+)?)"
