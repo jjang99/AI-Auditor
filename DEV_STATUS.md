@@ -13,7 +13,9 @@
 - 6단계 Administration 데이터 관리 — 완료
 - 최종 EXE 안정화 — 완료
 - 감리결과서 114개 분석 / 105개 전체 Rule 실무 매핑 — 완료
-- 다음 단계: MVP 20개 실제 감리사례 실증검증 → 해커톤 제출 문서화
+- MVP 20개 실제 감리사례 실증검증 — 완료
+- 우선 보완 5개 구현 및 전체 회귀검증 — 완료
+- 다음 단계: 해커톤 제출용 최종 문서화·정리
 
 ---
 
@@ -151,7 +153,6 @@ HWPX Export는 MVP에서 제외한다.
 - 검사 예외 발생 시 빈 오류창 대신 오류 유형/상세내용 표시
 - 오류진단 targeted test 정상
 - 전체 `python -m pytest -q` 정상 PASS
-- Git working tree clean 확인
 
 ## 참고 이슈
 
@@ -229,12 +230,54 @@ P1:
 
 ---
 
+# MVP 20개 실제 감리사례 실증검증 — 2026-10-09 완료
+
+Canonical 문서:
+- `MVP20_AUDIT_VALIDATION.md`
+
+1차 검증에서 실제 감리사례보다 구현범위가 좁아 `보완필요`로 확인된 5개:
+- AUD-001
+- REQ-002
+- REQ-003
+- REQ-009
+- FP-009
+
+보완 완료:
+- AUD-001: 산출물목록 우선 + 테일러링 제외/미적용 + 시기미도래 제외 + 실제 업로드 파일 비교
+- REQ-002: 동일문구 중심에서 요구사항명/의미 유사 후보까지 비교 확장
+- REQ-003: 정량목표·횟수·조건 누락 및 협의 후 확정형 모호성 후보 확장
+- REQ-009: 요구사항 문서 ↔ 화면/인터페이스/데이터/프로그램/아키텍처 등 복수 설계 산출물 교차검증 추가
+- FP-009: 기존 한 줄 산식 + XLS/XLSX 구조형 FP 행 재계산 추가
+
+신규/보완 구현:
+- `rules/core/deliverable_baseline.py`
+- `rules/core/requirement_design_alignment.py`
+- `rules/core/fp_calculator.py`
+- `rules/core/document_engine.py`
+- `rules/core/ai_engine.py`
+- `rules/core/hybrid_engine.py`
+- `app/services/inspection_service.py`
+
+회귀검증:
+- 실제 감리사례 형태의 targeted regression 추가
+- AUD-001 / REQ-002 / REQ-003 / REQ-009 / FP-009 개별 검증 정상
+- 기존 AI/Hybrid/MVP 통합 테스트 정상
+- 최종 `python -m pytest -q` 사용자 PC 실패 0건 확인
+
+남은 정밀보완 후보는 제출 차단 결함으로 보지 않는다.
+- REQ-001 적용 문서/ID 범위
+- REQ-018 완전한 역방향 추적
+- CHG-001 서로 다른 산출물 간 변경근거 연결
+- AI-009/019/022 관리체계 부재검사
+- AUD-002 구조형 빈 셀/필수열 검증
+
+---
+
 ## 다음 작업
 
-1. 현재 MVP 20개를 실제 감리사례 기준으로 최종 실증검증
-2. 해커톤 제출용 최종 문서화·정리
-3. 신규 Rule 후보는 사용자 검토 후 추가 여부 결정
-4. 제출 후 나머지 85개 Rule을 `AUDIT_EVIDENCE_MAPPING.md`의 P1 → P2 → P3 → P4 순서를 기본으로 구현
-5. 105개 전체 통합 검증
+1. 해커톤 제출용 최종 문서화·정리
+2. 신규 Rule 후보는 사용자 검토 후 추가 여부 결정
+3. 제출 후 나머지 85개 Rule을 `AUDIT_EVIDENCE_MAPPING.md`의 P1 → P2 → P3 → P4 순서를 기본으로 구현
+4. 105개 전체 통합 검증
 
-감리결과서 114개 분석은 완료 상태이므로 다음 작업에서 처음부터 반복하지 않는다.
+감리결과서 114개 분석과 MVP 20개 실증검증은 완료 상태이므로 다음 작업에서 처음부터 반복하지 않는다.
