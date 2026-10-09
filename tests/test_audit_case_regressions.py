@@ -4,6 +4,10 @@ from app.parsers.models import DocumentBlock, ParsedDocument
 from rules.core.ai_engine import DocumentAIEngine
 from rules.core.document_engine import DocumentRuleEngine
 from rules.core.hybrid_engine import DocumentHybridEngine
+from rules.core.requirement_design_alignment import (
+    build_requirement_design_batches,
+    build_requirement_design_cases,
+)
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
 
 
@@ -178,3 +182,141 @@ def test_aud001_without_baseline_does_not_invent_standard_deliverables():
     issues = engine.inspect_documents([document])
 
     assert issues == ()
+
+
+def test_req009_builds_cross_document_case_from_requirement_and_design_files():
+    requirement = ParsedDocument(
+        file_path=Path("PRJ-REQ-01-요구사항기술서_v1.0.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text=(
+                    "SFR-101 사용자는 신청 상세화면에서 첨부파일을 조회하고 "
+                    "다운로드할 수 있어야 한다."
+                ),
+                location="문단 12",
+            ),
+        ),
+    )
+    screen_design = ParsedDocument(
+        file_path=Path("PRJ-UI-01-화면설계서_v1.0.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text=(
+                    "SFR-101 | 신청 상세화면 | 첨부파일 목록 조회 버튼과 "
+                    "다운로드 기능을 제공한다."
+                ),
+                location="화면 UI-031",
+            ),
+        ),
+    )
+
+    cases = build_requirement_design_cases([requirement, screen_design])
+
+    assert len(cases) == 1
+    assert cases[0].requirement_id == "SFR-101"
+    assert cases[0].requirement_source == requirement.file_path.name
+    assert len(cases[0].design_evidence) == 1
+    assert "화면설계서" in cases[0].design_evidence[0]
+    assert "SFR-101" in cases[0].design_evidence[0]
+
+
+def test_req009_prefers_direct_requirement_id_over_loose_keyword_match():
+    requirement = ParsedDocument(
+        file_path=Path("요구사항정의서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text="SFR-202 사용자는 회원 탈퇴 신청을 취소할 수 있어야 한다.",
+            ),
+        ),
+    )
+    direct_design = ParsedDocument(
+        file_path=Path("화면설계서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text="SFR-202 | 회원 탈퇴 신청 취소 버튼 및 확인 팝업을 정의한다.",
+            ),
+            DocumentBlock(
+                block_type="paragraph",
+                text="회원 신청 화면에서 사용자 정보 조회 및 취소 안내를 제공한다.",
+            ),
+        ),
+    )
+
+    cases = build_requirement_design_cases([requirement, direct_design])
+
+    assert len(cases) == 1
+    assert cases[0].design_evidence
+    assert "SFR-202" in cases[0].design_evidence[0]
+
+
+def test_req009_does_not_invent_missing_design_issue_without_linkable_evidence():
+    requirement = ParsedDocument(
+        file_path=Path("요구사항기술서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text="SFR-303 모바일 인증 실패 시 별도 복구절차를 제공한다.",
+            ),
+        ),
+    )
+    unrelated_design = ParsedDocument(
+        file_path=Path("인터페이스설계서.docx"),
+        file_type="docx",
+        blocks=(
+            DocumentBlock(
+                block_type="paragraph",
+                text="IF-001 기관코드 조회 인터페이스의 요청/응답 항목을 정의한다.",
+            ),
+        ),
+    )
+
+    cases = build_requirement_design_cases([requirement, unrelated_design])
+    batches = build_requirement_design_batches([requirement, unrelated_design])
+
+    assert cases == ()
+    assert batches == ()
+
+
+def test_req009_batches_preserve_requirement_and_design_source_names():
+    requirement = ParsedDocument(
+        file_path=Path("요구사항추적표.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="SFR-404 | 대시보드 통계 조회 | 조건별 통계 조회 기능 제공",
+                sheet="기능요구사항",
+                location="기능요구사항 / 행 8",
+            ),
+        ),
+    )
+    program_design = ParsedDocument(
+        file_path=Path("프로그램설계서.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            DocumentBlock(
+                block_type="sheet_row",
+                text="SFR-404 | PRG-0404 | 대시보드 조건별 통계 조회 처리",
+                sheet="프로그램",
+                location="프로그램 / 행 14",
+            ),
+        ),
+    )
+
+    batches = build_requirement_design_batches([requirement, program_design])
+
+    assert len(batches) == 1
+    assert batches[0].case_count == 1
+    combined = "\n".join(batches[0].evidence)
+    assert "요구사항추적표.xlsx" in combined
+    assert "프로그램설계서.xlsx" in combined
+    assert "SFR-404" in combined
