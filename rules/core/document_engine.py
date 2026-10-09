@@ -1,6 +1,11 @@
 import re
 
 from app.parsers.models import ParsedDocument
+from rules.core.deliverable_baseline import (
+    DeliverableRequirement,
+    deliverable_matches_file,
+    derive_required_deliverables,
+)
 from rules.core.models import (
     DocumentRule,
     DocumentRuleIssue,
@@ -32,6 +37,8 @@ class DocumentRuleEngine:
             and rule.execution_type == RuleExecutionType.RULE
         ]
 
+        # 외부에서 명시적으로 전달한 목록은 기존 호환용/테스트용으로 유지한다.
+        # 실제 제품 경로에서는 업로드된 산출물목록/테일러링 대비표에서 자동 도출한다.
         self.required_deliverables = required_deliverables or []
 
     def inspect_document(
@@ -73,6 +80,30 @@ class DocumentRuleEngine:
 
         return tuple(issues)
 
+    def _aud_001_baseline(
+        self,
+        documents: list[ParsedDocument],
+    ) -> tuple[DeliverableRequirement, ...]:
+        """AUD-001의 필수 산출물 기준을 결정한다.
+
+        우선순위:
+        1. 테스트/외부 호출에서 명시한 required_deliverables
+        2. 실제 업로드된 산출물목록/테일러링 대비표
+
+        기준문서를 찾지 못하면 임의 표준목록을 만들지 않는다.
+        """
+        if self.required_deliverables:
+            return tuple(
+                DeliverableRequirement(
+                    name=deliverable,
+                    source_file="explicit_required_deliverables",
+                    source_kind="explicit",
+                )
+                for deliverable in self.required_deliverables
+            )
+
+        return derive_required_deliverables(documents)
+
     def _inspect_aud_001(
         self,
         documents: list[ParsedDocument],
@@ -80,33 +111,42 @@ class DocumentRuleEngine:
     ) -> tuple[DocumentRuleIssue, ...]:
         """AUD-001 필수 산출물 누락 점검."""
         issues: list[DocumentRuleIssue] = []
+        baseline = self._aud_001_baseline(documents)
 
-        uploaded_names = [
-            document.file_path.stem.lower()
-            for document in documents
-        ]
+        # 산출물목록/테일러링 대비표가 없고 외부 기준도 없으면
+        # 임의의 표준 산출물을 가정하지 않아 오탐을 방지한다.
+        if not baseline:
+            return ()
 
-        missing_deliverables = [
-            deliverable
-            for deliverable in self.required_deliverables
-            if not any(
-                deliverable.lower() in uploaded_name
-                for uploaded_name in uploaded_names
+        uploaded_paths = [document.file_path for document in documents]
+
+        for requirement in baseline:
+            if any(
+                deliverable_matches_file(requirement.name, uploaded_path)
+                for uploaded_path in uploaded_paths
+            ):
+                continue
+
+            source_name = (
+                requirement.source_file
+                if requirement.source_kind != "explicit"
+                else "명시적 필수 산출물 기준"
             )
-        ]
+            evidence = f"필수 산출물 누락: {requirement.name}"
+            if requirement.source_kind != "explicit":
+                evidence += f" (기준: {source_name})"
 
-        for deliverable in missing_deliverables:
             issues.append(
                 DocumentRuleIssue(
                     rule_code=rule.code,
                     rule_name=rule.name,
                     category=rule.category,
                     severity=rule.severity,
-                    file_path="",
+                    file_path=requirement.source_file,
                     block_type="document_set",
-                    evidence=f"필수 산출물 누락: {deliverable}",
+                    evidence=evidence,
                     description=rule.description,
-                    location=deliverable,
+                    location=requirement.location or requirement.name,
                 )
             )
 
