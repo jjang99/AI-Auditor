@@ -2,6 +2,7 @@ from pathlib import Path
 
 from app.parsers.models import DocumentBlock, ParsedDocument
 from rules.core.ai_engine import DocumentAIEngine
+from rules.core.document_engine import DocumentRuleEngine
 from rules.core.hybrid_engine import DocumentHybridEngine
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
 
@@ -94,3 +95,86 @@ def test_req003_detects_unresolved_agreement_expression():
 
     assert len(context.evidence) == 1
     assert "협의 후 확정" in context.evidence[0]
+
+
+def _xlsx_row(*values, row=1):
+    cell_values = tuple(values)
+    return DocumentBlock(
+        block_type="sheet_row",
+        text=" | ".join(value for value in cell_values if value),
+        sheet="산출물목록",
+        location=f"산출물목록 / 행 {row}",
+        metadata={"cell_values": cell_values, "row_index": row},
+    )
+
+
+def test_aud001_uses_uploaded_deliverable_list_as_project_baseline():
+    baseline = ParsedDocument(
+        file_path=Path("PRJ-PP-01-[별첨1]산출물목록_v1.0.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            _xlsx_row("산출물명", "적용여부", "작성상태", row=1),
+            _xlsx_row("요구사항정의서", "적용", "작성", row=2),
+            _xlsx_row("인터페이스정의서", "적용", "작성", row=3),
+            _xlsx_row("성능테스트결과서", "적용", "시기미도래", row=4),
+            _xlsx_row("레거시전환계획서", "미적용", "", row=5),
+        ),
+    )
+    uploaded = ParsedDocument(
+        file_path=Path("PRJ-R0303-01-요구사항정의서_v1.2.docx"),
+        file_type="docx",
+        blocks=(DocumentBlock(block_type="paragraph", text="REQ-001 로그인 기능"),),
+    )
+
+    engine = DocumentRuleEngine((_rule("AUD-001"),))
+    issues = engine.inspect_documents([baseline, uploaded])
+
+    assert len(issues) == 1
+    assert issues[0].rule_code == "AUD-001"
+    assert "인터페이스정의서" in issues[0].evidence
+    assert "성능테스트결과서" not in issues[0].evidence
+    assert "레거시전환계획서" not in issues[0].evidence
+    assert "산출물목록" in issues[0].evidence
+
+
+def test_aud001_passes_when_all_due_deliverables_exist():
+    baseline = ParsedDocument(
+        file_path=Path("산출물목록.xlsx"),
+        file_type="xlsx",
+        blocks=(
+            _xlsx_row("산출물명", "적용여부", row=1),
+            _xlsx_row("요구사항정의서", "적용", row=2),
+            _xlsx_row("인터페이스정의서", "적용", row=3),
+        ),
+    )
+    documents = [
+        baseline,
+        ParsedDocument(
+            file_path=Path("요구사항정의서_v1.0.docx"),
+            file_type="docx",
+            blocks=(DocumentBlock(block_type="paragraph", text="요구사항"),),
+        ),
+        ParsedDocument(
+            file_path=Path("ABC-A0201-인터페이스정의서-v2.0.xlsx"),
+            file_type="xlsx",
+            blocks=(_xlsx_row("ID", "내용", row=1),),
+        ),
+    ]
+
+    engine = DocumentRuleEngine((_rule("AUD-001"),))
+    issues = engine.inspect_documents(documents)
+
+    assert issues == ()
+
+
+def test_aud001_without_baseline_does_not_invent_standard_deliverables():
+    document = ParsedDocument(
+        file_path=Path("요구사항정의서.docx"),
+        file_type="docx",
+        blocks=(DocumentBlock(block_type="paragraph", text="REQ-001 로그인 기능"),),
+    )
+
+    engine = DocumentRuleEngine((_rule("AUD-001"),))
+    issues = engine.inspect_documents([document])
+
+    assert issues == ()
