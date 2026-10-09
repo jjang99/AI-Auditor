@@ -11,9 +11,10 @@ from rules.core.document_result_adapter import (
     adapt_document_issue,
 )
 from rules.core.inspection_engine import DocumentInspectionEngine
-from rules.core.ai_provider import AIInspectionResult
+from rules.core.ai_provider import AIInspectionContext, AIInspectionResult
 from rules.core.issue_assessor import DeferredIssueAssessor, apply_issue_assessments
 from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
+from rules.core.requirement_design_alignment import build_requirement_design_batches
 from rules.core.models import (
     DocumentRuleIssue,
     InspectionSummary,
@@ -161,10 +162,11 @@ class InspectionService:
                 for rule in self.rules
             }
 
-            # CHG-001/012는 개별 문서 자체를 검사하지 않는다.
-            # CHG-001은 아래에서 명시적인 동일 산출물 버전쌍을 비교하고,
+            # REQ-009/CHG-001/CHG-012는 개별 문서 자체를 검사하지 않는다.
+            # REQ-009는 아래에서 요구사항 문서와 설계 산출물을 교차 비교하고,
+            # CHG-001은 명시적인 동일 산출물 버전쌍을 비교하며,
             # CHG-012는 확인된 변경 + 시험자료가 있을 때 후처리한다.
-            hybrid_skip_codes = frozenset({"CHG-001", "CHG-012"})
+            hybrid_skip_codes = frozenset({"REQ-009", "CHG-001", "CHG-012"})
 
             for document in parsed_documents:
                 if cancel_requested is not None and cancel_requested():
@@ -188,6 +190,46 @@ class InspectionService:
                             result,
                             document,
                             rule,
+                        )
+                    )
+
+            # REQ-009: 요구사항 문서와 화면/인터페이스/데이터/프로그램 등
+            # 설계 산출물을 실제로 함께 입력받은 경우에만 교차검증한다.
+            # 연결 근거가 전혀 없는 경우는 REQ-009에서 즉시 미반영으로 단정하지 않고
+            # 추적성 계열 Rule의 판단영역으로 남긴다.
+            alignment_rule = rule_by_code.get("REQ-009")
+            if alignment_rule is not None:
+                alignment_batches = build_requirement_design_batches(parsed_documents)
+                for batch_index, batch in enumerate(alignment_batches, start=1):
+                    if cancel_requested is not None and cancel_requested():
+                        from rules.core.engine import InspectionCancelled
+                        raise InspectionCancelled("검사가 취소되었습니다.")
+
+                    alignment_document = ParsedDocument(
+                        file_path=Path(f"REQ-009-cross-document-{batch_index}.txt"),
+                        file_type="requirement_design_comparison",
+                        blocks=tuple(
+                            DocumentBlock(
+                                block_type="requirement_design_case",
+                                text=evidence,
+                            )
+                            for evidence in batch.evidence
+                        ),
+                        metadata={
+                            "source": "requirement_and_design_documents",
+                            "case_count": batch.case_count,
+                        },
+                    )
+                    alignment_result = self.ai_provider.inspect(
+                        alignment_document,
+                        alignment_rule,
+                        AIInspectionContext(evidence=batch.evidence),
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            alignment_result,
+                            alignment_document,
+                            alignment_rule,
                         )
                     )
 
