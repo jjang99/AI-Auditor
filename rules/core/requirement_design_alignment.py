@@ -67,6 +67,7 @@ class RequirementDesignCase:
 class RequirementDesignBatch:
     evidence: tuple[str, ...]
     case_count: int
+    source_file: str
 
 
 def _normalized_name(document: ParsedDocument) -> str:
@@ -224,6 +225,7 @@ def build_requirement_design_batches(
     current: list[str] = []
     current_case_count = 0
     current_chars = 0
+    current_source_file = ""
 
     for case in cases:
         header = (
@@ -241,16 +243,20 @@ def build_requirement_design_batches(
                 RequirementDesignBatch(
                     evidence=tuple(current),
                     case_count=current_case_count,
+                    source_file=current_source_file,
                 )
             )
             current = []
             current_case_count = 0
             current_chars = 0
+            current_source_file = ""
 
         # 한 사례가 매우 길더라도 요구사항+설계근거 연결구조는 유지하되 상한만 둔다.
         if len(case_text) > max_chars:
             case_text = case_text[:max_chars]
 
+        if not current_source_file:
+            current_source_file = case.requirement_source
         current.append(case_text)
         current_case_count += 1
         current_chars += len(case_text) + 1
@@ -260,6 +266,7 @@ def build_requirement_design_batches(
             RequirementDesignBatch(
                 evidence=tuple(current),
                 case_count=current_case_count,
+                source_file=current_source_file,
             )
         )
 
