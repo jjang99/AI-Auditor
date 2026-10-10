@@ -27,7 +27,7 @@ def get_p1_governance_rules() -> tuple[DocumentRule, ...]:
             category="감리 사전점검",
             execution_type=RuleExecutionType.HYBRID,
             severity="High",
-            description="계약·RFP·과업 의무사항의 반영 및 수행증적",
+            description="계약/RFP/과업의 계획·산출물 반영과 수행 증거",
             check_points=(
                 "명시적 의무/납품/수행 요구와 계획·산출물·수행근거의 연결",
                 "일반 설명문이 아니라 의무 표현이 있는 항목만 후보화",
@@ -40,7 +40,7 @@ def get_p1_governance_rules() -> tuple[DocumentRule, ...]:
             category="감리 사전점검",
             execution_type=RuleExecutionType.HYBRID,
             severity="High",
-            description="적용 법령·표준·가이드·지침의 준수근거",
+            description="적용 법령·지침·표준의 준수 여부와 증적",
             check_points=(
                 "문서에 적용대상으로 명시된 법령·표준·가이드·지침 후보",
                 "준수방안·점검·검증·적용결과 근거의 존재 여부",
