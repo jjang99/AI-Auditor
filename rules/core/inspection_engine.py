@@ -2,8 +2,8 @@ from app.parsers.models import ParsedDocument
 from rules.core.ai_engine import DocumentAIEngine
 from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
 from rules.core.models import DocumentRule, DocumentRuleIssue
-from rules.core.p1_audit_hybrid_engine import P1AuditHybridEngine
 from rules.core.p1_document_engine import P1DocumentRuleEngine
+from rules.core.p1_governance_hybrid_engine import P1GovernanceHybridEngine
 
 
 class DocumentInspectionEngine:
@@ -27,9 +27,10 @@ class DocumentInspectionEngine:
             ai_provider,
         )
 
-        # P1AuditHybridEngine은 P1RequirementHybridEngine → DocumentHybridEngine을
-        # 상속하므로 기존 Hybrid Rule + P1-B 동작을 유지하면서 P1-C만 확장한다.
-        self.hybrid_engine = P1AuditHybridEngine(
+        # P1GovernanceHybridEngine은
+        # P1AuditHybridEngine → P1RequirementHybridEngine → DocumentHybridEngine을
+        # 상속하므로 기존 Hybrid + P1-B/C 동작을 유지하면서 P1-D만 확장한다.
+        self.hybrid_engine = P1GovernanceHybridEngine(
             rules,
             ai_provider,
         )
