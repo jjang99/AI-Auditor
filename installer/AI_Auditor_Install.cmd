@@ -4,7 +4,9 @@ setlocal EnableExtensions
 for %%D in ("%~dp0.") do set "BASE=%%~fD"
 set "MSI=%BASE%\AI_Auditor_Setup.msi"
 set "MODEL=%BASE%\Qwen3-4B-Q4_K_M.gguf"
-set "TARGET_DIR=%LOCALAPPDATA%\Programs\AI Auditor\models"
+set "INSTALL_DIR=%LOCALAPPDATA%\Programs\AI Auditor"
+set "TARGET_EXE=%INSTALL_DIR%\AI_Auditor.exe"
+set "TARGET_DIR=%INSTALL_DIR%\models"
 set "TARGET_MODEL=%TARGET_DIR%\Qwen3-4B-Q4_K_M.gguf"
 
 if not exist "%MSI%" (
@@ -19,13 +21,23 @@ if not exist "%MODEL%" (
     exit /b 2
 )
 
-echo [1/3] Installing AI Auditor...
-start /wait msiexec.exe /i "%MSI%"
-set "MSI_RC=%ERRORLEVEL%"
-if not "%MSI_RC%"=="0" (
-    echo [ERROR] MSI installation failed or was cancelled. Exit code: %MSI_RC%
+if exist "%TARGET_EXE%" (
+    echo [1/3] AI Auditor is already installed. Skipping MSI install.
+) else (
+    echo [1/3] Installing AI Auditor...
+    start /wait msiexec.exe /i "%MSI%"
+    set "MSI_RC=%ERRORLEVEL%"
+    if not "%MSI_RC%"=="0" (
+        echo [ERROR] MSI installation failed or was cancelled. Exit code: %MSI_RC%
+        pause
+        exit /b %MSI_RC%
+    )
+)
+
+if not exist "%TARGET_EXE%" (
+    echo [ERROR] Installed executable was not found: %TARGET_EXE%
     pause
-    exit /b %MSI_RC%
+    exit /b 10
 )
 
 echo [2/3] Copying local AI model...
@@ -57,6 +69,6 @@ if not "%SOURCE_SIZE%"=="%TARGET_SIZE%" (
 )
 
 echo [3/3] Installation completed successfully.
-echo Installed to: %LOCALAPPDATA%\Programs\AI Auditor
+echo Installed to: %INSTALL_DIR%
 pause
 exit /b 0
