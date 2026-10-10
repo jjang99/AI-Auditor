@@ -13,8 +13,8 @@ AI Auditor는 정보시스템 프로젝트의 요구사항·설계·시험·FP·
 
 - 프로젝트 등록 및 검사 이력 관리
 - 5대 검사영역 / Full Rule Catalog 105개 관리
-- 최초 MVP20 기준선 + P1 확장 13개
-- 현재 소스 기준 실제 실행 Rule 33개
+- 최초 MVP20 + P1 13 + P2 23 확장
+- 현재 실제 실행 Rule **56개**
 - Rule / AI / Hybrid 혼합 검사
 - 요구사항·설계·시험·변경·FP·AI 관련 품질검사
 - 감리 예상 지적사항 종합
@@ -24,6 +24,7 @@ AI Auditor는 정보시스템 프로젝트의 요구사항·설계·시험·FP·
 - DOCX / XLSX / TXT 보고서 Export
 - Local AI 기반 폐쇄망 독립 실행
 - Administration을 통한 검사기준·환경·데이터 관리
+- Portable ZIP(EXE) 및 MSI 설치형 배포 지원
 
 ---
 
@@ -56,24 +57,31 @@ AI Auditor는 정보시스템 프로젝트의 요구사항·설계·시험·FP·
 ### 현재 실제 실행 Registry
 
 2026-10-10 기준:
-- **33개 = MVP20 + P1 13개**
-- Rule 7
-- AI 6
-- Hybrid 20
+- **56개 = MVP20 + P1 13 + P2 23**
+- **Rule 14**
+- **AI 11**
+- **Hybrid 31**
 
 P1 13개:
 - AUD-008 / AUD-010 / AUD-014 / AUD-016 / AUD-018 / AUD-020 / AUD-022 / AUD-023
 - REQ-007 / REQ-012 / REQ-017
 - FP-002 / FP-008
 
-Full Catalog 105개와 실제 실행 Registry 33개는 구분하여 관리합니다.
+P2 23개:
+- AUD-005 / AUD-015 / AUD-019 / AUD-021
+- REQ-006 / REQ-016 / REQ-020 / REQ-021 / REQ-027 / REQ-028
+- CHG-005 / CHG-008 / CHG-010
+- FP-006 / FP-007 / FP-011
+- AI-003 / AI-008 / AI-013 / AI-015 / AI-017 / AI-021 / AI-023
+
+Full Catalog 105와 실제 실행 Registry 56은 구분하여 관리합니다.
 `MVP20`은 최초 기준선 명칭으로 유지합니다.
 
 ---
 
 ## 3. 실제 감리사례 기반 검증
 
-2026-10-09 기준 감리 관련 자료 **114개**를 분석하여 105개 Rule 전체와 매핑했습니다.
+감리 관련 자료 **114개**를 분석하여 Full Catalog 105개 전체와 실무근거를 매핑했습니다.
 
 분석자료:
 - PDF 94개
@@ -89,33 +97,19 @@ MVP20 실증검증 과정에서 실제 감리사례보다 구현범위가 좁다
 - REQ-009 요구사항 설계 반영 정합성
 - FP-009 FP 산정값 재계산
 
-이후 감리근거 우선순위 P1 13개를 추가 구현했고 2026-10-10 전체 회귀검증까지 완료했습니다.
+이후 감리근거 우선순위 P1 13개와 P2 23개를 추가 구현했고, 2026-10-10 사용자 PC에서 통합 및 전체 회귀검증까지 완료했습니다.
 
 자세한 근거:
 - `AUDIT_EVIDENCE_MAPPING.md`
 - `MVP20_AUDIT_VALIDATION.md`
 - `P1_IMPLEMENTATION_PLAN.md`
+- `P2_IMPLEMENTATION_PLAN.md`
 
 ---
 
-## 4. P1 확장 핵심
+## 4. P1 / P2 확장 핵심
 
-P1-A:
-- AUD-008 / AUD-014 / AUD-016 / FP-008
-
-P1-B:
-- REQ-007 / REQ-012 / REQ-017
-
-P1-C:
-- AUD-010 / AUD-018
-
-P1-D:
-- AUD-020 / AUD-022 / AUD-023
-
-P1-E:
-- FP-002
-
-대표 확장 기능:
+### P1
 - 계획 대비 산출물 작성상태
 - WBS 구조/일정 이상
 - 시험계획/결함 조치상태
@@ -125,6 +119,24 @@ P1-E:
 - 적용 기준·지침 준수근거
 - 요구사항 검증가능성/시험연계/추적누락
 - FP 상세근거 및 중복산정 후보
+
+### P2
+- 문서 간 용어 일관성
+- 시험 수행·결과 완전성
+- 품질지적사항 미조치
+- 인터페이스 문서정보 일치
+- 요구사항 완전성/상태·승인/출처·상위요구/종합위험
+- 변경 승인 및 설계·데이터설계 반영
+- FP 분할·통합/산정기준/변경반영
+- AI 성능·품질 목표
+- 민감정보 통제
+- 학습·참조데이터 적정성
+- RAG 검색근거
+- AI 평가·테스트 체계
+- AI 로그·추적성/운영 모니터링
+- AI 자원사용·호출 제한
+
+P2의 AI/RAG Rule은 일반 문서에 강제 적용하지 않고 AI/LLM/RAG 맥락과 구조적 근거가 확인될 때만 후보화합니다.
 
 ---
 
@@ -168,13 +180,15 @@ AI는 Issue의 Impact / Likelihood와 근거를 판단합니다.
 
 `Impact × Likelihood → Severity`
 
+Portable과 MSI 설치본 모두 실제 Qwen3-4B 모델 로딩 및 Local AI 응답을 확인했습니다.
+
 ---
 
 ## 7. 검사 실행 흐름
 
 `Inspection`
 → `Full Catalog 105 선택상태`
-→ `실행 Registry 33 필터`
+→ `실행 Registry 56 필터`
 → `문서 Parser`
 → `Rule / AI / Hybrid 검사`
 → `교차문서 비교/후처리`
@@ -226,28 +240,41 @@ python main.py
 python -m pytest -q
 ```
 
-2026-10-10 P1 13개 활성 후 사용자 PC 전체 회귀테스트 정상 PASS를 확인했습니다.
+2026-10-10 P2-D 활성 후 Registry 56 통합검증과 전체 회귀테스트를 사용자 PC에서 정상 PASS 확인했습니다.
+정확한 passed/subtests 숫자는 사용자 출력 미제공으로 임의 기록하지 않습니다.
 
 ---
 
 ## 11. 배포 구조
 
-ZIP(EXE):
+### Portable ZIP(EXE)
 
 ```text
 dist/
-└─ AI_Auditor/
-   ├─ AI_Auditor.exe
-   ├─ runtime/
-   │  └─ llama.cpp/
-   │     └─ llama-server.exe
-   ├─ models/
-   │  └─ Qwen3-4B-Q4_K_M.gguf
-   └─ data/
-      └─ (첫 실행 시 ai_auditor.db 자동 생성)
+├─ AI_Auditor/
+│  ├─ AI_Auditor.exe
+│  ├─ runtime/
+│  │  └─ llama.cpp/
+│  │     └─ llama-server.exe
+│  ├─ models/
+│  │  └─ Qwen3-4B-Q4_K_M.gguf
+│  └─ data/
+│     └─ ai_auditor.db
+├─ AI_Auditor_Portable.zip
+└─ AI_Auditor_Portable.zip.sha256.txt
 ```
 
-MSI 설치형:
+최종 검증:
+- ZIP 약 2.35 GB
+- 모델 약 2.33 GB
+- SHA256: `A53BB20BD7CA531EB27F67C6D60371DF5C6E4BDC68410688A4F331B80A054672`
+- EXE Home 실행 정상
+- DB integrity `ok`
+- llama.cpp build 11312 정상
+- Qwen3-4B 모델 실제 로딩 정상
+- Local AI health/응답 정상
+
+### MSI 설치형
 
 ```text
 installer/output/
@@ -260,29 +287,22 @@ installer/output/
 
 Qwen 모델은 2GB를 초과하므로 MSI File table에 직접 포함하지 않고 Launcher가 설치 후 모델을 복사하고 크기를 검증합니다.
 
----
+최종 검증:
+- 기존 설치본 제거 후 최신 MSI 실제 설치 성공
+- `msiexec` Exit Code 0
+- 설치 위치 `%LOCALAPPDATA%\Programs\AI Auditor`
+- 설치 EXE Home 실행 정상
+- EXE / llama-server / 모델 / DB 존재 확인
+- 설치 DB 정상
+- 설치 경로 Qwen3-4B 실제 로딩 정상
+- 설치본 Local AI 실제 응답 정상
+- 설치 Launcher 재실행 정상
 
-## 12. 현재 배포 상태 주의
-
-기존 ZIP(EXE) 위치:
-`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
-
-기존 MSI 설치형 위치:
-`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
-
-기존 패키지는 P1 확장 전 빌드입니다.
-현재 GitHub main은 **33개 실행 Rule Freeze** 상태이므로, 제출용 최종 패키지는 최신 소스로 다시 빌드해야 합니다.
-
-다음 배포 절차:
-1. 33개 Freeze 소스로 ZIP(EXE) 재빌드
-2. ZIP 실행 / Local AI 스모크검증
-3. 동일 dist 기준 MSI 재빌드
-4. MSI 실제 설치 / DB 자동생성 / Local AI 스모크검증
-5. 성공 후 제출문서에 33개 배포 완료로 최종 반영
+`AI_Auditor_Install.cmd`는 MSI 오류코드 출력 문제를 `EnableDelayedExpansion` + `!ERRORLEVEL!` 방식으로 보완했으며, 수정본 포함 최종 재빌드와 동작검증을 완료했습니다.
 
 ---
 
-## 13. 데이터 관리
+## 12. 데이터 관리
 
 Administration에서 다음을 제공합니다.
 
@@ -293,7 +313,7 @@ Administration에서 다음을 제공합니다.
 
 ---
 
-## 14. 현재 상태
+## 13. 현재 상태
 
 2026-10-10 기준:
 
@@ -303,12 +323,14 @@ Administration에서 다음을 제공합니다.
 - 감리자료 114개 분석 / 105개 매핑 완료
 - MVP20 실증검증 및 5개 우선보완 완료
 - P1 13개 구현·활성·전체 회귀 완료
-- 현재 실제 실행 Registry 33개 Freeze 완료
-- **33개 Freeze 기준 ZIP/MSI 재빌드 전**
+- P2 23개 구현·활성·전체 회귀 완료
+- **현재 실제 실행 Registry 56개 Freeze 완료**
+- **Portable ZIP(EXE) 최종 재빌드·스모크 완료**
+- **MSI 최종 재빌드·실설치·Local AI 스모크 완료**
 
 ---
 
-## 15. 제한사항 및 향후 확장
+## 14. 제한사항 및 향후 확장
 
 현재 의도적으로 남겨둔 범위:
 - 스캔 PDF OCR 제외
@@ -316,7 +338,6 @@ Administration에서 다음을 제공합니다.
 - MSIX 제외
 
 후속 Rule 확장 우선순위:
-- P2 23개
 - P3 21개
 - P4 28개
 
@@ -324,12 +345,13 @@ Administration에서 다음을 제공합니다.
 
 ---
 
-## 16. 주요 문서
+## 15. 주요 문서
 
-- `HACKATHON_SUBMISSION.md` — 해커톤 제출용 요약
+- `HACKATHON_SUBMISSION.md` — 해커톤 제출용 최종 요약
 - `AUDIT_EVIDENCE_MAPPING.md` — 114개 감리자료 ↔ 105개 Rule 실무근거
 - `MVP20_AUDIT_VALIDATION.md` — MVP20 실제 감리사례 실증검증
 - `P1_IMPLEMENTATION_PLAN.md` — P1 13개 구현 기준
+- `P2_IMPLEMENTATION_PLAN.md` — P2 23개 구현 기준/완료결과
 - `RULE_DESIGN.md` — 검사기준/실행구조 설계
 - `DECISIONS.md` — 확정 의사결정
 - `DEV_STATUS.md` — 개발 진행현황
