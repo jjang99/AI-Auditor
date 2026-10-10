@@ -5,6 +5,7 @@ from rules.definitions.document_rule_registry import (
     get_p1_target_codes,
     get_p2_a_codes,
     get_p2_b_codes,
+    get_p2_c_codes,
     is_document_rule_implemented,
 )
 
@@ -44,21 +45,30 @@ EXPECTED_P2_B_CODES = (
     "REQ-028",
 )
 
+EXPECTED_P2_C_CODES = (
+    "CHG-008",
+    "CHG-010",
+    "FP-006",
+    "FP-011",
+)
+
 ACTIVE_P1_CODES = set(EXPECTED_P1_CODES)
 ACTIVE_P2_A_CODES = set(EXPECTED_P2_A_CODES)
 ACTIVE_P2_B_CODES = set(EXPECTED_P2_B_CODES)
+ACTIVE_P2_C_CODES = set(EXPECTED_P2_C_CODES)
 
 
-def test_registry_has_mvp20_plus_all_p1_p2_a_p2_b_rules():
+def test_registry_has_mvp20_plus_all_p1_p2_a_p2_b_p2_c_rules():
     rules = get_implemented_document_rules()
     codes = get_implemented_document_rule_codes()
 
-    assert len(rules) == 46
-    assert len(codes) == 46
-    assert len(set(codes)) == 46
+    assert len(rules) == 50
+    assert len(codes) == 50
+    assert len(set(codes)) == 50
     assert ACTIVE_P1_CODES.issubset(set(codes))
     assert ACTIVE_P2_A_CODES.issubset(set(codes))
     assert ACTIVE_P2_B_CODES.issubset(set(codes))
+    assert ACTIVE_P2_C_CODES.issubset(set(codes))
 
 
 def test_registry_rules_exist_and_match_full_catalog():
@@ -94,6 +104,15 @@ def test_p2_b_is_exactly_six_activated_codes():
     assert len(get_p2_b_codes()) == 6
 
     for code in get_p2_b_codes():
+        assert get_document_rule(code) is not None
+        assert is_document_rule_implemented(code)
+
+
+def test_p2_c_is_exactly_four_activated_codes():
+    assert get_p2_c_codes() == EXPECTED_P2_C_CODES
+    assert len(get_p2_c_codes()) == 4
+
+    for code in get_p2_c_codes():
         assert get_document_rule(code) is not None
         assert is_document_rule_implemented(code)
 
