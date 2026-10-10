@@ -8,6 +8,8 @@ $Source = Join-Path $PSScriptRoot "AI_Auditor.wxs"
 $Msi = Join-Path $OutputDir "AI_Auditor_Setup.msi"
 $ModelSource = Join-Path $AppDir "models\Qwen3-4B-Q4_K_M.gguf"
 $ModelOutput = Join-Path $OutputDir "Qwen3-4B-Q4_K_M.gguf"
+$LauncherSource = Join-Path $PSScriptRoot "AI_Auditor_Install.cmd"
+$LauncherOutput = Join-Path $OutputDir "AI_Auditor_Install.cmd"
 
 if (-not (Test-Path $WixExe)) {
     throw "WiX executable not found: $WixExe"
@@ -20,6 +22,9 @@ if (-not (Test-Path (Join-Path $AppDir "runtime\llama.cpp\llama-server.exe"))) {
 }
 if (-not (Test-Path $ModelSource)) {
     throw "Qwen3-4B model not found: $ModelSource"
+}
+if (-not (Test-Path $LauncherSource)) {
+    throw "Installer launcher not found: $LauncherSource"
 }
 
 New-Item -ItemType Directory -Force $OutputDir | Out-Null
@@ -36,10 +41,17 @@ if ($LASTEXITCODE -ne 0) {
     throw "WiX MSI build failed. Exit code: $LASTEXITCODE"
 }
 
-# The GGUF model exceeds the Windows Installer File-table per-file limit,
-# so ship it beside the MSI and let the installer copy it from SourceDir.
+# The GGUF model exceeds the Windows Installer File-table per-file limit.
+# Stage it beside the MSI; AI_Auditor_Install.cmd copies it after MSI install.
 Copy-Item $ModelSource $ModelOutput -Force
+Copy-Item $LauncherSource $LauncherOutput -Force
 
-Write-Host "MSI build completed: $Msi"
-Write-Host "External model staged: $ModelOutput"
+# PDB is useful for installer debugging but is not part of the final deployment set.
+$WixPdb = Join-Path $OutputDir "AI_Auditor_Setup.wixpdb"
+if (Test-Path $WixPdb) {
+    Remove-Item $WixPdb -Force
+}
+
+Write-Host "MSI package build completed."
+Write-Host "Deployment folder: $OutputDir"
 Get-ChildItem $OutputDir | Select-Object Name, Length
