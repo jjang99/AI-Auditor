@@ -8,13 +8,11 @@ Full Catalog 105개와 실제 실행 가능한 Rule은 분리해서 관리한다
 - Full Catalog: 105개
 - 기존 MVP 실행 Rule: 20개
 - P1 활성 Rule: 13개
-  (AUD-008, AUD-010, AUD-014, AUD-016, AUD-018, AUD-020, AUD-022, AUD-023,
-   REQ-007, REQ-012, REQ-017, FP-002, FP-008)
 - P2-A 활성 Rule: 7개
-  (AUD-015, AUD-019, REQ-016, REQ-020, CHG-005, FP-007, AI-023)
-- 총 실제 실행 가능 Rule: 40개
+- P2-B 활성 Rule: 6개
+- 총 실제 실행 가능 Rule: 46개
 - P1 13개 전체 활성 완료
-- P2 진행: 7 / 23 활성
+- P2 진행: 13 / 23 활성
 """
 
 from collections.abc import Callable
@@ -28,6 +26,7 @@ from rules.definitions.document_p1_governance_rules import get_p1_governance_rul
 from rules.definitions.document_p1_rules import get_p1_deterministic_rules
 from rules.definitions.document_p1_req_rules import get_p1_requirement_rules
 from rules.definitions.document_p2_a_rules import get_p2_a_rules
+from rules.definitions.document_p2_b_rules import get_p2_b_rules
 from rules.definitions.document_rule_catalog import get_document_rule
 
 
@@ -57,6 +56,15 @@ P2_A_CODES = (
     "AI-023",
 )
 
+P2_B_CODES = (
+    "AUD-005",
+    "AUD-021",
+    "REQ-006",
+    "REQ-021",
+    "REQ-027",
+    "REQ-028",
+)
+
 
 # 실제 Handler + targeted test를 통과한 Rule provider만 등록한다.
 _IMPLEMENTED_RULE_PROVIDERS: tuple[
@@ -70,6 +78,7 @@ _IMPLEMENTED_RULE_PROVIDERS: tuple[
     get_p1_governance_rules,
     get_p1_fp_rules,
     get_p2_a_rules,
+    get_p2_b_rules,
 )
 
 
@@ -132,3 +141,8 @@ def get_p1_target_codes() -> tuple[str, ...]:
 def get_p2_a_codes() -> tuple[str, ...]:
     """검증 후 Registry에 활성화한 P2-A 7개 Rule을 반환한다."""
     return P2_A_CODES
+
+
+def get_p2_b_codes() -> tuple[str, ...]:
+    """검증 후 Registry에 활성화한 P2-B 6개 Rule을 반환한다."""
+    return P2_B_CODES
