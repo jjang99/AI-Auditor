@@ -26,8 +26,8 @@
 - P1-A 4개 — 완료
 - P1-B 3개 — 완료
 - P1-C 2개 — 완료
-- 현재 다음 작업: P1-D 3개 (AUD-020 / AUD-022 / AUD-023)
-- 이후 P1-E: FP-002
+- P1-D 3개 — 완료
+- 현재 다음 작업: P1-E FP-002 1개
 
 ---
 
@@ -47,14 +47,17 @@
 - Rule 3 / AI 6 / Hybrid 11
 
 현재 GitHub main 실제 실행 가능 Rule:
-- **29개 = MVP20 + P1 9개**
+- **32개 = MVP20 + P1 12개**
 
-P1 활성 9개:
+P1 활성 12개:
 - AUD-008 계획 대비 산출물 작성상태 점검
 - AUD-010 WBS 완전성·비정상 항목 점검
 - AUD-014 시험계획 완전성 점검
 - AUD-016 시험결함 조치상태 점검
 - AUD-018 품질활동 계획 대비 수행 점검
+- AUD-020 인터페이스 정의 완전성 점검
+- AUD-022 계약·과업내용 반영 및 이행 증적 점검
+- AUD-023 관련 기준·지침 준수 점검
 - REQ-007 요구사항 검증가능성·검증방법 점검
 - REQ-012 요구사항 시험항목 누락 점검
 - REQ-017 요구사항 추적관계 누락 점검
@@ -63,7 +66,7 @@ P1 활성 9개:
 현재 실행방식 합계:
 - Rule 7
 - AI 6
-- Hybrid 16
+- Hybrid 19
 
 `MVP20`은 최초 기준선 명칭으로 유지한다.
 Full Catalog 105와 실행 가능 Rule 수는 서로 다른 개념이다.
@@ -122,7 +125,7 @@ Full Catalog 105와 실행 가능 Rule 수는 서로 다른 개념이다.
 
 ---
 
-## P1-C — 2026-10-10 완료
+## P1-C — 완료
 
 ### AUD-010 WBS 완전성·비정상 항목 점검
 - Hybrid
@@ -139,22 +142,62 @@ Full Catalog 105와 실행 가능 Rule 수는 서로 다른 개념이다.
 - 시기미도래/향후/예정/해당없음/N/A 제외
 - 수행근거가 확인되지 않는 계획활동만 evidence 생성 후 AI 판단
 
+검증:
+- P1-C 전용 PASS
+- AUD-018 Service 교차문서 통합 PASS
+- 29개 Registry + P1-A/B/C + 기존 Catalog/MVP targeted 통합 PASS
+- 최종 전체 `python -m pytest -q` 사용자 PC 정상 PASS
+
+---
+
+## P1-D — 2026-10-10 완료
+
+완료:
+- AUD-020 인터페이스 정의 완전성 점검
+- AUD-022 계약·과업내용 반영 및 이행 증적 점검
+- AUD-023 관련 기준·지침 준수 점검
+
+구조:
+- `P1GovernanceHybridEngine(P1AuditHybridEngine)` 추가
+- `InspectionService`에서 검사 시작 시 업로드 문서 전체를 P1-D 엔진에 전달
+- AUD-020은 문서 단위 구조형 후보 추출
+- AUD-022/AUD-023은 업로드 문서 전체 교차검증
+
+AUD-020 오탐 방지:
+- 송신/수신 구조가 있는 인터페이스 표에서만 핵심정보 누락 확인
+- 연계방식/데이터 열 자체가 없으면 후보화
+- 단순 외부기관 언급은 인터페이스로 간주하지 않음
+
+AUD-022 오탐 방지:
+- 계약/RFP/과업 문서의 명시적 의무 문구만 후보화
+- 다른 업로드 문서에 관련 제출/반영/수행/이행 근거가 있으면 후보 제외
+- 계약/과업 문서 단독 업로드만으로 미이행 확정 금지
+- 향후/예정/운영 전 등 시기미도래 제외
+
+AUD-023 오탐 방지:
+- 문서에 실제 적용대상으로 적힌 법령/지침/표준/가이드만 후보화
+- 다른 업로드 문서의 점검/검증/진단/적합/통과 근거를 교차확인
+- 비적용/해당없음/N/A 제외
+- 법적 위반 자체를 AI가 새로 해석하지 않음
+
 핵심 파일:
-- `rules/definitions/document_p1_audit_rules.py`
-- `rules/core/p1_audit_checks.py`
-- `rules/core/p1_audit_hybrid_engine.py`
+- `rules/definitions/document_p1_governance_rules.py`
+- `rules/core/p1_governance_checks.py`
+- `rules/core/p1_governance_hybrid_engine.py`
 - `rules/core/inspection_engine.py`
 - `app/services/inspection_service.py`
-- `tests/test_p1_audit_rules.py`
-- `tests/test_p1_audit_service.py`
+- `tests/test_p1_governance_rules.py`
+- `tests/test_p1_governance_cross_document.py`
+- `tests/test_p1_governance_service.py`
 - `rules/definitions/document_rule_registry.py`
 - `tests/test_document_rule_registry.py`
 - `tests/test_document_selection.py`
 
 검증:
-- P1-C 사전분석 전용 PASS
-- AUD-018 Service 교차문서 통합 PASS
-- 29개 Registry + P1-A/B/C + 기존 Catalog/MVP targeted 통합 PASS
+- 구조 사전분석 전용 PASS
+- 교차문서 오탐방지 PASS
+- 실제 Service 통합 PASS
+- 32개 Registry + P1-A/B/C/D + 기존 Catalog/MVP targeted 통합 PASS
 - 최종 전체 `python -m pytest -q` 사용자 PC 정상 PASS
 - 사용자가 `정상`으로 확인했으므로 정확한 passed/subtests 숫자는 임의 기록하지 않음
 
@@ -173,41 +216,42 @@ Hybrid 상속:
 - `DocumentHybridEngine`
 - `P1RequirementHybridEngine`
 - `P1AuditHybridEngine`
+- `P1GovernanceHybridEngine`
 
 교차문서/후처리:
 - REQ-009 요구사항↔설계
 - REQ-012 요구사항↔시험
 - AUD-018 품질활동 계획↔수행근거
+- AUD-022 계약/과업 의무↔이행근거
+- AUD-023 적용기준↔준수근거
 - 기존 CHG 후처리
 - AUD-024 최종 종합
 
 ---
 
-## 다음 작업 — P1-D
+## 다음 작업 — P1-E
 
 대상:
-1. AUD-020 인터페이스 정의 완전성 점검
-2. AUD-022 계약·과업내용 반영 및 이행 증적 점검
-3. AUD-023 관련 기준·지침 준수 점검
+- **FP-002 FP 산정대상 중복 점검**
 
-구현 원칙:
-- 모두 Hybrid
-- 구조적 후보를 먼저 추출하고 AI는 문맥 판단에 사용
-- 일부 문서 미업로드를 곧바로 미이행/미준수로 판정하지 않음
-- 기존 Rule과 중복 Issue 최소화
-- targeted + 통합 + 전체 회귀 후 Registry 활성화
+구현기준:
+- Hybrid
+- XLS/XLSX 구조형 FP 행에서 기능명/유형/관련 근거 후보화
+- AI가 실질적으로 동일한 사용자 기능인지 최종 판단
+- 동일/유사 명칭이 복수 산정됐지만 근거상 별도 기능으로 구분되지 않을 때 후보
+- 명칭이 같아도 처리조건/사용자 관점/입출력 차이가 명확하면 중복으로 단정하지 않음
+- 합계/소계/요약행 제외
+- FP-009 구조형 행 파싱 방식 재사용/공통화 우선
 
 P1 현재:
-- 완료 9 / 13
-- 남음 4
+- 완료 12 / 13
+- 남음 1
 
-P1-D 완료 목표:
-- 실행 Rule 32개
-- P1 완료 12 / 13
-- 남은 P1-E FP-002 1개
-
-P1 전체 완료 목표:
+P1-E 완료 목표:
 - 실행 Rule 33개
+- P1 전체 Freeze
+- 최신 소스로 ZIP/MSI 재빌드·스모크
+- README / HACKATHON_SUBMISSION / RULE_DESIGN / DECISIONS 포함 최종 문서 현행화
 
 ---
 
@@ -268,10 +312,10 @@ Canonical:
 
 중요:
 - 위 배포본은 P1 확장 전 MVP20 기준이다.
-- 현재 GitHub main은 29개 실행 Rule 기준이다.
+- 현재 GitHub main은 32개 실행 Rule 기준이다.
 - 아직 P1 확장 소스로 ZIP/MSI를 재빌드하지 않았다.
 - README / HACKATHON_SUBMISSION의 기존 배포검증 문구는 기존 배포본 기준으로 유지한다.
-- P1 확장 동결 후 최신 소스로 재빌드/스모크하고 제출문서를 최종 현행화한다.
+- FP-002 완료 및 P1 Freeze 후 최신 소스로 재빌드/스모크하고 제출문서를 최종 현행화한다.
 
 ---
 
@@ -286,4 +330,4 @@ Canonical:
 - 작업 전 코드↔문서↔테스트↔결정사항 교차검증
 - 검증되지 않은 Rule Registry 선등록 금지
 
-다음 실제 개발 시작점은 **P1-D AUD-020 → AUD-022 → AUD-023**이다.
+다음 실제 개발 시작점은 **P1-E FP-002 FP 산정대상 중복 점검**이다.
