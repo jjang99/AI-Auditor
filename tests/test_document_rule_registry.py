@@ -23,14 +23,21 @@ EXPECTED_P1_CODES = (
     "FP-008",
 )
 
+ACTIVE_P1_CODES = {
+    "AUD-014",
+    "AUD-016",
+    "FP-008",
+}
 
-def test_registry_keeps_existing_mvp20_as_current_executable_baseline():
+
+def test_registry_has_mvp20_plus_first_three_validated_p1_rules():
     rules = get_implemented_document_rules()
     codes = get_implemented_document_rule_codes()
 
-    assert len(rules) == 20
-    assert len(codes) == 20
-    assert len(set(codes)) == 20
+    assert len(rules) == 23
+    assert len(codes) == 23
+    assert len(set(codes)) == 23
+    assert ACTIVE_P1_CODES.issubset(set(codes))
 
 
 def test_registry_rules_exist_and_match_full_catalog():
@@ -52,9 +59,13 @@ def test_p1_target_is_exactly_13_confirmed_codes():
         assert get_document_rule(code) is not None
 
 
-def test_p1_rules_are_not_preactivated_before_implementation_validation():
+def test_only_validated_first_three_p1_rules_are_activated():
     implemented = set(get_implemented_document_rule_codes())
+    active_p1 = implemented.intersection(get_p1_target_codes())
 
-    assert implemented.isdisjoint(get_p1_target_codes())
-    for code in get_p1_target_codes():
+    assert active_p1 == ACTIVE_P1_CODES
+    for code in ACTIVE_P1_CODES:
+        assert is_document_rule_implemented(code)
+
+    for code in set(get_p1_target_codes()) - ACTIVE_P1_CODES:
         assert not is_document_rule_implemented(code)
