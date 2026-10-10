@@ -5,13 +5,13 @@
 - 목적: 다음 대화/새 창에서 상태를 추측하지 않고 바로 이어가기 위한 최신 기준점
 
 다음 세션 시작 순서:
-`GitHub main → CURRENT_HANDOFF.md → DECISIONS.md → RULE_DESIGN.md → DEV_STATUS.md → 실제 코드 → 이전 대화/저장된 결정사항`
+`GitHub main → CURRENT_HANDOFF.md → DECISIONS.md → RULE_DESIGN.md → DEV_STATUS.md → README.md / HACKATHON_SUBMISSION.md → 실제 코드 및 installer 관련 파일 → 이전 대화/저장된 결정사항`
 
 ## 작업 전 필수 다중 교차검증
 
 새 작업을 바로 시작하지 않는다.
 
-- GitHub 실제 코드 / 프로젝트 구조 / CURRENT_HANDOFF.md / DECISIONS.md / RULE_DESIGN.md / DEV_STATUS.md / 기존 테스트 결과 / 이전 대화 / 저장된 결정사항을 먼저 확인한다.
+- GitHub 실제 코드 / 프로젝트 구조 / CURRENT_HANDOFF.md / DECISIONS.md / RULE_DESIGN.md / DEV_STATUS.md / README.md / HACKATHON_SUBMISSION.md / 실제 코드 및 installer 관련 파일 / 기존 테스트 결과 / 이전 대화 / 저장된 결정사항을 먼저 확인한다.
 - 한 번 확인한 내용만 믿고 진행하지 않는다. 최소 2~3회 서로 다른 관점으로 재확인한다.
 - `코드 ↔ 문서 ↔ 테스트 결과 ↔ 이전 대화/결정사항`을 교차검증하여 서로 일치하는지 확인한다.
 - 충돌 시 최신 GitHub 실제 코드와 실제 동작을 우선 확인하되, 기존 확정 결정사항과의 충돌 여부를 다시 검토한다.
@@ -36,6 +36,7 @@
 - 실증검증 우선 보완 5개 수정 및 전체 회귀검증 — 완료
 - 감리분석 보완사항 반영 후 ZIP(EXE) 재빌드·스모크검증 — 완료
 - WiX 기반 MSI 설치형 패키지 제작·실설치·Local AI 스모크검증 — 완료
+- `HACKATHON_SUBMISSION.md` 최종 구현·검증·배포 상태 현행화 — 완료
 
 **1~6단계, 감리자료 분석, MVP20 실증검증, 감리분석 보완 5개, 최종 ZIP(EXE)/MSI 패키징은 새 결함이 없는 한 다시 구현·재설계·재분석하지 않는다.**
 
@@ -342,11 +343,16 @@ Qwen3-4B Q4_K_M 모델은 현재 검증 품질 기준을 유지하기 위해 임
 
 # 11. 다음 단계
 
-현재 다음 작업은 **해커톤 제출용 최종 문서화·정리**이다.
+현재 해커톤 제출용 핵심 요약문서 `HACKATHON_SUBMISSION.md`의 최종 현행화는 완료했다.
 
-그 다음:
+제출 전 남은 작업:
+1. README / CURRENT_HANDOFF / DECISIONS / RULE_DESIGN / DEV_STATUS / HACKATHON_SUBMISSION 상호 일치 최종 확인
+2. 제출 대상 파일과 배포 패키지 최종 체크리스트 정리
+3. 필요 시 시연·발표용 핵심 흐름 정리
+
+제출 후:
 1. 신규 Rule 후보 사용자 검토 및 추가 여부 결정
-2. 제출 후 미구현 85개를 `AUDIT_EVIDENCE_MAPPING.md`의 P1 → P2 → P3 → P4 순서로 구현
+2. 미구현 85개를 `AUDIT_EVIDENCE_MAPPING.md`의 P1 → P2 → P3 → P4 순서로 구현
 3. 105개 전체 통합 검증
 
 **다음 세션에서 감리결과서 114개를 처음부터 다시 분석하지 않는다.**
