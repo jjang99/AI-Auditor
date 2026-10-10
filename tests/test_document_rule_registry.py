@@ -3,6 +3,7 @@ from rules.definitions.document_rule_registry import (
     get_implemented_document_rule_codes,
     get_implemented_document_rules,
     get_p1_target_codes,
+    get_p2_a_codes,
     is_document_rule_implemented,
 )
 
@@ -23,17 +24,29 @@ EXPECTED_P1_CODES = (
     "FP-008",
 )
 
+EXPECTED_P2_A_CODES = (
+    "AUD-015",
+    "AUD-019",
+    "REQ-016",
+    "REQ-020",
+    "CHG-005",
+    "FP-007",
+    "AI-023",
+)
+
 ACTIVE_P1_CODES = set(EXPECTED_P1_CODES)
+ACTIVE_P2_A_CODES = set(EXPECTED_P2_A_CODES)
 
 
-def test_registry_has_mvp20_plus_all_p1_rules():
+def test_registry_has_mvp20_plus_all_p1_and_p2_a_rules():
     rules = get_implemented_document_rules()
     codes = get_implemented_document_rule_codes()
 
-    assert len(rules) == 33
-    assert len(codes) == 33
-    assert len(set(codes)) == 33
+    assert len(rules) == 40
+    assert len(codes) == 40
+    assert len(set(codes)) == 40
     assert ACTIVE_P1_CODES.issubset(set(codes))
+    assert ACTIVE_P2_A_CODES.issubset(set(codes))
 
 
 def test_registry_rules_exist_and_match_full_catalog():
@@ -55,7 +68,16 @@ def test_p1_target_is_exactly_13_confirmed_codes():
         assert get_document_rule(code) is not None
 
 
-def test_all_p1_rules_are_activated():
+def test_p2_a_is_exactly_seven_activated_codes():
+    assert get_p2_a_codes() == EXPECTED_P2_A_CODES
+    assert len(get_p2_a_codes()) == 7
+
+    for code in get_p2_a_codes():
+        assert get_document_rule(code) is not None
+        assert is_document_rule_implemented(code)
+
+
+def test_all_p1_rules_are_still_activated():
     implemented = set(get_implemented_document_rule_codes())
     active_p1 = implemented.intersection(get_p1_target_codes())
 
