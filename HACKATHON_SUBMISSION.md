@@ -2,7 +2,7 @@
 
 > 기준일: 2026-10-10
 > 본 문서는 현재 GitHub main의 실제 구현·검증 상태를 기준으로 정리한다.
-> 배포 패키지는 33개 Rule Freeze 소스로 재빌드·스모크검증하기 전까지 기존 빌드와 구분한다.
+> **실행 Registry 56개 Freeze 및 Portable/MSI 실제 배포검증 완료 상태**다.
 
 ---
 
@@ -40,7 +40,7 @@ AI Auditor는 이 반복 작업을 자동화하여 감리 대응 전에 위험�
 
 `프로젝트 산출물 업로드`
 → `Full Catalog 105 선택상태`
-→ `실행 Registry 33 필터`
+→ `실행 Registry 56 필터`
 → `문서 Parser`
 → `Rule / AI / Hybrid 검사`
 → `문서별 사전분석 / 교차문서 비교`
@@ -68,9 +68,9 @@ AI Auditor는 이 반복 작업을 자동화하여 감리 대응 전에 위험�
 Canonical 분석문서:
 - `AUDIT_EVIDENCE_MAPPING.md`
 
-### 5.2 MVP20 실증검증 + P1 13개 확장
+### 5.2 MVP20 실증검증 + P1/P2 확장
 
-최초 MVP20을 실제 감리사례와 코드에 다시 대조하여 실무 탐지범위를 검증했습니다.
+최초 MVP20을 실제 감리사례와 코드에 다시 대조해 탐지범위를 검증했습니다.
 
 실증 우선보완 5개:
 - AUD-001 필수 산출물 누락
@@ -79,27 +79,25 @@ Canonical 분석문서:
 - REQ-009 요구사항 설계 반영 정합성
 - FP-009 FP 산정값 재계산
 
-그 후 감리자료 우선순위 P1 13개를 추가 구현했습니다.
+그 후 감리자료 기반 우선순위에 따라:
+- P1 13개 구현 완료
+- P2 23개 구현 완료
 
-P1 13개:
-- AUD-008 / AUD-010 / AUD-014 / AUD-016 / AUD-018 / AUD-020 / AUD-022 / AUD-023
-- REQ-007 / REQ-012 / REQ-017
-- FP-002 / FP-008
+2026-10-10 기준 P1/P2는 모두 Registry 활성 및 통합·전체 회귀검증을 완료했습니다.
 
-2026-10-10 기준 P1 13개는 모두 Registry 활성 및 전체 회귀검증을 완료했습니다.
-
-### 5.3 현재 실제 실행 Rule 33개
+### 5.3 현재 실제 실행 Rule 56개
 
 - 최초 MVP20 기준선
 - P1 13개 추가
-- 현재 실제 실행 Registry: **33개**
+- P2 23개 추가
+- 현재 실제 실행 Registry: **56개**
 
 실행방식:
-- Rule 7
-- AI 6
-- Hybrid 20
+- **Rule 14**
+- **AI 11**
+- **Hybrid 31**
 
-`MVP20`은 최초 기준선 명칭이며, 현재 실제 실행 범위는 33개입니다.
+`MVP20`은 최초 기준선 명칭이며 현재 실제 실행 범위는 56개입니다.
 
 ### 5.4 Rule + AI + Hybrid
 
@@ -113,9 +111,10 @@ Hybrid는 Rule 기반 후보추출 후 필요한 경우에만 AI를 호출합니
 - llama.cpp b11312
 - Windows CPU 실행
 - reasoning off
-- 인터넷 차단 상태 실제 검사 확인
+- 인터넷 연결 없이 로컬 실행
 
 업무 문서를 외부 AI 서비스로 전송하지 않고 로컬 환경에서 검사할 수 있도록 구성했습니다.
+Portable과 MSI 설치본 모두 실제 모델 로딩과 AI 응답을 확인했습니다.
 
 ### 5.6 AI가 최종 위험도를 임의 결정하지 않음
 
@@ -123,6 +122,12 @@ AI는 Impact / Likelihood와 근거를 판단하고,
 최종 Severity는 deterministic Matrix로 계산합니다.
 
 `Impact × Likelihood → Severity`
+
+### 5.7 AI/RAG Rule의 오탐 방지
+
+P2-D의 AI 특화 Rule은 일반 문서에 강제로 적용하지 않습니다.
+AI/LLM/RAG 문맥과 구조적 근거가 확인될 때만 후보를 생성하며,
+단순 `모델`이라는 단어만으로 AI 문서라고 판단하지 않습니다.
 
 ---
 
@@ -136,46 +141,53 @@ Full Rule Catalog 105개:
 - AI: 23
 
 현재 실제 실행 Registry:
-- **33개 = MVP20 + P1 13개**
+- **56개 = MVP20 + P1 13 + P2 23**
 
 대표 검사:
 - AUD-001 필수 산출물 누락
 - AUD-008 계획 대비 산출물 작성상태
 - AUD-010 WBS 완전성·비정상 항목
+- AUD-015 시험 수행·결과 완전성
 - AUD-018 품질활동 계획 대비 수행
 - AUD-020 인터페이스 정의 완전성
+- AUD-021 인터페이스 문서정보 일치
 - AUD-022 계약·과업내용 반영 및 이행 증적
 - AUD-023 관련 기준·지침 준수
 - REQ-001 요구사항 ID 누락·중복
+- REQ-006 요구사항 완전성
 - REQ-007 요구사항 검증가능성·검증방법
 - REQ-009 요구사항 설계 반영 정합성
 - REQ-012 요구사항 시험항목 누락
+- REQ-016 중요 요구사항 시험범위 누락
 - REQ-017 요구사항 추적관계 누락
-- CHG-001 / CHG-006 / CHG-012 / CHG-018 변경영향도 계열
+- REQ-027 요구사항 출처·상위요구/추가기능 근거
+- CHG-001 / CHG-006 / CHG-008 / CHG-010 / CHG-012 / CHG-018 변경영향도 계열
 - FP-002 FP 산정대상 중복
+- FP-006 기능 단위 분할·통합 적정성
+- FP-007 FP 산정방식·적용기준 적정성
 - FP-008 상세 산정정보 적정성
 - FP-009 FP 산정값 재계산
-- AI-005 / AI-009 / AI-019 / AI-022 AI 특화 검증
+- FP-011 FP 변경반영 누락
+- AI-003 / AI-008 / AI-013 / AI-015 / AI-017 / AI-021 / AI-023 AI 특화 검증
 
 ---
 
-## 7. P1 확장 핵심 예시
+## 7. P2 확장 핵심 예시
 
-### AUD-022
-계약/RFP/과업의 명시적 의무사항과 다른 업로드 문서의 제출·반영·수행근거를 교차검증합니다.
-일반 설명문이나 시기미도래 항목을 곧바로 미이행으로 확정하지 않습니다.
+### CHG-008 / CHG-010
+확인된 변경사항과 설계/데이터설계 문서를 교차비교합니다.
+변경자료와 대응 산출물이 함께 있을 때만 후보를 생성하며, CHG-010은 데이터/테이블/컬럼 영향이 명시된 변경에 한정합니다.
 
-### AUD-023
-문서에서 실제 적용대상으로 명시한 법령·표준·가이드·지침만 대상으로 준수·검증근거를 확인합니다.
-AI가 법적 위반을 새로 해석하지 않습니다.
+### FP-006
+구조형 FP 행의 기능명·유형·상세근거를 묶어 과도 분할 또는 이질 기능 통합 후보를 AI에 전달합니다.
+완전 동일 기능명 중복은 FP-002 역할로 분리합니다.
 
-### REQ-012
-요구사항과 시험문서를 교차비교하여 시험항목 누락 후보를 찾습니다.
-시험문서 자체가 업로드되지 않았다는 이유만으로 누락을 확정하지 않습니다.
+### AI-015
+RAG/검색증강/벡터검색 구조가 명시된 문서에만 적용하며, 검색근거와 답변근거의 적합성 관련 설계·검증 근거를 판단합니다.
 
-### FP-002
-XLS/XLSX FP 산정표에서 동일·유사 기능명 + 동일 FP유형을 후보화하고 AI가 실질 동일 사용자 기능인지 판단합니다.
-처리조건·사용자 관점·입출력 차이가 명확하면 별도 기능으로 제외하고, 합계/소계/요약행은 검사하지 않습니다.
+### AI-021
+AI 입력·모델·조건·결과의 추적근거와 운영 품질·이상 모니터링 근거를 확인합니다.
+단순 애플리케이션 로그 존재만으로 AI 추적성이 충족됐다고 판단하지 않습니다.
 
 ---
 
@@ -256,34 +268,47 @@ Grade:
 - UI Freeze 완료
 - Local AI 통합 완료
 - 감리자료 114개 분석 완료
-- Full Catalog 105개 실무매핑 완료
+- Full Catalog 105 실무매핑 완료
 - MVP20 실증검증 및 우선보완 5개 완료
-- P1 13개 구현 완료
-- P1 13개 Registry 활성 완료
-- Registry 33개 + Full Catalog/MVP 통합 테스트 PASS
+- P1 13개 구현·활성·전체 회귀 완료
+- P2 23개 구현·활성·전체 회귀 완료
+- Registry 56 + 선택 UI + Catalog/MVP 통합 테스트 PASS
 - 최종 `python -m pytest -q` 사용자 PC 정상 PASS
 
-사용자가 전체 회귀결과를 `정상`으로 확인했으며 정확한 passed/subtests 숫자는 제공되지 않아 임의 기록하지 않습니다.
+정확한 passed/subtests 숫자는 사용자 출력 미제공으로 임의 기록하지 않습니다.
 
 ---
 
-## 12. 배포 패키지 구조
+## 12. 배포 패키지 구조 및 실제 검증
 
-ZIP(EXE):
+### Portable ZIP(EXE)
 
 ```text
-AI_Auditor/
-├─ AI_Auditor.exe
-├─ runtime/
-│  └─ llama.cpp/
-│     └─ llama-server.exe
-├─ models/
-│  └─ Qwen3-4B-Q4_K_M.gguf
-└─ data/
-   └─ (첫 실행 시 ai_auditor.db 자동 생성)
+dist/
+├─ AI_Auditor/
+│  ├─ AI_Auditor.exe
+│  ├─ runtime/
+│  │  └─ llama.cpp/
+│  │     └─ llama-server.exe
+│  ├─ models/
+│  │  └─ Qwen3-4B-Q4_K_M.gguf
+│  └─ data/
+│     └─ ai_auditor.db
+├─ AI_Auditor_Portable.zip
+└─ AI_Auditor_Portable.zip.sha256.txt
 ```
 
-MSI 설치형:
+Portable 실제 검증:
+- ZIP 약 2.35 GB
+- 모델 약 2.33 GB
+- SHA256 `A53BB20BD7CA531EB27F67C6D60371DF5C6E4BDC68410688A4F331B80A054672`
+- EXE Home 실행 정상
+- DB integrity `ok`
+- llama.cpp build 11312 정상
+- Qwen3-4B 실제 로딩 정상
+- Local AI health/응답 정상
+
+### MSI 설치형
 
 ```text
 installer/output/
@@ -294,47 +319,33 @@ installer/output/
 └─ Qwen3-4B-Q4_K_M.gguf
 ```
 
-기존 패키징 검증에서:
-- Local AI runtime/model 외부 경로 정상
-- 개발 DB 미포함 / 첫 실행 DB 자동생성
-- 인터넷 차단 Local AI 검사 정상
-- MSI per-user 설치 정상
-- 모델 복사/파일크기 검증 정상
+Qwen 모델은 2GB를 초과하므로 MSI File table에 직접 포함하지 않고 설치 Launcher가 설치 후 모델을 복사하고 크기를 검증합니다.
+
+MSI 실제 검증:
+- 기존 설치본 제거 후 최신 MSI 실제 설치 성공
+- `msiexec` Exit Code 0
+- 설치 위치 `%LOCALAPPDATA%\Programs\AI Auditor`
+- 설치 EXE Home 실행 정상
+- EXE / llama-server / 모델 / DB 존재 확인
+- 설치 DB 정상
+- 설치 경로 Qwen3-4B 실제 로딩 정상
+- 설치본 Local AI 실제 응답 정상
+- 최종 설치 Launcher 재실행 정상
+
+설치 Launcher에서 MSI 오류코드가 비어 보일 수 있던 `%ERRORLEVEL%` 처리 문제는 `EnableDelayedExpansion` + `!ERRORLEVEL!` 방식으로 수정했고, 수정본 포함 최종 재빌드와 동작확인을 완료했습니다.
+
+**56개 Freeze 기준 Portable + MSI 배포검증 완료.**
 
 ---
 
-## 13. 현재 배포 상태 — 재빌드 필요
-
-기존 ZIP 위치:
-`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
-
-기존 MSI 위치:
-`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
-
-위 패키지는 **P1 13개 확장 전 기존 빌드**입니다.
-현재 GitHub main은 **33개 실행 Rule Freeze** 상태이므로, 제출용 최종 패키지는 최신 소스로 재빌드해야 합니다.
-
-재빌드/검증 예정:
-1. 최신 main 기준 PyInstaller onedir 재빌드
-2. ZIP(EXE) 재생성
-3. ZIP 실행 / Local AI 스모크검증
-4. 동일 dist 기준 MSI 재빌드
-5. MSI 실제 설치 / DB 자동생성 / Local AI 스모크검증
-6. 성공 후 본 문서를 “33개 배포 완료” 상태로 최종 갱신
-
-따라서 현재 시점에는 **33개 소스 Freeze 완료**, **33개 배포 패키지 검증은 아직 미완료**로 구분합니다.
-
----
-
-## 14. 한계 및 향후 발전
+## 13. 한계 및 향후 발전
 
 현재 의도적 제한:
 - 스캔 PDF OCR 제외
 - HWPX Report Export 제외
 - MSIX 제외
 
-P1은 완료되었으며 이후 Rule 확장 우선순위는:
-- P2 23개
+향후 Rule 확장 우선순위:
 - P3 21개
 - P4 28개
 
@@ -342,7 +353,7 @@ P1은 완료되었으며 이후 Rule 확장 우선순위는:
 
 ---
 
-## 15. 기대효과
+## 14. 기대효과
 
 - 감리 전 사전점검 시간 단축
 - 반복적인 산출물 대조 작업 감소
@@ -355,6 +366,6 @@ P1은 완료되었으며 이후 Rule 확장 우선순위는:
 
 ---
 
-## 16. 핵심 메시지
+## 15. 핵심 메시지
 
 **AI Auditor는 일반적인 문서 요약 AI가 아니라, 실제 감리자료를 실무 검증 근거로 삼아 프로젝트 산출물의 품질 위험을 사전에 찾아주는 폐쇄망 대응형 품질 감사 플랫폼입니다.**
