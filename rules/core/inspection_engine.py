@@ -1,8 +1,8 @@
 from app.parsers.models import ParsedDocument
-from rules.core.ai_engine import DocumentAIEngine
 from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
 from rules.core.models import DocumentRule, DocumentRuleIssue
-from rules.core.p2_b_hybrid_engine import P2BHybridEngine
+from rules.core.p2_c_ai_engine import P2CAIEngine
+from rules.core.p2_c_hybrid_engine import P2CHybridEngine
 from rules.core.p2_document_engine import P2DocumentRuleEngine
 
 
@@ -18,22 +18,23 @@ class DocumentInspectionEngine:
         # P2DocumentRuleEngine은
         # P1DocumentRuleEngine → 기존 DocumentRuleEngine을 상속하므로
         # MVP + P1 결정형 동작을 유지하면서 P2-A Handler만 추가한다.
-        # Registry에 등록되지 않은 P2 Rule은 제품 실행대상에 포함되지 않는다.
         self.rule_engine = P2DocumentRuleEngine(
             list(rules),
             required_deliverables=required_deliverables,
         )
 
-        self.ai_engine = DocumentAIEngine(
+        # P2CAIEngine은 기존 DocumentAIEngine을 유지하면서
+        # FP-006에만 구조형 FP 후보 사전분석을 추가한다.
+        self.ai_engine = P2CAIEngine(
             rules,
             ai_provider,
         )
 
-        # P2BHybridEngine은
-        # P1FPHybridEngine → P1GovernanceHybridEngine → P1AuditHybridEngine →
-        # P1RequirementHybridEngine → DocumentHybridEngine을 상속하므로
-        # 기존 MVP/P1 Hybrid 동작을 유지하면서 P2-B Hybrid만 추가한다.
-        self.hybrid_engine = P2BHybridEngine(
+        # P2CHybridEngine은
+        # P2BHybridEngine → P1FPHybridEngine → P1GovernanceHybridEngine →
+        # P1AuditHybridEngine → P1RequirementHybridEngine → DocumentHybridEngine을
+        # 상속하므로 기존 MVP/P1/P2-B Hybrid 동작을 유지하면서 P2-C만 추가한다.
+        self.hybrid_engine = P2CHybridEngine(
             rules,
             ai_provider,
         )
