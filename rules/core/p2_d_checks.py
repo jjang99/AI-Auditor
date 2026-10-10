@@ -19,7 +19,10 @@ _AI_CONTEXT_TERMS = (
     "rag",
     "prompt",
     "프롬프트",
-    "모델",
+    "ai 모델",
+    "llm 모델",
+    "machine learning",
+    "머신러닝",
     "embedding",
     "임베딩",
 )
@@ -27,7 +30,7 @@ _AI_CONTEXT_TERMS = (
 
 def looks_like_ai_document(document: ParsedDocument) -> bool:
     name = document.file_path.stem.lower()
-    if any(term in name for term in ("ai", "인공지능", "llm", "rag", "생성형")):
+    if any(term in name for term in ("ai", "인공지능", "llm", "rag", "생성형", "머신러닝")):
         return True
 
     joined = " ".join((block.text or "")[:500] for block in document.blocks[:30]).lower()
