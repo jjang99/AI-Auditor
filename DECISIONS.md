@@ -26,6 +26,7 @@
 - Grade A/B/C/D/E만 사용
 - 스캔 이미지 PDF OCR 제외
 - HWPX Report Export 제외
+- MSIX 제외
 
 ---
 
@@ -148,14 +149,14 @@ Batch:
 - P2-C 4개 — 완료
 - P2-D 6개 — 완료
 
-## P2-C 확정 원칙
+P2-C 원칙:
 - CHG-008/010/FP-011은 명시적 변경관리 행과 대응 문서가 함께 업로드된 경우만 후보 생성
 - CHG-010은 데이터/테이블/컬럼 영향이 명시된 변경에 한정
 - FP-006은 구조형 FP 후보만 AI 판단
 - 완전 동일 기능명 중복은 FP-002 책임영역
 - 필요한 문서 한쪽만 업로드된 경우 AI 호출하지 않음
 
-## P2-D 확정 원칙
+P2-D 원칙:
 - 일반 문서가 아니라 AI/LLM/RAG 관련 근거가 확인되는 문서에만 적용
 - 특정 목표값·보안수준·정책을 제품이 임의 생성하지 않음
 - AI-003: 성능·품질 목표/평가기준 근거 후보가 있을 때만 판단
@@ -168,7 +169,7 @@ Batch:
 - Hybrid 5개는 구조적 근거 후보가 없으면 AI 호출하지 않음
 
 검증:
-- P2-D 전용 + Service 테스트 사용자 PC PASS
+- P2-D 전용 + Service 사용자 PC PASS
 - P2-A/B/C/D + Registry 56 + 선택 UI + Catalog/MVP 통합 PASS
 - 최종 `python -m pytest -q` 사용자 PC PASS
 - 정확한 passed 숫자는 사용자 출력 미제공으로 임의 기록하지 않음
@@ -177,38 +178,68 @@ Batch:
 
 ---
 
-# 10. 배포 패키징 결정
+# 10. 최종 배포 패키징 결정
 
-기존 배포본:
-- 기존 ZIP/MSI는 P1/P2 확장 전 빌드이므로 최종 제출본으로 간주하지 않는다.
+## Portable
 
-Portable 최신 빌드:
-- 스크립트: `scripts/build_portable.ps1`
+Canonical 빌드:
+- `scripts/build_portable.ps1`
 - Folder: `dist/AI_Auditor/`
 - ZIP: `dist/AI_Auditor_Portable.zip`
-- SHA256: `dist/AI_Auditor_Portable.zip.sha256.txt`
+- SHA256 파일: `dist/AI_Auditor_Portable.zip.sha256.txt`
 
-MSI 최신 빌드:
-- 스크립트: `installer/build_msi.ps1`
+최종 검증:
+- ZIP 약 2.35 GB
+- 모델 약 2.33 GB
+- SHA256: `A53BB20BD7CA531EB27F67C6D60371DF5C6E4BDC68410688A4F331B80A054672`
+- EXE Home 실행 정상
+- DB integrity `ok`
+- llama.cpp build 11312 정상
+- Qwen3-4B 모델 실제 로딩 정상
+- Local AI health 정상
+- Local AI 실제 응답 정상
+
+## MSI
+
+Canonical 빌드:
+- `installer/build_msi.ps1`
 - Output: `installer/output/`
 
-최종 순서:
-1. 56개 Freeze 최신 main으로 Portable 재빌드
-2. ZIP(EXE) 실제 실행 / DB / Local AI / 주요 Rule 스모크검증
-3. 동일 `dist/AI_Auditor` 기준 MSI 재빌드
-4. MSI 실제 설치 / 모델복사 / DB / Local AI 스모크검증
-5. 성공 후 RULE_DESIGN / P2_IMPLEMENTATION_PLAN / README / HACKATHON_SUBMISSION 최종 현행화
+최종 배포 구성:
+- `AI_Auditor_Install.cmd`
+- `AI_Auditor_Setup.msi`
+- `aia1.cab`
+- `aia2.cab`
+- `Qwen3-4B-Q4_K_M.gguf`
+
+최종 검증:
+- 기존 설치본 제거 후 최신 MSI 실제 설치 성공
+- `msiexec` Exit Code 0
+- 설치 위치 `%LOCALAPPDATA%\Programs\AI Auditor`
+- 설치 EXE Home 실행 정상
+- 설치 경로 EXE / llama-server / 모델 / DB 존재 확인
+- 설치 DB 정상
+- 설치 경로 Qwen3-4B 모델 실제 로딩 정상
+- 설치본 Local AI 실제 응답 정상
+- 설치 Launcher 재실행 정상
+
+Launcher 수정 확정:
+- MSI 실행 실패 시 `Exit code:`가 비어 보일 수 있던 `%ERRORLEVEL%` 처리 문제를 수정한다.
+- `EnableDelayedExpansion` + `!ERRORLEVEL!` 사용을 최종 기준으로 한다.
+- 수정본 포함 최종 MSI 배포 폴더 재빌드 및 동작 확인 완료.
+
+**56개 Freeze 기준 Portable + MSI 최종 배포검증 완료.**
 
 ---
 
-# 11. 현재 다음 단계
+# 11. 이후 범위
 
-1. 최신 문서 변경 로컬 반영
-2. `scripts/build_portable.ps1` 실행
-3. Portable ZIP 실제 스모크검증
-4. `installer/build_msi.ps1` 실행
-5. MSI 실제 설치/스모크검증
-6. 최종 문서 현행화
-7. Git 상태 확인 및 마무리
+핵심 개발/P2/배포는 완료 상태다.
+
+이후 우선순위:
+1. 최종 Git 동기화 및 working tree clean 확인
+2. 해커톤 제출 규격·파일명·용량 제한 확인
+3. 필요 시 사용자 매뉴얼 / 데모 시나리오 / 발표자료 정리
+4. P3/P4는 제출 이후 별도 범위로 진행
 
 새 결함이 없는 한 완료된 P1/P2 범위를 다시 뜯지 않는다.
