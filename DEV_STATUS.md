@@ -18,9 +18,10 @@
 - P1 13개 전체 구현·활성·전체 회귀
 - **P2-A 7개 전체 구현·활성·전체 회귀**
 - **P2-B 6개 전체 구현·활성·전체 회귀**
+- **P2-C 4개 전체 구현·활성·전체 회귀**
 
 현재 진행:
-- **P2-C 4개 구현 완료 / 전용·Service 검증 대기**
+- **P2-D 6개 구현 착수**
 
 ---
 
@@ -43,12 +44,15 @@ P1 완료 기준:
 P2-A 완료 기준:
 - 40개 = MVP20 + P1 13 + P2-A 7
 
-P2-B 완료 후 현재 Registry:
-- **46개 = MVP20 + P1 13 + P2-A 7 + P2-B 6**
-- **Rule 14 / AI 9 / Hybrid 23**
+P2-B 완료 기준:
+- 46개 = MVP20 + P1 13 + P2-A 7 + P2-B 6
+
+P2-C 완료 후 현재 Registry:
+- **50개 = MVP20 + P1 13 + P2-A 7 + P2-B 6 + P2-C 4**
+- **Rule 14 / AI 10 / Hybrid 26**
 
 P2 진행:
-- **13 / 23 완료**
+- **17 / 23 완료**
 
 P2 전체 완료 목표:
 - **56개 = MVP20 + P1 13 + P2 23**
@@ -89,34 +93,18 @@ P1 13개:
 ## 5. P2-B — 완료
 
 대상 6개:
-- AUD-005 문서 간 용어 일관성 — AI, 교차문서
-- AUD-021 인터페이스 문서정보 일치 — Hybrid, 교차문서
-- REQ-006 요구사항 완전성 — AI
-- REQ-021 요구사항 상태·승인정보 정합성 — Hybrid
-- REQ-027 요구사항 출처·상위요구 및 추가기능 근거 — Hybrid
-- REQ-028 요구사항 정합성 종합 위험 후보 — AI, 후처리 종합
-
-구현:
-- `rules/definitions/document_p2_b_rules.py`
-- `rules/core/p2_b_checks.py`
-- `rules/core/p2_b_hybrid_engine.py`
-- `rules/core/ai_strategy.py`
-- `rules/core/inspection_engine.py`
-- `app/services/inspection_service.py`
-- `tests/test_p2_b_rules.py`
-- `tests/test_p2_b_service.py`
+- AUD-005 / AUD-021 / REQ-006 / REQ-021 / REQ-027 / REQ-028
 
 검증:
-- P2-B 전용 + Service 테스트 사용자 PC 정상
+- 전용 + Service 테스트 사용자 PC 정상
 - P2-B + P2-A + Registry 46 + 선택 UI + Catalog/MVP 통합 정상
-- 최종 `python -m pytest -q` 사용자 PC 정상
-- 정확한 passed 숫자는 사용자 출력 미제공으로 임의 기록하지 않음
+- 전체 `python -m pytest -q` 사용자 PC 정상
 
 **P2-B 완료 / 실행 Registry 46개**
 
 ---
 
-## 6. P2-C — 구현 완료, 검증 전
+## 6. P2-C — 완료
 
 대상 4개:
 - CHG-008 관련 설계 변경 미반영 — Hybrid
@@ -124,7 +112,7 @@ P1 13개:
 - FP-006 기능 단위 분할·통합 적정성 — AI
 - FP-011 FP 변경반영 누락 — Hybrid
 
-구현 파일:
+구현:
 - `rules/definitions/document_p2_c_rules.py`
 - `rules/core/p2_c_checks.py`
 - `rules/core/p2_c_hybrid_engine.py`
@@ -140,18 +128,42 @@ P1 13개:
 - FP-006: 구조형 FP 행에서 과도 분할/부적절 통합 후보만 사전추출 후 AI 판단; 완전 동일 기능명은 FP-002 책임영역으로 제외
 - FP-011: 기능/요구 변경 + FP 산정자료가 함께 있을 때만 변경반영 후보
 
-오탐 방지:
-- 필요한 문서 한쪽만 업로드된 경우 AI 호출하지 않음
-- 일반 설계문서의 오래됨을 임의 추정하지 않음
-- FP-006과 FP-002 역할 분리
+검증:
+- P2-C 전용 + Service 테스트 사용자 PC 정상
+- P2-C + P2-A/B + Registry 50 + 선택 UI + Catalog/MVP 통합 정상
+- 전체 `python -m pytest -q` 사용자 PC 정상
+- Registry truncation 문법 오류 1건 복구 후 동일 통합/전체 회귀 재검증 정상
 
-현재 상태:
-- **Registry 미등록**
-- 전용/Service 테스트 정상 확인 전 활성화 금지
+**P2-C 완료 / 실행 Registry 50개**
 
 ---
 
-## 7. 현재 Engine 구조
+## 7. P2-D — 현재 작업
+
+대상 6개:
+- AI-003 AI 성능·품질 목표 정의 — Hybrid
+- AI-008 민감정보 입력·출력 통제 — Hybrid
+- AI-013 학습·참조데이터 적정성 — Hybrid
+- AI-015 RAG 검색근거 적정성 — AI
+- AI-017 AI 평가·테스트 체계 적정성 — Hybrid
+- AI-021 AI 로그·추적성 및 운영 모니터링 — Hybrid
+
+원칙:
+- AI/RAG 관련 근거가 확인된 문서에만 적용
+- 특정 목표값·보안기준·정책을 임의 생성하지 않음
+- AI-015는 RAG/검색증강 구조가 명시된 경우만 적용
+- AI-021은 일반 애플리케이션 로그만으로 충족 판정하지 않음
+- Hybrid 5개는 사전근거가 없으면 AI 호출하지 않음
+- 전용/Service 검증 전 Registry 활성 금지
+
+P2-D 완료 목표:
+- 실행 Registry 56개
+- P2 23 / 23 완료
+- Rule 14 / AI 11 / Hybrid 31
+
+---
+
+## 8. 현재 Engine 구조
 
 Rule:
 `DocumentRuleEngine → P1DocumentRuleEngine → P2DocumentRuleEngine`
@@ -167,7 +179,7 @@ Hybrid:
 
 ---
 
-## 8. Parser / Local AI / Severity 고정
+## 9. Parser / Local AI / Severity 고정
 
 Parser 9종:
 - DOCX / DOC / XLSX / XLS / PDF / PPTX / PPT / HWPX / HWP
@@ -187,7 +199,7 @@ Severity:
 
 ---
 
-## 9. 배포 상태
+## 10. 배포 상태
 
 기존 ZIP(EXE):
 `C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
@@ -197,18 +209,18 @@ Severity:
 
 정책:
 - 기존 배포본은 P1/P2 확장 전 상태
-- P2 23개 전체 완료 전 재빌드하지 않음
+- P2-D 완료 전 재빌드하지 않음
 - P2 전체 완료 후 56개 Freeze 소스로 ZIP/MSI 재빌드 + 실제 스모크검증
 
 ---
 
-## 10. 다음 작업
+## 11. 다음 작업
 
-1. 로컬 `git pull --ff-only`
-2. `tests/test_p2_c_rules.py` + `tests/test_p2_c_service.py` 실행
-3. 실패 시 수정
-4. 정상 시 P2-C 4개 Registry 활성 → 목표 50개
+1. P2-D 6개 정의/사전분석 구현
+2. AI/Hybrid 실행경로 연결
+3. 전용 + Service 테스트
+4. 정상 시 P2-D 6개 Registry 활성 → 56개
 5. 통합검증
 6. 전체 pytest
-7. P2-C 완료 문서 현행화
-8. P2-D 6개 진행
+7. P2 23/23 완료 문서 현행화
+8. ZIP/MSI 재빌드 및 실제 스모크검증
