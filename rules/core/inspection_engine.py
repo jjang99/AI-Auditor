@@ -3,7 +3,7 @@ from rules.core.ai_engine import DocumentAIEngine
 from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
 from rules.core.models import DocumentRule, DocumentRuleIssue
 from rules.core.p1_document_engine import P1DocumentRuleEngine
-from rules.core.p1_governance_hybrid_engine import P1GovernanceHybridEngine
+from rules.core.p1_fp_hybrid_engine import P1FPHybridEngine
 
 
 class DocumentInspectionEngine:
@@ -27,10 +27,11 @@ class DocumentInspectionEngine:
             ai_provider,
         )
 
-        # P1GovernanceHybridEngine은
-        # P1AuditHybridEngine → P1RequirementHybridEngine → DocumentHybridEngine을
-        # 상속하므로 기존 Hybrid + P1-B/C 동작을 유지하면서 P1-D만 확장한다.
-        self.hybrid_engine = P1GovernanceHybridEngine(
+        # P1FPHybridEngine은
+        # P1GovernanceHybridEngine → P1AuditHybridEngine →
+        # P1RequirementHybridEngine → DocumentHybridEngine을 상속하므로
+        # 기존 Hybrid + P1-B/C/D 동작을 유지하면서 P1-E만 확장한다.
+        self.hybrid_engine = P1FPHybridEngine(
             rules,
             ai_provider,
         )
