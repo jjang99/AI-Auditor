@@ -7,22 +7,19 @@
       Scope="perUserOrMachine">
 
     <!--
-      Qwen3-4B-Q4_K_M.gguf is larger than 2 GiB.
-      Keep cabinets external and split large-file cabinets below the Windows Installer limit.
+      Application/runtime payload is stored in external cabinets.
+      The Qwen GGUF model is larger than the Windows Installer File table limit,
+      so it is shipped beside the MSI and copied from SourceDir during install.
     -->
     <MediaTemplate
         EmbedCab="no"
         CabinetTemplate="aia{0}.cab"
-        CompressionLevel="high"
-        MaximumUncompressedMediaSize="1024"
-        MaximumCabinetSizeForLargeFileSplitting="1024" />
+        CompressionLevel="high" />
 
-    <!--
-      Install under the current user's program area so AI_Auditor.exe can create/write
-      its adjacent data\ai_auditor.db without requiring Program Files write access.
-    -->
     <StandardDirectory Id="PerUserProgramFilesFolder">
-      <Directory Id="INSTALLFOLDER" Name="AI Auditor" />
+      <Directory Id="INSTALLFOLDER" Name="AI Auditor">
+        <Directory Id="ModelFolder" Name="models" />
+      </Directory>
     </StandardDirectory>
 
     <StandardDirectory Id="ProgramMenuFolder">
@@ -46,12 +43,38 @@
       </Directory>
     </StandardDirectory>
 
+    <!--
+      The model is intentionally NOT authored as a File element. WiX rejects
+      individual File-table entries >= 2 GiB (WIX0263). Instead, Windows Installer's
+      MoveFiles action copies the already-present model from the MSI source folder.
+    -->
+    <Component Id="ExternalModelComponent" Directory="ModelFolder" Guid="*">
+      <CopyFile
+          Id="CopyExternalQwenModel"
+          SourceProperty="SourceDir"
+          SourceName="Qwen3-4B-Q4_K_M.gguf"
+          DestinationDirectory="ModelFolder"
+          DestinationName="Qwen3-4B-Q4_K_M.gguf" />
+      <RemoveFile
+          Id="RemoveExternalQwenModel"
+          Name="Qwen3-4B-Q4_K_M.gguf"
+          On="uninstall" />
+      <RegistryValue
+          Root="HKCU"
+          Key="Software\AI Auditor"
+          Name="modelInstalled"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+    </Component>
+
     <Feature Id="MainFeature" Title="AI Auditor" Level="1">
       <Files Include="!(bindpath.app)\**" Directory="INSTALLFOLDER">
-        <!-- The runtime-created SQLite DB must not be packaged. -->
         <Exclude Files="!(bindpath.app)\data\ai_auditor.db" />
+        <Exclude Files="!(bindpath.app)\models\Qwen3-4B-Q4_K_M.gguf" />
       </Files>
       <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ExternalModelComponent" />
     </Feature>
   </Package>
 </Wix>
