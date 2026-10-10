@@ -1,7 +1,7 @@
 # AI Auditor 개발 현황
 
 ## 기준일
-- 2026-10-09
+- 2026-10-10
 
 ## 현재 전체 상태
 - 1단계 기존 Rule 복원·재분류 — 완료
@@ -15,6 +15,8 @@
 - 감리결과서 114개 분석 / 105개 전체 Rule 실무 매핑 — 완료
 - MVP 20개 실제 감리사례 실증검증 — 완료
 - 우선 보완 5개 구현 및 전체 회귀검증 — 완료
+- 감리분석 보완사항 반영 ZIP(EXE) 재빌드 및 스모크검증 — 완료
+- WiX 기반 MSI 설치형 제작 / 실제 설치 / Local AI 검사 검증 — 완료
 - 다음 단계: 해커톤 제출용 최종 문서화·정리
 
 ---
@@ -136,7 +138,7 @@ HWPX Export는 MVP에서 제외한다.
 - `dist/AI_Auditor/AI_Auditor.exe`
 - `dist/AI_Auditor/runtime/llama.cpp/llama-server.exe`
 - `dist/AI_Auditor/models/Qwen3-4B-Q4_K_M.gguf`
-- `dist/AI_Auditor/data/ai_auditor.db`
+- 첫 실행 시 `dist/AI_Auditor/data/ai_auditor.db` 자동 생성
 
 ## 검증 완료
 
@@ -273,6 +275,59 @@ Canonical 문서:
 
 ---
 
+# 최종 배포 패키징 — 2026-10-10 완료
+
+## ZIP(EXE)
+- 감리분석 우선 보완 5개 반영 후 PyInstaller onedir 재빌드 완료
+- runtime/model 재배치 완료
+- 배포본에는 개발 DB를 넣지 않고 첫 실행 자동생성 방식 사용
+- `zip_smoke_req003.docx` + REQ-003 Local AI 실제 검사 정상
+- 결과 생성 / DB 저장 / Project Detail 표시 정상
+- 스모크검증 후 배포본 DB 제거하여 clean 상태로 ZIP 생성
+
+최종 ZIP 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
+
+## MSI 설치형
+
+빌드도구:
+- Microsoft .NET SDK 10.0.401 x64
+- WiX Toolset 7.0.0
+
+최종 원칙:
+- 설치 범위: per-user
+- 설치 위치: `%LOCALAPPDATA%\Programs\AI Auditor`
+- Qwen GGUF 크기: 2,497,280,256 bytes
+- 단일 2GB 초과 파일은 MSI File table에 직접 넣지 않음
+- 모델은 MSI 외부에 두고 `AI_Auditor_Install.cmd`가 MSI 설치 후 `robocopy`로 복사
+- Launcher는 모델 복사 후 원본/대상 파일크기를 검증
+- 사용자는 `AI_Auditor_Setup.msi` 단독실행이 아니라 `AI_Auditor_Install.cmd`를 실행
+- 부분설치 상태에서는 설치된 EXE 존재를 확인하고 MSI 재설치를 건너뛰도록 Launcher를 보완
+
+최종 구성:
+- `AI_Auditor_Install.cmd`
+- `AI_Auditor_Setup.msi`
+- `aia1.cab`
+- `aia2.cab`
+- `Qwen3-4B-Q4_K_M.gguf`
+
+최종 MSI 설치형 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
+
+실제 설치 검증:
+- 프로그램 설치 정상
+- EXE 실행 정상
+- runtime 존재 정상
+- 모델 존재/크기 일치 정상
+- DB 자동생성 정상
+- 동일 REQ-003 Local AI 검사 정상
+- 검사결과 DB 저장 정상
+
+MSIX는 현재 제외한다.
+Qwen3-4B Q4_K_M은 검증된 품질 기준을 유지하기 위해 임의 경량화하지 않는다.
+
+---
+
 ## 다음 작업
 
 1. 해커톤 제출용 최종 문서화·정리
@@ -280,4 +335,4 @@ Canonical 문서:
 3. 제출 후 나머지 85개 Rule을 `AUDIT_EVIDENCE_MAPPING.md`의 P1 → P2 → P3 → P4 순서를 기본으로 구현
 4. 105개 전체 통합 검증
 
-감리결과서 114개 분석과 MVP 20개 실증검증은 완료 상태이므로 다음 작업에서 처음부터 반복하지 않는다.
+감리결과서 114개 분석과 MVP 20개 실증검증, ZIP(EXE)/MSI 패키징 검증은 완료 상태이므로 다음 작업에서 처음부터 반복하지 않는다.
