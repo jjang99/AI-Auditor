@@ -36,11 +36,12 @@
 - ZIP(EXE) 재빌드·스모크검증
 - WiX 기반 MSI 설치형 패키지 제작·실설치·Local AI 스모크검증
 
-새 확장 진행:
+확장 진행:
 - 7-0 최소 공통 확장기반 — 완료
 - P1 13개 구현기준 확정 — 완료
 - P1-A 구조형/결정형 4개 — 완료
-- 다음 단계: P1-B 요구사항·시험·추적성 3개 구현
+- P1-B 요구사항·시험·추적성 3개 — 완료
+- 다음 단계: P1-C 계획·품질 2개 (AUD-010, AUD-018)
 
 **1~6단계, 감리자료 114개 분석, MVP20 실증검증, 우선 보완 5개, 기존 ZIP/MSI 패키징은 새 결함이 없는 한 다시 구현·재설계·재분석하지 않는다.**
 
@@ -64,27 +65,35 @@ Full Rule Catalog 105개:
 - 실행방식: Rule 3 / AI 6 / Hybrid 11
 
 현재 GitHub main 실제 실행 가능 Rule:
-- **24개 = 기존 MVP20 + P1-A 4개**
-- P1-A 활성 Rule:
-  - AUD-008 계획 대비 산출물 작성상태 점검
-  - AUD-014 시험계획 완전성 점검
-  - AUD-016 시험결함 조치상태 점검
-  - FP-008 상세 산정정보 적정성 점검
-- 현재 실행방식 합계: Rule 7 / AI 6 / Hybrid 11
+- **27개 = 기존 MVP20 + P1 7개**
+
+P1 활성 7개:
+- AUD-008 계획 대비 산출물 작성상태 점검
+- AUD-014 시험계획 완전성 점검
+- AUD-016 시험결함 조치상태 점검
+- REQ-007 요구사항 검증가능성·검증방법 점검
+- REQ-012 요구사항 시험항목 누락 점검
+- REQ-017 요구사항 추적관계 누락 점검
+- FP-008 상세 산정정보 적정성 점검
+
+현재 실행방식 합계:
+- Rule 7
+- AI 6
+- Hybrid 14
 
 중요:
 - `MVP20`은 최초 해커톤 기준선 명칭으로 유지한다.
-- `현재 실제 실행 가능 Rule 수`는 확장 구현으로 24개가 되었다.
+- `현재 실제 실행 가능 Rule 수`는 확장 구현으로 27개가 되었다.
 - Full Catalog 105개와 실제 실행 가능 Rule 수는 서로 다른 개념이다.
 
 ---
 
-# 3. 7-0 최소 공통 확장기반 — 2026-10-10 완료
+# 3. 7-0 최소 공통 확장기반 — 완료
 
 구현 목적:
-- 기존 MVP20에 직접 하드코딩된 실행선택 구조를 확장 가능한 Registry 구조로 전환
-- 미구현 Rule이 Full Catalog에 보이더라도 실제 Handler 없이 실행되는 상황 차단
-- UI Freeze를 유지하면서 실행 Rule만 안전하게 확장
+- 기존 MVP20 직접 하드코딩 구조를 확장 가능한 중앙 Registry 구조로 전환
+- Handler가 없는 Rule의 조기 활성화 차단
+- UI Freeze를 유지하면서 실제 실행 Rule만 점진 확장
 
 핵심 파일:
 - `rules/definitions/document_rule_registry.py`
@@ -93,216 +102,187 @@ Full Rule Catalog 105개:
 - `tests/test_document_rule_registry.py`
 - `tests/test_document_selection.py`
 
-핵심 원칙:
-- Full Catalog 105는 그대로 유지
-- 실제 Handler + targeted test를 통과한 Rule만 Registry에 등록
+원칙:
+- Full Catalog 105는 유지
+- 실제 Handler + targeted test를 통과한 Rule만 Registry 등록
 - Registry 미등록 Rule은 UI Catalog에 존재해도 실제 검사에서는 실행하지 않음
-- 기존 호환 API `get_selected_document_mvp_rules()`는 유지하되 내부적으로 현재 Registry 기준을 반환
 
-7-0 직후 사용자 PC 검증:
-- targeted regression 정상
-- 전체 `python -m pytest -q`: `198 passed, 51 subtests passed`
+7-0 직후 사용자 PC 전체 회귀:
+- `198 passed, 51 subtests passed`
 
 ---
 
 # 4. P1 구현 계획
 
-Canonical 기준:
+Canonical:
 - `P1_IMPLEMENTATION_PLAN.md`
 
 P1 13개:
-- AUD-008
-- AUD-010
-- AUD-014
-- AUD-016
-- AUD-018
-- AUD-020
-- AUD-022
-- AUD-023
-- REQ-007
-- REQ-012
-- REQ-017
-- FP-002
-- FP-008
+- AUD-008 / AUD-010 / AUD-014 / AUD-016 / AUD-018 / AUD-020 / AUD-022 / AUD-023
+- REQ-007 / REQ-012 / REQ-017
+- FP-002 / FP-008
 
-구현 순서:
+구현 묶음:
+- P1-A: AUD-014 / AUD-016 / FP-008 / AUD-008 — 완료
+- P1-B: REQ-007 / REQ-012 / REQ-017 — 완료
+- P1-C: AUD-010 / AUD-018 — 다음
+- P1-D: AUD-020 / AUD-022 / AUD-023
+- P1-E: FP-002
 
-P1-A — 구조형/결정형
-1. AUD-014
-2. AUD-016
-3. FP-008
-4. AUD-008
+P1 전체 완료 시 목표:
+- 실제 실행 Rule 33개 = MVP20 + P1 13개
 
-P1-B — 요구사항·시험·추적성
-5. REQ-007
-6. REQ-012
-7. REQ-017
-
-P1-C — 계획·품질
-8. AUD-010
-9. AUD-018
-
-P1-D — 인터페이스·계약·기준
-10. AUD-020
-11. AUD-022
-12. AUD-023
-
-P1-E — FP 의미중복
-13. FP-002
-
-P1 전체 완료 시 목표 실제 실행 Rule 수:
-- 33개 = MVP20 + P1 13개
+현재 P1:
+- 완료/활성 7개
+- 남음 6개
 
 ---
 
-# 5. P1-A 4개 — 2026-10-10 완료
+# 5. P1-A — 완료
 
-## AUD-014 시험계획 완전성
-- 시험항목 / 시험방법·조건 / 예상결과 구조 점검
-- 실제 시험행의 필수값 누락 탐지
-- 빈 템플릿행, 합계·요약행 오탐 방지
+완료 Rule:
+- AUD-008 계획 대비 산출물 작성상태
+- AUD-014 시험계획 완전성
+- AUD-016 시험결함 조치상태
+- FP-008 상세 산정정보 적정성
 
-## AUD-016 시험결함 조치상태
-- 미조치 / 진행중 / 재검증 필요 등 미종결 상태 탐지
-- 완료 상태인데 조치결과가 비어 있는 구조적 불일치 탐지
-- 취소 / 해당없음 / 중복 / 제외 상태는 정상 종결로 구분
-
-## FP-008 상세 산정정보 적정성
-- 기존 `fp_calculator.py` 구조 재사용
-- 기능유형 + 보고 FP가 있는 실제 산정행만 대상
-- 복잡도 명시 시 허용
-- 복잡도가 없으면 RET/FTR + DET 근거 확인
-- 합계/요약행 제외
-
-## AUD-008 계획 대비 산출물 작성상태
-AUD-001과 역할 분리:
+핵심 역할 분리:
 - AUD-001 = 실제 제출 파일 존재/누락
-- AUD-008 = 계획표상 현재 대상 산출물의 작성·제출 상태 관리
+- AUD-008 = 계획표상 현재 대상 산출물의 작성·제출 상태
 
-탐지:
-- 상태 공란
-- 미작성
-- 작성중
-- 미제출
-- 미완료
-- 진행중/보완중
+검증:
+- 첫 3개 활성화 후 targeted `30 passed`
+- 첫 3개 활성화 후 전체 `209 passed, 51 subtests passed`
+- AUD-008 추가 후 targeted PASS
+- 24개 Registry 통합 PASS
+- 최종 전체 `python -m pytest -q` 사용자 PC 정상 PASS
 
-제외:
-- 미적용
-- 적용제외
-- 해당없음
-- 시기미도래
-- 점검제외
-- 기준자료 자체가 없는 경우 임의 추정 금지
+---
 
-P1-A 핵심 파일:
-- `rules/definitions/document_p1_rules.py`
-- `rules/definitions/document_p1_aud008_rule.py`
-- `rules/core/p1_rule_checks.py`
-- `rules/core/p1_deliverable_status.py`
-- `rules/core/p1_document_engine.py`
+# 6. P1-B — 2026-10-10 완료
+
+## REQ-007 요구사항 검증가능성·검증방법 점검
+
+구현:
+- Hybrid
+- 구조형 요구사항 표에서 `요구사항 ID + 검증방법/확인방법/시험방법/수용기준` 열을 식별
+- 검증방법 공란 또는 `미정/추후/협의/TBD/예정` 후보를 사전추출
+- 숫자가 없다는 이유만으로 기능 요구사항 전체를 검증불가로 판정하지 않음
+- 후보가 없으면 AI 호출하지 않음
+
+## REQ-012 요구사항 시험항목 누락 점검
+
+구현:
+- Hybrid
+- 단일 문서만 보고 누락으로 단정하지 않음
+- 개별문서 Hybrid 실행에서는 건너뜀
+- `InspectionService` 후처리에서 업로드된 요구사항 문서와 시험문서를 함께 비교
+- 시험문서가 하나도 없으면 업로드 불완전 가능성이 있으므로 Issue 후보 생성/AI 호출 안 함
+- 시험문서가 존재하고 요구사항 ID 연결이 확인되지 않을 때만 교차문서 evidence 생성 후 AI 최종판단
+- `N/A/해당없음/비대상/시험대상아님` 제외
+
+## REQ-017 요구사항 추적관계 누락 점검
+
+구현:
+- Hybrid
+- 추적표에 실제 존재하는 후속 산출물 열 중 최소 2개 이상이 정의된 구조를 대상으로 함
+- 필요한 추적링크 공란을 후보화
+- N/A / 해당없음 / 별도시트 참조 제외
+- REQ-018의 전체 양방향 추적성 검사와 역할 분리
+
+P1-B 핵심 파일:
+- `rules/definitions/document_p1_req_rules.py`
+- `rules/core/p1_requirement_checks.py`
+- `rules/core/p1_requirement_hybrid_engine.py`
 - `rules/core/inspection_engine.py`
+- `app/services/inspection_service.py`
+- `tests/test_p1_requirement_rules.py`
+- `tests/test_p1_requirement_service.py`
 - `rules/definitions/document_rule_registry.py`
-- `tests/test_p1_deterministic_rules.py`
 - `tests/test_document_rule_registry.py`
 - `tests/test_document_selection.py`
 
 검증:
-- P1-A 첫 3개 전용 테스트 PASS
-- 첫 3개 활성화 후 통합 targeted: `30 passed`
-- 첫 3개 활성화 후 전체: `209 passed, 51 subtests passed`
-- AUD-008 전용 테스트 PASS
-- AUD-008 활성화 후 24개 Registry/통합 targeted PASS
-- AUD-008 활성화 후 최종 전체 `python -m pytest -q` 사용자 PC 정상 PASS
-  - 사용자가 최종 결과를 `정상`으로 확인했으며 정확한 passed 개수는 별도 기록하지 않음
+- P1-B Rule 전용 테스트 PASS
+- REQ-012 교차문서 Service 통합 테스트 PASS
+- 27개 Registry + P1-B + 기존 Full Catalog/MVP 통합 targeted PASS
+- 최종 전체 `python -m pytest -q` 사용자 PC 정상 PASS
+- 마지막 실행의 정확한 passed 개수는 사용자가 `정상`으로 확인했으므로 숫자를 임의 기록하지 않음
 
 ---
 
-# 6. 현재 Engine 구조
+# 7. 현재 Engine 구조
 
 실행 흐름:
-`Inspection → Full Catalog 105 선택상태 → 실행 Registry 필터 → Parser → Rule / AI / Hybrid → DocumentInspectionEngine → Issue → Assessment → DB → UI`
+`Inspection → Full Catalog 105 선택상태 → 실행 Registry 필터 → Parser → Rule / AI / Hybrid → 교차문서 후처리 → Issue → Assessment → DB → UI`
 
-Rule 계층:
-- 기존 `DocumentRuleEngine`은 유지
-- `P1DocumentRuleEngine(DocumentRuleEngine)`이 검증 완료된 P1 결정형 Handler를 추가
-- `DocumentInspectionEngine`의 Rule 엔진은 현재 `P1DocumentRuleEngine` 사용
-- AI/Hybrid 엔진은 기존 구조를 유지
+Rule:
+- `DocumentRuleEngine`
+- `P1DocumentRuleEngine(DocumentRuleEngine)`
 
-이 구조는 기존 MVP20 동작을 보존하면서 P1 Rule만 점진적으로 추가하기 위한 것이다.
+Hybrid:
+- `DocumentHybridEngine`
+- `P1RequirementHybridEngine(DocumentHybridEngine)`
+- 기존 Hybrid Rule 동작을 보존하면서 P1-B 사전분석 확장
 
----
+교차문서:
+- REQ-009 요구사항↔설계 비교
+- REQ-012 요구사항↔시험 비교
+- CHG 계열 기존 비교/후처리
 
-# 7. 다음 작업 — P1-B
-
-다음 구현 대상:
-1. REQ-007 요구사항 검증가능성·검증방법 점검
-2. REQ-012 요구사항 시험항목 누락 점검
-3. REQ-017 요구사항 추적관계 누락 점검
-
-재사용 기준:
-- REQ-003 모호성 후보 추출 구조
-- REQ-009 요구사항 ↔ 설계 교차문서 구조
-- REQ-018 추적성 구조
-
-역할 분리:
-- REQ-007: 요구사항이 실제로 검증 가능한가 / 검증방법이 있는가
-- REQ-012: 요구사항에 대응하는 시험항목이 누락됐는가
-- REQ-017: 필요한 추적 연결 자체가 누락됐는가
-- REQ-018: 전체 양방향 추적 가능성
-
-오탐 방지:
-- 모든 요구사항에 숫자 기준을 강제하지 않음
-- N/A / 해당없음 / 별도시트 참조 인정
-- 비기능 요구사항에 기능 산출물 링크를 일률적으로 강제하지 않음
-- REQ-003 / REQ-018과 동일 Issue를 중복 생성하지 않도록 역할을 분리
+UI Freeze는 유지한다.
 
 ---
 
-# 8. 감리자료 / Rule 근거
+# 8. 다음 작업 — P1-C
+
+대상:
+1. AUD-010 WBS 완전성·비정상 항목 점검
+2. AUD-018 품질활동 계획 대비 수행 점검
+
+AUD-010 구현기준:
+- WBS/일정표 구조의 작업명, 시작일, 종료일, 담당자 필수정보 후보 추출
+- 종료일 < 시작일 같은 명확한 일정역전 후보 추출
+- 상위 요약행 / 구분행 / 마일스톤 오탐 방지
+- 날짜를 해석할 수 없으면 오류로 단정하지 않음
+
+AUD-018 구현기준:
+- 품질보증/검토/점검 계획의 활동·주기·시점과 실제 수행근거 비교
+- 시기미도래 제외
+- 일부 문서만 업로드된 경우 근거부재만으로 즉시 미수행 확정 금지
+- 구조적 후보 + AI 의미판단 Hybrid 유지
+
+P1-C가 모두 검증·활성화되면 실행 Rule 목표:
+- 29개
+
+---
+
+# 9. 감리자료 / Rule 근거
 
 Canonical:
 - `AUDIT_EVIDENCE_MAPPING.md`
 - `MVP20_AUDIT_VALIDATION.md`
+- `P1_IMPLEMENTATION_PLAN.md`
 
-분석 기준:
-- 114개 감리 관련 파일
+감리자료:
+- 114개
 - PDF 94 / DOCX 19 / XLSX 1
 - 2019~2025 독립 보고서
-- 일부 2025 보고서에 2026 후속일정 포함
 
-미구현 우선순위 원래 분류:
-- P1 13
-- P2 23
-- P3 21
-- P4 28
-
-현재 P1 진행상태:
-- 완료/활성 4개
-- 남음 9개
-
-감리자료 114개는 P1~P4 구현 때 처음부터 다시 분석하지 않는다.
-새 자료가 추가될 때만 증분 반영한다.
+감리자료는 P1~P4 구현 때 처음부터 다시 분석하지 않는다.
+새 자료가 들어올 때만 증분 반영한다.
 
 신규 Rule 후보:
 - 9개 + 조건부 1개 유지
-- 현재 Full Catalog 105에는 추가하지 않음
+- Full Catalog 105에는 아직 추가하지 않음
 - 사용자 승인 전 임의 추가 금지
 
 ---
 
-# 9. Parser / Local AI / Severity 고정 기준
+# 10. Parser / Local AI / Severity 고정 기준
 
-Parser 지원 9종:
-- DOCX
-- DOC
-- XLSX
-- XLS
-- PDF
-- PPTX
-- PPT
-- HWPX
-- HWP
+Parser 9종:
+- DOCX / DOC / XLSX / XLS / PDF / PPTX / PPT / HWPX / HWP
 
 제외:
 - 스캔 이미지 PDF OCR
@@ -318,12 +298,6 @@ Local AI:
 - min-p 0
 - seed 42
 
-AI 역할:
-- Impact
-- Impact Reason
-- Likelihood
-- Likelihood Reason
-
 Final Severity:
 `Impact × Likelihood → deterministic Severity Matrix`
 
@@ -332,40 +306,41 @@ AI가 Severity를 직접 결정하지 않는다.
 
 ---
 
-# 10. UI / 데이터 / 배포 고정 기준
+# 11. UI / 데이터 / 배포 고정 기준
 
 UI:
 - 2026-09-18 UI Freeze 유지
 - Dark 기본 / Light 지원
-- 임의 레이아웃·폰트·간격·색상 재설계 금지
+- 임의 재설계 금지
 
 Administration 데이터 관리:
 - 전체 검사이력 정리: `Issues → Inspections`, Project 유지
 - Project 삭제: `Issues → Inspections → Project`
 - transaction / rollback 유지
 
-현재 기존 최종 ZIP(EXE):
+기존 최종 ZIP(EXE):
 `C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
 
-현재 기존 최종 MSI 설치형:
+기존 최종 MSI 설치형:
 `C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
 
 중요:
-- 위 ZIP/MSI는 P1-A 확장 전 최종 배포본이다.
-- 현재 GitHub main 소스는 24개 Rule 기준이지만 ZIP/MSI를 아직 다시 빌드하지 않았다.
-- 따라서 README / HACKATHON_SUBMISSION의 기존 배포검증 문구를 24개 기준으로 성급히 바꾸지 않는다.
+- 위 ZIP/MSI는 P1 확장 전 기존 MVP20 기준 최종 배포본이다.
+- 현재 GitHub main 소스는 27개 Rule 기준이다.
+- P1 확장 소스로 ZIP/MSI를 아직 다시 빌드하지 않았다.
+- README / HACKATHON_SUBMISSION의 기존 배포검증 문구는 기존 배포본 기준으로 유지한다.
 - P1 확장 범위를 동결한 뒤 최신 소스로 ZIP/MSI를 재빌드·스모크검증하고 제출문서를 최종 현행화한다.
 
 ---
 
-# 11. 다음 세션에서 하지 말아야 할 것
+# 12. 다음 세션에서 하지 말아야 할 것
 
 - 1~6단계를 다시 구현하지 않는다.
 - UI Freeze를 깨지 않는다.
 - 감리자료 114개를 처음부터 다시 분석하지 않는다.
 - MVP20 보완 5개를 다시 작업하지 않는다.
+- P1-A/P1-B 7개를 다시 구현하지 않는다.
 - 검증되지 않은 P1 Rule을 Registry에 미리 등록하지 않는다.
-- P1-A 4개를 다시 구현하지 않는다.
-- 기존 최종 ZIP/MSI가 현재 24개 소스를 포함한다고 착각하지 않는다.
+- 기존 ZIP/MSI가 현재 27개 소스를 포함한다고 착각하지 않는다.
 
-다음 시작점은 **P1-B REQ-007 → REQ-012 → REQ-017 구현**이다.
+다음 실제 개발 시작점은 **P1-C AUD-010 → AUD-018**이다.
