@@ -7,10 +7,11 @@ Full Catalog 105개와 실제 실행 가능한 Rule은 분리해서 관리한다
 현재 기준:
 - Full Catalog: 105개
 - 기존 MVP 실행 Rule: 20개
-- P1 활성 Rule: 7개
-  (AUD-008, AUD-014, AUD-016, REQ-007, REQ-012, REQ-017, FP-008)
-- 총 실제 실행 가능 Rule: 27개
-- 나머지 P1 6개: 구현 전/진행 대상, 아직 비활성
+- P1 활성 Rule: 9개
+  (AUD-008, AUD-010, AUD-014, AUD-016, AUD-018,
+   REQ-007, REQ-012, REQ-017, FP-008)
+- 총 실제 실행 가능 Rule: 29개
+- 나머지 P1 4개: 구현 전/진행 대상, 아직 비활성
 """
 
 from collections.abc import Callable
@@ -18,6 +19,7 @@ from collections.abc import Callable
 from rules.core.models import DocumentRule
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
 from rules.definitions.document_p1_aud008_rule import get_p1_aud008_rule
+from rules.definitions.document_p1_audit_rules import get_p1_audit_rules
 from rules.definitions.document_p1_rules import get_p1_deterministic_rules
 from rules.definitions.document_p1_req_rules import get_p1_requirement_rules
 from rules.definitions.document_rule_catalog import get_document_rule
@@ -48,6 +50,7 @@ _IMPLEMENTED_RULE_PROVIDERS: tuple[
     get_p1_deterministic_rules,
     get_p1_aud008_rule,
     get_p1_requirement_rules,
+    get_p1_audit_rules,
 )
 
 
