@@ -47,35 +47,39 @@ AI 4:
 
 ---
 
-## 4. 현재 실제 실행 Rule — 29개
+## 4. 현재 실제 실행 Rule — 33개
 
 중앙 Registry:
 - `rules/definitions/document_rule_registry.py`
 
 현재 실제 실행 가능 Rule:
-- **29개 = MVP20 + P1 9개**
+- **33개 = MVP20 + P1 13개**
 
-P1 활성 9개:
+P1 활성 13개:
 - AUD-008 계획 대비 산출물 작성상태 점검
 - AUD-010 WBS 완전성·비정상 항목 점검
 - AUD-014 시험계획 완전성 점검
 - AUD-016 시험결함 조치상태 점검
 - AUD-018 품질활동 계획 대비 수행 점검
+- AUD-020 인터페이스 정의 완전성 점검
+- AUD-022 계약·과업내용 반영 및 이행 증적 점검
+- AUD-023 관련 기준·지침 준수 점검
 - REQ-007 요구사항 검증가능성·검증방법 점검
 - REQ-012 요구사항 시험항목 누락 점검
 - REQ-017 요구사항 추적관계 누락 점검
+- FP-002 FP 산정대상 중복 점검
 - FP-008 상세 산정정보 적정성 점검
 
 현재 실행방식 합계:
 - Rule 7
 - AI 6
-- Hybrid 16
+- Hybrid 20
 
 Registry 원칙:
 - Full Catalog와 실행 Registry를 분리한다.
-- 실제 Handler와 targeted regression을 통과한 Rule만 활성화한다.
+- 실제 Handler와 targeted/integration/전체 회귀를 통과한 Rule만 활성화한다.
 - Registry 미등록 Rule은 UI Full Catalog에 보여도 실제 검사에서는 실행하지 않는다.
-- P1-D/P1-E는 검증 전 선등록하지 않는다.
+- P1 13개는 모두 검증 후 활성화 완료되었다.
 
 ---
 
@@ -98,11 +102,11 @@ Registry 원칙:
 
 `Inspection`
 → `Full Catalog 105 선택상태`
-→ `실행 Registry 필터`
+→ `실행 Registry 33 필터`
 → `Parser / ParsedDocument`
 → `Rule / AI / Hybrid 라우팅`
 → `문서별 사전분석`
-→ `교차문서 후처리`
+→ `교차문서 비교/후처리`
 → `Issue 생성`
 → `Issue Assessment`
 → `DB 저장`
@@ -118,11 +122,15 @@ Hybrid 계층:
 - `DocumentHybridEngine`
 - `P1RequirementHybridEngine(DocumentHybridEngine)`
 - `P1AuditHybridEngine(P1RequirementHybridEngine)`
+- `P1GovernanceHybridEngine(P1AuditHybridEngine)`
+- `P1FPHybridEngine(P1GovernanceHybridEngine)`
 
-교차문서/후처리:
+주요 교차문서/후처리:
 - REQ-009 요구사항 ↔ 설계
 - REQ-012 요구사항 ↔ 시험
 - AUD-018 품질활동 계획 ↔ 수행근거
+- AUD-022 계약/과업 의무 ↔ 이행근거
+- AUD-023 적용 기준/지침 ↔ 준수·검증근거
 - CHG-001 버전쌍 비교
 - CHG-012 변경 ↔ 시험
 - CHG-006 / CHG-018 종합
@@ -146,7 +154,7 @@ Rule 기반 구조적 사전분석 + AI 의미판단 조합.
 
 ---
 
-## 8. P1 확장 설계
+## 8. P1 확장 설계 — 완료
 
 Canonical:
 - `P1_IMPLEMENTATION_PLAN.md`
@@ -156,15 +164,13 @@ P1 13개:
 - REQ-007 / REQ-012 / REQ-017
 - FP-002 / FP-008
 
-현재:
+완료 상태:
 - P1-A 4개 완료
 - P1-B 3개 완료
 - P1-C 2개 완료
-- P1-D 3개 다음
-- P1-E 1개 마지막
-
-P1 전체 완료 목표:
-- 33개 실행 Rule
+- P1-D 3개 완료
+- P1-E 1개 완료
+- 실행 Rule 33개 Freeze 완료
 
 ### P1-A 역할 분리
 - AUD-001: 실제 제출 파일 존재/누락
@@ -178,6 +184,17 @@ P1 전체 완료 목표:
 ### P1-C 오탐 방지
 - AUD-010: 합계/구분/마일스톤 제외, 날짜 해석 불가 시 오류 확정 금지
 - AUD-018: 계획/수행근거 한쪽만 업로드되면 미수행 확정 금지, 시기미도래 제외
+
+### P1-D 오탐 방지
+- AUD-020: 단순 외부기관 언급을 인터페이스 정의로 간주하지 않음
+- AUD-022: 일반 설명문을 계약 의무로 간주하지 않고, 일부 문서 미업로드만으로 미이행 확정 금지
+- AUD-023: 문서에 적용대상으로 명시된 기준만 확인하며 법적 위반을 새로 해석하지 않음
+
+### P1-E 오탐 방지
+- FP-002: 동일·유사 기능명 + 동일 FP유형만 후보화
+- 처리조건·사용자 관점·입출력 차이가 명확한 경우 별도 기능으로 제외
+- 단순 문구 차이는 후보를 제거하지 않고 AI 의미판단에 맡김
+- 합계/소계/요약행 제외
 
 ---
 
@@ -352,43 +369,35 @@ Canonical:
 - PDF 94 / DOCX 19 / XLSX 1
 - 105개 Full Catalog 전체 매핑
 
-미구현 85개 원래 우선순위:
+원래 미구현 85개 우선순위:
 - P1 13
+- P2 23
+- P3 21
+- P4 28
+
+현재 P1 13개는 구현 완료되었다.
+후속 구현 우선순위:
 - P2 23
 - P3 21
 - P4 28
 
 감리자료는 각 Priority 구현 시 처음부터 재분석하지 않고 기존 매핑을 재사용한다.
 
-신규 Rule 후보:
-- NEW-PM-01 프로젝트 진척·지연 및 만회계획
-- NEW-PM-02 위험·이슈·Action Item 사후관리
-- NEW-DATA-01 데이터 모델·물리DB 구조·무결성
-- NEW-DATA-02 데이터 품질진단·이관·전환 정합성
-- NEW-ARCH-01 아키텍처·인프라 구성 및 자원 적정성
-- NEW-PERF-01 성능·용량·부하·튜닝
-- NEW-SEC-01 일반 보안취약점·개발보안
-- NEW-UX-01 UI/UX 사용성·편의성
-- NEW-OPS-01 운영절차·백업복구·서비스관리 준비도
-- NEW-REL-01 교육·인수인계·전환·하자보수 준비도 — 조건부
-
-사용자 승인 전 Full Catalog 105에 임의 추가하지 않는다.
+신규 Rule 후보 9개 + 조건부 1개는 사용자 승인 전 Full Catalog 105에 추가하지 않는다.
 
 ---
 
 ## 20. 현재 완료 상태
 
-1~6단계와 기존 배포 안정화는 완료 유지.
-P1-A/B/C 9개도 완료 및 Registry 활성 상태.
+1~6단계와 기존 기능 안정화는 완료 유지한다.
+P1 13개도 모두 구현·활성·회귀검증 완료했다.
 
-현재 다음 구현:
-- **P1-D AUD-020 → AUD-022 → AUD-023**
+현재 소스 Freeze:
+- Full Catalog 105
+- 실제 실행 Registry 33
+- P1 13/13 완료
 
-P1-D 완료 후:
-- 실행 Rule 32개
-- 남은 P1-E FP-002 1개
-
-P1 전체 완료 후:
-- 실행 Rule 33개
-- 최신 소스로 ZIP/MSI 재빌드·스모크검증
-- README / HACKATHON_SUBMISSION 최종 현행화
+다음 작업:
+- 33개 Freeze 최신 소스로 ZIP(EXE) 재빌드·스모크검증
+- 동일 dist 기준 MSI 재빌드·실설치·Local AI 검증
+- 배포 검증 성공 후 README / HACKATHON_SUBMISSION 배포 상태 최종 현행화
