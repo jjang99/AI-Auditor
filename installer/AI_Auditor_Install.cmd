@@ -1,9 +1,9 @@
 @echo off
 setlocal EnableExtensions
 
-set "BASE=%~dp0"
-set "MSI=%BASE%AI_Auditor_Setup.msi"
-set "MODEL=%BASE%Qwen3-4B-Q4_K_M.gguf"
+for %%D in ("%~dp0.") do set "BASE=%%~fD"
+set "MSI=%BASE%\AI_Auditor_Setup.msi"
+set "MODEL=%BASE%\Qwen3-4B-Q4_K_M.gguf"
 set "TARGET_DIR=%LOCALAPPDATA%\Programs\AI Auditor\models"
 set "TARGET_MODEL=%TARGET_DIR%\Qwen3-4B-Q4_K_M.gguf"
 
