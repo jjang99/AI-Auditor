@@ -13,4 +13,151 @@ Full Catalog 105개와 실제 실행 가능한 Rule은 분리해서 관리한다
 - P2-C 활성 Rule: 4개
 - 총 실제 실행 가능 Rule: 50개
 - P1 13개 전체 활성 완료
-- P2
+- P2 진행: 17 / 23 활성
+"""
+
+from collections.abc import Callable
+
+from rules.core.models import DocumentRule
+from rules.definitions.document_mvp_rules import get_document_mvp_rules
+from rules.definitions.document_p1_aud008_rule import get_p1_aud008_rule
+from rules.definitions.document_p1_audit_rules import get_p1_audit_rules
+from rules.definitions.document_p1_fp_rules import get_p1_fp_rules
+from rules.definitions.document_p1_governance_rules import get_p1_governance_rules
+from rules.definitions.document_p1_rules import get_p1_deterministic_rules
+from rules.definitions.document_p1_req_rules import get_p1_requirement_rules
+from rules.definitions.document_p2_a_rules import get_p2_a_rules
+from rules.definitions.document_p2_b_rules import get_p2_b_rules
+from rules.definitions.document_p2_c_rules import get_p2_c_rules
+from rules.definitions.document_rule_catalog import get_document_rule
+
+
+P1_TARGET_CODES = (
+    "AUD-008",
+    "AUD-010",
+    "AUD-014",
+    "AUD-016",
+    "AUD-018",
+    "AUD-020",
+    "AUD-022",
+    "AUD-023",
+    "REQ-007",
+    "REQ-012",
+    "REQ-017",
+    "FP-002",
+    "FP-008",
+)
+
+P2_A_CODES = (
+    "AUD-015",
+    "AUD-019",
+    "REQ-016",
+    "REQ-020",
+    "CHG-005",
+    "FP-007",
+    "AI-023",
+)
+
+P2_B_CODES = (
+    "AUD-005",
+    "AUD-021",
+    "REQ-006",
+    "REQ-021",
+    "REQ-027",
+    "REQ-028",
+)
+
+P2_C_CODES = (
+    "CHG-008",
+    "CHG-010",
+    "FP-006",
+    "FP-011",
+)
+
+
+# 실제 Handler + targeted test를 통과한 Rule provider만 등록한다.
+_IMPLEMENTED_RULE_PROVIDERS: tuple[
+    Callable[[], tuple[DocumentRule, ...]], ...
+] = (
+    get_document_mvp_rules,
+    get_p1_deterministic_rules,
+    get_p1_aud008_rule,
+    get_p1_requirement_rules,
+    get_p1_audit_rules,
+    get_p1_governance_rules,
+    get_p1_fp_rules,
+    get_p2_a_rules,
+    get_p2_b_rules,
+    get_p2_c_rules,
+)
+
+
+def _validate_implemented_rules(
+    rules: tuple[DocumentRule, ...],
+) -> None:
+    """Registry 오등록으로 인한 중복/카탈로그 불일치를 즉시 차단한다."""
+    codes = [rule.code for rule in rules]
+    if len(codes) != len(set(codes)):
+        raise ValueError("실행 가능 문서 Rule Registry에 중복 Rule Code가 있습니다.")
+
+    for rule in rules:
+        catalog_rule = get_document_rule(rule.code)
+        if catalog_rule is None:
+            raise ValueError(
+                f"실행 Rule이 Full Catalog에 없습니다: {rule.code}"
+            )
+        if catalog_rule.name != rule.name:
+            raise ValueError(
+                f"Rule 이름이 Full Catalog와 다릅니다: {rule.code}"
+            )
+        if catalog_rule.category != rule.category:
+            raise ValueError(
+                f"Rule 영역이 Full Catalog와 다릅니다: {rule.code}"
+            )
+        if catalog_rule.description != rule.description:
+            raise ValueError(
+                f"Rule 설명이 Full Catalog와 다릅니다: {rule.code}"
+            )
+        if catalog_rule.execution_type != rule.execution_type.value:
+            raise ValueError(
+                f"Rule 실행방식이 Full Catalog와 다릅니다: {rule.code}"
+            )
+
+
+def get_implemented_document_rules() -> tuple[DocumentRule, ...]:
+    """현재 제품에서 실제 실행 가능한 문서 Rule만 반환한다."""
+    rules = tuple(
+        rule
+        for provider in _IMPLEMENTED_RULE_PROVIDERS
+        for rule in provider()
+    )
+    _validate_implemented_rules(rules)
+    return rules
+
+
+def get_implemented_document_rule_codes() -> tuple[str, ...]:
+    return tuple(rule.code for rule in get_implemented_document_rules())
+
+
+def is_document_rule_implemented(code: str) -> bool:
+    return code in set(get_implemented_document_rule_codes())
+
+
+def get_p1_target_codes() -> tuple[str, ...]:
+    """감리자료 실무검증으로 확정한 P1 구현 대상 13개를 반환한다."""
+    return P1_TARGET_CODES
+
+
+def get_p2_a_codes() -> tuple[str, ...]:
+    """검증 후 Registry에 활성화한 P2-A 7개 Rule을 반환한다."""
+    return P2_A_CODES
+
+
+def get_p2_b_codes() -> tuple[str, ...]:
+    """검증 후 Registry에 활성화한 P2-B 6개 Rule을 반환한다."""
+    return P2_B_CODES
+
+
+def get_p2_c_codes() -> tuple[str, ...]:
+    """검증 후 Registry에 활성화한 P2-C 4개 Rule을 반환한다."""
+    return P2_C_CODES
