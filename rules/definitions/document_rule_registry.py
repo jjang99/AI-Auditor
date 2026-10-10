@@ -1,19 +1,22 @@
 """실제 실행 가능한 문서 Rule을 관리하는 중앙 Registry.
 
 Full Catalog 105개와 실제 실행 가능한 Rule은 분리해서 관리한다.
-새 Priority Rule은 상세 구현과 targeted regression, 기존 MVP 회귀검증을
-통과한 뒤에만 이 Registry의 provider에 추가한다.
+새 Priority Rule은 상세 구현과 targeted regression을 통과한 뒤 이 Registry에
+등록하고, 등록 후 전체 회귀검증으로 제품 통합 안정성을 다시 확인한다.
 
-7-0 기준:
+현재 기준:
 - Full Catalog: 105개
-- 실제 실행 가능: 기존 MVP 20개
-- P1 13개: 구현 대상이지만 아직 실행 Registry에는 포함하지 않는다.
+- 기존 MVP 실행 Rule: 20개
+- P1 활성 Rule: 3개 (AUD-014, AUD-016, FP-008)
+- 총 실제 실행 가능 Rule: 23개
+- 나머지 P1 10개: 구현 전/진행 대상, 아직 비활성
 """
 
 from collections.abc import Callable
 
 from rules.core.models import DocumentRule
 from rules.definitions.document_mvp_rules import get_document_mvp_rules
+from rules.definitions.document_p1_rules import get_p1_deterministic_rules
 from rules.definitions.document_rule_catalog import get_document_rule
 
 
@@ -34,12 +37,12 @@ P1_TARGET_CODES = (
 )
 
 
-# 구현·검증 완료된 Rule provider만 등록한다.
-# P1은 각 Rule의 실제 검사 Handler와 테스트가 완료된 뒤 provider를 추가한다.
+# 실제 Handler + targeted test를 통과한 Rule provider만 등록한다.
 _IMPLEMENTED_RULE_PROVIDERS: tuple[
     Callable[[], tuple[DocumentRule, ...]], ...
 ] = (
     get_document_mvp_rules,
+    get_p1_deterministic_rules,
 )
 
 
