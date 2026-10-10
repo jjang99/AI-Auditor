@@ -2,6 +2,7 @@ from pathlib import Path
 
 from app.parsers.models import DocumentBlock, ParsedDocument
 from rules.core.p1_document_engine import P1DocumentRuleEngine
+from rules.definitions.document_p1_aud008_rule import get_p1_aud008_rule
 from rules.definitions.document_p1_rules import get_p1_deterministic_rules
 
 
@@ -24,7 +25,8 @@ def _xlsx_document(name, rows, sheet="Sheet1"):
 
 
 def _engine():
-    return P1DocumentRuleEngine(list(get_p1_deterministic_rules()))
+    rules = list(get_p1_deterministic_rules()) + list(get_p1_aud008_rule())
+    return P1DocumentRuleEngine(rules)
 
 
 def test_aud_014_passes_complete_test_plan():
@@ -187,3 +189,86 @@ def test_fp_008_passes_when_ret_ftr_and_det_exist():
     issues = _engine().inspect_document(document)
 
     assert all(issue.rule_code != "FP-008" for issue in issues)
+
+
+def test_aud_008_detects_blank_current_status():
+    document = _xlsx_document(
+        "산출물목록.xlsx",
+        [
+            ("산출물명", "적용여부", "작성상태"),
+            ("요구사항정의서", "적용", ""),
+        ],
+    )
+
+    issues = [
+        issue for issue in _engine().inspect_documents([document])
+        if issue.rule_code == "AUD-008"
+    ]
+
+    assert len(issues) == 1
+    assert "상태 공란" in issues[0].evidence
+
+
+def test_aud_008_detects_explicit_incomplete_status():
+    document = _xlsx_document(
+        "산출물목록.xlsx",
+        [
+            ("산출물명", "적용여부", "작성상태"),
+            ("화면설계서", "적용", "작성중"),
+            ("테이블정의서", "적용", "미제출"),
+        ],
+    )
+
+    issues = [
+        issue for issue in _engine().inspect_documents([document])
+        if issue.rule_code == "AUD-008"
+    ]
+
+    assert len(issues) == 2
+    assert any("작성중" in issue.evidence for issue in issues)
+    assert any("미제출" in issue.evidence for issue in issues)
+
+
+def test_aud_008_ignores_not_due_and_not_applicable():
+    document = _xlsx_document(
+        "산출물목록.xlsx",
+        [
+            ("산출물명", "적용여부", "작성상태"),
+            ("운영자매뉴얼", "적용", "시기미도래"),
+            ("교육계획서", "미적용", "미작성"),
+            ("별도보고서", "제외", "미작성"),
+        ],
+    )
+
+    issues = _engine().inspect_documents([document])
+
+    assert all(issue.rule_code != "AUD-008" for issue in issues)
+
+
+def test_aud_008_passes_completed_status():
+    document = _xlsx_document(
+        "산출물목록.xlsx",
+        [
+            ("산출물명", "적용여부", "작성상태"),
+            ("요구사항정의서", "적용", "완료"),
+            ("화면설계서", "적용", "제출완료"),
+        ],
+    )
+
+    issues = _engine().inspect_documents([document])
+
+    assert all(issue.rule_code != "AUD-008" for issue in issues)
+
+
+def test_aud_008_does_not_guess_without_baseline_document():
+    document = _xlsx_document(
+        "일반목록.xlsx",
+        [
+            ("문서", "상태"),
+            ("요구사항정의서", "미작성"),
+        ],
+    )
+
+    issues = _engine().inspect_documents([document])
+
+    assert all(issue.rule_code != "AUD-008" for issue in issues)
