@@ -10,8 +10,11 @@ Full Catalog 105개와 실제 실행 가능한 Rule은 분리해서 관리한다
 - P1 활성 Rule: 13개
   (AUD-008, AUD-010, AUD-014, AUD-016, AUD-018, AUD-020, AUD-022, AUD-023,
    REQ-007, REQ-012, REQ-017, FP-002, FP-008)
-- 총 실제 실행 가능 Rule: 33개
+- P2-A 활성 Rule: 7개
+  (AUD-015, AUD-019, REQ-016, REQ-020, CHG-005, FP-007, AI-023)
+- 총 실제 실행 가능 Rule: 40개
 - P1 13개 전체 활성 완료
+- P2 진행: 7 / 23 활성
 """
 
 from collections.abc import Callable
@@ -24,6 +27,7 @@ from rules.definitions.document_p1_fp_rules import get_p1_fp_rules
 from rules.definitions.document_p1_governance_rules import get_p1_governance_rules
 from rules.definitions.document_p1_rules import get_p1_deterministic_rules
 from rules.definitions.document_p1_req_rules import get_p1_requirement_rules
+from rules.definitions.document_p2_a_rules import get_p2_a_rules
 from rules.definitions.document_rule_catalog import get_document_rule
 
 
@@ -43,6 +47,16 @@ P1_TARGET_CODES = (
     "FP-008",
 )
 
+P2_A_CODES = (
+    "AUD-015",
+    "AUD-019",
+    "REQ-016",
+    "REQ-020",
+    "CHG-005",
+    "FP-007",
+    "AI-023",
+)
+
 
 # 실제 Handler + targeted test를 통과한 Rule provider만 등록한다.
 _IMPLEMENTED_RULE_PROVIDERS: tuple[
@@ -55,6 +69,7 @@ _IMPLEMENTED_RULE_PROVIDERS: tuple[
     get_p1_audit_rules,
     get_p1_governance_rules,
     get_p1_fp_rules,
+    get_p2_a_rules,
 )
 
 
@@ -112,3 +127,8 @@ def is_document_rule_implemented(code: str) -> bool:
 def get_p1_target_codes() -> tuple[str, ...]:
     """감리자료 실무검증으로 확정한 P1 구현 대상 13개를 반환한다."""
     return P1_TARGET_CODES
+
+
+def get_p2_a_codes() -> tuple[str, ...]:
+    """검증 후 Registry에 활성화한 P2-A 7개 Rule을 반환한다."""
+    return P2_A_CODES
