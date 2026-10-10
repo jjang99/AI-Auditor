@@ -15,6 +15,7 @@ from rules.core.ai_provider import AIInspectionContext, AIInspectionResult
 from rules.core.issue_assessor import DeferredIssueAssessor, apply_issue_assessments
 from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
 from rules.core.requirement_design_alignment import build_requirement_design_batches
+from rules.core.p1_requirement_checks import build_req012_evidence
 from rules.core.models import (
     DocumentRuleIssue,
     InspectionSummary,
@@ -162,11 +163,12 @@ class InspectionService:
                 for rule in self.rules
             }
 
-            # REQ-009/CHG-001/CHG-012는 개별 문서 자체를 검사하지 않는다.
+            # REQ-009/REQ-012/CHG-001/CHG-012는 개별 문서 자체를 검사하지 않는다.
             # REQ-009는 아래에서 요구사항 문서와 설계 산출물을 교차 비교하고,
-            # CHG-001은 명시적인 동일 산출물 버전쌍을 비교하며,
+            # REQ-012는 요구사항 문서와 업로드된 시험문서를 교차 비교하며,
+            # CHG-001은 명시적인 동일 산출물 버전쌍을 비교하고,
             # CHG-012는 확인된 변경 + 시험자료가 있을 때 후처리한다.
-            hybrid_skip_codes = frozenset({"REQ-009", "CHG-001", "CHG-012"})
+            hybrid_skip_codes = frozenset({"REQ-009", "REQ-012", "CHG-001", "CHG-012"})
 
             for document in parsed_documents:
                 if cancel_requested is not None and cancel_requested():
@@ -230,6 +232,44 @@ class InspectionService:
                             alignment_result,
                             alignment_document,
                             alignment_rule,
+                        )
+                    )
+
+            # REQ-012: 요구사항과 실제 업로드된 시험문서를 교차검증한다.
+            # 시험문서가 하나도 없거나 구조적 후보가 없으면 AI를 호출하지 않는다.
+            requirement_test_rule = rule_by_code.get("REQ-012")
+            if requirement_test_rule is not None:
+                requirement_test_evidence = build_req012_evidence(parsed_documents)
+                if requirement_test_evidence:
+                    if cancel_requested is not None and cancel_requested():
+                        from rules.core.engine import InspectionCancelled
+                        raise InspectionCancelled("검사가 취소되었습니다.")
+
+                    requirement_test_document = ParsedDocument(
+                        file_path=Path("REQ-012-cross-document.txt"),
+                        file_type="requirement_test_comparison",
+                        blocks=tuple(
+                            DocumentBlock(
+                                block_type="requirement_test_case",
+                                text=evidence,
+                            )
+                            for evidence in requirement_test_evidence
+                        ),
+                        metadata={
+                            "source": "requirement_and_test_documents",
+                            "case_count": len(requirement_test_evidence),
+                        },
+                    )
+                    requirement_test_result = self.ai_provider.inspect(
+                        requirement_test_document,
+                        requirement_test_rule,
+                        AIInspectionContext(evidence=requirement_test_evidence),
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            requirement_test_result,
+                            requirement_test_document,
+                            requirement_test_rule,
                         )
                     )
 
