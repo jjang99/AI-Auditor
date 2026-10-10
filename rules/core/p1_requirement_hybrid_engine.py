@@ -9,10 +9,7 @@ import re
 from app.parsers.models import ParsedDocument
 from rules.core.hybrid_engine import DocumentHybridEngine, HybridInspectionContext
 from rules.core.models import DocumentRule
-from rules.core.p1_requirement_checks import (
-    build_req007_evidence,
-    build_req017_evidence,
-)
+from rules.core.p1_requirement_checks import build_req017_evidence
 
 
 class P1RequirementHybridEngine(DocumentHybridEngine):
@@ -27,7 +24,7 @@ class P1RequirementHybridEngine(DocumentHybridEngine):
             return HybridInspectionContext(
                 document=document,
                 rule=rule,
-                evidence=build_req007_evidence(document),
+                evidence=self._build_req007_evidence(document),
             )
 
         if rule.code == "REQ-012":
@@ -49,6 +46,72 @@ class P1RequirementHybridEngine(DocumentHybridEngine):
     @staticmethod
     def _compact(value: str) -> str:
         return re.sub(r"[\s_./\\-]+", "", str(value).strip().lower())
+
+    @classmethod
+    def _build_req007_evidence(
+        cls,
+        document: ParsedDocument,
+    ) -> tuple[str, ...]:
+        """검증방법 열이 명시된 요구사항 표에서 공란/미확정 후보를 찾는다."""
+        requirement_id_re = re.compile(
+            r"^(?:REQ-\d+|(?:UI-)?[A-Z]{2,}-\d+-ID-\d+(?:-\d+)*|[A-Z]{2,5}-?\d+(?:-[A-Z0-9]+)*)$",
+            re.IGNORECASE,
+        )
+        req_headers = {"요구사항id", "요구사항번호", "요구id"}
+        text_headers = {"요구사항명", "요구사항내용", "요구내용", "내용"}
+        verification_headers = {
+            "검증방법", "확인방법", "시험방법", "검증방안", "검증절차", "수용기준", "판정기준",
+        }
+        unresolved = ("미정", "추후", "협의", "tbd", "정의예정", "예정")
+
+        headers_by_sheet: dict[str, tuple[int, int | None, int]] = {}
+        evidence: list[str] = []
+
+        for block in document.blocks:
+            raw_cells = tuple(block.metadata.get("cell_values", ()))
+            if not raw_cells:
+                continue
+            cells = tuple(str(value).strip() for value in raw_cells)
+            normalized = [cls._compact(value) for value in cells]
+            sheet = block.sheet or ""
+
+            req_index = next((i for i, value in enumerate(normalized) if value in req_headers), None)
+            text_index = next((i for i, value in enumerate(normalized) if value in text_headers), None)
+            verification_index = next(
+                (i for i, value in enumerate(normalized) if value in verification_headers),
+                None,
+            )
+            if req_index is not None and verification_index is not None:
+                headers_by_sheet[sheet] = (req_index, text_index, verification_index)
+                continue
+
+            header = headers_by_sheet.get(sheet)
+            if not header:
+                continue
+            req_index, text_index, verification_index = header
+            req_id = cells[req_index].strip() if req_index < len(cells) else ""
+            if not requirement_id_re.fullmatch(req_id):
+                continue
+
+            requirement_text = (
+                cells[text_index].strip()
+                if text_index is not None and text_index < len(cells)
+                else block.text.strip()
+            )
+            method = cells[verification_index].strip() if verification_index < len(cells) else ""
+
+            if not method:
+                evidence.append(
+                    f"{block.location or block.sheet or req_id}: {req_id} 검증방법 공란 | {requirement_text[:500]}"
+                )
+                continue
+
+            if any(marker in method.lower() for marker in unresolved):
+                evidence.append(
+                    f"{block.location or block.sheet or req_id}: {req_id} 검증방법 미확정({method}) | {requirement_text[:500]}"
+                )
+
+        return tuple(evidence)
 
     @classmethod
     def _build_req012_trace_evidence(
