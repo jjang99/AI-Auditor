@@ -12,6 +12,4 @@ Full Catalog 105개와 실제 실행 가능한 Rule은 분리해서 관리한다
 - P2-B 활성 Rule: 6개
 - P2-C 활성 Rule: 4개
 - P2-D 활성 Rule: 6개
-- 총 실제 실행 가능 Rule: 56개
-- P1 13개 전체 활성 완료
-- P2 23
+- 총 실제 실행 가능 Rule: 
