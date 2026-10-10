@@ -20,11 +20,15 @@ class DocumentSelectionTest(unittest.TestCase):
 
         selected = get_selected_document_rules(state)
 
-        self.assertEqual(24, len(selected))
-        self.assertEqual(24, len({rule.code for rule in selected}))
+        self.assertEqual(27, len(selected))
+        self.assertEqual(27, len({rule.code for rule in selected}))
         selected_codes = {rule.code for rule in selected}
         self.assertTrue(
-            {"AUD-008", "AUD-014", "AUD-016", "FP-008"}.issubset(selected_codes)
+            {
+                "AUD-008", "AUD-014", "AUD-016",
+                "REQ-007", "REQ-012", "REQ-017",
+                "FP-008",
+            }.issubset(selected_codes)
         )
 
     def test_full_catalog_selection_controls_matching_executable_rule(self):
@@ -37,9 +41,9 @@ class DocumentSelectionTest(unittest.TestCase):
 
         self.assertNotIn("AUD-024", selected_codes)
         self.assertIn("AUD-001", selected_codes)
-        self.assertEqual(23, len(selected))
+        self.assertEqual(26, len(selected))
 
-    def test_new_p1_executable_rule_selection_is_applied(self):
+    def test_p1_a_executable_rule_selection_is_applied(self):
         state = self._all_selected()
 
         state["감리 사전점검"][7] = False
@@ -48,7 +52,19 @@ class DocumentSelectionTest(unittest.TestCase):
         selected_codes = {rule.code for rule in selected}
 
         self.assertNotIn("AUD-008", selected_codes)
-        self.assertEqual(23, len(selected))
+        self.assertEqual(26, len(selected))
+
+    def test_p1_b_executable_rule_selection_is_applied(self):
+        state = self._all_selected()
+
+        # REQ-012는 요구사항 정합성 Full Catalog의 12번째 Rule이다.
+        state["요구사항 정합성"][11] = False
+
+        selected = get_selected_document_rules(state)
+        selected_codes = {rule.code for rule in selected}
+
+        self.assertNotIn("REQ-012", selected_codes)
+        self.assertEqual(26, len(selected))
 
     def test_unimplemented_p1_rule_selection_does_not_change_executable_count(self):
         state = self._all_selected()
@@ -58,7 +74,7 @@ class DocumentSelectionTest(unittest.TestCase):
 
         selected = get_selected_document_rules(state)
 
-        self.assertEqual(24, len(selected))
+        self.assertEqual(27, len(selected))
         self.assertNotIn("AUD-010", {rule.code for rule in selected})
 
     def test_empty_selection_returns_no_executable_rules(self):
