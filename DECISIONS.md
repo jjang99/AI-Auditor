@@ -411,3 +411,25 @@ REQ-001 구조 오탐 수정 이후 결과이며, 새로운 명시적 결함이 
 - `부분적합` 및 `실무사례 제한` Rule은 해커톤 제출을 막는 즉시 결함으로 간주하지 않고 후속 정밀확장 대상으로 관리한다.
 - MVP20 실증검증과 우선 보완 5개는 새 결함이 확인되지 않는 한 다시 처음부터 반복하지 않는다.
 - 최종 전체 `python -m pytest -q`는 사용자 PC에서 실패 0건으로 확인되었다.
+
+---
+
+# 23. 최종 배포 패키징 확정 결정 — 2026-10-10
+
+- 최종 배포형태는 **ZIP(EXE) + MSI 설치형** 두 가지를 유지한다.
+- 휴대형 패키지는 앞으로 `ZIP(EXE)`라고 부른다.
+- ZIP(EXE)는 감리분석 우선 보완 5개가 반영된 최신 PyInstaller onedir를 기준으로 다시 생성하고 실제 Local AI 스모크검사를 통과한 버전을 최종본으로 한다.
+- ZIP(EXE)에는 개발 DB를 포함하지 않고 첫 실행 시 `data/ai_auditor.db`를 자동 생성한다.
+- ZIP(EXE) 사용자 PC 위치는 `C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`이다.
+- MSI는 현재 DB가 EXE 인접 `data/`에 쓰이는 구조를 유지하기 위해 per-user 설치를 사용한다.
+- MSI 실제 설치 위치는 `%LOCALAPPDATA%\Programs\AI Auditor`이다.
+- `Qwen3-4B-Q4_K_M.gguf`는 2,497,280,256 bytes로 Windows Installer File table의 단일 파일 2GB 제한을 초과하므로 MSI 내부 `File` 항목으로 패키징하지 않는다.
+- MSI 설치형은 `AI_Auditor_Setup.msi + CAB + 외부 GGUF + AI_Auditor_Install.cmd` 세트로 배포한다.
+- 사용자는 MSI 파일을 단독 실행하지 않고 `AI_Auditor_Install.cmd`를 실행한다.
+- Launcher는 MSI 설치 후 `robocopy`로 GGUF를 설치 경로 `models/`에 복사하고 원본/대상 파일크기를 검증한다.
+- 부분설치 후 재실행 시 설치된 `AI_Auditor.exe`가 있으면 MSI 재설치를 건너뛰고 모델 복사를 이어서 수행한다.
+- MSI 설치형 사용자 PC 위치는 `C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`이다.
+- MSI 실제 검증은 EXE/runtime/model 존재, 모델크기 일치, DB 자동생성, REQ-003 Local AI 실제 검사 및 DB 저장까지 정상 완료했다.
+- MSIX는 인증서/정책 복잡성 때문에 현재 최종 배포범위에서 제외한다.
+- 현재 검증된 AI 품질을 유지하기 위해 Qwen3-4B Q4_K_M을 패키징 편의만을 이유로 임의 경량모델로 교체하지 않는다.
+- ZIP(EXE)와 MSI 설치형은 가능한 한 동일한 최신 `dist/AI_Auditor` 빌드를 기준으로 만들어 기능 차이를 만들지 않는다.
