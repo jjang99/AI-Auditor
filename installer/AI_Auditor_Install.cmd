@@ -1,5 +1,5 @@
 @echo off
-setlocal EnableExtensions
+setlocal EnableExtensions EnableDelayedExpansion
 
 for %%D in ("%~dp0.") do set "BASE=%%~fD"
 set "MSI=%BASE%\AI_Auditor_Setup.msi"
@@ -26,11 +26,11 @@ if exist "%TARGET_EXE%" (
 ) else (
     echo [1/3] Installing AI Auditor...
     start /wait msiexec.exe /i "%MSI%"
-    set "MSI_RC=%ERRORLEVEL%"
-    if not "%MSI_RC%"=="0" (
-        echo [ERROR] MSI installation failed or was cancelled. Exit code: %MSI_RC%
+    set "MSI_RC=!ERRORLEVEL!"
+    if not "!MSI_RC!"=="0" (
+        echo [ERROR] MSI installation failed or was cancelled. Exit code: !MSI_RC!
         pause
-        exit /b %MSI_RC%
+        exit /b !MSI_RC!
     )
 )
 
@@ -44,11 +44,11 @@ echo [2/3] Copying local AI model...
 if not exist "%TARGET_DIR%" mkdir "%TARGET_DIR%"
 
 robocopy "%BASE%" "%TARGET_DIR%" "Qwen3-4B-Q4_K_M.gguf" /R:2 /W:1 /COPY:DAT /DCOPY:T /NFL /NDL /NJH /NJS /NP
-set "RC=%ERRORLEVEL%"
-if %RC% GEQ 8 (
-    echo [ERROR] Model copy failed. Robocopy exit code: %RC%
+set "RC=!ERRORLEVEL!"
+if !RC! GEQ 8 (
+    echo [ERROR] Model copy failed. Robocopy exit code: !RC!
     pause
-    exit /b %RC%
+    exit /b !RC!
 )
 
 for %%I in ("%MODEL%") do set "SOURCE_SIZE=%%~zI"
