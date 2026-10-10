@@ -25,8 +25,10 @@ EXPECTED_P1_CODES = (
 
 ACTIVE_P1_CODES = {
     "AUD-008",
+    "AUD-010",
     "AUD-014",
     "AUD-016",
+    "AUD-018",
     "REQ-007",
     "REQ-012",
     "REQ-017",
@@ -34,13 +36,13 @@ ACTIVE_P1_CODES = {
 }
 
 
-def test_registry_has_mvp20_plus_p1_a_and_p1_b_validated_rules():
+def test_registry_has_mvp20_plus_validated_p1_a_b_c_rules():
     rules = get_implemented_document_rules()
     codes = get_implemented_document_rule_codes()
 
-    assert len(rules) == 27
-    assert len(codes) == 27
-    assert len(set(codes)) == 27
+    assert len(rules) == 29
+    assert len(codes) == 29
+    assert len(set(codes)) == 29
     assert ACTIVE_P1_CODES.issubset(set(codes))
 
 
@@ -63,7 +65,7 @@ def test_p1_target_is_exactly_13_confirmed_codes():
         assert get_document_rule(code) is not None
 
 
-def test_only_validated_p1_a_and_p1_b_rules_are_activated():
+def test_only_validated_p1_a_b_c_rules_are_activated():
     implemented = set(get_implemented_document_rule_codes())
     active_p1 = implemented.intersection(get_p1_target_codes())
 
