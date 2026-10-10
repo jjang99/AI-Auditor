@@ -1,8 +1,8 @@
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QApplication, QDialog, QFrame, QLabel, QPushButton, QStyle
 
-from rules.core.document_selection import get_selected_document_mvp_rules
-from rules.definitions.document_mvp_rules import get_document_mvp_rules
+from rules.core.document_selection import get_selected_document_rules
+from rules.definitions.document_rule_registry import get_implemented_document_rules
 from rules.definitions.document_rule_catalog import (
     get_document_rule_categories,
     get_document_rules,
@@ -106,10 +106,10 @@ def apply_inspection_rule_ui_patch(InspectionPage):
 
     def refresh_rule_summary(self):
         # 카테고리 행은 Full Catalog 105개 선택상태를 보여주고,
-        # '적용 규칙'은 그중 실제 실행 가능한 문서 MVP 20개 기준으로 표시한다.
+        # '적용 규칙'은 그중 Registry에 등록된 실제 실행 가능 Rule 기준으로 표시한다.
         sync_rule_rows(self)
         executable_rules = self._selected_executable_rules()
-        total_executable = len(get_document_mvp_rules())
+        total_executable = len(get_implemented_document_rules())
         summary_values = self.findChildren(QLabel, "inspectionSummaryValue")
         summary_details = self.findChildren(QLabel, "inspectionSummaryDetail")
         if len(summary_values) > 1:
@@ -119,7 +119,7 @@ def apply_inspection_rule_ui_patch(InspectionPage):
 
     def selected_executable_rules(self):
         return list(
-            get_selected_document_mvp_rules(
+            get_selected_document_rules(
                 getattr(self, "rule_selection_state", {})
             )
         )
