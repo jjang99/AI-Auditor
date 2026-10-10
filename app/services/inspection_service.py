@@ -146,6 +146,10 @@ class InspectionService:
             if not parsed_documents:
                 raise ValueError("문서 검사 대상 파일이 없습니다.")
 
+            # P1-D 교차문서 Hybrid Rule(AUD-022/AUD-023)이 이번 검사에서
+            # 업로드된 전체 문서 집합을 한 번에 비교할 수 있도록 준비한다.
+            self.document_engine.prepare_documents(parsed_documents)
+
             all_issues = []
 
             # Rule 방식 검사
