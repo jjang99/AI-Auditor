@@ -27,23 +27,18 @@
 - MVP20 실증검증 및 우선 보완 5개
 - 7-0 중앙 실행 Registry
 - P1 13개 전체 구현·활성·전체 회귀
-- **P2-A 7개 완료**
-- **P2-B 6개 완료**
-- **P2-C 4개 완료**
-- **P2-D 6개 완료**
+- P2-A 7개 완료
+- P2-B 6개 완료
+- P2-C 4개 완료
+- P2-D 6개 완료
 
 현재 GitHub main 실제 실행 Registry:
 - **56개 = MVP20 + P1 13 + P2 23**
 - 누적 실행방식: **Rule 14 / AI 11 / Hybrid 31**
 
-P2 진행:
+P2:
 - **23 / 23 완료**
-- P2-A 7 / 7
-- P2-B 6 / 6
-- P2-C 4 / 4
-- P2-D 6 / 6
-
-**P2 전체 완료 / 실행 Rule 56개 Freeze 확정.**
+- **P2 전체 완료 / 실행 Rule 56개 Freeze 확정**
 
 ---
 
@@ -51,59 +46,29 @@ P2 진행:
 
 P2-A:
 - 전용 테스트 PASS
-- Registry 40개 통합 PASS
-- 전체 pytest 사용자 PC 정상 PASS
+- Registry 40 통합 PASS
+- 전체 pytest 사용자 PC PASS
 
 P2-B:
-- 전용 + Service 테스트 PASS
-- Registry 46개 + 선택 UI + 기존 회귀 PASS
-- 전체 pytest 사용자 PC 정상 PASS
+- 전용 + Service PASS
+- Registry 46 + 선택 UI + 기존 회귀 PASS
+- 전체 pytest 사용자 PC PASS
 
 P2-C:
-- 전용 + Service 테스트 PASS
-- Registry 50개 + 선택 UI + 기존 P2-A/B + Catalog/MVP 통합 PASS
-- 전체 pytest 사용자 PC 정상 PASS
-- Registry truncation 오류 복구 후 동일 통합/전체 회귀 재검증 정상
+- 전용 + Service PASS
+- Registry 50 + 선택 UI + P2-A/B + Catalog/MVP 통합 PASS
+- 전체 pytest 사용자 PC PASS
+- Registry truncation 오류 복구 후 동일 통합/전체 회귀 재검증 PASS
 
 P2-D:
-- `tests/test_p2_d_rules.py` + `tests/test_p2_d_service.py` 사용자 PC 정상 PASS
-- P2-D + P2-A/B/C + Registry 56개 + 선택 UI + Catalog/MVP 통합 정상 PASS
-- 최종 `python -m pytest -q` 사용자 PC 정상 PASS
+- 전용 + Service PASS
+- P2-A/B/C/D + Registry 56 + 선택 UI + Catalog/MVP 통합 PASS
+- 최종 `python -m pytest -q` 사용자 PC PASS
 - 정확한 passed 숫자는 사용자 출력 미제공으로 임의 기록하지 않는다.
 
 ---
 
-# 3. P2-D 구현 구조
-
-대상:
-- AI-003 AI 성능·품질 목표 정의 — Hybrid
-- AI-008 민감정보 입력·출력 통제 — Hybrid
-- AI-013 학습·참조데이터 적정성 — Hybrid
-- AI-015 RAG 검색근거 적정성 — AI
-- AI-017 AI 평가·테스트 체계 적정성 — Hybrid
-- AI-021 AI 로그·추적성 및 운영 모니터링 — Hybrid
-
-핵심 원칙:
-- AI/LLM/RAG 맥락이 확인된 문서에만 적용
-- 특정 목표값·보안수준·정책을 임의 생성하지 않음
-- AI-015는 RAG/검색증강 근거가 있을 때만 적용
-- AI-021은 일반 애플리케이션 로그만으로 충족 판정하지 않음
-- Hybrid 5개는 구조적 근거 후보가 없으면 AI 호출하지 않음
-- 일반 데이터모델 문서의 단순 `모델` 단어는 AI 문서 신호로 사용하지 않음
-
-구현 파일:
-- `rules/definitions/document_p2_d_rules.py`
-- `rules/core/p2_d_checks.py`
-- `rules/core/p2_d_ai_engine.py`
-- `rules/core/p2_d_hybrid_engine.py`
-- `rules/core/ai_strategy.py`
-- `rules/core/inspection_engine.py`
-- `tests/test_p2_d_rules.py`
-- `tests/test_p2_d_service.py`
-
----
-
-# 4. 최종 Engine 구조
+# 3. 최종 Engine 구조
 
 Rule:
 `DocumentRuleEngine → P1DocumentRuleEngine → P2DocumentRuleEngine`
@@ -119,40 +84,94 @@ Hybrid:
 
 ---
 
-# 5. 배포 상태
+# 4. 최종 배포 검증 상태
 
-기존 ZIP/MSI는 P1/P2 확장 전 빌드이므로 최신 제출본이 아니다.
+## Portable ZIP(EXE)
 
-최신 소스 기준:
-- Full Catalog 105
-- 실행 Rule 56 Freeze
-- P2 23/23 완료
-
-Portable 빌드 스크립트:
-- `scripts/build_portable.ps1`
-- 출력: `dist/AI_Auditor/`
+빌드:
+- 스크립트: `scripts/build_portable.ps1`
+- Folder: `dist/AI_Auditor/`
 - ZIP: `dist/AI_Auditor_Portable.zip`
 - SHA256: `dist/AI_Auditor_Portable.zip.sha256.txt`
 
-MSI 빌드 스크립트:
-- `installer/build_msi.ps1`
+실제 빌드 결과:
+- ZIP 크기 약 2.35 GB
+- 모델 크기 약 2.33 GB
+- SHA256: `A53BB20BD7CA531EB27F67C6D60371DF5C6E4BDC68410688A4F331B80A054672`
+
+스모크 PASS:
+- EXE Home 실행 정상
+- DB `PRAGMA integrity_check = ok`
+- llama.cpp build 11312 정상
+- Qwen3-4B 모델 실제 로딩 성공
+- `/health` = `{"status":"ok"}`
+- Local AI 실제 응답 정상
+
+## MSI 설치형
+
+빌드:
+- 스크립트: `installer/build_msi.ps1`
 - 출력: `installer/output/`
+
+최종 배포 폴더:
+- `AI_Auditor_Setup.msi`
+- `aia1.cab`
+- `aia2.cab`
+- `Qwen3-4B-Q4_K_M.gguf`
+- `AI_Auditor_Install.cmd`
+
+실제 설치 검증 PASS:
+- 기존 설치본 제거 후 최신 MSI 실제 설치 성공
+- 설치 위치: `%LOCALAPPDATA%\Programs\AI Auditor`
+- 설치 EXE 실행 정상
+- 설치 경로 EXE / llama-server / 모델 / DB 존재 확인
+- 설치 DB 정상
+- 설치 경로 Qwen3-4B 실제 로딩 성공
+- 설치본 Local AI 실제 응답 정상
+- 최종 설치 CMD 재실행 정상
+
+설치 Launcher 보완:
+- `AI_Auditor_Install.cmd`의 MSI 오류코드 출력이 비어 보일 수 있던 `%ERRORLEVEL%` 처리 문제 수정
+- `EnableDelayedExpansion` + `!ERRORLEVEL!` 기준으로 수정 완료
+- 수정본 포함 최종 MSI 배포 폴더 재빌드 및 CMD 동작 확인 완료
+
+**56개 Freeze 기준 Portable + MSI 최종 배포 검증 완료.**
+
+---
+
+# 5. 제품 고정 기준
+
+Parser 9종:
+- DOCX / DOC / XLSX / XLS / PDF / PPTX / PPT / HWPX / HWP
+
+Local AI:
+- Qwen3-4B GGUF Q4_K_M
+- llama.cpp b11312
+- reasoning off
+- temperature 0.7 / top-p 0.8 / top-k 20 / min-p 0 / seed 42
+
+Severity:
+`Impact × Likelihood → deterministic Severity Matrix`
+
+의도적 제외:
+- 스캔 이미지 PDF OCR
+- HWPX Report Export
+- MSIX
 
 ---
 
 # 6. 다음 실제 작업
 
-1. 56개 Freeze 최신 main 로컬 반영
-2. `scripts/build_portable.ps1` 실행
-3. Portable 구조 / ZIP / SHA256 확인
-4. ZIP(EXE) 실제 실행 + DB + Local AI + 주요 Rule 스모크검증
-5. `installer/build_msi.ps1` 실행
-6. MSI 실제 설치 + 모델복사 + DB + Local AI 스모크검증
-7. `RULE_DESIGN.md`, `P2_IMPLEMENTATION_PLAN.md`, `README.md`, `HACKATHON_SUBMISSION.md` 최종 56개·배포검증 완료 상태로 현행화
-8. 최종 Git 상태 확인 및 마무리
+핵심 개발/P2/최종 배포는 완료 상태다.
+
+다음 세션에서 우선 확인할 것:
+1. GitHub main과 로컬 working tree 동기화 여부
+2. 해커톤 실제 제출 요구형식/파일명/용량 제한 최종 확인
+3. 제출 직전 필요 시 데모 시나리오·발표자료·사용자 매뉴얼 정리
+4. P3/P4 확장은 제출 이후 또는 별도 승인 후 진행
 
 하지 말아야 할 것:
 - 새 결함 없는 P1/P2 재구현 금지
 - UI Freeze 임의 변경 금지
 - 감리자료 114개 전체 재분석 금지
-- 실제 ZIP/MSI 스모크 전 `최종 배포완료`라고 표현 금지
+- 신규 Rule 후보 9개 + 조건부 1개를 사용자 승인 없이 Full Catalog 105에 추가 금지
