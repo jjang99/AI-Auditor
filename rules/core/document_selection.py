@@ -49,8 +49,7 @@ def get_selected_document_rules(selection_state):
 def get_selected_document_mvp_rules(selection_state):
     """기존 MVP20 선택 API 호환용 별칭.
 
-    7-0 이후 실제 선택기준은 중앙 Registry이며, 현재 Registry는
-    MVP20 + 검증 완료 P1 13개를 합친 33개 실행 Rule을 관리한다.
-    신규 호출부는 get_selected_document_rules()를 기준 API로 사용한다.
+    7-0 이후 실제 선택기준은 중앙 Registry이며, 현재 활성화된 실행 Rule 전체를
+    반환한다. 신규 호출부는 get_selected_document_rules()를 기준 API로 사용한다.
     """
     return get_selected_document_rules(selection_state)
