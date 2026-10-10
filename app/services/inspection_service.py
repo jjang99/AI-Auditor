@@ -16,6 +16,7 @@ from rules.core.issue_assessor import DeferredIssueAssessor, apply_issue_assessm
 from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
 from rules.core.requirement_design_alignment import build_requirement_design_batches
 from rules.core.p1_requirement_checks import build_req012_evidence
+from rules.core.p1_audit_checks import build_aud018_evidence
 from rules.core.models import (
     DocumentRuleIssue,
     InspectionSummary,
@@ -163,12 +164,15 @@ class InspectionService:
                 for rule in self.rules
             }
 
-            # REQ-009/REQ-012/CHG-001/CHG-012는 개별 문서 자체를 검사하지 않는다.
-            # REQ-009는 아래에서 요구사항 문서와 설계 산출물을 교차 비교하고,
-            # REQ-012는 요구사항 문서와 업로드된 시험문서를 교차 비교하며,
-            # CHG-001은 명시적인 동일 산출물 버전쌍을 비교하고,
-            # CHG-012는 확인된 변경 + 시험자료가 있을 때 후처리한다.
-            hybrid_skip_codes = frozenset({"REQ-009", "REQ-012", "CHG-001", "CHG-012"})
+            # 아래 Rule은 개별 문서 자체를 검사하지 않고 교차문서/후처리로 실행한다.
+            # REQ-009: 요구사항 ↔ 설계 산출물
+            # REQ-012: 요구사항 ↔ 시험 산출물
+            # AUD-018: 품질활동 계획 ↔ 수행근거
+            # CHG-001: 명시적 동일 산출물 버전쌍
+            # CHG-012: 확인된 변경 ↔ 시험자료
+            hybrid_skip_codes = frozenset({
+                "REQ-009", "REQ-012", "AUD-018", "CHG-001", "CHG-012"
+            })
 
             for document in parsed_documents:
                 if cancel_requested is not None and cancel_requested():
@@ -270,6 +274,44 @@ class InspectionService:
                             requirement_test_result,
                             requirement_test_document,
                             requirement_test_rule,
+                        )
+                    )
+
+            # AUD-018: 품질활동 계획과 실제 수행근거 문서를 함께 비교한다.
+            # 계획 또는 수행근거 한쪽만 있거나 구조적 후보가 없으면 AI를 호출하지 않는다.
+            quality_activity_rule = rule_by_code.get("AUD-018")
+            if quality_activity_rule is not None:
+                quality_activity_evidence = build_aud018_evidence(parsed_documents)
+                if quality_activity_evidence:
+                    if cancel_requested is not None and cancel_requested():
+                        from rules.core.engine import InspectionCancelled
+                        raise InspectionCancelled("검사가 취소되었습니다.")
+
+                    quality_activity_document = ParsedDocument(
+                        file_path=Path("AUD-018-cross-document.txt"),
+                        file_type="quality_activity_comparison",
+                        blocks=tuple(
+                            DocumentBlock(
+                                block_type="quality_activity_case",
+                                text=evidence,
+                            )
+                            for evidence in quality_activity_evidence
+                        ),
+                        metadata={
+                            "source": "quality_plan_and_execution_documents",
+                            "case_count": len(quality_activity_evidence),
+                        },
+                    )
+                    quality_activity_result = self.ai_provider.inspect(
+                        quality_activity_document,
+                        quality_activity_rule,
+                        AIInspectionContext(evidence=quality_activity_evidence),
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            quality_activity_result,
+                            quality_activity_document,
+                            quality_activity_rule,
                         )
                     )
 
