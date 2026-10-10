@@ -30,6 +30,7 @@ AI_RULE_STRATEGIES = {
     "CHG-006": AIProcessingStrategy.SYNTHESIS,
     "CHG-012": AIProcessingStrategy.EVIDENCE,
     "CHG-018": AIProcessingStrategy.SYNTHESIS,
+    "FP-002": AIProcessingStrategy.CANDIDATE,
     "FP-005": AIProcessingStrategy.EVIDENCE,
     "AI-005": AIProcessingStrategy.EVIDENCE,
     "AI-009": AIProcessingStrategy.EVIDENCE,
