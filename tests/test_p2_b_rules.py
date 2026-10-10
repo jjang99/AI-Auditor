@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from app.parsers.models import DocumentBlock, ParsedDocument
+from rules.core.ai_engine import DocumentAIEngine
+from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
 from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strategy
 from rules.core.p2_b_checks import (
     build_aud005_cross_document_evidence,
@@ -15,6 +17,19 @@ from rules.definitions.document_p2_b_rules import get_p2_b_rules
 class NoopProvider:
     def inspect(self, document, rule, context=None):
         raise AssertionError("이 테스트에서는 AI 호출이 필요하지 않습니다.")
+
+
+class RecordingProvider(BaseAIProvider):
+    def __init__(self):
+        self.calls = []
+
+    def inspect(self, document, rule, context=None):
+        self.calls.append((document, rule, context))
+        return AIInspectionResult(
+            rule_code=rule.code,
+            findings=(f"{rule.code} 테스트 지적",),
+            raw_response="test",
+        )
 
 
 def _doc(name, rows, sheet="Sheet1"):
@@ -53,6 +68,26 @@ def test_p2_b_ai_strategies_are_explicit():
     assert get_ai_processing_strategy("REQ-021") == AIProcessingStrategy.CANDIDATE
     assert get_ai_processing_strategy("REQ-027") == AIProcessingStrategy.CANDIDATE
     assert get_ai_processing_strategy("REQ-028") == AIProcessingStrategy.SYNTHESIS
+
+
+def test_req006_ai_engine_uses_relevant_requirement_evidence():
+    document = _doc(
+        "요구사항정의서.xlsx",
+        [
+            ("요구사항ID", "요구사항명", "내용"),
+            ("SFR-001", "조회 기능", "구현대상과 처리범위를 정의한다."),
+        ],
+    )
+    provider = RecordingProvider()
+    engine = DocumentAIEngine([_rule("REQ-006")], provider)
+
+    results = engine.inspect_document(document)
+
+    assert len(provider.calls) == 1
+    _document, rule, context = provider.calls[0]
+    assert rule.code == "REQ-006"
+    assert context is not None and context.evidence
+    assert results[0].rule_code == "REQ-006"
 
 
 def test_aud005_cross_document_same_id_different_name_is_candidate():
