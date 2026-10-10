@@ -47,39 +47,36 @@ AI 4:
 
 ---
 
-## 4. 현재 실제 실행 Rule — 33개
+## 4. 현재 실제 실행 Rule — 56개
 
 중앙 Registry:
 - `rules/definitions/document_rule_registry.py`
 
 현재 실제 실행 가능 Rule:
-- **33개 = MVP20 + P1 13개**
+- **56개 = MVP20 + P1 13 + P2 23**
 
-P1 활성 13개:
-- AUD-008 계획 대비 산출물 작성상태 점검
-- AUD-010 WBS 완전성·비정상 항목 점검
-- AUD-014 시험계획 완전성 점검
-- AUD-016 시험결함 조치상태 점검
-- AUD-018 품질활동 계획 대비 수행 점검
-- AUD-020 인터페이스 정의 완전성 점검
-- AUD-022 계약·과업내용 반영 및 이행 증적 점검
-- AUD-023 관련 기준·지침 준수 점검
-- REQ-007 요구사항 검증가능성·검증방법 점검
-- REQ-012 요구사항 시험항목 누락 점검
-- REQ-017 요구사항 추적관계 누락 점검
-- FP-002 FP 산정대상 중복 점검
-- FP-008 상세 산정정보 적정성 점검
+누적 실행방식:
+- **Rule 14**
+- **AI 11**
+- **Hybrid 31**
 
-현재 실행방식 합계:
-- Rule 7
-- AI 6
-- Hybrid 20
+P1 13개:
+- AUD-008 / AUD-010 / AUD-014 / AUD-016 / AUD-018 / AUD-020 / AUD-022 / AUD-023
+- REQ-007 / REQ-012 / REQ-017
+- FP-002 / FP-008
+
+P2 23개:
+- AUD-005 / AUD-015 / AUD-019 / AUD-021
+- REQ-006 / REQ-016 / REQ-020 / REQ-021 / REQ-027 / REQ-028
+- CHG-005 / CHG-008 / CHG-010
+- FP-006 / FP-007 / FP-011
+- AI-003 / AI-008 / AI-013 / AI-015 / AI-017 / AI-021 / AI-023
 
 Registry 원칙:
 - Full Catalog와 실행 Registry를 분리한다.
-- 실제 Handler와 targeted/integration/전체 회귀를 통과한 Rule만 활성화한다.
+- 실제 Handler와 전용/Service/통합/전체 회귀를 통과한 Rule만 활성화한다.
 - Registry 미등록 Rule은 UI Full Catalog에 보여도 실제 검사에서는 실행하지 않는다.
-- P1 13개는 모두 검증 후 활성화 완료되었다.
+- P1 13개와 P2 23개는 모두 검증 후 활성화 완료했다.
 
 ---
 
@@ -98,11 +95,11 @@ Registry 원칙:
 
 ---
 
-## 6. 현재 문서 검사 실행구조
+## 6. 최종 문서 검사 실행구조
 
 `Inspection`
 → `Full Catalog 105 선택상태`
-→ `실행 Registry 33 필터`
+→ `실행 Registry 56 필터`
 → `Parser / ParsedDocument`
 → `Rule / AI / Hybrid 라우팅`
 → `문서별 사전분석`
@@ -117,22 +114,36 @@ Registry 원칙:
 Rule 계층:
 - `DocumentRuleEngine`
 - `P1DocumentRuleEngine(DocumentRuleEngine)`
+- `P2DocumentRuleEngine(P1DocumentRuleEngine)`
+
+AI 계층:
+- `DocumentAIEngine`
+- `P2CAIEngine(DocumentAIEngine)`
+- `P2DAIEngine(P2CAIEngine)`
 
 Hybrid 계층:
 - `DocumentHybridEngine`
-- `P1RequirementHybridEngine(DocumentHybridEngine)`
-- `P1AuditHybridEngine(P1RequirementHybridEngine)`
-- `P1GovernanceHybridEngine(P1AuditHybridEngine)`
-- `P1FPHybridEngine(P1GovernanceHybridEngine)`
+- `P1RequirementHybridEngine`
+- `P1AuditHybridEngine`
+- `P1GovernanceHybridEngine`
+- `P1FPHybridEngine`
+- `P2BHybridEngine`
+- `P2CHybridEngine`
+- `P2DHybridEngine`
 
-주요 교차문서/후처리:
+대표 교차문서/후처리:
 - REQ-009 요구사항 ↔ 설계
 - REQ-012 요구사항 ↔ 시험
 - AUD-018 품질활동 계획 ↔ 수행근거
+- AUD-021 인터페이스 정의 간 일치
 - AUD-022 계약/과업 의무 ↔ 이행근거
 - AUD-023 적용 기준/지침 ↔ 준수·검증근거
+- REQ-027 출처/상위요구 ↔ 요구사항
 - CHG-001 버전쌍 비교
+- CHG-008 변경 ↔ 설계
+- CHG-010 변경 ↔ 데이터설계
 - CHG-012 변경 ↔ 시험
+- FP-011 변경 ↔ FP 산정자료
 - CHG-006 / CHG-018 종합
 - AUD-024 최종 종합
 
@@ -159,46 +170,41 @@ Rule 기반 구조적 사전분석 + AI 의미판단 조합.
 Canonical:
 - `P1_IMPLEMENTATION_PLAN.md`
 
-P1 13개:
-- AUD-008 / AUD-010 / AUD-014 / AUD-016 / AUD-018 / AUD-020 / AUD-022 / AUD-023
-- REQ-007 / REQ-012 / REQ-017
-- FP-002 / FP-008
+P1 13개 전체 구현·활성·통합·전체 회귀 완료.
+실행 Rule 33개 시점 Freeze 완료.
 
-완료 상태:
-- P1-A 4개 완료
-- P1-B 3개 완료
-- P1-C 2개 완료
-- P1-D 3개 완료
-- P1-E 1개 완료
-- 실행 Rule 33개 Freeze 완료
-
-### P1-A 역할 분리
-- AUD-001: 실제 제출 파일 존재/누락
-- AUD-008: 계획표상 현재 대상 산출물의 작성·제출 상태
-
-### P1-B 오탐 방지
-- REQ-007: 숫자 기준 부재만으로 검증불가 단정 금지
-- REQ-012: 시험문서 미업로드만으로 누락 확정 금지
-- REQ-017: N/A/별도시트 참조 인정, REQ-018과 역할 분리
-
-### P1-C 오탐 방지
-- AUD-010: 합계/구분/마일스톤 제외, 날짜 해석 불가 시 오류 확정 금지
-- AUD-018: 계획/수행근거 한쪽만 업로드되면 미수행 확정 금지, 시기미도래 제외
-
-### P1-D 오탐 방지
-- AUD-020: 단순 외부기관 언급을 인터페이스 정의로 간주하지 않음
-- AUD-022: 일반 설명문을 계약 의무로 간주하지 않고, 일부 문서 미업로드만으로 미이행 확정 금지
-- AUD-023: 문서에 적용대상으로 명시된 기준만 확인하며 법적 위반을 새로 해석하지 않음
-
-### P1-E 오탐 방지
-- FP-002: 동일·유사 기능명 + 동일 FP유형만 후보화
-- 처리조건·사용자 관점·입출력 차이가 명확한 경우 별도 기능으로 제외
-- 단순 문구 차이는 후보를 제거하지 않고 AI 의미판단에 맡김
-- 합계/소계/요약행 제외
+주요 역할분리/오탐방지:
+- AUD-001은 실제 제출 파일 존재, AUD-008은 계획표상 작성/제출 상태
+- REQ-012는 시험자료 미업로드 자체를 누락 확정으로 보지 않음
+- AUD-018은 계획/수행근거 한쪽만 있을 때 미수행 확정 금지
+- FP-002는 동일·유사 기능명 + 동일 FP유형을 후보화하되 합계/소계/요약행 제외
 
 ---
 
-## 9. Rule과 Issue 분리
+## 9. P2 확장 설계 — 완료
+
+Canonical:
+- `P2_IMPLEMENTATION_PLAN.md`
+
+P2 23개 전체 구현·활성·통합·전체 회귀 완료.
+최종 실행 Rule 56개 Freeze 완료.
+
+### P2-C 핵심
+- CHG-008/010/FP-011은 변경자료와 대응문서가 함께 있을 때만 후보 생성
+- CHG-010은 데이터/테이블/컬럼 영향이 명시된 변경에 한정
+- FP-006은 구조형 FP 후보만 AI에 전달
+- 완전 동일 기능명 중복은 FP-002 영역
+
+### P2-D 핵심
+- AI/LLM/RAG 맥락이 확인된 문서에만 적용
+- 단순 `모델` 단어는 AI 문서 신호로 사용하지 않음
+- AI-015는 RAG/검색증강 구조가 명시된 경우만 적용
+- AI-021은 단순 애플리케이션 로그만으로 AI 추적성 충족 판정 금지
+- Hybrid 5개는 구조적 근거 후보가 없으면 AI 호출하지 않음
+
+---
+
+## 10. Rule과 Issue 분리
 
 Rule:
 - 무엇을 검사할지 정의
@@ -216,7 +222,7 @@ Rule 자체에 고정 최종 Severity를 적용하지 않는다.
 
 ---
 
-## 10. Issue Assessment / Severity
+## 11. Issue Assessment / Severity
 
 AI 반환:
 - Impact
@@ -239,7 +245,7 @@ Critical은 Impact=High && Likelihood=High일 때만 가능하다.
 
 ---
 
-## 11. Local AI
+## 12. Local AI
 
 기본 모델:
 - Qwen3-4B Q4_K_M
@@ -257,9 +263,11 @@ Runtime:
 
 잘못된 JSON / 허용되지 않은 값 / 빈 근거는 정상 판정으로 저장하지 않는다.
 
+최종 배포검증에서 Portable과 MSI 설치본 모두 실제 모델 로딩과 Local AI 응답을 확인했다.
+
 ---
 
-## 12. 감리 개선판정
+## 13. 감리 개선판정
 
 Severity와 독립 관리한다.
 
@@ -272,7 +280,7 @@ CHG-001은 감리 개선판정 비적용(NULL) 정책을 유지한다.
 
 ---
 
-## 13. REQ-001 구조 오탐 처리
+## 14. REQ-001 구조 오탐 처리
 
 최종 기준:
 - 요구사항 정의 문서 범위 중심 검사
@@ -285,18 +293,20 @@ CHG-001은 감리 개선판정 비적용(NULL) 정책을 유지한다.
 
 ---
 
-## 14. 변경영향도 연계구조
+## 15. 변경영향도 연계구조
 
 `CHG-001 변경 식별`
 → `CHG-006 영향대상 식별`
-→ `CHG-012 시험 변경 미반영`
+→ `CHG-008 설계 반영`
+→ `CHG-010 데이터설계 반영`
+→ `CHG-012 시험 반영`
 → `CHG-018 종합 위험 후보`
 
-CHG-012/CHG-018은 구체적 unresolved evidence가 있을 때만 Issue를 만든다.
+구체적 unresolved evidence가 있을 때만 Issue를 만든다.
 
 ---
 
-## 15. Inspection Runtime
+## 16. Inspection Runtime
 
 정상:
 `파일/Rule 선택 → 예상시간 → 검사 → 진행률/남은시간 → 정상 완료 → DB 저장`
@@ -312,7 +322,7 @@ CHG-012/CHG-018은 구체적 unresolved evidence가 있을 때만 Issue를 만�
 
 ---
 
-## 16. Score / Grade
+## 17. Score / Grade
 
 - A: 90 이상
 - B: 80 이상
@@ -324,7 +334,7 @@ F는 사용하지 않는다.
 
 ---
 
-## 17. Export
+## 18. Export
 
 지원:
 - DOCX / XLSX / TXT
@@ -334,7 +344,7 @@ F는 사용하지 않는다.
 
 ---
 
-## 18. Administration 데이터 관리
+## 19. Administration 데이터 관리
 
 관계:
 `Project → Inspection → Issue`
@@ -348,18 +358,9 @@ Project 삭제:
 
 Repository에서 명시적 transaction/rollback으로 처리하며 Stage 6에서 새 `ON DELETE CASCADE`를 강제하지 않는다.
 
-핵심 Repository API:
-- `get_data_management_summary()`
-- `get_projects_with_delete_impact()`
-- `get_project_delete_impact(project_id)`
-- `delete_all_inspection_history()`
-- `delete_project_with_history(project_id)`
-
-기존 실제 삭제검증과 자동테스트는 완료 상태로 유지한다.
-
 ---
 
-## 19. 감리결과서 기반 Rule 실무검증
+## 20. 감리결과서 기반 Rule 실무검증
 
 Canonical:
 - `AUDIT_EVIDENCE_MAPPING.md`
@@ -367,37 +368,44 @@ Canonical:
 분석대상:
 - 감리 관련 파일 114개
 - PDF 94 / DOCX 19 / XLSX 1
-- 105개 Full Catalog 전체 매핑
+- Full Catalog 105 전체 매핑
 
 원래 미구현 85개 우선순위:
-- P1 13
-- P2 23
-- P3 21
-- P4 28
-
-현재 P1 13개는 구현 완료되었다.
-후속 구현 우선순위:
-- P2 23
-- P3 21
-- P4 28
-
-감리자료는 각 Priority 구현 시 처음부터 재분석하지 않고 기존 매핑을 재사용한다.
+- P1 13 — 완료
+- P2 23 — 완료
+- P3 21 — 미구현
+- P4 28 — 미구현
 
 신규 Rule 후보 9개 + 조건부 1개는 사용자 승인 전 Full Catalog 105에 추가하지 않는다.
 
 ---
 
-## 20. 현재 완료 상태
+## 21. 최종 배포 상태
 
-1~6단계와 기존 기능 안정화는 완료 유지한다.
-P1 13개도 모두 구현·활성·회귀검증 완료했다.
+Portable:
+- `dist/AI_Auditor_Portable.zip`
+- ZIP 약 2.35 GB
+- SHA256 `A53BB20BD7CA531EB27F67C6D60371DF5C6E4BDC68410688A4F331B80A054672`
+- EXE / DB / llama.cpp / Qwen3-4B / Local AI 응답 스모크 PASS
+
+MSI:
+- `installer/output/`
+- `AI_Auditor_Setup.msi` + external CAB + 모델 + `AI_Auditor_Install.cmd`
+- 실제 설치 / EXE / DB / 모델 로딩 / Local AI 응답 PASS
+- 설치 Launcher 오류코드 처리 보완 후 최종 재빌드·동작 확인 PASS
+
+---
+
+## 22. 현재 완료 상태
 
 현재 소스 Freeze:
 - Full Catalog 105
-- 실제 실행 Registry 33
+- 실제 실행 Registry 56
 - P1 13/13 완료
+- P2 23/23 완료
 
-다음 작업:
-- 33개 Freeze 최신 소스로 ZIP(EXE) 재빌드·스모크검증
-- 동일 dist 기준 MSI 재빌드·실설치·Local AI 검증
-- 배포 검증 성공 후 README / HACKATHON_SUBMISSION 배포 상태 최종 현행화
+현재 배포 상태:
+- **56개 Freeze Portable 최종 검증 완료**
+- **56개 Freeze MSI 최종 검증 완료**
+
+핵심 개발 및 P2 확장, 최종 배포검증은 완료 상태다.
