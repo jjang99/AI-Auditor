@@ -12,6 +12,11 @@ class AIProcessingStrategy(str, Enum):
 AI_RULE_STRATEGIES = {
     "AUD-002": AIProcessingStrategy.CANDIDATE,
     "AUD-007": AIProcessingStrategy.CANDIDATE,
+    "AUD-010": AIProcessingStrategy.CANDIDATE,
+    "AUD-018": AIProcessingStrategy.EVIDENCE,
+    "AUD-020": AIProcessingStrategy.CANDIDATE,
+    "AUD-022": AIProcessingStrategy.EVIDENCE,
+    "AUD-023": AIProcessingStrategy.EVIDENCE,
     "AUD-024": AIProcessingStrategy.SYNTHESIS,
     "REQ-002": AIProcessingStrategy.COMPARISON,
     "REQ-003": AIProcessingStrategy.CANDIDATE,
