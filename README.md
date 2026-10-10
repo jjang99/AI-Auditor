@@ -13,12 +13,10 @@ AI Auditor는 정보시스템 프로젝트의 요구사항·설계·시험·FP·
 
 - 프로젝트 등록 및 검사 이력 관리
 - 5대 검사영역 / Full Rule Catalog 105개 관리
-- 해커톤 MVP 실제 실행 Rule 20개
+- 최초 MVP20 기준선 + P1 확장 13개
+- 현재 소스 기준 실제 실행 Rule 33개
 - Rule / AI / Hybrid 혼합 검사
-- 요구사항 ID·중복·모호성·설계반영·추적성 검사
-- 변경사항 및 영향도 검사
-- FP 기능유형·산정값 검증
-- AI/RAG 신뢰성·보안·관리체계 점검
+- 요구사항·설계·시험·변경·FP·AI 관련 품질검사
 - 감리 예상 지적사항 종합
 - Impact / Likelihood 기반 Severity 계산
 - 감리 개선권고 유형·시점·중요도 관리
@@ -42,27 +40,38 @@ AI Auditor는 정보시스템 프로젝트의 요구사항·설계·시험·FP·
 | AI 특화 검증 | AI | 23 |
 | **합계** |  | **105** |
 
-### MVP 실제 실행 Rule
+### 최초 MVP20 기준선
 
-총 20개:
 - AUD 4
 - REQ 6
 - CHG 4
 - FP 2
 - AI 4
 
-실행방식:
+최초 실행방식:
 - Rule 3
 - AI 6
 - Hybrid 11
 
-Full Catalog 105개와 MVP 실제 실행 20개는 구분하여 관리합니다.
+### 현재 실제 실행 Registry
+
+2026-10-10 기준:
+- **33개 = MVP20 + P1 13개**
+- Rule 7
+- AI 6
+- Hybrid 20
+
+P1 13개:
+- AUD-008 / AUD-010 / AUD-014 / AUD-016 / AUD-018 / AUD-020 / AUD-022 / AUD-023
+- REQ-007 / REQ-012 / REQ-017
+- FP-002 / FP-008
+
+Full Catalog 105개와 실제 실행 Registry 33개는 구분하여 관리합니다.
+`MVP20`은 최초 기준선 명칭으로 유지합니다.
 
 ---
 
 ## 3. 실제 감리사례 기반 검증
-
-AI Auditor의 검사기준은 임의로 만든 체크리스트에만 의존하지 않습니다.
 
 2026-10-09 기준 감리 관련 자료 **114개**를 분석하여 105개 Rule 전체와 매핑했습니다.
 
@@ -72,18 +81,7 @@ AI Auditor의 검사기준은 임의로 만든 체크리스트에만 의존하�
 - XLSX 1개
 - 2019~2025년 독립 감리보고서
 
-검증절차:
-
-`파일/버전/중복 확인`
-→ `감리지적 추출`
-→ `유사지적 통합`
-→ `105개 Rule 매핑`
-→ `요약표 재검증`
-→ `상세본문 재검증`
-→ `FP·AI/RAG·보안·데이터·UI/UX 전문분야 교차검증`
-→ `MVP20 실증검증`
-
-실증검증 과정에서 탐지범위가 좁다고 확인된 아래 5개 Rule은 실제 감리사례 기반으로 보완했습니다.
+MVP20 실증검증 과정에서 실제 감리사례보다 구현범위가 좁다고 확인된 5개 Rule을 우선 보완했습니다.
 
 - AUD-001 필수 산출물 누락
 - REQ-002 요구사항 내용 중복
@@ -91,40 +89,48 @@ AI Auditor의 검사기준은 임의로 만든 체크리스트에만 의존하�
 - REQ-009 요구사항 설계 반영 정합성
 - FP-009 FP 산정값 재계산
 
-최종 전체 `python -m pytest -q` 회귀테스트는 사용자 PC에서 실패 0건을 확인했습니다.
+이후 감리근거 우선순위 P1 13개를 추가 구현했고 2026-10-10 전체 회귀검증까지 완료했습니다.
 
 자세한 근거:
 - `AUDIT_EVIDENCE_MAPPING.md`
 - `MVP20_AUDIT_VALIDATION.md`
+- `P1_IMPLEMENTATION_PLAN.md`
 
 ---
 
-## 4. 주요 검사 예시
+## 4. P1 확장 핵심
 
-### AUD-001 필수 산출물 누락
+P1-A:
+- AUD-008 / AUD-014 / AUD-016 / FP-008
 
-산출물목록과 테일러링 결과를 기준으로 현재 제출대상 산출물을 판단하고 실제 업로드 파일과 비교합니다.
+P1-B:
+- REQ-007 / REQ-012 / REQ-017
 
-- 테일러링 `미적용/제외` 항목은 누락으로 판정하지 않음
-- `시기미도래/해당없음` 항목도 현재 누락에서 제외
-- 기준문서가 없으면 임의 표준 산출물목록을 만들어 오탐하지 않음
+P1-C:
+- AUD-010 / AUD-018
 
-### REQ-009 요구사항 ↔ 설계 반영 정합성
+P1-D:
+- AUD-020 / AUD-022 / AUD-023
 
-요구사항정의/기술/추적 문서와 화면·인터페이스·데이터·프로그램·아키텍처 등 설계 산출물을 서로 교차검증합니다.
+P1-E:
+- FP-002
 
-### FP-009 FP 산정값 재계산
-
-- 단순 산식 재계산
-- XLS/XLSX 표 기반 기능유형·복잡도·RET/FTR·DET·기능개수·FP 값 검증
-- 계산 근거가 부족한 행은 억지로 추정하지 않음
+대표 확장 기능:
+- 계획 대비 산출물 작성상태
+- WBS 구조/일정 이상
+- 시험계획/결함 조치상태
+- 품질활동 계획↔수행근거
+- 인터페이스 정의 완전성
+- 계약/RFP/과업 이행근거
+- 적용 기준·지침 준수근거
+- 요구사항 검증가능성/시험연계/추적누락
+- FP 상세근거 및 중복산정 후보
 
 ---
 
 ## 5. 지원 문서 형식
 
 Parser 지원 9종:
-
 - DOCX
 - DOC
 - XLSX
@@ -137,7 +143,7 @@ Parser 지원 9종:
 
 모든 문서는 공통 `ParsedDocument / DocumentBlock` 구조로 변환한 뒤 검사합니다.
 
-현재 MVP 제외:
+제외:
 - 스캔 이미지 기반 PDF OCR
 
 ---
@@ -150,41 +156,28 @@ Parser 지원 9종:
 - Windows CPU 실행
 - reasoning off
 
-AI는 Issue의 다음 항목을 판단합니다.
-- Impact
-- Impact Reason
-- Likelihood
-- Likelihood Reason
+검증 설정:
+- temperature 0.7
+- top-p 0.8
+- top-k 20
+- min-p 0
+- seed 42
 
-최종 Severity는 AI가 직접 정하지 않고 아래 구조로 계산합니다.
+AI는 Issue의 Impact / Likelihood와 근거를 판단합니다.
+최종 Severity는 AI가 직접 정하지 않고 deterministic Matrix로 계산합니다.
 
-`Impact × Likelihood → deterministic Severity Matrix`
-
-인터넷 차단 상태에서 Local AI 검사를 실제 확인했습니다.
-프로그램이 실행 중 모델을 인터넷에서 자동 다운로드하지 않습니다.
-
----
-
-## 7. 주요 화면
-
-- Home
-- Projects
-- Project Detail
-- Inspection
-- Reports
-- Administration
-
-UI는 Dark Mode를 기본으로 하고 Light Mode를 함께 지원합니다.
-확정된 UI Freeze 기준을 유지하며 임의 재설계하지 않습니다.
+`Impact × Likelihood → Severity`
 
 ---
 
-## 8. 검사 실행 흐름
+## 7. 검사 실행 흐름
 
 `Inspection`
-→ `Rule 선택`
+→ `Full Catalog 105 선택상태`
+→ `실행 Registry 33 필터`
 → `문서 Parser`
 → `Rule / AI / Hybrid 검사`
+→ `교차문서 비교/후처리`
 → `Issue 생성`
 → `Impact / Likelihood 평가`
 → `Severity Matrix`
@@ -196,28 +189,18 @@ UI는 Dark Mode를 기본으로 하고 Light Mode를 함께 지원합니다.
 
 ---
 
-## 9. 보고서 Export
+## 8. 보고서 Export
 
 지원 형식:
 - DOCX
 - XLSX
 - TXT
 
-보고서에는 다음 정보를 포함합니다.
-- Issue 내용
-- Impact / 근거
-- Likelihood / 근거
-- Severity / 판정근거
-- 개선권고유형
-- 개선시점
-- 중요 여부
-- 카테고리
-
-HWPX Export는 현재 MVP에서 제외합니다.
+HWPX Report Export는 현재 범위에서 제외합니다.
 
 ---
 
-## 10. 개발 환경
+## 9. 개발 환경
 
 - OS: Windows
 - Python: 3.13.15
@@ -227,41 +210,29 @@ HWPX Export는 현재 MVP에서 제외합니다.
 - MSI Packaging: WiX Toolset 7.0.0 / .NET SDK 10.0.401 x64
 - Version Control: Git / GitHub
 
-주요 Parser 라이브러리는 `requirements.txt`를 기준으로 합니다.
-
 ---
 
-## 11. 소스 실행
-
-### 1) 가상환경 활성화
+## 10. 소스 실행
 
 ```bat
 .venv\Scripts\activate.bat
-```
-
-### 2) 의존성 설치
-
-```bat
 python -m pip install -r requirements.txt
-```
-
-### 3) 실행
-
-```bat
 python main.py
 ```
 
-### 4) 전체 테스트
+전체 테스트:
 
 ```bat
 python -m pytest -q
 ```
 
+2026-10-10 P1 13개 활성 후 사용자 PC 전체 회귀테스트 정상 PASS를 확인했습니다.
+
 ---
 
-## 12. 최종 배포 구조
+## 11. 배포 구조
 
-### ZIP(EXE)
+ZIP(EXE):
 
 ```text
 dist/
@@ -276,15 +247,7 @@ dist/
       └─ (첫 실행 시 ai_auditor.db 자동 생성)
 ```
 
-최종 ZIP(EXE)는 위 폴더 전체를 하나의 실행 패키지로 취급합니다.
-`AI_Auditor.exe`만 별도로 이동하면 Local AI나 DB 경로가 정상 동작하지 않을 수 있습니다.
-
-사용자 PC 최종 ZIP 위치:
-`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
-
-### MSI 설치형
-
-최종 구성:
+MSI 설치형:
 
 ```text
 installer/output/
@@ -295,52 +258,31 @@ installer/output/
 └─ Qwen3-4B-Q4_K_M.gguf
 ```
 
-Qwen3-4B 모델은 2GB를 초과하므로 Windows Installer의 일반 File table에 직접 포함하지 않습니다.
-사용자는 `AI_Auditor_Setup.msi`를 단독 실행하지 않고 `AI_Auditor_Install.cmd`를 실행합니다.
-Launcher가 MSI 설치 후 모델을 설치 경로의 `models/`로 복사하고 파일크기를 검증합니다.
+Qwen 모델은 2GB를 초과하므로 MSI File table에 직접 포함하지 않고 Launcher가 설치 후 모델을 복사하고 크기를 검증합니다.
 
-사용자 PC 최종 MSI 설치형 위치:
+---
+
+## 12. 현재 배포 상태 주의
+
+기존 ZIP(EXE) 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
+
+기존 MSI 설치형 위치:
 `C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
 
-실제 설치 위치:
-`%LOCALAPPDATA%\Programs\AI Auditor`
+기존 패키지는 P1 확장 전 빌드입니다.
+현재 GitHub main은 **33개 실행 Rule Freeze** 상태이므로, 제출용 최종 패키지는 최신 소스로 다시 빌드해야 합니다.
+
+다음 배포 절차:
+1. 33개 Freeze 소스로 ZIP(EXE) 재빌드
+2. ZIP 실행 / Local AI 스모크검증
+3. 동일 dist 기준 MSI 재빌드
+4. MSI 실제 설치 / DB 자동생성 / Local AI 스모크검증
+5. 성공 후 제출문서에 33개 배포 완료로 최종 반영
 
 ---
 
-## 13. 프로젝트 구조
-
-```text
-AI-Auditor
-├─ app/
-│  ├─ database/
-│  ├─ parsers/
-│  ├─ services/
-│  └─ ...
-├─ assets/
-├─ config/
-├─ data/
-├─ installer/
-├─ reports/
-├─ rules/
-│  ├─ core/
-│  ├─ definitions/
-│  └─ providers/
-├─ tests/
-├─ AUDIT_EVIDENCE_MAPPING.md
-├─ MVP20_AUDIT_VALIDATION.md
-├─ RULE_DESIGN.md
-├─ DECISIONS.md
-├─ DEV_STATUS.md
-├─ CURRENT_HANDOFF.md
-├─ HACKATHON_SUBMISSION.md
-├─ main.py
-├─ requirements.txt
-└─ README.md
-```
-
----
-
-## 14. 데이터 관리
+## 13. 데이터 관리
 
 Administration에서 다음을 제공합니다.
 
@@ -351,44 +293,43 @@ Administration에서 다음을 제공합니다.
 
 ---
 
-## 15. 현재 상태
+## 14. 현재 상태
 
 2026-10-10 기준:
 
 - 1~6단계 개발 완료
-- 최종 EXE 안정화 완료
-- 폐쇄망 Local AI 실행 확인
-- 감리자료 114개 분석 완료
-- Full Catalog 105개 실무매핑 완료
-- MVP20 감리사례 실증검증 완료
-- 실증 우선보완 5개 수정 완료
-- 전체 회귀테스트 PASS
-- 최신 코드 기준 ZIP(EXE) 재빌드 및 실제 REQ-003 스모크검증 완료
-- MSI 설치형 제작, 실제 설치, DB 자동생성, Local AI REQ-003 검사 검증 완료
-- `HACKATHON_SUBMISSION.md` 최종 현행화 완료
-- 해커톤 제출 전 최종 문서·파일 체크 단계
+- UI Freeze 완료
+- Local AI / Severity / 감리판정 완료
+- 감리자료 114개 분석 / 105개 매핑 완료
+- MVP20 실증검증 및 5개 우선보완 완료
+- P1 13개 구현·활성·전체 회귀 완료
+- 현재 실제 실행 Registry 33개 Freeze 완료
+- **33개 Freeze 기준 ZIP/MSI 재빌드 전**
 
 ---
 
-## 16. 제한사항 및 향후 확장
+## 15. 제한사항 및 향후 확장
 
-현재 MVP에서 의도적으로 남겨둔 범위:
+현재 의도적으로 남겨둔 범위:
 - 스캔 PDF OCR 제외
-- HWPX 보고서 Export 제외
-- 일부 Rule은 실제 감리 직접사례가 제한적인 예방/전략 Rule
-- Full Catalog 105개 중 실제 실행은 MVP20
-- MSIX는 인증서/정책 복잡성으로 현재 배포범위 제외
+- HWPX Report Export 제외
+- MSIX 제외
 
-제출 이후에는 `AUDIT_EVIDENCE_MAPPING.md`에 확정한 P1 → P2 → P3 → P4 우선순위를 기본으로 나머지 85개 Rule을 확장할 수 있습니다.
+후속 Rule 확장 우선순위:
+- P2 23개
+- P3 21개
+- P4 28개
+
+신규 Rule 후보 9개 + 조건부 1개는 사용자 승인 전 Full Catalog 105에 추가하지 않습니다.
 
 ---
 
-## 17. 주요 문서
+## 16. 주요 문서
 
-- `README.md` — 제품 소개 및 실행 안내
-- `HACKATHON_SUBMISSION.md` — 해커톤 제출용 최종 요약
+- `HACKATHON_SUBMISSION.md` — 해커톤 제출용 요약
 - `AUDIT_EVIDENCE_MAPPING.md` — 114개 감리자료 ↔ 105개 Rule 실무근거
 - `MVP20_AUDIT_VALIDATION.md` — MVP20 실제 감리사례 실증검증
+- `P1_IMPLEMENTATION_PLAN.md` — P1 13개 구현 기준
 - `RULE_DESIGN.md` — 검사기준/실행구조 설계
 - `DECISIONS.md` — 확정 의사결정
 - `DEV_STATUS.md` — 개발 진행현황
