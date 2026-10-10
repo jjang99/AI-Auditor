@@ -9,17 +9,17 @@
 # 1. 개발 진행 원칙
 
 - 상태를 추측하지 않는다.
-- 새 작업 시작 시 `GitHub main → CURRENT_HANDOFF.md → DECISIONS.md → RULE_DESIGN.md → DEV_STATUS.md → 실제 코드 → 이전 대화/저장된 결정사항` 순으로 확인한다.
+- 새 작업 시작 시 `GitHub main → CURRENT_HANDOFF.md → DECISIONS.md → RULE_DESIGN.md → DEV_STATUS.md → README.md / HACKATHON_SUBMISSION.md → 실제 코드 및 installer 관련 파일 → 이전 대화/저장된 결정사항` 순으로 확인한다.
 - 이미 완료된 1~6단계를 새 결함 없이 다시 구현하거나 재설계하지 않는다.
 - 기존 코드와 실제 동작을 확인한 뒤 수정한다.
 - UI Freeze 이후 구조·크기·배치·간격·색상·폰트·버튼 형태를 임의 변경하지 않는다.
 - UI 변경은 명시적 결함 또는 현재 기능 구현에 필요한 최소 범위로 제한한다.
 - 기능 단위 구현 → targeted test → 전체 회귀 테스트 → 문서 현행화 순서를 유지한다.
-- 개발 마감 시 `DEV_STATUS.md`, `DECISIONS.md`, `RULE_DESIGN.md`, `CURRENT_HANDOFF.md`를 최신화한다.
+- 개발 마감 시 `DEV_STATUS.md`, `DECISIONS.md`, `RULE_DESIGN.md`, `CURRENT_HANDOFF.md`, `README.md`, `HACKATHON_SUBMISSION.md` 등 실제 변경과 관련된 문서를 최신화한다.
 
 ## 작업 전 필수 다중 교차검증 원칙
 
-- 어떤 작업이든 시작 전에 GitHub 실제 코드, 프로젝트 구조, `CURRENT_HANDOFF.md`, `DECISIONS.md`, `RULE_DESIGN.md`, `DEV_STATUS.md`, 기존 테스트 결과, 이전 대화 및 저장된 결정사항을 먼저 확인한다.
+- 어떤 작업이든 시작 전에 GitHub 실제 코드, 프로젝트 구조, `CURRENT_HANDOFF.md`, `DECISIONS.md`, `RULE_DESIGN.md`, `DEV_STATUS.md`, `README.md`, `HACKATHON_SUBMISSION.md`, 실제 코드 및 installer 관련 파일, 기존 테스트 결과, 이전 대화 및 저장된 결정사항을 먼저 확인한다.
 - 한 번 확인한 내용만 믿고 바로 작업하지 않는다. 동일 상태를 최소 2~3회, 서로 다른 관점에서 재확인한다.
 - `코드 ↔ 문서 ↔ 테스트 결과 ↔ 이전 대화/결정사항`이 서로 일치하는지 교차검증한 뒤 작업을 시작한다.
 - 내용이 충돌하면 최신 GitHub 실제 코드와 실제 동작을 우선 기준으로 삼되, 기존 확정 결정사항과 충돌하는지 다시 확인한다.
@@ -362,19 +362,25 @@ REQ-001 구조 오탐 수정 이후 결과이며, 새로운 명시적 결함이 
 - 최종 EXE 안정화
 - 감리결과서 114개 분석 / 105개 전체 Rule 매핑
 - MVP20 실제 감리사례 실증검증 및 우선 보완 5개 수정
+- 최종 ZIP(EXE) / MSI 설치형 패키징 및 실제 Local AI 검증
+- `HACKATHON_SUBMISSION.md` 최종 현행화
 
 새 결함이 없는 한 위 완료 범위를 다시 뜯지 않는다.
 
 ---
 
-# 20. 감리결과서 분석 이후 다음 단계
+# 20. 현재 다음 단계
 
-감리결과서 114개 분석과 Full Rule Catalog 105개 전체 매핑, MVP20 실증검증은 완료되었다.
+감리결과서 114개 분석과 Full Rule Catalog 105개 전체 매핑, MVP20 실증검증, ZIP(EXE)/MSI 최종 패키징, `HACKATHON_SUBMISSION.md` 최종 현행화는 완료되었다.
 
-다음은:
-- 해커톤 최종 문서화·제출
+제출 전:
+- 핵심 문서 상호 일치 최종 확인
+- 제출 대상 파일 / 배포 패키지 최종 체크리스트 정리
+- 필요 시 시연·발표용 핵심 흐름 정리
+
+제출 후:
 - 신규 Rule 후보 사용자 검토
-- 제출 후 85개 Rule 우선순위 구현
+- 85개 Rule 우선순위 구현
 - 105개 전체 통합 검증
 
 감리자료는 한 번 분석한 결과를 재사용하며, 나중에 처음부터 다시 분석하지 않는다.
