@@ -43,10 +43,15 @@ build/
 dist/
 *.spec
 
+# 최종 배포 패키지 생성 결과
+AI_Auditor_ZIP_EXE_Final.zip
+installer/output/
+
 # 운영체제 자동 생성 파일
 .DS_Store
 Thumbs.db
 desktop.ini
+
 # Local AI model/runtime binaries
 models/
 runtime/
