@@ -1,7 +1,7 @@
 # AI Auditor CURRENT HANDOFF
 
 ## 기준 시각
-- 2026-10-09 KST
+- 2026-10-10 KST
 - 목적: 다음 대화/새 창에서 상태를 추측하지 않고 바로 이어가기 위한 최신 기준점
 
 다음 세션 시작 순서:
@@ -34,8 +34,10 @@
 - 감리결과서 114개 실무 분석 / 105개 전체 Rule 매핑 — 완료
 - MVP 20개 실제 감리사례 실증검증 — 완료
 - 실증검증 우선 보완 5개 수정 및 전체 회귀검증 — 완료
+- 감리분석 보완사항 반영 후 ZIP(EXE) 재빌드·스모크검증 — 완료
+- WiX 기반 MSI 설치형 패키지 제작·실설치·Local AI 스모크검증 — 완료
 
-**1~6단계와 최종 EXE 안정화, 114개 감리자료 분석, MVP20 실증검증은 새 결함이 없는 한 다시 구현·재설계·재분석하지 않는다.**
+**1~6단계, 감리자료 분석, MVP20 실증검증, 감리분석 보완 5개, 최종 ZIP(EXE)/MSI 패키징은 새 결함이 없는 한 다시 구현·재설계·재분석하지 않는다.**
 
 ---
 
@@ -70,7 +72,7 @@ Full Catalog 105개와 MVP 실제 실행 20개는 서로 다른 개념으로 관
 - `dist/AI_Auditor/AI_Auditor.exe`
 - `dist/AI_Auditor/runtime/llama.cpp/llama-server.exe`
 - `dist/AI_Auditor/models/Qwen3-4B-Q4_K_M.gguf`
-- `dist/AI_Auditor/data/ai_auditor.db`
+- 실행 시 `dist/AI_Auditor/data/ai_auditor.db` 자동 생성
 
 확인 완료:
 - PyInstaller onedir 최신 EXE 빌드 정상
@@ -167,6 +169,8 @@ AI가 최종 Severity를 직접 결정하지 않는다.
 - Project Detail / Reports Export 3종 통일
 - 검사 오류는 빈 Modal이 아니라 오류 유형/상세내용 표시
 - 작업 전 2~3회 다중 교차검증 원칙
+- 배포명칭은 `ZIP(EXE)`와 `MSI 설치형`으로 구분
+- MSI 설치형의 2GB 초과 GGUF 모델은 MSI File table에 직접 포함하지 않음
 
 ---
 
@@ -274,7 +278,69 @@ Canonical 문서:
 
 ---
 
-# 10. 다음 단계
+# 10. 최종 배포 패키징 — 2026-10-10 완료
+
+## ZIP(EXE)
+
+감리분석 우선 보완 5개가 반영된 최신 코드로 PyInstaller onedir를 다시 빌드했다.
+
+최종 구성:
+- `AI_Auditor.exe`
+- `runtime/llama.cpp/llama-server.exe`
+- `models/Qwen3-4B-Q4_K_M.gguf`
+- `data/` — DB는 포함하지 않고 첫 실행 시 자동 생성
+
+검증:
+- 최신 EXE 실행 정상
+- runtime/model 존재 확인
+- 깨끗한 DB 자동 생성 확인
+- `zip_smoke_req003.docx` + REQ-003 실제 Local AI 검사 정상
+- 검사 결과 DB 저장 및 Project Detail 표시 정상
+- 스모크검증 후 배포본 DB 삭제하여 clean 상태로 ZIP 생성
+
+사용자 PC 최종 ZIP 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
+
+## MSI 설치형
+
+빌드 도구:
+- Microsoft .NET SDK 10.0.401 x64
+- WiX Toolset 7.0.0
+
+설치원칙:
+- 현재 frozen 실행 구조가 EXE 옆 `data/`에 SQLite DB를 생성하므로 MSI는 per-user로 설치한다.
+- 실제 설치 위치: `%LOCALAPPDATA%\Programs\AI Auditor`
+- `Qwen3-4B-Q4_K_M.gguf` 실제 크기: 2,497,280,256 bytes
+- WiX/Windows Installer File table의 단일 파일 2GB 제한으로 모델을 MSI File 항목에 직접 포함하지 않는다.
+- 최종 MSI 세트는 MSI + CAB + 외부 GGUF + 설치 Launcher CMD로 구성한다.
+- 사용자는 `AI_Auditor_Setup.msi`를 단독 실행하지 않고 `AI_Auditor_Install.cmd`를 실행한다.
+- Launcher가 MSI 설치 후 `robocopy`로 모델을 `models/`에 복사하고 원본/대상 파일 크기를 비교한다.
+
+최종 MSI 설치형 구성:
+- `AI_Auditor_Install.cmd`
+- `AI_Auditor_Setup.msi`
+- `aia1.cab`
+- `aia2.cab`
+- `Qwen3-4B-Q4_K_M.gguf`
+
+사용자 PC 최종 MSI 설치형 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
+
+실설치 검증:
+- MSI 프로그램 설치 정상
+- 설치 EXE 실행 정상
+- `runtime/llama.cpp/llama-server.exe` 존재 확인
+- 모델 복사 정상 및 크기 2,497,280,256 bytes 일치
+- `data/ai_auditor.db` 첫 실행 자동 생성 확인
+- 동일 REQ-003 스모크 문서로 Local AI 실제 검사 정상
+- 결과 생성 및 DB 저장 정상
+
+MSIX는 인증서/정책 복잡성 때문에 현재 최종 배포범위에서 제외한다.
+Qwen3-4B Q4_K_M 모델은 현재 검증 품질 기준을 유지하기 위해 임의로 경량 모델로 교체하지 않는다.
+
+---
+
+# 11. 다음 단계
 
 현재 다음 작업은 **해커톤 제출용 최종 문서화·정리**이다.
 
@@ -285,4 +351,4 @@ Canonical 문서:
 
 **다음 세션에서 감리결과서 114개를 처음부터 다시 분석하지 않는다.**
 **MVP 20개 실증검증과 우선 보완 5개를 다시 반복하지 않는다.**
-**최종 EXE 안정화도 새 결함이 없는 한 다시 반복하지 않는다.**
+**ZIP(EXE)/MSI 패키징과 동일 스모크검증도 새 결함이 없는 한 다시 반복하지 않는다.**
