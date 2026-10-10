@@ -332,6 +332,7 @@ AI-Auditor
 ├─ DECISIONS.md
 ├─ DEV_STATUS.md
 ├─ CURRENT_HANDOFF.md
+├─ HACKATHON_SUBMISSION.md
 ├─ main.py
 ├─ requirements.txt
 └─ README.md
@@ -364,7 +365,8 @@ Administration에서 다음을 제공합니다.
 - 전체 회귀테스트 PASS
 - 최신 코드 기준 ZIP(EXE) 재빌드 및 실제 REQ-003 스모크검증 완료
 - MSI 설치형 제작, 실제 설치, DB 자동생성, Local AI REQ-003 검사 검증 완료
-- 해커톤 제출용 최종 정리 단계
+- `HACKATHON_SUBMISSION.md` 최종 현행화 완료
+- 해커톤 제출 전 최종 문서·파일 체크 단계
 
 ---
 
@@ -384,6 +386,7 @@ Administration에서 다음을 제공합니다.
 ## 17. 주요 문서
 
 - `README.md` — 제품 소개 및 실행 안내
+- `HACKATHON_SUBMISSION.md` — 해커톤 제출용 최종 요약
 - `AUDIT_EVIDENCE_MAPPING.md` — 114개 감리자료 ↔ 105개 Rule 실무근거
 - `MVP20_AUDIT_VALIDATION.md` — MVP20 실제 감리사례 실증검증
 - `RULE_DESIGN.md` — 검사기준/실행구조 설계
