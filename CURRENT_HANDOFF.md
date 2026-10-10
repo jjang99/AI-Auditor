@@ -22,19 +22,30 @@
 - 1~6단계
 - 9종 Parser / Rule·AI·Hybrid Engine
 - Local AI / Severity / 감리 개선판정
-- UI Freeze
-- Administration 데이터 관리
+- UI Freeze / Administration 데이터 관리 / EXE 안정화
 - 감리자료 114개 분석 / Full Catalog 105 매핑
 - MVP20 실증검증 및 우선 보완 5개
 - 7-0 중앙 실행 Registry
-- P1 13개 전체 구현·활성·회귀검증
-- **P2-A 7개 구현·Registry 활성·통합/전체 회귀검증 완료**
+- P1 13개 전체 구현·활성·전체 회귀
+- **P2-A 7개 구현·활성·전체 회귀**
+- **P2-B 6개 구현·활성·전체 회귀**
 
 현재 GitHub main 실제 실행 Registry:
-- **40개 = MVP20 + P1 13 + P2-A 7**
-- 누적 실행방식: Rule 14 / AI 6 / Hybrid 20
+- **46개 = MVP20 + P1 13 + P2-A 7 + P2-B 6**
+- 누적 실행방식: **Rule 14 / AI 9 / Hybrid 23**
 
-활성 P2-A 7개:
+P2 진행:
+- **13 / 23 완료**
+- P2-A 7 / 7 완료
+- P2-B 6 / 6 완료
+- P2-C 0 / 4 현재 시작
+- P2-D 0 / 6
+
+---
+
+# 2. P2-A 완료
+
+활성 7개:
 - AUD-015 시험 수행·결과 완전성
 - AUD-019 품질지적사항 미조치
 - REQ-016 중요 요구사항 시험범위 누락
@@ -43,79 +54,16 @@
 - FP-007 FP 산정방식·적용기준 적정성
 - AI-023 AI 자원사용·호출 제한 적정성
 
-P1 33개 Freeze 기준은 유지하며 P2를 그 위에 누적 확장한다.
-
----
-
-# 2. Full Catalog / 우선순위
-
-Full Catalog 105:
-- AUD 24
-- REQ 28
-- CHG 18
-- FP 12
-- AI 23
-
-감리자료 기준 원래 미구현 85 우선순위:
-- P1 13 — 완료
-- P2 23 — 진행 중, 현재 7/23 완료
-- P3 21
-- P4 28
-
-새 감리자료는 114개를 처음부터 재분석하지 않고 `AUDIT_EVIDENCE_MAPPING.md`에 증분 반영한다.
-
----
-
-# 3. P2 Canonical
-
-Canonical:
-- `P2_IMPLEMENTATION_PLAN.md`
-- `AUDIT_EVIDENCE_MAPPING.md`
-
-P2 전체 23개 구성:
-- AUD 4 / REQ 6 / CHG 3 / FP 3 / AI 7
-- Rule 7 / AI 5 / Hybrid 11
-
-P2 전체 완료 목표:
-- **56개 실행 Rule = MVP20 + P1 13 + P2 23**
-- Rule 14 / AI 11 / Hybrid 31
-
-Batch:
-- P2-A 7개 — 완료
-- P2-B 6개 — 현재 구현/검증 중
-- P2-C 4개
-- P2-D 6개
-
----
-
-# 4. P2-A 완료 기준
-
-P2-A 구현 구조:
-- `rules/definitions/document_p2_a_rules.py`
-- `rules/core/p2_a_checks.py`
-- `rules/core/p2_document_engine.py`
-- `tests/test_p2_a_rules.py`
-
-핵심 역할:
-- AUD-015: 시험계획이 아니라 수행 후 결과정보 완전성
-- AUD-019: 시험결함이 아닌 품질검토/점검 지적사항 미조치
-- REQ-016: 명시적 중요 요구사항의 시험범위 누락
-- REQ-020: 실제 요구사항 기준집합에 없는 잘못된 ID 참조
-- CHG-005: 미승인 상태인데 실제 반영된 변경
-- FP-007: 명시된 산정방식/적용기준 구조의 공란·불일치
-- AI-023: AI 관련 문서의 호출/자원 제한 구조 공란
-
 검증:
-- P2-A 전용 테스트 PASS
-- Registry 40개 + 선택 UI + 기존 Catalog/MVP/P1 통합 PASS
-- 최종 `python -m pytest -q` 사용자 PC 정상 PASS
-- 정확한 passed 숫자는 사용자 출력이 제공되지 않아 임의 기록하지 않음
+- 전용 테스트 PASS
+- Registry 40개 + 선택 UI + Catalog/MVP/P1 통합 PASS
+- 전체 `python -m pytest -q` 사용자 PC 정상 PASS
 
 ---
 
-# 5. P2-B 현재 구현 상태
+# 3. P2-B 완료
 
-대상 6개:
+활성 6개:
 - AUD-005 문서 간 용어 일관성 — AI, 교차문서
 - AUD-021 인터페이스 문서정보 일치 — Hybrid, 교차문서
 - REQ-006 요구사항 완전성 — AI
@@ -123,33 +71,45 @@ P2-A 구현 구조:
 - REQ-027 요구사항 출처·상위요구 및 추가기능 근거 — Hybrid
 - REQ-028 요구사항 정합성 종합 위험 후보 — AI, 후처리 종합
 
-현재 GitHub main에 구현된 P2-B 파일:
+구현:
 - `rules/definitions/document_p2_b_rules.py`
 - `rules/core/p2_b_checks.py`
 - `rules/core/p2_b_hybrid_engine.py`
-- `rules/core/ai_strategy.py` P2-B 전략 등록
-- `rules/core/inspection_engine.py` P2BHybridEngine 연결
-- `app/services/inspection_service.py` AUD-005 교차문서 / REQ-028 종합 후처리 연결
+- `rules/core/ai_strategy.py`
+- `rules/core/inspection_engine.py`
+- `app/services/inspection_service.py`
 - `tests/test_p2_b_rules.py`
 - `tests/test_p2_b_service.py`
 
-중요:
-- **P2-B 6개는 아직 Registry 비활성**이다.
-- 전용/Service 테스트 통과 전 활성화하지 않는다.
+핵심 동작:
+- AUD-005: 동일 ID가 여러 문서에서 다른 명칭으로 사용된 경우만 교차문서 AI 후보
+- AUD-021: 동일 인터페이스 ID의 시스템/방식/주기/데이터 정의가 문서 간 불일치할 때만 후보
+- REQ-006: 관련 요구사항 근거가 있을 때 의미상 완전성 판단
+- REQ-021: 상태/승인정보의 구조적 모순 후보
+- REQ-027: 출처/상위요구 필드가 실제 있는 구조에서 근거 공란 후보, N/A 제외
+- REQ-028: 원문 직접검사가 아니라 실제 REQ 지적사항이 있을 때만 종합 후처리
+
+검증:
+- `tests/test_p2_b_rules.py` + `tests/test_p2_b_service.py` 사용자 PC 정상
+- P2-B + P2-A + Registry 46 + 선택 UI + Catalog/MVP 통합 정상
+- 최종 `python -m pytest -q` 사용자 PC 정상
+- 사용자가 정확한 passed 숫자를 보내지 않았으므로 임의 기록하지 않는다.
+
+**P2-B 완료 / 실행 Registry 46개 확정.**
 
 ---
 
-# 6. Engine 구조
+# 4. Engine 구조
 
-Rule 계층:
+Rule:
 `DocumentRuleEngine → P1DocumentRuleEngine → P2DocumentRuleEngine`
 
-Hybrid 계층:
+Hybrid:
 `DocumentHybridEngine → P1RequirementHybridEngine → P1AuditHybridEngine → P1GovernanceHybridEngine → P1FPHybridEngine → P2BHybridEngine`
 
 주요 교차문서/후처리:
-- AUD-005 동일 ID 용어 문서간 비교
-- AUD-021 동일 인터페이스 정의 문서간 비교
+- AUD-005 문서 간 용어 비교
+- AUD-021 인터페이스 정의 비교
 - REQ-009 요구사항↔설계
 - REQ-012 요구사항↔시험
 - AUD-018 품질활동 계획↔수행근거
@@ -158,6 +118,48 @@ Hybrid 계층:
 - REQ-028 REQ 계열 실제 지적 종합
 - CHG 계열 비교/종합
 - AUD-024 전체 최종 종합
+
+---
+
+# 5. P2-C 현재 시작점
+
+대상 4개:
+- CHG-008 관련 설계 변경 미반영 — Hybrid
+- CHG-010 관련 데이터설계 변경 미반영 — Hybrid
+- FP-006 기능 단위 분할·통합 적정성 — AI
+- FP-011 FP 변경반영 누락 — Hybrid
+
+Canonical 경계:
+- CHG-008: 확인된 변경 + 관련 설계 산출물이 함께 있을 때 최신 반영 여부를 교차검증
+- CHG-010: 데이터/테이블/컬럼 영향 근거가 있는 변경에 한정해 데이터설계 반영 여부 검증
+- FP-006: 구조형 FP 행의 기능명/유형/상세근거를 이용해 과도 분할·이질 기능 통합 후보를 AI 판단
+- FP-011: 확인된 요구/기능 변경 + FP 산정자료가 함께 있을 때 갱신 누락 후보 검증
+
+오탐 방지:
+- 교차문서 Rule은 필요한 문서 한쪽만 업로드된 상태를 자동 실패로 판정하지 않는다.
+- CHG-008/010은 실제 변경 근거 없이 일반 설계문서가 오래됐다고 추정하지 않는다.
+- FP-006은 FP-002 중복산정과 역할을 분리한다.
+- FP-011은 변경자료 또는 FP 자료 한쪽만 있는 경우 미반영으로 확정하지 않는다.
+
+P2-C는 Registry에 미리 올리지 않는다.
+
+---
+
+# 6. Full Catalog / 목표
+
+Full Catalog 105:
+- AUD 24 / REQ 28 / CHG 18 / FP 12 / AI 23
+
+P2 전체 23:
+- Rule 7 / AI 5 / Hybrid 11
+
+P2 전체 완료 목표:
+- **56개 = MVP20 + P1 13 + P2 23**
+- **Rule 14 / AI 11 / Hybrid 31**
+
+남은 P2:
+- P2-C 4개
+- P2-D 6개
 
 ---
 
@@ -174,21 +176,17 @@ Hybrid 계층:
 
 # 8. 다음 실제 작업
 
-1. 로컬에서 P2-B 최신 소스 pull
-2. `tests/test_p2_b_rules.py` + `tests/test_p2_b_service.py` 전용검증
-3. 실패 시 수정
-4. 정상 시 P2-B 6개 Registry 활성 → 실행 Rule 46개
-5. Registry/선택/P1/P2-A 통합검증
-6. 전체 회귀검증
-7. P2-B 완료 문서 현행화 후 P2-C 진행
+1. P2-C 4개 정의/사전분석 구현
+2. Hybrid/AI 실행경로 연결
+3. 전용 + Service 테스트
+4. 로컬 검증 정상 시 Registry 활성 → 목표 50개
+5. 통합 회귀
+6. 전체 pytest
+7. P2-C 문서 현행화 후 P2-D 진행
 
----
-
-# 9. 하지 말아야 할 것
-
-- P1 재구현 금지
-- P2-A 재구현 금지
+하지 말아야 할 것:
+- P1/P2-A/P2-B 재구현 금지
 - UI Freeze 임의 변경 금지
 - 감리자료 114개 전체 재분석 금지
-- P2-B 전용검증 전 Registry 활성 금지
+- P2-C 전용검증 전 Registry 활성 금지
 - P2 전체 완료 전 ZIP/MSI 최신 제출본 재생성 금지
