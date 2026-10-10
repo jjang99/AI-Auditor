@@ -219,11 +219,12 @@ HWPX Export는 현재 MVP에서 제외합니다.
 
 ## 10. 개발 환경
 
-- OS: Windows 11
+- OS: Windows
 - Python: 3.13.15
 - UI Framework: PySide6 6.11.2
 - Database: SQLite
-- Packaging: PyInstaller 6.22.3 onedir
+- EXE Packaging: PyInstaller 6.22.3 onedir
+- MSI Packaging: WiX Toolset 7.0.0 / .NET SDK 10.0.401 x64
 - Version Control: Git / GitHub
 
 주요 Parser 라이브러리는 `requirements.txt`를 기준으로 합니다.
@@ -258,7 +259,9 @@ python -m pytest -q
 
 ---
 
-## 12. 최종 EXE 배포 구조
+## 12. 최종 배포 구조
+
+### ZIP(EXE)
 
 ```text
 dist/
@@ -270,11 +273,37 @@ dist/
    ├─ models/
    │  └─ Qwen3-4B-Q4_K_M.gguf
    └─ data/
-      └─ ai_auditor.db
+      └─ (첫 실행 시 ai_auditor.db 자동 생성)
 ```
 
-최종 배포본은 위 폴더 전체를 하나의 실행 패키지로 취급합니다.
+최종 ZIP(EXE)는 위 폴더 전체를 하나의 실행 패키지로 취급합니다.
 `AI_Auditor.exe`만 별도로 이동하면 Local AI나 DB 경로가 정상 동작하지 않을 수 있습니다.
+
+사용자 PC 최종 ZIP 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\AI_Auditor_ZIP_EXE_Final.zip`
+
+### MSI 설치형
+
+최종 구성:
+
+```text
+installer/output/
+├─ AI_Auditor_Install.cmd
+├─ AI_Auditor_Setup.msi
+├─ aia1.cab
+├─ aia2.cab
+└─ Qwen3-4B-Q4_K_M.gguf
+```
+
+Qwen3-4B 모델은 2GB를 초과하므로 Windows Installer의 일반 File table에 직접 포함하지 않습니다.
+사용자는 `AI_Auditor_Setup.msi`를 단독 실행하지 않고 `AI_Auditor_Install.cmd`를 실행합니다.
+Launcher가 MSI 설치 후 모델을 설치 경로의 `models/`로 복사하고 파일크기를 검증합니다.
+
+사용자 PC 최종 MSI 설치형 위치:
+`C:\Users\jjang\Desktop\해커톤\Development\AI-Auditor\installer\output\`
+
+실제 설치 위치:
+`%LOCALAPPDATA%\Programs\AI Auditor`
 
 ---
 
@@ -290,6 +319,7 @@ AI-Auditor
 ├─ assets/
 ├─ config/
 ├─ data/
+├─ installer/
 ├─ reports/
 ├─ rules/
 │  ├─ core/
@@ -322,7 +352,7 @@ Administration에서 다음을 제공합니다.
 
 ## 15. 현재 상태
 
-2026-10-09 기준:
+2026-10-10 기준:
 
 - 1~6단계 개발 완료
 - 최종 EXE 안정화 완료
@@ -332,6 +362,8 @@ Administration에서 다음을 제공합니다.
 - MVP20 감리사례 실증검증 완료
 - 실증 우선보완 5개 수정 완료
 - 전체 회귀테스트 PASS
+- 최신 코드 기준 ZIP(EXE) 재빌드 및 실제 REQ-003 스모크검증 완료
+- MSI 설치형 제작, 실제 설치, DB 자동생성, Local AI REQ-003 검사 검증 완료
 - 해커톤 제출용 최종 정리 단계
 
 ---
@@ -343,6 +375,7 @@ Administration에서 다음을 제공합니다.
 - HWPX 보고서 Export 제외
 - 일부 Rule은 실제 감리 직접사례가 제한적인 예방/전략 Rule
 - Full Catalog 105개 중 실제 실행은 MVP20
+- MSIX는 인증서/정책 복잡성으로 현재 배포범위 제외
 
 제출 이후에는 `AUDIT_EVIDENCE_MAPPING.md`에 확정한 P1 → P2 → P3 → P4 우선순위를 기본으로 나머지 85개 Rule을 확장할 수 있습니다.
 
