@@ -35,6 +35,10 @@ class DocumentInspectionEngine:
             ai_provider,
         )
 
+    def prepare_documents(self, documents: list[ParsedDocument]) -> None:
+        """업로드 문서 전체를 교차문서 Hybrid Rule에 전달한다."""
+        self.hybrid_engine.prepare_documents(documents)
+
     def inspect_document(
         self,
         document: ParsedDocument,
