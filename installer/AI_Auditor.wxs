@@ -4,12 +4,13 @@
       Name="AI Auditor"
       Version="1.0.0"
       Manufacturer="AI Auditor"
-      Scope="perUserOrMachine">
+      Scope="perUser">
 
     <!--
       Application/runtime payload is stored in external cabinets.
-      The Qwen GGUF model is larger than the Windows Installer File table limit,
-      so it is shipped beside the MSI and copied from SourceDir during install.
+      The Qwen GGUF model is larger than the Windows Installer File-table limit,
+      so it is deliberately excluded from MSI authoring and copied after MSI install
+      by AI_Auditor_Install.cmd using Windows file copy.
     -->
     <MediaTemplate
         EmbedCab="no"
@@ -44,25 +45,20 @@
     </StandardDirectory>
 
     <!--
-      The model is intentionally NOT authored as a File element. WiX rejects
-      individual File-table entries >= 2 GiB (WIX0263). Instead, Windows Installer's
-      MoveFiles action copies the already-present model from the MSI source folder.
+      The model is copied outside Windows Installer because a single GGUF file is
+      larger than 2 GiB. This component only lets uninstall remove that externally
+      copied model. The registry value is the component key path.
     -->
-    <Component Id="ExternalModelComponent" Directory="ModelFolder" Guid="*">
-      <CopyFile
-          Id="CopyExternalQwenModel"
-          SourceProperty="SourceDir"
-          SourceName="Qwen3-4B-Q4_K_M.gguf"
-          DestinationDirectory="ModelFolder"
-          DestinationName="Qwen3-4B-Q4_K_M.gguf" />
+    <Component Id="ExternalModelCleanupComponent" Directory="ModelFolder" Guid="*">
       <RemoveFile
           Id="RemoveExternalQwenModel"
           Name="Qwen3-4B-Q4_K_M.gguf"
           On="uninstall" />
+      <RemoveFolder Id="RemoveModelFolder" On="uninstall" />
       <RegistryValue
           Root="HKCU"
           Key="Software\AI Auditor"
-          Name="modelInstalled"
+          Name="modelCleanup"
           Type="integer"
           Value="1"
           KeyPath="yes" />
@@ -74,7 +70,7 @@
         <Exclude Files="!(bindpath.app)\models\Qwen3-4B-Q4_K_M.gguf" />
       </Files>
       <ComponentRef Id="ApplicationShortcut" />
-      <ComponentRef Id="ExternalModelComponent" />
+      <ComponentRef Id="ExternalModelCleanupComponent" />
     </Feature>
   </Package>
 </Wix>
