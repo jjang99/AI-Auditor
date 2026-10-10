@@ -17,6 +17,7 @@ from rules.core.ai_strategy import AIProcessingStrategy, get_ai_processing_strat
 from rules.core.requirement_design_alignment import build_requirement_design_batches
 from rules.core.p1_requirement_checks import build_req012_evidence
 from rules.core.p1_audit_checks import build_aud018_evidence
+from rules.core.p2_b_checks import build_aud005_cross_document_evidence
 from rules.core.models import (
     DocumentRuleIssue,
     InspectionSummary,
@@ -146,8 +147,8 @@ class InspectionService:
             if not parsed_documents:
                 raise ValueError("문서 검사 대상 파일이 없습니다.")
 
-            # P1-D 교차문서 Hybrid Rule(AUD-022/AUD-023)이 이번 검사에서
-            # 업로드된 전체 문서 집합을 한 번에 비교할 수 있도록 준비한다.
+            # P1/P2 교차문서 Hybrid Rule이 이번 검사에서 업로드된
+            # 전체 문서 집합을 한 번에 비교할 수 있도록 준비한다.
             self.document_engine.prepare_documents(parsed_documents)
 
             all_issues = []
@@ -200,6 +201,44 @@ class InspectionService:
                             result,
                             document,
                             rule,
+                        )
+                    )
+
+            # AUD-005: 동일 ID가 여러 업로드 문서에서 서로 다른 용어로 쓰인 경우에만
+            # 교차문서 AI 비교를 수행한다. 단일 문서 또는 구조적 후보가 없으면 호출하지 않는다.
+            terminology_rule = rule_by_code.get("AUD-005")
+            if terminology_rule is not None:
+                terminology_evidence = build_aud005_cross_document_evidence(parsed_documents)
+                if terminology_evidence:
+                    if cancel_requested is not None and cancel_requested():
+                        from rules.core.engine import InspectionCancelled
+                        raise InspectionCancelled("검사가 취소되었습니다.")
+
+                    terminology_document = ParsedDocument(
+                        file_path=Path("AUD-005-cross-document.txt"),
+                        file_type="terminology_comparison",
+                        blocks=tuple(
+                            DocumentBlock(
+                                block_type="terminology_case",
+                                text=evidence,
+                            )
+                            for evidence in terminology_evidence
+                        ),
+                        metadata={
+                            "source": "cross_document_terminology_evidence",
+                            "case_count": len(terminology_evidence),
+                        },
+                    )
+                    terminology_result = self.ai_provider.inspect(
+                        terminology_document,
+                        terminology_rule,
+                        AIInspectionContext(evidence=terminology_evidence),
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            terminology_result,
+                            terminology_document,
+                            terminology_rule,
                         )
                     )
 
@@ -316,6 +355,52 @@ class InspectionService:
                             quality_activity_result,
                             quality_activity_document,
                             quality_activity_rule,
+                        )
+                    )
+
+            # REQ-028: 원문을 다시 일반 요약하지 않고, 앞 단계에서 실제 확인된
+            # REQ 계열 지적사항만 종합하여 요구사항 정합성 위험 후보를 만든다.
+            requirement_synthesis_rule = rule_by_code.get("REQ-028")
+            if requirement_synthesis_rule is not None:
+                requirement_issues = tuple(
+                    issue for issue in all_issues
+                    if issue.rule_code.startswith("REQ-") and issue.rule_code != "REQ-028"
+                )
+                if requirement_issues:
+                    if cancel_requested is not None and cancel_requested():
+                        from rules.core.engine import InspectionCancelled
+                        raise InspectionCancelled("검사가 취소되었습니다.")
+
+                    requirement_synthesis_document = ParsedDocument(
+                        file_path=Path("REQ-028-inspection-findings.txt"),
+                        file_type="inspection_findings",
+                        blocks=tuple(
+                            DocumentBlock(
+                                block_type="requirement_finding",
+                                text=(
+                                    f"{issue.rule_code} | {issue.rule_name} | "
+                                    f"{issue.evidence}"
+                                ),
+                            )
+                            for issue in requirement_issues
+                        ),
+                        metadata={
+                            "source": "requirement_inspection_results",
+                            "case_count": len(requirement_issues),
+                        },
+                    )
+                    requirement_synthesis_result = self.ai_provider.inspect(
+                        requirement_synthesis_document,
+                        requirement_synthesis_rule,
+                        AIInspectionContext(
+                            evidence=tuple(block.text for block in requirement_synthesis_document.blocks)
+                        ),
+                    )
+                    all_issues.extend(
+                        adapt_ai_result(
+                            requirement_synthesis_result,
+                            requirement_synthesis_document,
+                            requirement_synthesis_rule,
                         )
                     )
 
