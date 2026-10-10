@@ -42,9 +42,15 @@ AI_RULE_STRATEGIES = {
     "FP-005": AIProcessingStrategy.EVIDENCE,
     "FP-006": AIProcessingStrategy.EVIDENCE,
     "FP-011": AIProcessingStrategy.EVIDENCE,
+    "AI-003": AIProcessingStrategy.EVIDENCE,
     "AI-005": AIProcessingStrategy.EVIDENCE,
+    "AI-008": AIProcessingStrategy.EVIDENCE,
     "AI-009": AIProcessingStrategy.EVIDENCE,
+    "AI-013": AIProcessingStrategy.EVIDENCE,
+    "AI-015": AIProcessingStrategy.EVIDENCE,
+    "AI-017": AIProcessingStrategy.EVIDENCE,
     "AI-019": AIProcessingStrategy.EVIDENCE,
+    "AI-021": AIProcessingStrategy.EVIDENCE,
     "AI-022": AIProcessingStrategy.EVIDENCE,
 }
 
