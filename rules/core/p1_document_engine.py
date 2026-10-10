@@ -7,6 +7,7 @@
 from app.parsers.models import ParsedDocument
 from rules.core.document_engine import DocumentRuleEngine
 from rules.core.models import DocumentRule, DocumentRuleIssue
+from rules.core.p1_deliverable_status import find_deliverable_status_gaps
 from rules.core.p1_rule_checks import (
     find_fp_detail_gaps,
     find_open_test_defects,
@@ -30,6 +31,38 @@ class P1DocumentRuleEngine(DocumentRuleEngine):
                 issues.extend(self._adapt_findings(document, rule, find_open_test_defects(document)))
             elif rule.code == "FP-008":
                 issues.extend(self._adapt_findings(document, rule, find_fp_detail_gaps(document)))
+
+        return tuple(issues)
+
+    def inspect_documents(
+        self,
+        documents: list[ParsedDocument],
+    ) -> tuple[DocumentRuleIssue, ...]:
+        # 부모 구현은 AUD-001 set-level 검사 후 self.inspect_document()를 호출하므로
+        # 기존 MVP Rule과 P1 per-document Rule을 그대로 모두 유지한다.
+        issues = list(super().inspect_documents(documents))
+
+        for rule in self.rules:
+            if rule.code != "AUD-008":
+                continue
+
+            for finding in find_deliverable_status_gaps(documents):
+                issues.append(
+                    DocumentRuleIssue(
+                        rule_code=rule.code,
+                        rule_name=rule.name,
+                        category=rule.category,
+                        severity=rule.severity,
+                        file_path=finding.file_path,
+                        block_type=finding.block_type,
+                        evidence=finding.evidence,
+                        description=rule.description,
+                        location=finding.location,
+                        page=finding.page,
+                        sheet=finding.sheet,
+                        slide=finding.slide,
+                    )
+                )
 
         return tuple(issues)
 
