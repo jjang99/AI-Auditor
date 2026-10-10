@@ -1,9 +1,9 @@
 from app.parsers.models import ParsedDocument
 from rules.core.ai_engine import DocumentAIEngine
 from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
-from rules.core.document_engine import DocumentRuleEngine
 from rules.core.hybrid_engine import DocumentHybridEngine
 from rules.core.models import DocumentRule, DocumentRuleIssue
+from rules.core.p1_document_engine import P1DocumentRuleEngine
 
 
 class DocumentInspectionEngine:
@@ -15,8 +15,10 @@ class DocumentInspectionEngine:
         ai_provider: BaseAIProvider,
         required_deliverables: list[str] | None = None,
     ):
-        self.rule_engine = DocumentRuleEngine(
-            rules,
+        # P1DocumentRuleEngine은 기존 DocumentRuleEngine을 상속하므로
+        # MVP Rule 동작은 유지하면서 검증 완료된 P1 결정형 Handler만 추가한다.
+        self.rule_engine = P1DocumentRuleEngine(
+            list(rules),
             required_deliverables=required_deliverables,
         )
 
