@@ -2,7 +2,7 @@ from app.parsers.models import ParsedDocument
 from rules.core.ai_engine import DocumentAIEngine
 from rules.core.ai_provider import AIInspectionResult, BaseAIProvider
 from rules.core.models import DocumentRule, DocumentRuleIssue
-from rules.core.p1_fp_hybrid_engine import P1FPHybridEngine
+from rules.core.p2_b_hybrid_engine import P2BHybridEngine
 from rules.core.p2_document_engine import P2DocumentRuleEngine
 
 
@@ -29,11 +29,11 @@ class DocumentInspectionEngine:
             ai_provider,
         )
 
-        # P1FPHybridEngine은
-        # P1GovernanceHybridEngine → P1AuditHybridEngine →
+        # P2BHybridEngine은
+        # P1FPHybridEngine → P1GovernanceHybridEngine → P1AuditHybridEngine →
         # P1RequirementHybridEngine → DocumentHybridEngine을 상속하므로
-        # 기존 Hybrid + P1-B/C/D/E 동작을 유지한다.
-        self.hybrid_engine = P1FPHybridEngine(
+        # 기존 MVP/P1 Hybrid 동작을 유지하면서 P2-B Hybrid만 추가한다.
+        self.hybrid_engine = P2BHybridEngine(
             rules,
             ai_provider,
         )
