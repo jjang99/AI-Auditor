@@ -20,12 +20,12 @@ class DocumentSelectionTest(unittest.TestCase):
 
         selected = get_selected_document_rules(state)
 
-        self.assertEqual(27, len(selected))
-        self.assertEqual(27, len({rule.code for rule in selected}))
+        self.assertEqual(29, len(selected))
+        self.assertEqual(29, len({rule.code for rule in selected}))
         selected_codes = {rule.code for rule in selected}
         self.assertTrue(
             {
-                "AUD-008", "AUD-014", "AUD-016",
+                "AUD-008", "AUD-010", "AUD-014", "AUD-016", "AUD-018",
                 "REQ-007", "REQ-012", "REQ-017",
                 "FP-008",
             }.issubset(selected_codes)
@@ -41,7 +41,7 @@ class DocumentSelectionTest(unittest.TestCase):
 
         self.assertNotIn("AUD-024", selected_codes)
         self.assertIn("AUD-001", selected_codes)
-        self.assertEqual(26, len(selected))
+        self.assertEqual(28, len(selected))
 
     def test_p1_a_executable_rule_selection_is_applied(self):
         state = self._all_selected()
@@ -52,30 +52,41 @@ class DocumentSelectionTest(unittest.TestCase):
         selected_codes = {rule.code for rule in selected}
 
         self.assertNotIn("AUD-008", selected_codes)
-        self.assertEqual(26, len(selected))
+        self.assertEqual(28, len(selected))
 
     def test_p1_b_executable_rule_selection_is_applied(self):
         state = self._all_selected()
 
-        # REQ-012는 요구사항 정합성 Full Catalog의 12번째 Rule이다.
         state["요구사항 정합성"][11] = False
 
         selected = get_selected_document_rules(state)
         selected_codes = {rule.code for rule in selected}
 
         self.assertNotIn("REQ-012", selected_codes)
-        self.assertEqual(26, len(selected))
+        self.assertEqual(28, len(selected))
+
+    def test_p1_c_executable_rule_selection_is_applied(self):
+        state = self._all_selected()
+
+        # AUD-010은 감리 사전점검 Full Catalog의 10번째 Rule이다.
+        state["감리 사전점검"][9] = False
+
+        selected = get_selected_document_rules(state)
+        selected_codes = {rule.code for rule in selected}
+
+        self.assertNotIn("AUD-010", selected_codes)
+        self.assertEqual(28, len(selected))
 
     def test_unimplemented_p1_rule_selection_does_not_change_executable_count(self):
         state = self._all_selected()
 
-        # AUD-010은 P1 대상이지만 아직 Registry에 등록되지 않았다.
-        state["감리 사전점검"][9] = False
+        # AUD-020은 P1 대상이지만 아직 Registry에 등록되지 않았다.
+        state["감리 사전점검"][19] = False
 
         selected = get_selected_document_rules(state)
 
-        self.assertEqual(27, len(selected))
-        self.assertNotIn("AUD-010", {rule.code for rule in selected})
+        self.assertEqual(29, len(selected))
+        self.assertNotIn("AUD-020", {rule.code for rule in selected})
 
     def test_empty_selection_returns_no_executable_rules(self):
         state = {
