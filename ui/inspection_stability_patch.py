@@ -1,3 +1,4 @@
+import threading
 from pathlib import Path
 
 from PySide6.QtWidgets import QFileDialog, QMessageBox
@@ -6,7 +7,12 @@ from app.services.inspection_service import (
     SUPPORTED_DOCUMENT_EXTENSIONS,
     SUPPORTED_TEXT_EXTENSIONS,
 )
+from rules.core.p2_document_engine import P2DocumentRuleEngine
 from ui.inspection_execution_patch import _ProgressIssueAssessor
+import ui.inspection_runtime as inspection_runtime
+
+
+_progress_state = threading.local()
 
 
 def _mark_selected_rules_complete(tracker):
@@ -19,6 +25,7 @@ def _mark_selected_rules_complete(tracker):
     the assessment boundary keeps the displayed completed-rule count accurate.
     """
     tracker.completed_codes.update(tracker._rule_codes)
+    tracker._emit("검사 규칙 실행 완료")
 
 
 def _patch_issue_assessor_progress():
@@ -47,12 +54,52 @@ def _patch_issue_assessor_progress():
     _ProgressIssueAssessor._stability_progress_patch_applied = True
 
 
+def _patch_deterministic_progress():
+    """Expose completion of the deterministic Rule batch to the progress UI."""
+    worker_cls = inspection_runtime.InspectionWorker
+    if not getattr(worker_cls, "_stability_tracker_context_applied", False):
+        original_worker_run = worker_cls.run
+
+        def patched_worker_run(self):
+            _progress_state.tracker = self._tracker
+            try:
+                return original_worker_run(self)
+            finally:
+                _progress_state.tracker = None
+
+        worker_cls.run = patched_worker_run
+        worker_cls._stability_tracker_context_applied = True
+
+    if getattr(P2DocumentRuleEngine, "_stability_progress_patch_applied", False):
+        return
+
+    original_inspect_documents = P2DocumentRuleEngine.inspect_documents
+
+    def patched_inspect_documents(self, documents):
+        results = original_inspect_documents(self, documents)
+        tracker = getattr(_progress_state, "tracker", None)
+        if tracker is not None:
+            completed_codes = {
+                rule.code
+                for rule in self.rules
+                if rule.code in tracker._rule_codes
+            }
+            if completed_codes:
+                tracker.completed_codes.update(completed_codes)
+                tracker._emit("기본 Rule 검사 완료")
+        return results
+
+    P2DocumentRuleEngine.inspect_documents = patched_inspect_documents
+    P2DocumentRuleEngine._stability_progress_patch_applied = True
+
+
 def apply_inspection_stability_patch(InspectionPage):
     """Apply Windows/Qt stability hardening to the Inspection page."""
     if getattr(InspectionPage, "_stability_patch_applied", False):
         return
 
     _patch_issue_assessor_progress()
+    _patch_deterministic_progress()
 
     def select_inspection_files(self):
         document_patterns = " ".join(
