@@ -3,7 +3,7 @@ import threading
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtCore import QObject, QTimer, Signal, Qt
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from app.database.repositories.inspection_repository import save_inspection_result
@@ -152,16 +152,18 @@ class _ProgressIssueAssessor(LocalAIIssueAssessor):
         self._tracker = tracker
 
     def assess(self, issue):
-        self._tracker.phase("Impact / Likelihood 판정")
+        self._tracker.phase("Impact / Likelihood 판정 중")
         return super().assess(issue)
 
     def assess_many(self, issues, batch_size=2):
-        self._tracker.phase("Impact / Likelihood 판정")
-        return super().assess_many(issues, batch_size=batch_size)
+        self._tracker.phase("Impact / Likelihood 판정 중")
+        # Local AI 호출 수를 줄여 후처리 시간을 단축한다.
+        return super().assess_many(issues, batch_size=max(4, batch_size))
 
     def judge_audit_many(self, issues, batch_size=2):
-        self._tracker.phase("감리 개선판정")
-        return super().judge_audit_many(issues, batch_size=batch_size)
+        self._tracker.phase("감리 개선판정 중")
+        # Impact/Likelihood와 동일하게 소규모 묶음 단위를 키워 호출 수를 줄인다.
+        return super().judge_audit_many(issues, batch_size=max(4, batch_size))
 
 
 class InspectionExecutionWorker(QObject):
@@ -306,6 +308,7 @@ def apply_inspection_execution_patch(InspectionPage):
         self._inspection_estimated_seconds = 0
         self._inspection_completed_rules = 0
         self._inspection_total_rules = 0
+        self._inspection_postprocessing = False
 
         percent = getattr(self, "runtime_progress_percent", None)
         if percent is not None:
@@ -333,6 +336,7 @@ def apply_inspection_execution_patch(InspectionPage):
         total = len(self._selected_executable_rules())
         self._inspection_completed_rules = 0
         self._inspection_total_rules = total
+        self._inspection_postprocessing = False
 
         self.runtime_progress_bar.setRange(0, 100)
         self.runtime_progress_bar.setValue(0)
@@ -351,6 +355,21 @@ def apply_inspection_execution_patch(InspectionPage):
         self.runtime_progress_count.setText(f"{completed} / {total}개")
         if current:
             self.runtime_progress_rule.setText(current)
+
+        postprocessing_markers = (
+            "검사 규칙 실행 완료",
+            "Impact / Likelihood",
+            "감리 개선판정",
+            "검사 결과 저장",
+        )
+        self._inspection_postprocessing = (
+            completed >= total
+            and any(marker in (current or "") for marker in postprocessing_markers)
+        )
+        if self._inspection_postprocessing:
+            self.runtime_progress_status.setText("결과 판정 중")
+            self.runtime_progress_time.setText("AI 후처리 중")
+
         self._tick_execution_progress()
 
     def tick_execution_progress(self):
@@ -365,14 +384,23 @@ def apply_inspection_execution_patch(InspectionPage):
         total = max(1, self._inspection_total_rules)
         completed = min(self._inspection_completed_rules, total)
 
+        if getattr(self, "_inspection_postprocessing", False):
+            self.runtime_progress_bar.setRange(0, 100)
+            self.runtime_progress_bar.setValue(95)
+            self.runtime_progress_time.setText("AI 후처리 중")
+            return
+
         time_percent = min(90.0, (elapsed / estimate) * 90.0)
         rule_percent = min(95.0, (completed / total) * 100.0)
         percent = int(max(time_percent, rule_percent))
 
         self.runtime_progress_bar.setRange(0, 100)
         self.runtime_progress_bar.setValue(percent)
+        remaining = estimate - elapsed
         self.runtime_progress_time.setText(
-            _format_remaining_duration(estimate - elapsed)
+            _format_remaining_duration(remaining)
+            if remaining > 0
+            else "예상시간 초과"
         )
 
     def patched_start_real_inspection(self):
@@ -384,6 +412,7 @@ def apply_inspection_execution_patch(InspectionPage):
         self._inspection_started_at = time.perf_counter()
         self._inspection_completed_rules = 0
         self._inspection_total_rules = len(rules)
+        self._inspection_postprocessing = False
 
         original_start(self)
 
@@ -392,8 +421,25 @@ def apply_inspection_execution_patch(InspectionPage):
             self._inspection_started_at = None
             return
 
+        # Monkey-patched Python callbacks can otherwise be invoked in the worker
+        # thread on some PySide6/Qt builds. Force all UI mutations onto the GUI
+        # thread to avoid recursive repaint/timer-thread violations.
+        for signal, slot in (
+            (worker.finished, self._inspection_succeeded),
+            (worker.failed, self._inspection_failed),
+            (worker.cancelled, self._inspection_cancelled),
+        ):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+            signal.connect(slot, Qt.ConnectionType.QueuedConnection)
+
         if hasattr(worker, "progress"):
-            worker.progress.connect(self._on_execution_progress)
+            worker.progress.connect(
+                self._on_execution_progress,
+                Qt.ConnectionType.QueuedConnection,
+            )
 
         self._execution_progress_timer.start()
         self._tick_execution_progress()
@@ -420,6 +466,7 @@ def apply_inspection_execution_patch(InspectionPage):
     def reset_execution_ui(self):
         self._execution_progress_timer.stop()
         self._inspection_started_at = None
+        self._inspection_postprocessing = False
         button = self.progress_card.findChild(
             QPushButton,
             "inspectionCancelButton",
