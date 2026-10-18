@@ -7,6 +7,7 @@ from app.services.inspection_service import (
     SUPPORTED_DOCUMENT_EXTENSIONS,
     SUPPORTED_TEXT_EXTENSIONS,
 )
+from rules.core.models import RuleExecutionType
 from rules.core.p2_document_engine import P2DocumentRuleEngine
 from ui.inspection_execution_patch import _ProgressIssueAssessor
 import ui.inspection_runtime as inspection_runtime
@@ -16,14 +17,7 @@ _progress_state = threading.local()
 
 
 def _mark_selected_rules_complete(tracker):
-    """Mark rule execution complete before post-inspection assessment begins.
-
-    Impact/Likelihood and audit-improvement judgment run only after all selected
-    inspection rules have finished. Some Hybrid rules can finish through
-    deterministic pre-analysis without calling the AI provider, so the normal
-    provider progress hook may never see those rule codes. Completing the set at
-    the assessment boundary keeps the displayed completed-rule count accurate.
-    """
+    """Mark rule execution complete before post-inspection assessment begins."""
     tracker.completed_codes.update(tracker._rule_codes)
     tracker._emit("검사 규칙 실행 완료")
 
@@ -55,8 +49,38 @@ def _patch_issue_assessor_progress():
 
 
 def _patch_deterministic_progress():
-    """Expose completion of the deterministic Rule batch to the progress UI."""
+    """Expose deterministic completion and avoid Local AI for Rule-only runs."""
     worker_cls = inspection_runtime.InspectionWorker
+
+    if not getattr(worker_cls, "_stability_rule_only_ai_bypass_applied", False):
+        original_worker_init = worker_cls.__init__
+
+        def patched_worker_init(
+            self,
+            file_paths,
+            project_id,
+            inspection_type,
+            rules,
+            use_local_ai=False,
+        ):
+            selected_rules = list(rules)
+            needs_local_ai = use_local_ai and any(
+                getattr(rule, "execution_type", None)
+                in {RuleExecutionType.AI, RuleExecutionType.HYBRID}
+                for rule in selected_rules
+            )
+            original_worker_init(
+                self,
+                file_paths,
+                project_id,
+                inspection_type,
+                selected_rules,
+                use_local_ai=needs_local_ai,
+            )
+
+        worker_cls.__init__ = patched_worker_init
+        worker_cls._stability_rule_only_ai_bypass_applied = True
+
     if not getattr(worker_cls, "_stability_tracker_context_applied", False):
         original_worker_run = worker_cls.run
 
@@ -100,6 +124,22 @@ def apply_inspection_stability_patch(InspectionPage):
 
     _patch_issue_assessor_progress()
     _patch_deterministic_progress()
+
+    original_progress_handler = getattr(InspectionPage, "_on_execution_progress", None)
+    if original_progress_handler is not None:
+        def stable_progress_handler(self, completed, total, current):
+            original_progress_handler(self, completed, total, current)
+            selected_rules = list(self._selected_executable_rules())
+            rule_only = bool(selected_rules) and all(
+                getattr(rule, "execution_type", None) == RuleExecutionType.RULE
+                for rule in selected_rules
+            )
+            if rule_only and current == "검사 결과 저장":
+                self._inspection_postprocessing = False
+                self.runtime_progress_status.setText("검사 마무리 중")
+                self.runtime_progress_time.setText("저장 중")
+
+        InspectionPage._on_execution_progress = stable_progress_handler
 
     def select_inspection_files(self):
         document_patterns = " ".join(
