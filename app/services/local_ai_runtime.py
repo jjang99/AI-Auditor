@@ -33,6 +33,12 @@ class LocalAIRuntimeManager:
             return Path(sys.executable).resolve().parent
         return Path(__file__).resolve().parents[2]
 
+    @staticmethod
+    def _recommended_thread_count() -> int:
+        """Leave CPU capacity for the Qt GUI while local inference is running."""
+        cpu_count = os.cpu_count() or 4
+        return max(2, min(6, cpu_count - 2 if cpu_count > 2 else cpu_count))
+
     @property
     def server_path(self) -> Path:
         return self.base_dir / "runtime" / "llama.cpp" / "llama-server.exe"
@@ -68,6 +74,11 @@ class LocalAIRuntimeManager:
         creationflags = 0
         if os.name == "nt":
             creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            # Local inference is CPU-heavy. Run llama.cpp below the GUI process
+            # priority so Windows keeps the application message loop responsive.
+            creationflags |= getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0)
+
+        thread_count = self._recommended_thread_count()
 
         self.process = subprocess.Popen(
             [
@@ -78,6 +89,10 @@ class LocalAIRuntimeManager:
                 self.host,
                 "--port",
                 str(self.port),
+                "--threads",
+                str(thread_count),
+                "--threads-batch",
+                str(thread_count),
                 "--reasoning",
                 "off",
             ],
