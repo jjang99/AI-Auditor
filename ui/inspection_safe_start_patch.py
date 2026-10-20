@@ -147,5 +147,52 @@ def apply_inspection_safe_start_patch(InspectionPage):
 
         thread.start()
 
+    def prepare_new_inspection(self):
+        """Return the Inspection page to the same state as a fresh app entry."""
+        if getattr(self, "_inspection_thread", None) is not None:
+            return
+
+        if hasattr(self, "_execution_progress_timer"):
+            self._execution_progress_timer.stop()
+
+        self.progress_card.hide()
+        self.complete_card.hide()
+        self.summary_card.show()
+
+        self.last_inspection_id = None
+        self.last_project_id = None
+        self.existing_project_id = None
+        self._inspection_worker = None
+        self._inspection_ui_bridge = None
+        self._inspection_started_at = None
+        self._inspection_estimated_seconds = 0
+        self._inspection_completed_rules = 0
+        self._inspection_total_rules = 0
+        self._inspection_postprocessing = False
+
+        # New Inspection means a genuinely fresh inspection form. Previous
+        # project metadata, files and rule selections must not leak into it.
+        self.project_name.clear()
+        for field in self.findChildren(QLineEdit, "inspectionInput"):
+            field.clear()
+
+        project_type_combo = self.findChild(QComboBox, "inspectionCombo")
+        if project_type_combo is not None:
+            default_index = project_type_combo.findText("선택", Qt.MatchFixedString)
+            project_type_combo.setCurrentIndex(default_index if default_index >= 0 else 0)
+
+        self.selected_files.clear()
+
+        if hasattr(self, "rule_selection_state"):
+            self.rule_selection_state = {
+                category: [True] * len(states)
+                for category, states in self.rule_selection_state.items()
+            }
+            self.selected_rule_categories = set(self.rule_selection_state)
+
+        self._refresh_file_view()
+        self._refresh_rule_summary()
+
     InspectionPage.start_real_inspection = start_real_inspection
+    InspectionPage.prepare_new_inspection = prepare_new_inspection
     InspectionPage._safe_start_patch_applied = True
