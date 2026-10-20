@@ -16,6 +16,14 @@ from rules.providers.local_ai_provider import LlamaCppAIProvider
 import ui.inspection_runtime as inspection_runtime
 
 
+def _requires_local_ai(rules):
+    return any(
+        getattr(rule, "execution_type", None)
+        in {RuleExecutionType.AI, RuleExecutionType.HYBRID}
+        for rule in rules
+    )
+
+
 def _estimate_inspection_seconds(file_paths, rules):
     file_count = len(file_paths)
     rule_count = len(rules)
@@ -183,7 +191,7 @@ class InspectionExecutionWorker(QObject):
         self.project_id = project_id
         self.inspection_type = inspection_type
         self.rules = list(rules)
-        self.use_local_ai = use_local_ai
+        self.use_local_ai = bool(use_local_ai and _requires_local_ai(self.rules))
         self._cancel_requested = False
         self._cancel_runtime_thread = None
         self._tracker = _ExecutionTracker(self.rules, self.progress.emit)
@@ -194,9 +202,6 @@ class InspectionExecutionWorker(QObject):
 
         self._cancel_requested = True
 
-        # UI 스레드에서 LocalAIRuntimeManager.stop()을 직접 호출하면
-        # process.wait() 동안 창이 '응답 없음'으로 보일 수 있다.
-        # 별도 daemon thread에서 llama.cpp를 종료해 UI는 즉시 반응하게 한다.
         runtime = get_local_ai_runtime()
         self._cancel_runtime_thread = threading.Thread(
             target=runtime.stop,
@@ -296,9 +301,13 @@ def apply_inspection_execution_patch(InspectionPage):
         if len(values) > 2:
             values[2].setText(_format_summary_duration(estimate))
         if len(details) > 2:
-            details[2].setText(
-                "(Local AI 기준 추정)" if estimate else "(파일 등록 후 계산)"
-            )
+            if not estimate:
+                detail = "(파일 등록 후 계산)"
+            elif _requires_local_ai(rules):
+                detail = "(Local AI 기준 추정)"
+            else:
+                detail = "(로컬 Rule Engine 기준 추정)"
+            details[2].setText(detail)
 
     def patched_init(self):
         original_init(self)
