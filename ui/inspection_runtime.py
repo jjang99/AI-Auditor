@@ -376,15 +376,40 @@ def apply_inspection_runtime(InspectionPage):
                 project_type_combo.setCurrentIndex(index)
 
     def prepare_new_inspection(self):
-        """Inspection 메뉴로 다시 진입할 때 새 검사를 시작할 수 있는 상태로 복원한다."""
+        """새 검사 입력 상태를 기본값으로 복원한다.
+
+        Inspection 메뉴/+New Project 진입 시에는 프로젝트 정보까지 비우고,
+        Project Detail의 New Inspection은 이 초기화 후 저장된 프로젝트 정보만
+        다시 채운다. 두 경로 모두 이전 검사 파일과 임시 Rule 선택은 이어받지 않는다.
+        """
         if self._inspection_thread is not None:
             return
+
         self.progress_card.hide()
         self.complete_card.hide()
         self.summary_card.show()
+
         self.last_inspection_id = None
         self.last_project_id = None
         self.existing_project_id = None
+
+        self.project_name.clear()
+        inputs = self.findChildren(QLineEdit, "inspectionInput")
+        if len(inputs) > 1:
+            inputs[1].clear()
+        if len(inputs) > 2:
+            inputs[2].clear()
+
+        project_type_combo = self.findChild(QComboBox, "inspectionCombo")
+        if project_type_combo is not None:
+            default_index = project_type_combo.findText("선택", Qt.MatchFixedString)
+            project_type_combo.setCurrentIndex(default_index if default_index >= 0 else 0)
+
+        self.selected_files.clear()
+
+        # New Inspection은 이전 검사에서 임의 선택한 Rule 상태를 물려받지 않는다.
+        # 현재 UI가 제공하는 최신 기본/활성 선택상태로 다시 시작한다.
+        self.set_all_rule_categories(True)
         self._refresh_file_view()
 
     def runtime_progress_card(self):
