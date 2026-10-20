@@ -7,6 +7,7 @@ from ui.inspection_execution_patch import (
     _estimate_inspection_seconds,
     _format_remaining_duration,
     _format_summary_duration,
+    _requires_local_ai,
 )
 
 
@@ -51,6 +52,36 @@ def test_duration_formatting_is_user_facing():
     assert "분" in _format_summary_duration(150)
     assert _format_remaining_duration(0) == "마무리 중"
     assert "초" in _format_remaining_duration(25)
+
+
+def test_local_ai_requirement_follows_execution_type():
+    assert _requires_local_ai([_rule(RuleExecutionType.RULE)]) is False
+    assert _requires_local_ai(
+        [_rule(RuleExecutionType.RULE), _rule(RuleExecutionType.AI)]
+    ) is True
+    assert _requires_local_ai([_rule(RuleExecutionType.HYBRID)]) is True
+
+
+def test_rule_only_worker_disables_local_ai_even_when_caller_requests_it():
+    worker = InspectionExecutionWorker(
+        [],
+        None,
+        "전체 검사",
+        [_rule(RuleExecutionType.RULE)],
+        use_local_ai=True,
+    )
+    assert worker.use_local_ai is False
+
+
+def test_ai_worker_keeps_local_ai_enabled():
+    worker = InspectionExecutionWorker(
+        [],
+        None,
+        "전체 검사",
+        [_rule(RuleExecutionType.AI)],
+        use_local_ai=True,
+    )
+    assert worker.use_local_ai is True
 
 
 def test_cancel_marks_worker_and_stops_owned_local_runtime():
