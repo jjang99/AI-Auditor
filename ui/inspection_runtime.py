@@ -435,8 +435,12 @@ def apply_inspection_runtime(InspectionPage):
         self._refresh_file_view()
 
     def runtime_progress_card(self):
-        card = original_progress(self); labels = card.findChildren(QLabel); bars = card.findChildren(QProgressBar); buttons = card.findChildren(QPushButton)
-        self.runtime_progress_percent = next((label for label in labels if "%" in label.text()), labels[0]); self.runtime_progress_count = next((label for label in labels if "/" in label.text()), labels[-1]); self.runtime_progress_rule = labels[-2] if len(labels) >= 2 else labels[0]; self.runtime_progress_time = next((label for label in labels if "분" in label.text() or "초" in label.text()), labels[-1]); self.runtime_progress_status = next((label for label in labels if "검사" in label.text()), labels[0]); self.runtime_progress_bar = bars[0]; return card
+        card = original_progress(self)
+        self.runtime_progress_percent = card.findChild(QLabel, "inspectionProgressPercent")
+        self.runtime_progress_bar = card.findChild(QProgressBar, "inspectionProgressBar")
+        values = card.findChildren(QLabel, "inspectionProgressInfoValue")
+        self.runtime_progress_count, self.runtime_progress_rule, self.runtime_progress_time, self.runtime_progress_status = values[:4]
+        return card
 
     def runtime_complete_card(self):
         card = original_complete(self); values = card.findChildren(QLabel, "inspectionCompleteInfoValue"); self.runtime_complete_rules, self.runtime_complete_issues, self.runtime_complete_time, self.runtime_complete_files = values[:4]; return card
