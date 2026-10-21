@@ -2,7 +2,7 @@ import warnings
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QThread, Signal, Qt
+from PySide6.QtCore import QObject, QThread, Signal, Slot, Qt
 from PySide6.QtWidgets import QComboBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_id, get_project_by_name
@@ -78,6 +78,30 @@ class InspectionWorker(QObject):
             self.failed.emit(str(exc))
 
 
+class _InspectionUiBridge(QObject):
+    """Deliver worker signals to InspectionPage strictly on the GUI thread."""
+
+    def __init__(self, page):
+        super().__init__(page)
+        self._page = page
+
+    @Slot(int, int, str)
+    def progress(self, completed, total, current):
+        self._page._on_execution_progress(completed, total, current)
+
+    @Slot(object, object, float)
+    def finished(self, inspection_id, summary, elapsed):
+        self._page._inspection_succeeded(inspection_id, summary, elapsed)
+
+    @Slot(str)
+    def failed(self, message):
+        self._page._inspection_failed(message)
+
+    @Slot()
+    def cancelled(self):
+        self._page._inspection_cancelled()
+
+
 def _format_size(byte_count):
     if byte_count < 1024: return f"{byte_count} B"
     if byte_count < 1024 * 1024: return f"{byte_count / 1024:.1f} KB"
@@ -88,7 +112,7 @@ def apply_inspection_runtime(InspectionPage):
     original_init = InspectionPage.__init__; original_progress = InspectionPage.create_progress_card; original_complete = InspectionPage.create_complete_card
 
     def runtime_init(self):
-        original_init(self); self.selected_files = []; self.selected_rule_categories = set(CATEGORY_COUNTS); self.last_inspection_id = None; self.last_project_id = None; self.existing_project_id = None; self._inspection_thread = None; self._inspection_worker = None
+        original_init(self); self.selected_files = []; self.selected_rule_categories = set(CATEGORY_COUNTS); self.last_inspection_id = None; self.last_project_id = None; self.existing_project_id = None; self._inspection_thread = None; self._inspection_worker = None; self._inspection_ui_bridge = None
         self.demo_timer.stop()
         try: self.demo_timer.timeout.disconnect()
         except RuntimeError: pass
@@ -329,24 +353,25 @@ def apply_inspection_runtime(InspectionPage):
             selected_rules,
             use_local_ai=True,
         )
+        self._inspection_ui_bridge = _InspectionUiBridge(self)
 
-        # All worker -> QWidget callbacks must be queued explicitly. The worker
-        # runs on a QThread and these callbacks update GUI widgets/QTimers.
+        # Worker는 QThread에서 실행되며 QWidget/QTimer는 GUI thread 전용이다.
+        # 전용 QObject bridge를 GUI thread에 두고 모든 UI callback을 여기로 전달한다.
         if hasattr(self._inspection_worker, "progress"):
             self._inspection_worker.progress.connect(
-                self._on_execution_progress,
+                self._inspection_ui_bridge.progress,
                 Qt.QueuedConnection,
             )
         self._inspection_worker.finished.connect(
-            self._inspection_succeeded,
+            self._inspection_ui_bridge.finished,
             Qt.QueuedConnection,
         )
         self._inspection_worker.failed.connect(
-            self._inspection_failed,
+            self._inspection_ui_bridge.failed,
             Qt.QueuedConnection,
         )
         self._inspection_worker.cancelled.connect(
-            self._inspection_cancelled,
+            self._inspection_ui_bridge.cancelled,
             Qt.QueuedConnection,
         )
 
