@@ -111,7 +111,10 @@ def _set_selected_rule_codes(page, rule_codes):
 
 
 def _wrap_worker_rule_context(worker_cls):
-    if getattr(worker_cls, "_reinspect_rule_context_patch_applied", False):
+    # Check only attributes defined on this exact class. DiagnosticInspectionExecutionWorker
+    # overrides run(), so an inherited marker from InspectionExecutionWorker must not cause
+    # this subclass to be skipped.
+    if worker_cls.__dict__.get("_reinspect_rule_context_patch_applied", False):
         return
     original_run = worker_cls.run
 
