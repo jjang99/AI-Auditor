@@ -299,8 +299,6 @@ def apply_inspection_runtime(InspectionPage):
         project_type_combo = self.findChild(QComboBox, "inspectionCombo")
         project_type = project_type_combo.currentText().strip() if project_type_combo else ""
 
-        # Existing Project의 New Inspection / Re-Inspect는 이미 저장된 프로젝트를
-        # 재사용하므로 프로젝트 구분을 새로 검증하지 않는다.
         if project_id is None and (not project_type or project_type == "선택"):
             QMessageBox.warning(
                 self,
@@ -308,7 +306,7 @@ def apply_inspection_runtime(InspectionPage):
                 "프로젝트 구분을 선택해 주세요."
             )
             return
-        
+
         if project_id is None:
             project_id = create_project(
                 name,
@@ -316,9 +314,50 @@ def apply_inspection_runtime(InspectionPage):
                 project_type=project_type,
                 note=note or None,
             )
-            
+
         self.last_project_id = project_id
-        self.summary_card.hide(); self.complete_card.hide(); self.progress_card.show(); self._set_progress_state("검사 진행 중"); self._inspection_thread = QThread(self); self._inspection_worker = InspectionWorker(list(self.selected_files), project_id, "전체 검사", selected_rules, use_local_ai=True); self._inspection_worker.moveToThread(self._inspection_thread); self._inspection_thread.started.connect(self._inspection_worker.run); self._inspection_worker.finished.connect(self._inspection_succeeded); self._inspection_worker.failed.connect(self._inspection_failed); self._inspection_worker.cancelled.connect(self._inspection_cancelled); self._inspection_worker.finished.connect(self._inspection_thread.quit); self._inspection_worker.failed.connect(self._inspection_thread.quit); self._inspection_worker.cancelled.connect(self._inspection_thread.quit); self._inspection_thread.finished.connect(self._inspection_worker.deleteLater); self._inspection_thread.finished.connect(self._inspection_thread.deleteLater); self._inspection_thread.start()
+        self.summary_card.hide()
+        self.complete_card.hide()
+        self.progress_card.show()
+        self._set_progress_state("검사 진행 중")
+
+        self._inspection_thread = QThread(self)
+        self._inspection_worker = InspectionWorker(
+            list(self.selected_files),
+            project_id,
+            "전체 검사",
+            selected_rules,
+            use_local_ai=True,
+        )
+
+        # All worker -> QWidget callbacks must be queued explicitly. The worker
+        # runs on a QThread and these callbacks update GUI widgets/QTimers.
+        if hasattr(self._inspection_worker, "progress"):
+            self._inspection_worker.progress.connect(
+                self._on_execution_progress,
+                Qt.QueuedConnection,
+            )
+        self._inspection_worker.finished.connect(
+            self._inspection_succeeded,
+            Qt.QueuedConnection,
+        )
+        self._inspection_worker.failed.connect(
+            self._inspection_failed,
+            Qt.QueuedConnection,
+        )
+        self._inspection_worker.cancelled.connect(
+            self._inspection_cancelled,
+            Qt.QueuedConnection,
+        )
+
+        self._inspection_worker.moveToThread(self._inspection_thread)
+        self._inspection_thread.started.connect(self._inspection_worker.run)
+        self._inspection_worker.finished.connect(self._inspection_thread.quit)
+        self._inspection_worker.failed.connect(self._inspection_thread.quit)
+        self._inspection_worker.cancelled.connect(self._inspection_thread.quit)
+        self._inspection_thread.finished.connect(self._inspection_worker.deleteLater)
+        self._inspection_thread.finished.connect(self._inspection_thread.deleteLater)
+        self._inspection_thread.start()
 
     def _set_progress_state(self, status):
         self.runtime_progress_percent.setText("…"); self.runtime_progress_bar.setRange(0, 0); self.runtime_progress_count.setText("실행 중"); self.runtime_progress_rule.setText("로컬 Rule Engine 검사"); self.runtime_progress_time.setText("측정 중"); self.runtime_progress_status.setText(status)
@@ -344,7 +383,6 @@ def apply_inspection_runtime(InspectionPage):
         self.progress_card.hide(); self.complete_card.hide(); self.summary_card.show(); self._inspection_thread = None; self._inspection_worker = None; QMessageBox.critical(self, "검사 실행 오류", message)
 
     def prepare_existing_project_inspection(self, project_id):
-        """Project Detail의 New Inspection: 프로젝트 정보는 유지하고 새 Inspection만 준비한다."""
         if self._inspection_thread is not None:
             return
         project = get_project_by_id(project_id)
@@ -376,44 +414,29 @@ def apply_inspection_runtime(InspectionPage):
                 project_type_combo.setCurrentIndex(index)
 
     def prepare_new_inspection(self):
-        """새 검사 입력 상태를 기본값으로 복원한다.
-
-        Inspection 메뉴/+New Project 진입 시에는 프로젝트 정보까지 비우고,
-        Project Detail의 New Inspection은 이 초기화 후 저장된 프로젝트 정보만
-        다시 채운다. 두 경로 모두 이전 검사 파일과 임시 Rule 선택은 이어받지 않는다.
-        """
         if self._inspection_thread is not None:
             return
 
         self.progress_card.hide()
         self.complete_card.hide()
         self.summary_card.show()
-
+        self.selected_files = []
+        self.existing_project_id = None
         self.last_inspection_id = None
         self.last_project_id = None
-        self.existing_project_id = None
-
         self.project_name.clear()
         inputs = self.findChildren(QLineEdit, "inspectionInput")
-        if len(inputs) > 1:
-            inputs[1].clear()
-        if len(inputs) > 2:
-            inputs[2].clear()
-
+        for input_widget in inputs[1:]:
+            input_widget.clear()
         project_type_combo = self.findChild(QComboBox, "inspectionCombo")
         if project_type_combo is not None:
-            default_index = project_type_combo.findText("선택", Qt.MatchFixedString)
-            project_type_combo.setCurrentIndex(default_index if default_index >= 0 else 0)
-
-        self.selected_files.clear()
-
-        # New Inspection은 이전 검사에서 임의 선택한 Rule 상태를 물려받지 않는다.
-        # 현재 UI가 제공하는 최신 기본/활성 선택상태로 다시 시작한다.
+            project_type_combo.setCurrentIndex(0)
         self.set_all_rule_categories(True)
         self._refresh_file_view()
 
     def runtime_progress_card(self):
-        card = original_progress(self); self.runtime_progress_percent = card.findChild(QLabel, "inspectionProgressPercent"); self.runtime_progress_bar = card.findChild(QProgressBar, "inspectionProgressBar"); values = card.findChildren(QLabel, "inspectionProgressInfoValue"); self.runtime_progress_count, self.runtime_progress_rule, self.runtime_progress_time, self.runtime_progress_status = values[:4]; return card
+        card = original_progress(self); labels = card.findChildren(QLabel); bars = card.findChildren(QProgressBar); buttons = card.findChildren(QPushButton)
+        self.runtime_progress_percent = next((label for label in labels if "%" in label.text()), labels[0]); self.runtime_progress_count = next((label for label in labels if "/" in label.text()), labels[-1]); self.runtime_progress_rule = labels[-2] if len(labels) >= 2 else labels[0]; self.runtime_progress_time = next((label for label in labels if "분" in label.text() or "초" in label.text()), labels[-1]); self.runtime_progress_status = next((label for label in labels if "검사" in label.text()), labels[0]); self.runtime_progress_bar = bars[0]; return card
 
     def runtime_complete_card(self):
         card = original_complete(self); values = card.findChildren(QLabel, "inspectionCompleteInfoValue"); self.runtime_complete_rules, self.runtime_complete_issues, self.runtime_complete_time, self.runtime_complete_files = values[:4]; return card
