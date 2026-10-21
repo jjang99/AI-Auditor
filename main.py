@@ -9,7 +9,6 @@ from ui.inspection_page import InspectionPage
 from ui.inspection_rule_ui_patch import apply_inspection_rule_ui_patch
 from ui.inspection_visual_polish_patch import apply_inspection_visual_polish
 from ui.inspection_execution_patch import apply_inspection_execution_patch
-from ui.inspection_progress_display_patch import apply_inspection_progress_display_patch
 from ui.inspection_cancel_style_patch import apply_inspection_cancel_style_patch
 from ui.inspection_cancel_state_patch import apply_inspection_cancel_state_patch
 from ui.inspection_error_patch import apply_inspection_error_patch
@@ -26,7 +25,6 @@ initialize_database()
 apply_inspection_rule_ui_patch(InspectionPage)
 apply_inspection_visual_polish(InspectionPage)
 apply_inspection_execution_patch(InspectionPage)
-apply_inspection_progress_display_patch(InspectionPage)
 apply_inspection_cancel_style_patch(InspectionPage)
 apply_inspection_cancel_state_patch(InspectionPage)
 apply_inspection_error_patch(InspectionPage)
