@@ -394,16 +394,15 @@ def apply_inspection_execution_patch(InspectionPage):
         self._inspection_completed_rules = 0
         self._inspection_total_rules = len(rules)
 
-        # inspection_runtime.start_real_inspection creates the worker and wires
-        # all worker -> QWidget callbacks with Qt.QueuedConnection before the
-        # QThread starts. Do not reconnect progress here: a second AutoConnection
-        # can execute the UI slot on the worker thread and crash Qt painting.
         original_start(self)
 
         worker = getattr(self, "_inspection_worker", None)
         if worker is None:
             self._inspection_started_at = None
             return
+
+        if hasattr(worker, "progress"):
+            worker.progress.connect(self._on_execution_progress)
 
         self._execution_progress_timer.start()
         self._tick_execution_progress()
