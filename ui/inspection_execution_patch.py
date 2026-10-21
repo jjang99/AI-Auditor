@@ -85,11 +85,12 @@ def _format_remaining_duration(seconds):
 
 
 class _ExecutionTracker:
-    def __init__(self, rules, callback):
+    def __init__(self, rules, callback=None):
         self.rules = tuple(rules)
         self.callback = callback
         self.total = len(self.rules)
         self.completed_codes = set()
+        self.current_text = "검사 준비 중"
         self._rule_codes = {rule.code for rule in self.rules}
         self._deterministic_codes = {
             rule.code
@@ -99,11 +100,14 @@ class _ExecutionTracker:
         self._ai_started = False
 
     def _emit(self, current):
-        self.callback(
-            min(len(self.completed_codes), self.total),
-            self.total,
-            current,
-        )
+        if current:
+            self.current_text = current
+        if self.callback is not None:
+            self.callback(
+                min(len(self.completed_codes), self.total),
+                self.total,
+                self.current_text,
+            )
 
     def phase(self, text):
         self._emit(text)
@@ -194,7 +198,9 @@ class InspectionExecutionWorker(QObject):
         self.use_local_ai = bool(use_local_ai and _requires_local_ai(self.rules))
         self._cancel_requested = False
         self._cancel_runtime_thread = None
-        self._tracker = _ExecutionTracker(self.rules, self.progress.emit)
+        # 진행 UI는 GUI QTimer가 이 tracker 상태를 읽는다.
+        # Worker 스레드에서 QWidget 슬롯을 호출하지 않는다.
+        self._tracker = _ExecutionTracker(self.rules)
 
     def request_cancel(self):
         if self._cancel_requested:
@@ -311,6 +317,28 @@ def apply_inspection_execution_patch(InspectionPage):
 
     def patched_init(self):
         original_init(self)
+
+        # create_progress_card의 네 정보칸을 값 QLabel 순서로 정확히 연결한다.
+        # 기존 runtime은 임의의 문자열/labels[-2]로 찾아 제목과 값을 혼동했다.
+        info_titles = self.progress_card.findChildren(
+            QLabel,
+            "inspectionProgressInfoTitle",
+        )
+        info_values = self.progress_card.findChildren(
+            QLabel,
+            "inspectionProgressInfoValue",
+        )
+        if len(info_titles) >= 4:
+            info_titles[0].setText("완료 규칙")
+            info_titles[1].setText("현재 검사 항목")
+            info_titles[2].setText("예상 남은 시간")
+            info_titles[3].setText("처리 상태")
+        if len(info_values) >= 4:
+            self.runtime_progress_count = info_values[0]
+            self.runtime_progress_rule = info_values[1]
+            self.runtime_progress_time = info_values[2]
+            self.runtime_progress_status = info_values[3]
+
         self._inspection_started_at = None
         self._inspection_estimated_seconds = 0
         self._inspection_completed_rules = 0
@@ -355,29 +383,37 @@ def apply_inspection_execution_patch(InspectionPage):
         self.runtime_progress_status.setText(status)
 
     def on_execution_progress(self, completed, total, current):
+        # 호환용. 실제 진행 표시 갱신은 GUI QTimer가 수행한다.
         self._inspection_completed_rules = completed
         self._inspection_total_rules = total
-        self.runtime_progress_count.setText(f"{completed} / {total}개")
         if current:
             self.runtime_progress_rule.setText(current)
-        self._tick_execution_progress()
 
     def tick_execution_progress(self):
         if self._inspection_started_at is None:
             return
+
+        # Worker는 Python 상태만 기록하고, QWidget 변경은 GUI 타이머에서만 수행한다.
+        worker = getattr(self, "_inspection_worker", None)
+        tracker = getattr(worker, "_tracker", None) if worker is not None else None
+        if tracker is not None:
+            completed = min(len(tracker.completed_codes), tracker.total)
+            total = tracker.total
+            current = getattr(tracker, "current_text", None)
+            self._inspection_completed_rules = completed
+            self._inspection_total_rules = total
+            self.runtime_progress_count.setText(f"{completed} / {total}개")
+            if current:
+                self.runtime_progress_rule.setText(current)
 
         elapsed = max(0.0, time.perf_counter() - self._inspection_started_at)
         estimate = max(
             1.0,
             float(getattr(self, "_inspection_estimated_seconds", 0) or 1),
         )
-        total = max(1, self._inspection_total_rules)
-        completed = min(self._inspection_completed_rules, total)
 
-        time_percent = min(90.0, (elapsed / estimate) * 90.0)
-        rule_percent = min(95.0, (completed / total) * 100.0)
-        percent = int(max(time_percent, rule_percent))
-
+        # Rule 완료 시 30~50%씩 튀지 않도록 시간 기준으로 부드럽게 표시한다.
+        percent = int(min(95.0, (elapsed / estimate) * 95.0))
         self.runtime_progress_bar.setRange(0, 100)
         self.runtime_progress_bar.setValue(percent)
         self.runtime_progress_time.setText(
@@ -394,10 +430,6 @@ def apply_inspection_execution_patch(InspectionPage):
         self._inspection_completed_rules = 0
         self._inspection_total_rules = len(rules)
 
-        # inspection_runtime.start_real_inspection creates the worker and wires
-        # all worker -> QWidget callbacks with Qt.QueuedConnection before the
-        # QThread starts. Do not reconnect progress here: a second AutoConnection
-        # can execute the UI slot on the worker thread and crash Qt painting.
         original_start(self)
 
         worker = getattr(self, "_inspection_worker", None)
@@ -444,6 +476,8 @@ def apply_inspection_execution_patch(InspectionPage):
         self.runtime_progress_count.setText(
             f"{summary.rule_count} / {summary.rule_count}개"
         )
+        self.runtime_progress_rule.setText("검사 결과 저장 완료")
+        self.runtime_progress_status.setText("검사 완료")
         reset_execution_ui(self)
         original_success(self, inspection_id, summary, elapsed)
 
