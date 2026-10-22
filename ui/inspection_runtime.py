@@ -2,7 +2,7 @@ import warnings
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QThread, Signal, Qt
+from PySide6.QtCore import QObject, QThread, Signal, SIGNAL, Qt
 from PySide6.QtWidgets import QComboBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea
 
 from app.database.repositories.project_repository import create_project, get_project_by_id, get_project_by_name
@@ -330,22 +330,34 @@ def apply_inspection_runtime(InspectionPage):
             use_local_ai=True,
         )
 
-        # All worker -> QWidget callbacks must be queued explicitly. The worker
-        # runs on a QThread and these callbacks update GUI widgets/QTimers.
+        # Patched callbacks can have names different from their page attributes.
+        # Give Qt the page context explicitly so it queues them on the GUI thread.
         if hasattr(self._inspection_worker, "progress"):
-            self._inspection_worker.progress.connect(
+            QObject.connect(
+                self._inspection_worker,
+                SIGNAL("progress(int,int,QString)"),
+                self,
                 self._on_execution_progress,
                 Qt.QueuedConnection,
             )
-        self._inspection_worker.finished.connect(
+        QObject.connect(
+            self._inspection_worker,
+            SIGNAL("finished(PyObject,PyObject,double)"),
+            self,
             self._inspection_succeeded,
             Qt.QueuedConnection,
         )
-        self._inspection_worker.failed.connect(
+        QObject.connect(
+            self._inspection_worker,
+            SIGNAL("failed(QString)"),
+            self,
             self._inspection_failed,
             Qt.QueuedConnection,
         )
-        self._inspection_worker.cancelled.connect(
+        QObject.connect(
+            self._inspection_worker,
+            SIGNAL("cancelled()"),
+            self,
             self._inspection_cancelled,
             Qt.QueuedConnection,
         )

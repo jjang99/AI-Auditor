@@ -1,5 +1,8 @@
 from types import SimpleNamespace
+import threading
 from unittest.mock import Mock, patch
+
+import pytest
 
 from rules.core.models import RuleExecutionType
 from ui.inspection_execution_patch import (
@@ -96,3 +99,113 @@ def test_cancel_marks_worker_and_stops_owned_local_runtime():
         worker._cancel_runtime_thread.join(timeout=1.0)
     assert worker.is_cancel_requested() is True
     runtime.stop.assert_called_once_with()
+
+
+@pytest.mark.parametrize("outcome", ["finished", "failed", "cancelled"])
+def test_runtime_queues_patched_callbacks_on_page_thread(monkeypatch, outcome):
+    from PySide6.QtCore import QEventLoop, QThread, QTimer
+    from PySide6.QtWidgets import QApplication, QFrame, QLabel, QLineEdit, QProgressBar, QWidget
+
+    from rules.definitions.document_rule_registry import get_implemented_document_rules
+    import ui.inspection_runtime as runtime
+
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    app = QApplication.instance() or QApplication([])
+    loop = QEventLoop()
+    progress_delivered = threading.Event()
+    records = []
+    delivered_during_work = []
+    rules = [
+        rule for rule in get_implemented_document_rules()
+        if rule.code in {"REQ-001", "REQ-003", "REQ-006"}
+    ]
+    summary = SimpleNamespace(rule_count=3)
+
+    class ProbeWorker(InspectionExecutionWorker):
+        def run(self):
+            self.progress.emit(1, 3, "REQ-006")
+            # A callback incorrectly queued on this worker cannot run until
+            # run() returns. Require delivery while work is still in progress.
+            delivered_during_work.append(progress_delivered.wait(timeout=1.0))
+            if outcome == "finished":
+                self.finished.emit(9, summary, 0.1)
+            elif outcome == "failed":
+                self.failed.emit("startup failed")
+            else:
+                self.cancelled.emit()
+
+    class Page(QWidget):
+        def create_progress_card(self):
+            return QFrame(self)
+
+        def create_complete_card(self):
+            return QFrame(self)
+
+    # Instantiate before applying the runtime so this transport test needs only
+    # the widgets read by the production start_real_inspection method.
+    page = Page()
+    runtime.apply_inspection_runtime(Page)
+
+    # These different function/attribute names reproduce the real patch chain.
+    # Do not decorate them as Qt slots: the production callbacks are not slots.
+    def progress_callback(self, completed, total, current):
+        records.append(("progress", QThread.currentThread() == app.thread(),
+                        completed, total, current))
+        progress_delivered.set()
+
+    def success_callback(self, inspection_id, result, elapsed):
+        records.append(("finished", QThread.currentThread() == app.thread(),
+                        inspection_id, result, elapsed))
+
+    def failure_callback(self, message):
+        records.append(("failed", QThread.currentThread() == app.thread(), message))
+
+    def cancellation_callback(self):
+        records.append(("cancelled", QThread.currentThread() == app.thread()))
+
+    Page._on_execution_progress = progress_callback
+    Page._inspection_succeeded = success_callback
+    Page._inspection_failed = failure_callback
+    Page._inspection_cancelled = cancellation_callback
+    page.project_name = QLineEdit("signal delivery regression", page)
+    page.selected_files = ["요구사항정의서.docx"]
+    page.selected_rule_categories = {rule.category for rule in rules}
+    page.existing_project_id = 1
+    page.summary_card = QFrame(page)
+    page.complete_card = QFrame(page)
+    page.progress_card = QFrame(page)
+    page.runtime_progress_bar = QProgressBar(page)
+    for name in ("percent", "count", "rule", "time", "status"):
+        setattr(page, f"runtime_progress_{name}", QLabel(page))
+
+    monkeypatch.setattr(runtime, "InspectionWorker", ProbeWorker)
+    monkeypatch.setattr(runtime, "get_default_rules", lambda: rules)
+    monkeypatch.setattr(runtime, "get_project_by_name", lambda _name: {"id": 1})
+    page.start_real_inspection()
+    worker = page._inspection_worker
+    thread = page._inspection_thread
+    thread.finished.connect(loop.quit)
+    watchdog = QTimer()
+    watchdog.setSingleShot(True)
+    watchdog.timeout.connect(loop.quit)
+    watchdog.start(3000)
+    try:
+        loop.exec()
+    finally:
+        watchdog.stop()
+        try:
+            thread.quit()
+            assert thread.wait(2000), "inspection thread did not stop"
+        except RuntimeError:
+            pass  # The production finished -> deleteLater connection ran.
+        page.close()
+
+    assert [rule.code for rule in worker.rules] == [rule.code for rule in rules]
+    assert delivered_during_work == [True]
+    assert [record[0] for record in records] == ["progress", outcome]
+    assert all(record[1] for record in records), records
+    assert records[0][2:] == (1, 3, "REQ-006")
+    if outcome == "finished":
+        assert records[1][2:] == (9, summary, 0.1)
+    elif outcome == "failed":
+        assert records[1][2:] == ("startup failed",)
