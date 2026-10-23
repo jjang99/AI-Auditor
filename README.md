@@ -1,16 +1,18 @@
-# AI Auditor demonstration video
+# AI Auditor 최종 시연 영상
 
-AI_Auditor_Demo.mp4 is a 2 minute 20 second subtitled demonstration, prepared
-from the repository owner's screen recordings. Resolution: 1920 x 1080.
+**다운로드할 파일: [AI_Auditor_Demo_Final.mp4](AI_Auditor_Demo_Final.mp4)**
 
-The same project, 요구사항 품질 점검, is shown throughout inspection results,
-evidence and the actual Word report: one DOCX file, REQ-001 / REQ-003 / REQ-006,
-79 points, grade C, six issues. Narration audio is not included.
+- 길이: **2분 30초**, 1920×1080, H.264, 30fps, MP4. 음성 없이 한글 자막으로 구성했습니다.
+- 사용자가 제공한 실제 Windows AI Auditor 녹화만 사용했습니다.
+- 오프닝·엔딩 타이틀, 대기 구간 컷 편집, 화면 확대, 실제 조작 위치 강조, 짧은 한글 자막을 적용했습니다.
+- Home → 검사 문서·기준 및 진행 상태 → 완료·결과 → 문서 근거·위험도 → Re-Inspect 설정 → Word 저장·보고서 → Local AI 설정 순서입니다.
+- 프로젝트 `요구사항 품질 점검`: 문서 1개, REQ-001 / REQ-003 / REQ-006, 79점, C등급, 이슈 6개가 일치합니다.
 
-The real inspection took 953.83 seconds (about 15 minutes 54 seconds).
-Waiting periods are omitted and labeled. The cause of the performance delay
-remains unresolved. The video labels cropped report views and held frames.
+실제 검사는 953.83초가 걸렸으며 대기 구간을 잘라 편집했습니다. Windows 성능 지연 원인이 해결됐다고 주장하지 않습니다.
+최초 검사 시작 클릭은 촬영되지 않아 실제 진행 녹화부터 사용했습니다. 재검사는 준비 화면까지 보여 줍니다.
+Word 화면은 같은 검사에서 저장했던 보고서입니다. UI 동작·숫자·결과를 생성하거나 바꾸지 않았습니다.
 
-SHA-256: 34320dc30771739b7c230b7541b85156da733a6f63ccce603d216ea25fcd0e62
+SHA-256: `3637e4ba1c90d973fdafed9047b754e699e94ba0814a4dd0e591ed151481d4e3`
 
-This delivery branch contains the video and this README only.
+`AI_Auditor_Demo.mp4`는 이전 2분 20초 설명형 영상입니다. 이번 최종본은 `AI_Auditor_Demo_Final.mp4`입니다.
+이 브랜치는 영상 전달용이며 프로그램 소스 변경이나 main 브랜치 병합은 포함하지 않습니다.
