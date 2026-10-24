@@ -1,0 +1,63 @@
+{
+  "status": "approved_assumption_based_estimate_not_measured_before_after_effect",
+  "date": "2026-10-24",
+  "title": "AI Auditor 자동화 전후 효과 추정",
+  "scope": "동일 DOCX·XLSX 2개, REQ-001/REQ-006/REQ-018의 점검·근거 정리·보고서 완성까지라는 시나리오",
+  "observed": {
+    "automatic_processing_seconds": 434.06,
+    "input_documents": 2,
+    "rules": [
+      "REQ-001",
+      "REQ-006",
+      "REQ-018"
+    ],
+    "source": "사용자 PC의 검사 완료 화면",
+    "evidence_sha256": "4d00defae6570c7ab8bb22d8b3118a26df81ccc83108849cc8ec4dbf5b71c72d"
+  },
+  "assumptions": {
+    "manual_total_seconds": 1800,
+    "document_registration_seconds": 60,
+    "human_review_seconds": 480,
+    "report_save_and_check_seconds": 60
+  },
+  "assumptions_basis": "설명용 시나리오. 일반적인 소요시간·경험값·업계 평균·보수적 기준이라고 확인된 값이 아님.",
+  "manual_time_measured": false,
+  "other_human_work_measured": false,
+  "calculated": {
+    "assisted_total_seconds_estimated": 1034.06,
+    "seconds_saved_estimated": 765.94,
+    "percent_saved_estimated": 42.55222222222222,
+    "break_even_manual_total_seconds": 1034.06
+  },
+  "sensitivity_scenarios": [
+    {
+      "manual_seconds_assumed": 900,
+      "assisted_total_seconds_estimated": 1034.06,
+      "seconds_saved_estimated": -134.06,
+      "percent_saved_estimated": -14.895555555555555
+    },
+    {
+      "manual_seconds_assumed": 1800,
+      "assisted_total_seconds_estimated": 1034.06,
+      "seconds_saved_estimated": 765.94,
+      "percent_saved_estimated": 42.55222222222222
+    },
+    {
+      "manual_seconds_assumed": 3600,
+      "assisted_total_seconds_estimated": 1034.06,
+      "seconds_saved_estimated": 2565.94,
+      "percent_saved_estimated": 71.2761111111111
+    }
+  ],
+  "limitations": [
+    "수동 전체시간과 AI 활용 후 부대작업시간은 가정값이며 절감률은 실제 관찰 성과가 아님.",
+    "434.06초는 특정 입력·사용자 PC의 단일 자동검사 처리구간이고 평균값이 아님.",
+    "검토의 정확도·오탐·미탐과 결과물의 동등한 품질은 이 추정에서 비교하지 않음.",
+    "설치·모델 다운로드·학습시간은 비교 범위에 포함하지 않음.",
+    "실제 수동시간이 짧거나 AI 결과 확인이 오래 걸리면 시간 증가가 생길 수 있음.",
+    "오류율 변화나 인건비 절감액은 추정하지 않음. 실측 전후 자료를 요구하는 제출 요건 충족을 보장하지 않음."
+  ],
+  "publication_approved_by_user": true,
+  "assumption_origin": "Assistant-selected illustrative scenario; user approved publishing it as an estimate.",
+  "assumptions_empirically_validated": false
+}

@@ -9,15 +9,20 @@
 | 자료 | 위치 |
 |---|---|
 | 실제 시연 영상 · 2분 58초 | [사용자 원본 녹화 편집본](https://github.com/jjang99/AI-Auditor/blob/5a96172acf8805a0e717e16ac3543b2bcb341c83/AI_Auditor_Demo_UserFootage.mp4) |
-| 효과측정 · 1장 | [PDF](submission/AI_Auditor_Effect_Measurement_1page.pdf) / [편집용 Word](submission/AI_Auditor_Effect_Measurement_1page.docx) |
-| 효과측정 원자료 | [측정 Excel](submission/AI_Auditor_Measurement_Data.xlsx) / [방법·해석](submission/MEASUREMENT_METHOD.md) / [실험 원본](submission/experiment/) |
+| 자동화 전후 효과 추정 · 1장 | [PDF](submission/AI_Auditor_Effect_Estimate_1page.pdf) / [편집용 Word](submission/AI_Auditor_Effect_Estimate_1page.docx) |
+| 추정의 가정·계산식 | [Excel](submission/AI_Auditor_Effect_Estimate.xlsx) / [가정·실측 구분](submission/EFFECT_ESTIMATE_METHOD.md) |
+| 기존 기능검증 참고자료 | [결함 검출 PDF](submission/AI_Auditor_Effect_Measurement_1page.pdf) / [검증 Excel](submission/AI_Auditor_Measurement_Data.xlsx) / [실험 원본](submission/experiment/) |
 | 소스 ZIP | [소스와 재현자료](submission/AI_Auditor_Source_Submission.zip) |
 | 남은 제출자료 묶음 | [다운로드 ZIP](submission/AI_Auditor_Remaining_Submission.zip) |
 | 발표 PPT | 사용자 최종본을 별도 제출 · **10장 이내** |
 
 검증된 앱 코드 기준은 `03a4be2d81b1e75045b88f00db2beb180b2eb758`입니다. 제출 브랜치는 `codex/hackathon-submission`입니다. 이 정리는 안내·기록·검증자료에 한정하며 기존 앱 소스와 패치 적용 순서를 유지합니다.
 
-## 실제 측정 결과
+## 실측과 자동화 전후 효과 추정
+
+자동검사 처리시간 **434.06초**는 사용자 PC의 단일 시연 실측값입니다. 수동 전체 작업시간 **30분**, AI 활용 후 문서 등록·사람의 후보 검토·보고서 저장 **10분**은 설명용 가정입니다. 이 조건에서 사용 후 약 17분 14초, 예상 약 12분 46초·42.6% 감소로 계산됩니다. **42.6%는 실제 달성한 절감률이 아닙니다.** 가정에 따라 시간이 늘어나는 경우도 새 자료에 표시했습니다.
+
+## 별도 결함 검출 기능검증
 
 합성 문서 DOCX·XLSX 각 1개에 사전 선언한 표적 결함 4개를 넣고 REQ-001 / REQ-006 / REQ-018을 실제 Local AI와 함께 실행했습니다. **3/4개 검출(75%), 미탐 1개**, 정답표 밖의 추가 지적은 관찰되지 않았습니다. 정답표에 따라 네 결함을 스크립트가 수정한 뒤에는 지적이 3건에서 0건으로 바뀌었습니다.
 

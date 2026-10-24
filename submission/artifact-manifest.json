@@ -1,22 +1,56 @@
 {
-  "schema_version": 2,
-  "measurement_type": "seeded_defect_detection_and_corrected_fixture_reinspection",
+  "schema_version": 3,
+  "primary_submission_document": "AI_Auditor_Effect_Estimate_1page.pdf",
+  "primary_metric_type": "assumption_based_before_after_effect_estimate",
+  "actual_before_after_savings_measured": false,
+  "primary_pdf_pages": 1,
+  "observed_automatic_processing_seconds": 434.06,
+  "assumptions": {
+    "manual_total_seconds": 1800,
+    "document_registration_seconds": 60,
+    "human_review_seconds": 480,
+    "report_save_and_check_seconds": 60
+  },
+  "calculated_estimates": {
+    "assisted_total_seconds_estimated": 1034.06,
+    "seconds_saved_estimated": 765.94,
+    "percent_saved_estimated": 42.55222222222222,
+    "break_even_manual_total_seconds": 1034.06
+  },
   "app_code_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
-  "pdf_pages": 1,
-  "manual_comparator": false,
-  "comparative_time_savings_measured": false,
-  "source_archive_file_count": 273,
-  "source_bytes_unchanged_from_validated_code": true,
-  "measured_targets": {
+  "source_archive_file_count": 279,
+  "protected_original_files_unchanged": 220,
+  "prior_validation_materials_preserved": true,
+  "separate_technical_validation": {
     "seeded": 4,
     "detected": 3,
     "missed": 1,
-    "detection_rate": 0.75,
-    "observed_additional_findings": 0,
+    "target_recall": 0.75,
     "before_findings": 3,
-    "after_findings": 0
+    "after_findings": 0,
+    "scope": "synthetic fixture validation; not human productivity effects"
   },
   "artifacts": [
+    {
+      "path": "00_제출파일_안내.txt",
+      "bytes": 1114,
+      "sha256": "58ed9e8e86c6234d2e58d39b7ecf23e40e5d36a3253ee0eb6f3ee5e7a8ec9eff"
+    },
+    {
+      "path": "AI_Auditor_Effect_Estimate.xlsx",
+      "bytes": 11329,
+      "sha256": "e90fb0683015ca2aec8845681a2adf12a79293a6c109189c0516816bea47c84a"
+    },
+    {
+      "path": "AI_Auditor_Effect_Estimate_1page.docx",
+      "bytes": 38315,
+      "sha256": "844571f7cff21ee8da2d360b8d8510e60ea93c9f5d18972461b8becc569f1231"
+    },
+    {
+      "path": "AI_Auditor_Effect_Estimate_1page.pdf",
+      "bytes": 54822,
+      "sha256": "9744b30c20f53f3b0629e2aa5c7600a65daab14ead0dea521f5ea3d930e172e9"
+    },
     {
       "path": "AI_Auditor_Effect_Measurement_1page.docx",
       "bytes": 38520,
@@ -34,8 +68,13 @@
     },
     {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 892689,
-      "sha256": "63794da990f53f52aa8ad828c94e32af0ce2537b426f23e4aa6370e6ec658c26"
+      "bytes": 992193,
+      "sha256": "9000650ebc2e6f8750e6bb601693f7823d97c240ae9483b4b56b2ae1bb3bd27d"
+    },
+    {
+      "path": "EFFECT_ESTIMATE_METHOD.md",
+      "bytes": 2972,
+      "sha256": "3ab23782e286ca9d9b78222fb9bcc47daa1fcdbac7850e759aaf8b7be07e05d7"
     },
     {
       "path": "MEASUREMENT_METHOD.md",
@@ -49,8 +88,13 @@
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2183,
-      "sha256": "abf7376c9332d0adf59450dd4554c36a9027fa3bd2baae8086b54a26f949fc7a"
+      "bytes": 2299,
+      "sha256": "724f183aa34d143fdc8fbade7dfa6783d8f14a5fd47e4ca873dd6dc00afe63fa"
+    },
+    {
+      "path": "estimate_assumptions.json",
+      "bytes": 2757,
+      "sha256": "26abcdd71fcb9ca8c7bfabe69c93cea25586f22753008ef8d8ca42cb7622cfc7"
     },
     {
       "path": "experiment/README.md",
@@ -188,5 +232,5 @@
       "sha256": "c4aa5f86fa479c871295b51cac309c023d7a8d2dd767f1401b65b385db1aa65c"
     }
   ],
-  "manifest_scope": "The bundle ZIP contains this manifest. Its own SHA-256 is recorded separately in the publication review plan to avoid a circular digest."
+  "bundle_note": "Bundle ZIP digest is recorded separately to avoid a circular manifest."
 }
