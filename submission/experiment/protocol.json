@@ -1,0 +1,86 @@
+{
+  "declared_at_utc": "2026-10-24T14:07:55.783373+00:00",
+  "source_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
+  "purpose": "합성 문서에 주입한 4개 표적 결함의 검출과 수정 후 잔여 지적 비교",
+  "human_comparator": false,
+  "production_documents": false,
+  "cases": [
+    {
+      "id": "G1",
+      "rule": "REQ-001",
+      "defect": "비밀번호 변경 요구사항의 ID 공란",
+      "before_location": "요구사항정의서.docx / 정의 2",
+      "correction": "해당 문단에 REQ-102 복원"
+    },
+    {
+      "id": "G2",
+      "rule": "REQ-001",
+      "defect": "이메일 변경과 회원 탈퇴가 서로 다른 정의인데 REQ-104 중복 사용",
+      "before_location": "요구사항정의서.docx / 정의 4·5; 추적표.xlsx / 6행 ID",
+      "correction": "회원 탈퇴의 ID를 REQ-105로 복원하고 추적표 ID도 맞춤"
+    },
+    {
+      "id": "G3",
+      "rule": "REQ-006",
+      "defect": "주문 내역 조회의 구현대상·조건·범위·출력 미정",
+      "before_location": "요구사항정의서.docx / 정의 6",
+      "correction": "위 선언의 REQ-106 구현대상·조건·범위·처리·출력·예외 복원"
+    },
+    {
+      "id": "G4",
+      "rule": "REQ-018",
+      "defect": "회원 조회의 통합테스트 연결 공란",
+      "before_location": "추적표.xlsx / 기능추적!G4",
+      "correction": "TEST-103 복원"
+    }
+  ],
+  "rule_codes": [
+    "REQ-001",
+    "REQ-006",
+    "REQ-018"
+  ],
+  "runs": [
+    "before",
+    "after"
+  ],
+  "repetitions_per_stage": 1,
+  "review_unit": "주입한 표적 결함 단위. 중복 지적은 같은 결함을 중복 정탐으로 세지 않음.",
+  "adjudication": "실제 findings를 사전 선언 4개 결함과 대조. 추가 지적은 근거를 검토하고 별도 공개.",
+  "after_correction": "생성 스크립트가 4개 지정 결함을 수정함. 앱 자동수정 기능을 뜻하지 않음.",
+  "timing_scope": "서버 준비 후 파일 파싱부터 실제 Local AI 검사·위험평가·감리판정·보고서 3형식 저장까지의 클라우드 실행 구간. 사람 작업시간 제외.",
+  "manual_time_saved_percent": null,
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "python": "3.13.15",
+  "logical_cpu_count": 5,
+  "model": {
+    "file": "Qwen3-4B-Q4_K_M.gguf",
+    "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5"
+  },
+  "inputs": [
+    {
+      "path": "before/요구사항정의서.docx",
+      "sha256": "c1df90b1740fdef0b4db984b80b33671da6f5dfd504fabf3eb67984ceb63cbc9"
+    },
+    {
+      "path": "before/추적표.xlsx",
+      "sha256": "91ea8e3944afd147583994d306ca3025bda92e33535de66e64ebd67fccdfafcc"
+    },
+    {
+      "path": "after/요구사항정의서.docx",
+      "sha256": "7a47217da16be107053de1c82d354b57ad1accc8209d356851c4ab36fef27aee"
+    },
+    {
+      "path": "after/추적표.xlsx",
+      "sha256": "32e5d36f0d6e6f79a49a24308f82c8c3d848f7cae6e7abb67a810d010bee105e"
+    }
+  ],
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0,
+    "seed": 42,
+    "max_tokens": 512
+  },
+  "disclosure": "단일 합성 사례. 실무 정확도·평균 성능·사람의 작업시간 개선으로 일반화하지 않음."
+}

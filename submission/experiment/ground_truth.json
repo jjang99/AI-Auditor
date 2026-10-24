@@ -1,0 +1,30 @@
+[
+  {
+    "id": "G1",
+    "rule": "REQ-001",
+    "defect": "비밀번호 변경 요구사항의 ID 공란",
+    "before_location": "요구사항정의서.docx / 정의 2",
+    "correction": "해당 문단에 REQ-102 복원"
+  },
+  {
+    "id": "G2",
+    "rule": "REQ-001",
+    "defect": "이메일 변경과 회원 탈퇴가 서로 다른 정의인데 REQ-104 중복 사용",
+    "before_location": "요구사항정의서.docx / 정의 4·5; 추적표.xlsx / 6행 ID",
+    "correction": "회원 탈퇴의 ID를 REQ-105로 복원하고 추적표 ID도 맞춤"
+  },
+  {
+    "id": "G3",
+    "rule": "REQ-006",
+    "defect": "주문 내역 조회의 구현대상·조건·범위·출력 미정",
+    "before_location": "요구사항정의서.docx / 정의 6",
+    "correction": "위 선언의 REQ-106 구현대상·조건·범위·처리·출력·예외 복원"
+  },
+  {
+    "id": "G4",
+    "rule": "REQ-018",
+    "defect": "회원 조회의 통합테스트 연결 공란",
+    "before_location": "추적표.xlsx / 기능추적!G4",
+    "correction": "TEST-103 복원"
+  }
+]

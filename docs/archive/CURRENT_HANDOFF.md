@@ -1,3 +1,5 @@
+> 과거 개발·검증 기록입니다. 현재 제출·실행 기준은 저장소 첫 화면과 submission/ 안내를 참고하세요.
+
 # AI Auditor CURRENT HANDOFF
 
 ## 기준 시각

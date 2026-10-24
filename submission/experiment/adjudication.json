@@ -1,0 +1,62 @@
+{
+  "method": "사전 선언 정답표와 실제 지적의 문서 위치·내용을 대조한 자체 검증. 독립 외부 검증 아님.",
+  "seeded_defects": 4,
+  "detected_defects": 3,
+  "missed_defects": 1,
+  "observed_unmatched_findings": 0,
+  "target_recall": 0.75,
+  "before_findings": 3,
+  "after_findings": 0,
+  "per_defect": [
+    {
+      "id": "G1",
+      "rule": "REQ-001",
+      "defect": "비밀번호 변경 요구사항의 ID 공란",
+      "before_location": "요구사항정의서.docx / 정의 2",
+      "correction": "해당 문단에 REQ-102 복원",
+      "matched_finding_numbers": [
+        1
+      ],
+      "result": "검출"
+    },
+    {
+      "id": "G2",
+      "rule": "REQ-001",
+      "defect": "이메일 변경과 회원 탈퇴가 서로 다른 정의인데 REQ-104 중복 사용",
+      "before_location": "요구사항정의서.docx / 정의 4·5; 추적표.xlsx / 6행 ID",
+      "correction": "회원 탈퇴의 ID를 REQ-105로 복원하고 추적표 ID도 맞춤",
+      "matched_finding_numbers": [
+        2
+      ],
+      "result": "검출"
+    },
+    {
+      "id": "G3",
+      "rule": "REQ-006",
+      "defect": "주문 내역 조회의 구현대상·조건·범위·출력 미정",
+      "before_location": "요구사항정의서.docx / 정의 6",
+      "correction": "위 선언의 REQ-106 구현대상·조건·범위·처리·출력·예외 복원",
+      "matched_finding_numbers": [],
+      "result": "미탐"
+    },
+    {
+      "id": "G4",
+      "rule": "REQ-018",
+      "defect": "회원 조회의 통합테스트 연결 공란",
+      "before_location": "추적표.xlsx / 기능추적!G4",
+      "correction": "TEST-103 복원",
+      "matched_finding_numbers": [
+        3
+      ],
+      "result": "검출"
+    }
+  ],
+  "after_condition": "사전 정답표의 네 결함을 스크립트가 모두 수정한 상태. 앱의 자동수정이나 미탐 해소 기능을 뜻하지 않음.",
+  "unsupported_claims": [
+    "수동 대비 시간절감률",
+    "전체 제품 정확도",
+    "현업 오류율 감소",
+    "인건비 절감액"
+  ],
+  "timing_comparison": "before/after 시간 차이는 출력량·AI 호출량이 다르므로 속도향상률로 사용하지 않음."
+}
