@@ -9,8 +9,9 @@
 | 자료 | 위치 |
 |---|---|
 | 실제 시연 영상 · 2분 58초 | [사용자 원본 녹화 편집본](https://github.com/jjang99/AI-Auditor/blob/5a96172acf8805a0e717e16ac3543b2bcb341c83/AI_Auditor_Demo_UserFootage.mp4) |
-| 자동화 전후 효과 추정 · 1장 | [PDF](submission/AI_Auditor_Effect_Estimate_1page.pdf) / [편집용 Word](submission/AI_Auditor_Effect_Estimate_1page.docx) |
-| 추정의 가정·계산식 | [Excel](submission/AI_Auditor_Effect_Estimate.xlsx) / [가정·실측 구분](submission/EFFECT_ESTIMATE_METHOD.md) |
+| 요약표 작성시간 비교 · 1장 | [PDF](submission/AI_Auditor_Report_Time_Comparison_1page.pdf) / [편집용 Word](submission/AI_Auditor_Report_Time_Comparison_1page.docx) |
+| 제공시간·계산식·범위 | [Excel](submission/AI_Auditor_Report_Time_Data.xlsx) / [출처와 방법](submission/REPORT_TIME_METHOD.md) |
+| 기존 가정 시나리오 참고 | [이전 추정 PDF](submission/AI_Auditor_Effect_Estimate_1page.pdf) / [가정과 계산](submission/EFFECT_ESTIMATE_METHOD.md) |
 | 기존 기능검증 참고자료 | [결함 검출 PDF](submission/AI_Auditor_Effect_Measurement_1page.pdf) / [검증 Excel](submission/AI_Auditor_Measurement_Data.xlsx) / [실험 원본](submission/experiment/) |
 | 소스 ZIP | [소스와 재현자료](submission/AI_Auditor_Source_Submission.zip) |
 | 남은 제출자료 묶음 | [다운로드 ZIP](submission/AI_Auditor_Remaining_Submission.zip) |
@@ -18,7 +19,11 @@
 
 검증된 앱 코드 기준은 `03a4be2d81b1e75045b88f00db2beb180b2eb758`입니다. 제출 브랜치는 `codex/hackathon-submission`입니다. 이 정리는 안내·기록·검증자료에 한정하며 기존 앱 소스와 패치 적용 순서를 유지합니다.
 
-## 실측과 자동화 전후 효과 추정
+## 요약표 작성시간 비교 · 사용자 보고 기준
+
+같은 프로젝트의 기존 검사결과를 요약 8개 항목의 Word 문서로 작성·저장·열어 확인하는 단계에서 사용자가 보고한 근사시간은 수동 약 7분 22초, 자동 약 6초였습니다. 차이는 약 7분 16초이고 제공시간을 단순 환산한 감소율은 약 98.6%입니다. **동일인·각 1회·근사값**이며 전체 검사·감리 업무의 절감률은 아닙니다. 파일·영상·타이머 기록으로 독립 재검증하지 않았습니다. 자세한 범위와 정정은 [방법](submission/REPORT_TIME_METHOD.md)에 공개했습니다.
+
+## 별도 자동검사 실측과 이전 가정 시나리오
 
 자동검사 처리시간 **434.06초**는 사용자 PC의 단일 시연 실측값입니다. 수동 전체 작업시간 **30분**, AI 활용 후 문서 등록·사람의 후보 검토·보고서 저장 **10분**은 설명용 가정입니다. 이 조건에서 사용 후 약 17분 14초, 예상 약 12분 46초·42.6% 감소로 계산됩니다. **42.6%는 실제 달성한 절감률이 아닙니다.** 가정에 따라 시간이 늘어나는 경우도 새 자료에 표시했습니다.
 

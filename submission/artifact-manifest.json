@@ -1,40 +1,29 @@
 {
-  "schema_version": 3,
-  "primary_submission_document": "AI_Auditor_Effect_Estimate_1page.pdf",
-  "primary_metric_type": "assumption_based_before_after_effect_estimate",
-  "actual_before_after_savings_measured": false,
+  "schema_version": 4,
+  "primary_submission_document": "AI_Auditor_Report_Time_Comparison_1page.pdf",
+  "primary_metric_type": "user_reported_approximate_report_summary_task_time_comparison",
   "primary_pdf_pages": 1,
-  "observed_automatic_processing_seconds": 434.06,
-  "assumptions": {
-    "manual_total_seconds": 1800,
-    "document_registration_seconds": 60,
-    "human_review_seconds": 480,
-    "report_save_and_check_seconds": 60
-  },
-  "calculated_estimates": {
-    "assisted_total_seconds_estimated": 1034.06,
-    "seconds_saved_estimated": 765.94,
-    "percent_saved_estimated": 42.55222222222222,
-    "break_even_manual_total_seconds": 1034.06
-  },
+  "times_reported_by_user": true,
+  "independently_verified": false,
+  "trial_count_per_method": 1,
+  "manual_seconds_reported": 442,
+  "automatic_seconds_reported": 6,
+  "difference_seconds_calculated": 436,
+  "reduction_percent_calculated": 98.64253393665159,
+  "whole_inspection_savings_measured": false,
   "app_code_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
-  "source_archive_file_count": 279,
   "protected_original_files_unchanged": 220,
-  "prior_validation_materials_preserved": true,
-  "separate_technical_validation": {
-    "seeded": 4,
-    "detected": 3,
-    "missed": 1,
-    "target_recall": 0.75,
-    "before_findings": 3,
-    "after_findings": 0,
-    "scope": "synthetic fixture validation; not human productivity effects"
+  "prior_evidence_materials_preserved": true,
+  "source_archive_file_count": 284,
+  "retained_secondary_materials": {
+    "assumption_scenario": "estimate_assumptions.json",
+    "synthetic_defect_validation": "experiment/"
   },
   "artifacts": [
     {
       "path": "00_제출파일_안내.txt",
-      "bytes": 1114,
-      "sha256": "58ed9e8e86c6234d2e58d39b7ecf23e40e5d36a3253ee0eb6f3ee5e7a8ec9eff"
+      "bytes": 1205,
+      "sha256": "6e5b4c5a6f1de4e33795358349828d5d0f6fcb4e016ca0b8f1e4b24f1a8a9fcc"
     },
     {
       "path": "AI_Auditor_Effect_Estimate.xlsx",
@@ -67,9 +56,24 @@
       "sha256": "0997d3cdc2516478d8ddeadc328292ca9992a2bb8c6905028c2726f2d3801924"
     },
     {
+      "path": "AI_Auditor_Report_Time_Comparison_1page.docx",
+      "bytes": 38423,
+      "sha256": "5f8682573ff2410e74065dfc2601fd5cd0afa4c5c3abdd1d3c2235a930bf680d"
+    },
+    {
+      "path": "AI_Auditor_Report_Time_Comparison_1page.pdf",
+      "bytes": 57070,
+      "sha256": "c705110d28f23d0d2cd7ff350cc1bf9eb4618128e229c5f6f7268e55bc6a92fd"
+    },
+    {
+      "path": "AI_Auditor_Report_Time_Data.xlsx",
+      "bytes": 10228,
+      "sha256": "695e22f4d4833edeb2e1d5ce78191e5f6067f6482e60daed2e98f4be9e66dc00"
+    },
+    {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 992193,
-      "sha256": "9000650ebc2e6f8750e6bb601693f7823d97c240ae9483b4b56b2ae1bb3bd27d"
+      "bytes": 1092578,
+      "sha256": "305befcb8a5880ef23e58abe134dba2bb6aee2a3c38179abe5a591a6d9c0a34c"
     },
     {
       "path": "EFFECT_ESTIMATE_METHOD.md",
@@ -82,14 +86,19 @@
       "sha256": "eae39928cd0fed2c358dce13e342ff2d02808c3257b62485f2f22efcb9361196"
     },
     {
+      "path": "REPORT_TIME_METHOD.md",
+      "bytes": 3139,
+      "sha256": "0a2bdd735a5ba6f028add7bdc81dc0181d2f5d79d67e07c1c5ad87ba61e359ae"
+    },
+    {
       "path": "REPRODUCE_WINDOWS.md",
       "bytes": 3141,
       "sha256": "97541f375e4c5ad0ce347354a46697fe6da8ae1fe63e0022113e71dde65731bd"
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2299,
-      "sha256": "724f183aa34d143fdc8fbade7dfa6783d8f14a5fd47e4ca873dd6dc00afe63fa"
+      "bytes": 2034,
+      "sha256": "fa93a0e80be2c4c0a7991c0959ccc99fdd146b1ac7cad3598ac00060f3f7699c"
     },
     {
       "path": "estimate_assumptions.json",
@@ -192,6 +201,11 @@
       "sha256": "07d5592e8667d99c041f33ccd8b51019985ffa0dc76f281ea61d2a96d1c91f58"
     },
     {
+      "path": "report_time_observations.json",
+      "bytes": 3257,
+      "sha256": "fa0e838b99fd3a351466de5fdb2f425ce6a8eb78f0760c336b2fd5e41433e106"
+    },
+    {
       "path": "supporting_demo/demo_observations.csv",
       "bytes": 753,
       "sha256": "558db9af6de4b128e1747c6074851b9bd7fd3b3fa3f15415e1a5c0e2936bf028"
@@ -231,6 +245,5 @@
       "bytes": 42419,
       "sha256": "c4aa5f86fa479c871295b51cac309c023d7a8d2dd767f1401b65b385db1aa65c"
     }
-  ],
-  "bundle_note": "Bundle ZIP digest is recorded separately to avoid a circular manifest."
+  ]
 }
