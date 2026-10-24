@@ -1,18 +1,35 @@
-# AI Auditor 최종 시연 영상
+# AI Auditor 실제 앱 시연영상
 
-**다운로드할 파일: [AI_Auditor_Demo_Final.mp4](AI_Auditor_Demo_Final.mp4)**
+최신 완성본: **AI_Auditor_Demo_Complete.mp4** · 2분 17초 · 1920×1080 · 한글 자막 포함
 
-- 길이: **2분 30초**, 1920×1080, H.264, 30fps, MP4. 음성 없이 한글 자막으로 구성했습니다.
-- 사용자가 제공한 실제 Windows AI Auditor 녹화만 사용했습니다.
-- 오프닝·엔딩 타이틀, 대기 구간 컷 편집, 화면 확대, 실제 조작 위치 강조, 짧은 한글 자막을 적용했습니다.
-- Home → 검사 문서·기준 및 진행 상태 → 완료·결과 → 문서 근거·위험도 → Re-Inspect 설정 → Word 저장·보고서 → Local AI 설정 순서입니다.
-- 프로젝트 `요구사항 품질 점검`: 문서 1개, REQ-001 / REQ-003 / REQ-006, 79점, C등급, 이슈 6개가 일치합니다.
+가이드 기준 가상 프로젝트 자료로 실제 앱을 자동조작하여 녹화했습니다.
+프로젝트명: **공공서비스 통합포털 품질 점검**
 
-실제 검사는 953.83초가 걸렸으며 대기 구간을 잘라 편집했습니다. Windows 성능 지연 원인이 해결됐다고 주장하지 않습니다.
-최초 검사 시작 클릭은 촬영되지 않아 실제 진행 녹화부터 사용했습니다. 재검사는 준비 화면까지 보여 줍니다.
-Word 화면은 같은 검사에서 저장했던 보고서입니다. UI 동작·숫자·결과를 생성하거나 바꾸지 않았습니다.
+- 문서 4개 선택 → REQ-001 / REQ-018 / FP-009 선택 → 검사 시작
+- 중복 요구사항 ID, 누락된 추적정보, FP 계산 오류의 근거와 위험도 확인
+- 수정본 4개로 Re-Inspect → 동일한 규칙 3개 복원 → 실제 검사 시작
+- 초기 63점·D등급·이슈 5개 → 수정본 100점·A등급·이슈 0개
+- 검사 이력 및 Reports 결과 비교 → Word 보고서 저장 → Local AI 모델 확인
 
-SHA-256: `3637e4ba1c90d973fdafed9047b754e699e94ba0814a4dd0e591ed151481d4e3`
+검사 대기 구간만 축약했습니다. 실제 초기 검사는 약 123초였습니다.
+실제 Local AI를 사용했고, 앱 소스는 변경하지 않았습니다.
+이슈 0개는 선택한 세 규칙의 검사 결과입니다.
 
-`AI_Auditor_Demo.mp4`는 이전 2분 20초 설명형 영상입니다. 이번 최종본은 `AI_Auditor_Demo_Final.mp4`입니다.
-이 브랜치는 영상 전달용이며 프로그램 소스 변경이나 main 브랜치 병합은 포함하지 않습니다.
+**AI_Auditor_Demo_Materials.zip**에는 초기본·수정본 8개 문서와 실제 저장한 Word 보고서, 자료 안내, 참고 가이드가 들어 있습니다.
+
+## Windows에서 영상 받기
+
+AI-Auditor 폴더에서 터미널을 열고 다음 세 줄을 실행합니다.
+
+```powershell
+git fetch origin codex/demo-video
+git restore --source=FETCH_HEAD --worktree -- AI_Auditor_Demo_Complete.mp4
+Invoke-Item .\AI_Auditor_Demo_Complete.mp4
+```
+
+영상은 `main.py`와 같은 폴더에 저장됩니다.
+자료도 받으려면 다음 줄을 실행합니다.
+
+```powershell
+git restore --source=FETCH_HEAD --worktree -- AI_Auditor_Demo_Materials.zip
+```
