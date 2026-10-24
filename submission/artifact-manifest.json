@@ -57,23 +57,23 @@
     },
     {
       "path": "AI_Auditor_Report_Time_Comparison_1page.docx",
-      "bytes": 38423,
-      "sha256": "5f8682573ff2410e74065dfc2601fd5cd0afa4c5c3abdd1d3c2235a930bf680d"
+      "bytes": 38364,
+      "sha256": "bc297b8b37756091aaf2cc5e5ca30a6ba1ca79a781364be8914d9f48e584a8b5"
     },
     {
       "path": "AI_Auditor_Report_Time_Comparison_1page.pdf",
-      "bytes": 57070,
-      "sha256": "c705110d28f23d0d2cd7ff350cc1bf9eb4618128e229c5f6f7268e55bc6a92fd"
+      "bytes": 56483,
+      "sha256": "33ae83f84d08ced5c3d7be7e56b8e1b203c0b584df10f32c69c9a10cf8f7caa8"
     },
     {
       "path": "AI_Auditor_Report_Time_Data.xlsx",
-      "bytes": 10228,
-      "sha256": "695e22f4d4833edeb2e1d5ce78191e5f6067f6482e60daed2e98f4be9e66dc00"
+      "bytes": 10222,
+      "sha256": "babb2490c693c9d8dbdbc64e521bf403aa45b516dff30546b3e356cf653ef918"
     },
     {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 1092578,
-      "sha256": "305befcb8a5880ef23e58abe134dba2bb6aee2a3c38179abe5a591a6d9c0a34c"
+      "bytes": 1091856,
+      "sha256": "7dd5e7feb32879bf2f885cc07440cc3b5f09ece76c29f7213efe9cae571542dd"
     },
     {
       "path": "EFFECT_ESTIMATE_METHOD.md",
@@ -87,8 +87,8 @@
     },
     {
       "path": "REPORT_TIME_METHOD.md",
-      "bytes": 3139,
-      "sha256": "0a2bdd735a5ba6f028add7bdc81dc0181d2f5d79d67e07c1c5ad87ba61e359ae"
+      "bytes": 3231,
+      "sha256": "511168a1ad4c84df2d99bbc70b3af1d2305e495b5c5177febb1cc8b199916418"
     },
     {
       "path": "REPRODUCE_WINDOWS.md",
@@ -97,8 +97,8 @@
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2034,
-      "sha256": "fa93a0e80be2c4c0a7991c0959ccc99fdd146b1ac7cad3598ac00060f3f7699c"
+      "bytes": 2120,
+      "sha256": "3e354c559910e6d01decf300671395176be0655888bc94c026b35908f22d779e"
     },
     {
       "path": "estimate_assumptions.json",
@@ -245,5 +245,8 @@
       "bytes": 42419,
       "sha256": "c4aa5f86fa479c871295b51cac309c023d7a8d2dd767f1401b65b385db1aa65c"
     }
-  ]
+  ],
+  "primary_display": "reported_approximate_task_times_and_absolute_difference",
+  "percentage_is_reference_calculation": true,
+  "reported_time_values_unchanged": true
 }
