@@ -1,3 +1,20 @@
+# AI Auditor 제출자료 · 2026-10-24
+
+이 브랜치는 검증된 프로그램 코드 `03a4be2`와 제출자료를 함께 담고 있습니다.
+
+- **[효과측정 1장 PDF](submission/AI_Auditor_Effect_Measurement_1page.pdf)** · [편집용 Word](submission/AI_Auditor_Effect_Measurement_1page.docx)
+- **[남은 제출자료 전체 ZIP](submission/AI_Auditor_Remaining_Submission.zip)** · [소스코드 ZIP](submission/AI_Auditor_Source_03a4be2.zip)
+- [제출 안내 및 심사위원 접근권한 확인](submission/SUBMISSION_GUIDE.md)
+- [Windows 소스 실행 방법](submission/REPRODUCE_WINDOWS.md)
+- [추가 전후 비교측정 기록지](submission/AI_Auditor_Measurement_Worksheet.xlsx)
+- [완성된 실제 시연 영상 · 2분 58초](https://github.com/jjang99/AI-Auditor/blob/5a96172acf8805a0e717e16ac3543b2bcb341c83/AI_Auditor_Demo_UserFootage.mp4)
+
+현재 효과측정 자료는 사용자 PC의 실제 시연값(DOCX+XLSX 2개, 3개 규칙, 처리시간 434.06초, Issue 후보 7건, Word 보고서 6쪽)을 정리했습니다. 수동 검토 기록이 없어 시간절감률·오류율 감소·인건비 절감액을 산정하지 않았습니다. 처리시간에는 문서 등록·사람의 결과 검토·보고서 저장 전체 과정이 포함되지 않습니다.
+
+저장소 링크를 제출할 때는 심사위원의 열람권한을 확인해야 합니다. 이 브랜치를 준비하며 저장소 공개 설정이나 앱 실행 코드를 변경하지 않았습니다.
+
+---
+
 # AI-Auditor
 
 **AI 기반 프로젝트 품질 감사(Auditor) 플랫폼**

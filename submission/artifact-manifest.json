@@ -1,0 +1,74 @@
+{
+  "source_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
+  "artifacts": [
+    {
+      "name": "AI_Auditor_Effect_Measurement_1page.pdf",
+      "bytes": 55922,
+      "sha256": "44e2d3773fa7a08671016030705f86caa578f18d70de50972f78827519f05a3c"
+    },
+    {
+      "name": "AI_Auditor_Effect_Measurement_1page.docx",
+      "bytes": 38486,
+      "sha256": "6449d31ba9e7cb12d6c95ead62c0639a83b409b78a3c371e91e2b7c768ecfc8d"
+    },
+    {
+      "name": "AI_Auditor_Measurement_Worksheet.xlsx",
+      "bytes": 8276,
+      "sha256": "05fc721d849ce7dbde17e89be8b2a2224a84df8354ede71f05df441b006a6065"
+    },
+    {
+      "name": "AI_Auditor_Source_03a4be2.zip",
+      "bytes": 439299,
+      "sha256": "1c02d07161f7649f608e46b0f0cec0666a64414dca3c594613bb7f4eab5c70a5"
+    },
+    {
+      "name": "SUBMISSION_GUIDE.md",
+      "bytes": 5668,
+      "sha256": "1a2f3aa75bb9940ae42d2b4812d741442f047498a6b7eac16fe9e5db958a00a9"
+    },
+    {
+      "name": "REPRODUCE_WINDOWS.md",
+      "bytes": 2633,
+      "sha256": "98bac3fd0438dafee342703d0097172db21b9c7cabc2ff9c2262ecf30d96685e"
+    },
+    {
+      "name": "measurement_evidence.json",
+      "bytes": 2555,
+      "sha256": "4d00defae6570c7ab8bb22d8b3118a26df81ccc83108849cc8ec4dbf5b71c72d"
+    },
+    {
+      "name": "measurement_evidence.csv",
+      "bytes": 753,
+      "sha256": "558db9af6de4b128e1747c6074851b9bd7fd3b3fa3f15415e1a5c0e2936bf028"
+    },
+    {
+      "name": "evidence/inspection_completion.png",
+      "bytes": 63526,
+      "sha256": "82f10994bb3747ac30e721b6399fad7f3124758388955f86ea0729b981818571"
+    },
+    {
+      "name": "evidence/result_summary.png",
+      "bytes": 49475,
+      "sha256": "a603de21f7ed09e1625d9863a472113b061d0b2940d6ce8c55b461e04e6aa769"
+    },
+    {
+      "name": "evidence/word_page_count.png",
+      "bytes": 13860,
+      "sha256": "7f1412eae87d7c0db0a939bdb07a23e0a54b4a65b7fd794c3ce9c5262818d84f"
+    },
+    {
+      "name": "evidence/word_summary.png",
+      "bytes": 36449,
+      "sha256": "bc13cb3ddaf51e51f1587d33e3d7ea6a61d90938b52456e18e7f56aab43ffd08"
+    },
+    {
+      "name": "AI_Auditor_Remaining_Submission.zip",
+      "bytes": 671263,
+      "sha256": "38a9abbb1abdb36ff985ac1d19a1f1e50deca0321a47ce518d3386ad1b5e47ed"
+    }
+  ],
+  "manual_measurement_available": false,
+  "comparative_savings_measured": false,
+  "pdf_pages": 1,
+  "application_worktree_clean": true
+}

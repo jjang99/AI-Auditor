@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-24",
+  "project": "요구사항 품질점검",
+  "processing_seconds": 434.06,
+  "input_files": 2,
+  "input_formats": [
+    "DOCX",
+    "XLSX"
+  ],
+  "rule_codes": [
+    "REQ-001",
+    "REQ-006",
+    "REQ-018"
+  ],
+  "issue_candidates": 7,
+  "score": 69,
+  "grade": "D",
+  "word_report_pages": 6,
+  "external_ai_api_fee_krw": 0,
+  "fee_scope": "Qwen3-4B 로컬 추론의 외부 AI API 사용료. PC·전력·개발비 제외.",
+  "manual_time_seconds": null,
+  "ai_assisted_total_seconds": null,
+  "time_saved_percent": null,
+  "precision": null,
+  "recall": null,
+  "labor_cost_saved_krw": null,
+  "implemented_rules": 56,
+  "catalog_rules": 105,
+  "execution_type_counts": {
+    "Rule": 14,
+    "Hybrid": 31,
+    "AI": 11
+  },
+  "supported_formats": 9,
+  "code_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
+  "source_url": "https://github.com/jjang99/AI-Auditor/tree/03a4be2d81b1e75045b88f00db2beb180b2eb758",
+  "video_url": "https://github.com/jjang99/AI-Auditor/blob/5a96172acf8805a0e717e16ac3543b2bcb341c83/AI_Auditor_Demo_UserFootage.mp4",
+  "evidence": [
+    {
+      "file": "04_검사완료_결과진입.mp4",
+      "verified": [
+        "434.06초",
+        "문서 2개",
+        "규칙 3개",
+        "Issue 7개"
+      ],
+      "image": "evidence/inspection_completion.png"
+    },
+    {
+      "file": "05_결과요약.mp4",
+      "verified": [
+        "요구사항 품질점검",
+        "69점",
+        "D등급",
+        "Issue 7개"
+      ],
+      "image": "evidence/result_summary.png"
+    },
+    {
+      "file": "11_Word_보고서_최종.mp4",
+      "verified": [
+        "프로젝트·결과 일치",
+        "Word 상태표시줄 1/6 페이지"
+      ],
+      "images": [
+        "evidence/word_summary.png",
+        "evidence/word_page_count.png"
+      ]
+    },
+    {
+      "code": "rules/providers/local_ai_provider.py; app/services/local_ai_runtime.py",
+      "verified": [
+        "기본 추론 endpoint는 http://127.0.0.1:8080",
+        "Qwen3-4B GGUF를 로컬 실행"
+      ]
+    }
+  ],
+  "limitations": [
+    "자동검사 처리시간에는 파일 등록·사람의 결과검토·보고서 저장 시간이 포함되지 않음.",
+    "사용자 PC의 특정 문서와 선택한 세 규칙에 대한 단일 시연 사례이며 평균 성능이 아님.",
+    "Issue는 확인이 필요한 후보이며 7건 모두 정답이라는 뜻이나 정확도 지표가 아님.",
+    "수동 비교 및 정답표 검증이 없어 시간절감률·오탐/미탐률·인건비 절감액은 미산정."
+  ]
+}
