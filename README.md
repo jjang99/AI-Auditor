@@ -12,13 +12,14 @@
 | 실제 시연 영상 · 2분 58초 | [사용자 원본 녹화 편집본](https://github.com/jjang99/AI-Auditor/blob/5a96172acf8805a0e717e16ac3543b2bcb341c83/AI_Auditor_Demo_UserFootage.mp4) |
 | 요약표 작성시간 비교 · 1장 | [PDF](submission/AI_Auditor_Report_Time_Comparison_1page.pdf) / [편집용 Word](submission/AI_Auditor_Report_Time_Comparison_1page.docx) |
 | 제공시간·계산식·범위 | [Excel](submission/AI_Auditor_Report_Time_Data.xlsx) / [출처와 방법](submission/REPORT_TIME_METHOD.md) |
+| 보안 보완·회귀검증 | [수정 범위와 검증](submission/SECURITY_CHECK.md) |
 | 기존 가정 시나리오 참고 | [이전 추정 PDF](submission/AI_Auditor_Effect_Estimate_1page.pdf) / [가정과 계산](submission/EFFECT_ESTIMATE_METHOD.md) |
 | 기존 기능검증 참고자료 | [결함 검출 PDF](submission/AI_Auditor_Effect_Measurement_1page.pdf) / [검증 Excel](submission/AI_Auditor_Measurement_Data.xlsx) / [실험 원본](submission/experiment/) |
 | 소스 ZIP | [소스와 재현자료](submission/AI_Auditor_Source_Submission.zip) |
 | 남은 제출자료 묶음 | [다운로드 ZIP](submission/AI_Auditor_Remaining_Submission.zip) |
 | 발표 PPT | 사용자 최종본을 별도 제출 · **10장 이내** |
 
-검증된 앱 코드 기준은 `03a4be2d81b1e75045b88f00db2beb180b2eb758`입니다. 제출 브랜치는 `codex/hackathon-submission`입니다. 이 정리는 안내·기록·검증자료에 한정하며 기존 앱 소스와 패치 적용 순서를 유지합니다.
+현재 앱 코드 기준은 `63245792d5f5da537fc2bdb8c9d9062f764f02aa`입니다. 제출 브랜치는 `codex/hackathon-submission`입니다. 기존 GUI 콜백 수정본에 PDF 라이브러리 업데이트와 Excel 보고서의 문자열 저장 보완을 적용했습니다. 검사·진행·취소·오류·재검사 화면의 패치 적용 순서는 유지했습니다. 상세 범위와 검증 결과는 [보안 보완 기록](submission/SECURITY_CHECK.md)에 있습니다.
 
 ## 요약표 작성시간 비교 · 사용자 보고 기준
 

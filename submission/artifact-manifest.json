@@ -11,10 +11,10 @@
   "difference_seconds_calculated": 436,
   "reduction_percent_calculated": 98.64253393665159,
   "whole_inspection_savings_measured": false,
-  "app_code_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
-  "protected_original_files_unchanged": 220,
+  "app_code_commit": "63245792d5f5da537fc2bdb8c9d9062f764f02aa",
+  "protected_original_files_unchanged": 218,
   "prior_evidence_materials_preserved": true,
-  "source_archive_file_count": 285,
+  "source_archive_file_count": 291,
   "retained_secondary_materials": {
     "assumption_scenario": "estimate_assumptions.json",
     "synthetic_defect_validation": "experiment/"
@@ -72,13 +72,13 @@
     },
     {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 1094494,
-      "sha256": "71b426957c8f82dc32b1429e6aebd8ab177d858fc4e329fd639c9854ece7707c"
+      "bytes": 1108814,
+      "sha256": "923a835b015f466bfe219ff4f0628cd784f4e5cc8a87e6ffbfa31cbde1209785"
     },
     {
       "path": "AI_Auditor_설명자료.md",
-      "bytes": 9226,
-      "sha256": "7fcc34c6a2d595593f72dc9c1f0b08303321814e71e7f3f96cb5262c05620a0a"
+      "bytes": 9608,
+      "sha256": "8ffe1050279bf1abbc74932fab837f20d6a702588f397c99beb3af513224f0d4"
     },
     {
       "path": "EFFECT_ESTIMATE_METHOD.md",
@@ -97,13 +97,18 @@
     },
     {
       "path": "REPRODUCE_WINDOWS.md",
-      "bytes": 3141,
-      "sha256": "97541f375e4c5ad0ce347354a46697fe6da8ae1fe63e0022113e71dde65731bd"
+      "bytes": 3361,
+      "sha256": "e93c14e8534747faaae30bf6ae0bfa6ea88dedd256adf502899f3995e2482f3c"
+    },
+    {
+      "path": "SECURITY_CHECK.md",
+      "bytes": 4419,
+      "sha256": "54a29f751c5956e6f7ea5036e2349854351196365899961813548a465942af2c"
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2560,
-      "sha256": "c34a22c1ab8a92d3c39c74c173d1ad2608c6652146b30756e9ef66004476743b"
+      "bytes": 2799,
+      "sha256": "520ad84be8b38365a9bd56ac387c4076f569f025c42dc94f7e2839a76510defd"
     },
     {
       "path": "estimate_assumptions.json",
@@ -211,6 +216,26 @@
       "sha256": "fa0e838b99fd3a351466de5fdb2f425ce6a8eb78f0760c336b2fd5e41433e106"
     },
     {
+      "path": "security_validation/dependency_audit.json",
+      "bytes": 1320,
+      "sha256": "a997beab3903cf74bcf9bbfedb6a3b0824a5b73d23a55af2264b9c7a434a0a34"
+    },
+    {
+      "path": "security_validation/gui_results.json",
+      "bytes": 3999,
+      "sha256": "4cd9e49d1620dad7d6ef2335727e85d9255d26e7985ce299e90c29a8086a6679"
+    },
+    {
+      "path": "security_validation/pytest.xml",
+      "bytes": 44052,
+      "sha256": "703873de606027a4d6a11658be981ae056405fc9453f45f3363897576361a72f"
+    },
+    {
+      "path": "security_validation/results.json",
+      "bytes": 6270,
+      "sha256": "163d773ae77ef5e887514b67f5963c922c8bf0dde7591a25af450c7365669ff1"
+    },
+    {
       "path": "supporting_demo/demo_observations.csv",
       "bytes": 753,
       "sha256": "558db9af6de4b128e1747c6074851b9bd7fd3b3fa3f15415e1a5c0e2936bf028"
@@ -256,5 +281,15 @@
   "reported_time_values_unchanged": true,
   "primary_document_audience": "submission_reviewers",
   "editorial_revision": "reviewer_facing_summary_without_conversation_history",
-  "project_description_markdown": "AI_Auditor_설명자료.md"
+  "project_description_markdown": "AI_Auditor_설명자료.md",
+  "app_code_baseline_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
+  "intentional_original_file_changes": [
+    "requirements.txt",
+    "ui/project_detail_export_patch.py"
+  ],
+  "security_validation": "security_validation/results.json",
+  "security_hardening_scope": [
+    "PDF dependency version",
+    "Excel report string cells"
+  ]
 }

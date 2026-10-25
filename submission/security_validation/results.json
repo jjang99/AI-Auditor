@@ -1,0 +1,220 @@
+{
+  "checked_date": "2026-10-25",
+  "app_code_commit": "63245792d5f5da537fc2bdb8c9d9062f764f02aa",
+  "submission_base_commit": "b2dda2c0e30f559ca9c8ded6641b173cc0e0e42a",
+  "scope": "PDF dependency and Excel report string-cell hardening; no inspection pipeline or UI patch-order changes",
+  "production_files_changed": [
+    "requirements.txt",
+    "ui/project_detail_export_patch.py"
+  ],
+  "new_regression_test_file": "tests/test_report_export_security.py",
+  "pypdf_version_before": "6.19.0",
+  "pypdf_version_after": "6.21.2",
+  "known_dependency_advisories_before": 11,
+  "known_dependency_advisories_after": 0,
+  "audited_installed_packages": 23,
+  "dependency_audit_skipped_packages": 0,
+  "pytest": {
+    "passed": 339,
+    "subtests_passed": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 1.869
+  },
+  "focused_export_and_parser_tests_passed": 41,
+  "gui": {
+    "status": "passed",
+    "platform": "Linux Qt offscreen",
+    "synthetic_documents": true,
+    "model_mocked": false,
+    "source_entrypoint": "/workspace/security-fix-20261025/main.py",
+    "cases": [
+      {
+        "name": "original_mixed_rules",
+        "rules": [
+          "REQ-001",
+          "REQ-003",
+          "REQ-006"
+        ],
+        "cold_start": true,
+        "heartbeats": 256,
+        "progress": [
+          {
+            "completed": 1,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "REQ-003 요구사항 모호성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "REQ-003 요구사항 모호성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "Impact / Likelihood 판정",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "감리 개선판정",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "검사 결과 저장",
+            "on_gui_thread": true
+          }
+        ],
+        "status": "passed",
+        "inspection_id": 1,
+        "elapsed_seconds": 127.545,
+        "issue_count": 3,
+        "file_count": 2,
+        "rule_count": 3,
+        "completion_ui": true,
+        "result_detail": true,
+        "history_saved": true,
+        "reinspect_restored": true,
+        "exports": [
+          "docx",
+          "xlsx",
+          "txt"
+        ]
+      },
+      {
+        "name": "demo_mixed_rules",
+        "rules": [
+          "REQ-001",
+          "REQ-006",
+          "REQ-018"
+        ],
+        "cold_start": true,
+        "heartbeats": 203,
+        "progress": [
+          {
+            "completed": 0,
+            "total": 3,
+            "message": "문서 준비 및 기본 Rule 검사",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 1,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "REQ-006 요구사항 완전성 점검",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "Impact / Likelihood 판정",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 2,
+            "total": 3,
+            "message": "감리 개선판정",
+            "on_gui_thread": true
+          },
+          {
+            "completed": 3,
+            "total": 3,
+            "message": "검사 결과 저장",
+            "on_gui_thread": true
+          }
+        ],
+        "status": "passed",
+        "inspection_id": 2,
+        "elapsed_seconds": 100.865,
+        "issue_count": 3,
+        "file_count": 2,
+        "rule_count": 3,
+        "completion_ui": true,
+        "result_detail": true,
+        "history_saved": true,
+        "reinspect_restored": true,
+        "exports": [
+          "docx",
+          "xlsx",
+          "txt"
+        ]
+      }
+    ]
+  },
+  "existing_pdf_roundtrips": {
+    "AI_Auditor_Effect_Estimate_1page.pdf": {
+      "pages": 1,
+      "text_sha256": "1bf2b712de4a41018f6944fbc593b49e6be59175542f91cad9b3ad83d5914b6f",
+      "text_characters": 1461
+    },
+    "AI_Auditor_Effect_Measurement_1page.pdf": {
+      "pages": 1,
+      "text_sha256": "892c48fa277d39c0ea0f42a7562ee9f69553fc44b23d27945d89175348cf8a01",
+      "text_characters": 1499
+    },
+    "AI_Auditor_Report_Time_Comparison_1page.pdf": {
+      "pages": 1,
+      "text_sha256": "aca606bfe30411584a4f2f31b25a50d54962d0088e695f565969b4cbc23ab78b",
+      "text_characters": 1435
+    }
+  },
+  "existing_measurement_pdf_and_raw_observations_unchanged": true,
+  "windows_pc_verified": false,
+  "whole_security_audit": false,
+  "remaining_improvements": [
+    "Compressed document expansion and parsing resource limits",
+    "Runtime patch structure consolidation"
+  ],
+  "original_non_markdown_files_unchanged": 218,
+  "intentional_original_file_changes": [
+    "requirements.txt",
+    "ui/project_detail_export_patch.py"
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "status": "passed",
+  "platform": "Linux Qt offscreen",
+  "synthetic_documents": true,
+  "model_mocked": false,
+  "source_entrypoint": "/workspace/security-fix-20261025/main.py",
+  "cases": [
+    {
+      "name": "original_mixed_rules",
+      "rules": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-006"
+      ],
+      "cold_start": true,
+      "heartbeats": 256,
+      "progress": [
+        {
+          "completed": 1,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "REQ-003 요구사항 모호성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "REQ-003 요구사항 모호성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "Impact / Likelihood 판정",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "감리 개선판정",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "검사 결과 저장",
+          "on_gui_thread": true
+        }
+      ],
+      "status": "passed",
+      "inspection_id": 1,
+      "elapsed_seconds": 127.545,
+      "issue_count": 3,
+      "file_count": 2,
+      "rule_count": 3,
+      "completion_ui": true,
+      "result_detail": true,
+      "history_saved": true,
+      "reinspect_restored": true,
+      "exports": [
+        "docx",
+        "xlsx",
+        "txt"
+      ]
+    },
+    {
+      "name": "demo_mixed_rules",
+      "rules": [
+        "REQ-001",
+        "REQ-006",
+        "REQ-018"
+      ],
+      "cold_start": true,
+      "heartbeats": 203,
+      "progress": [
+        {
+          "completed": 0,
+          "total": 3,
+          "message": "문서 준비 및 기본 Rule 검사",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 1,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "REQ-006 요구사항 완전성 점검",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "Impact / Likelihood 판정",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 2,
+          "total": 3,
+          "message": "감리 개선판정",
+          "on_gui_thread": true
+        },
+        {
+          "completed": 3,
+          "total": 3,
+          "message": "검사 결과 저장",
+          "on_gui_thread": true
+        }
+      ],
+      "status": "passed",
+      "inspection_id": 2,
+      "elapsed_seconds": 100.865,
+      "issue_count": 3,
+      "file_count": 2,
+      "rule_count": 3,
+      "completion_ui": true,
+      "result_detail": true,
+      "history_saved": true,
+      "reinspect_restored": true,
+      "exports": [
+        "docx",
+        "xlsx",
+        "txt"
+      ]
+    }
+  ]
+}
