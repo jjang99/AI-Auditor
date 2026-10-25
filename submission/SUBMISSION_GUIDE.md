@@ -3,10 +3,13 @@
 | 항목 | 이번 제출용 파일 |
 |---|---|
 | 보고서 작성 자동화 효과 1장 | **AI_Auditor_Report_Time_Comparison_1page.pdf** |
+| Claude 설명자료 · Markdown 첨부 | **AI_Auditor_설명자료.md** |
 | 소스 ZIP · 첨부 허용 시 | **AI_Auditor_Source_Submission.zip** |
 | 소스 주소 · URL 제출 시 | https://github.com/jjang99/AI-Auditor/tree/codex/hackathon-submission |
 
 영상은 기존 완료본(2분 58초), PPT는 사용자 최종본(10장 이내)을 별도로 제출합니다.
+
+AI_Auditor_설명자료.md는 프로젝트를 설명하는 독립 문서입니다. Notion의 'Claude 설명자료' 첨부 칸에 이 파일을 그대로 업로드합니다.
 
 ## 자료의 범위
 

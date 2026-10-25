@@ -6,6 +6,7 @@
 | 발표 PPT | 사용자 최종본 · 10장 이내 |
 | 소스코드 | https://github.com/jjang99/AI-Auditor/tree/codex/hackathon-submission 또는 submission/AI_Auditor_Source_Submission.zip |
 | 효과측정 | submission/AI_Auditor_Report_Time_Comparison_1page.pdf |
+| Claude 설명자료 · Markdown 첨부 | submission/AI_Auditor_설명자료.md |
 
 이번 1장은 요약 8개 항목 작성·저장·열어 확인 단계의 사용자 보고시간 비교입니다. 수동 약 7분 22초·자동 약 6초, 각 1회·근사값으로 차이는 약 7분 16초입니다. 이 시간차를 전체 검사·감리 업무의 성과나 평균값으로 일반화하지 않습니다. 이전 가정 시나리오와 기능검증 자료는 별도로 보존했습니다.
 

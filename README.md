@@ -8,6 +8,7 @@
 
 | 자료 | 위치 |
 |---|---|
+| 프로젝트 설명자료 · Markdown | [AI Auditor 설명자료](submission/AI_Auditor_설명자료.md) |
 | 실제 시연 영상 · 2분 58초 | [사용자 원본 녹화 편집본](https://github.com/jjang99/AI-Auditor/blob/5a96172acf8805a0e717e16ac3543b2bcb341c83/AI_Auditor_Demo_UserFootage.mp4) |
 | 요약표 작성시간 비교 · 1장 | [PDF](submission/AI_Auditor_Report_Time_Comparison_1page.pdf) / [편집용 Word](submission/AI_Auditor_Report_Time_Comparison_1page.docx) |
 | 제공시간·계산식·범위 | [Excel](submission/AI_Auditor_Report_Time_Data.xlsx) / [출처와 방법](submission/REPORT_TIME_METHOD.md) |

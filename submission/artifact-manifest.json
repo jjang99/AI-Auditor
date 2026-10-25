@@ -14,7 +14,7 @@
   "app_code_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
   "protected_original_files_unchanged": 220,
   "prior_evidence_materials_preserved": true,
-  "source_archive_file_count": 284,
+  "source_archive_file_count": 285,
   "retained_secondary_materials": {
     "assumption_scenario": "estimate_assumptions.json",
     "synthetic_defect_validation": "experiment/"
@@ -22,8 +22,8 @@
   "artifacts": [
     {
       "path": "00_제출파일_안내.txt",
-      "bytes": 1228,
-      "sha256": "607f77a652c60ed73d3a3b1449d2384803d1b89206e1f84d47e0533ab583af19"
+      "bytes": 1443,
+      "sha256": "1c838b7eb78bde412a34735f344ffb5fdebf7229548502e6ca2bf38ac4cc1878"
     },
     {
       "path": "AI_Auditor_Effect_Estimate.xlsx",
@@ -72,8 +72,13 @@
     },
     {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 1089807,
-      "sha256": "eeb0ff74b7cb79fcdecb791193958273b226b9718a5157736351175228fb1bd5"
+      "bytes": 1094494,
+      "sha256": "71b426957c8f82dc32b1429e6aebd8ab177d858fc4e329fd639c9854ece7707c"
+    },
+    {
+      "path": "AI_Auditor_설명자료.md",
+      "bytes": 9226,
+      "sha256": "7fcc34c6a2d595593f72dc9c1f0b08303321814e71e7f3f96cb5262c05620a0a"
     },
     {
       "path": "EFFECT_ESTIMATE_METHOD.md",
@@ -97,8 +102,8 @@
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2310,
-      "sha256": "056f9d17d27a1842c87489658510ac4d612d896f216fa9b46af204012bdfbac1"
+      "bytes": 2560,
+      "sha256": "c34a22c1ab8a92d3c39c74c173d1ad2608c6652146b30756e9ef66004476743b"
     },
     {
       "path": "estimate_assumptions.json",
@@ -250,5 +255,6 @@
   "percentage_is_reference_calculation": true,
   "reported_time_values_unchanged": true,
   "primary_document_audience": "submission_reviewers",
-  "editorial_revision": "reviewer_facing_summary_without_conversation_history"
+  "editorial_revision": "reviewer_facing_summary_without_conversation_history",
+  "project_description_markdown": "AI_Auditor_설명자료.md"
 }
