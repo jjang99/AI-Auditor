@@ -148,6 +148,14 @@ def _export_report_xlsx(self, path, report):
             issue_sheet.cell(row=1, column=index).column_letter
         ].width = width
 
+    # Report text comes from users, documents and AI, not trusted formulas.
+    # Keep the original text while preventing Excel formula/error inference.
+    for sheet in workbook.worksheets:
+        for row in sheet:
+            for cell in row:
+                if isinstance(cell.value, str):
+                    cell.data_type = "s"
+
     workbook.save(path)
 
 
