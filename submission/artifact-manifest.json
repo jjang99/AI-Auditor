@@ -1,5 +1,5 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "primary_submission_document": "AI_Auditor_Report_Time_Comparison_1page.pdf",
   "primary_metric_type": "user_reported_approximate_report_summary_task_time_comparison",
   "primary_pdf_pages": 1,
@@ -12,48 +12,18 @@
   "reduction_percent_calculated": 98.64253393665159,
   "whole_inspection_savings_measured": false,
   "app_code_commit": "63245792d5f5da537fc2bdb8c9d9062f764f02aa",
-  "protected_original_files_unchanged": 218,
+  "protected_original_files_unchanged": 217,
   "prior_evidence_materials_preserved": true,
-  "source_archive_file_count": 291,
+  "source_archive_file_count": 292,
   "retained_secondary_materials": {
-    "assumption_scenario": "estimate_assumptions.json",
-    "synthetic_defect_validation": "experiment/"
+    "assumption_scenario_archive": "docs/archive/submission-reference/estimate_assumptions.json",
+    "synthetic_defect_validation": "submission/experiment/"
   },
   "artifacts": [
     {
       "path": "00_제출파일_안내.txt",
-      "bytes": 1443,
-      "sha256": "1c838b7eb78bde412a34735f344ffb5fdebf7229548502e6ca2bf38ac4cc1878"
-    },
-    {
-      "path": "AI_Auditor_Effect_Estimate.xlsx",
-      "bytes": 11329,
-      "sha256": "e90fb0683015ca2aec8845681a2adf12a79293a6c109189c0516816bea47c84a"
-    },
-    {
-      "path": "AI_Auditor_Effect_Estimate_1page.docx",
-      "bytes": 38315,
-      "sha256": "844571f7cff21ee8da2d360b8d8510e60ea93c9f5d18972461b8becc569f1231"
-    },
-    {
-      "path": "AI_Auditor_Effect_Estimate_1page.pdf",
-      "bytes": 54822,
-      "sha256": "9744b30c20f53f3b0629e2aa5c7600a65daab14ead0dea521f5ea3d930e172e9"
-    },
-    {
-      "path": "AI_Auditor_Effect_Measurement_1page.docx",
-      "bytes": 38520,
-      "sha256": "8dfa3d5412c582ec7e290eb94abcea78d598484810fd47e282b53b097d0ce234"
-    },
-    {
-      "path": "AI_Auditor_Effect_Measurement_1page.pdf",
-      "bytes": 56267,
-      "sha256": "f12ea1d475daa63d537f1de9a7c9355be8252187f99de4233a4ee68243d806fd"
-    },
-    {
-      "path": "AI_Auditor_Measurement_Data.xlsx",
-      "bytes": 11834,
-      "sha256": "0997d3cdc2516478d8ddeadc328292ca9992a2bb8c6905028c2726f2d3801924"
+      "bytes": 1467,
+      "sha256": "5b83ff960a0acc5f0908aeaa9c7c62b184c720575217b85bece370f5adc69bd0"
     },
     {
       "path": "AI_Auditor_Report_Time_Comparison_1page.docx",
@@ -72,23 +42,13 @@
     },
     {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 1108814,
-      "sha256": "923a835b015f466bfe219ff4f0628cd784f4e5cc8a87e6ffbfa31cbde1209785"
+      "bytes": 1110822,
+      "sha256": "93547cc518692bd4e203dae59e6cafbd93d42af1a8ab7b7dd865f2d018ce4ed2"
     },
     {
       "path": "AI_Auditor_설명자료.md",
       "bytes": 9608,
       "sha256": "8ffe1050279bf1abbc74932fab837f20d6a702588f397c99beb3af513224f0d4"
-    },
-    {
-      "path": "EFFECT_ESTIMATE_METHOD.md",
-      "bytes": 2972,
-      "sha256": "3ab23782e286ca9d9b78222fb9bcc47daa1fcdbac7850e759aaf8b7be07e05d7"
-    },
-    {
-      "path": "MEASUREMENT_METHOD.md",
-      "bytes": 4669,
-      "sha256": "eae39928cd0fed2c358dce13e342ff2d02808c3257b62485f2f22efcb9361196"
     },
     {
       "path": "REPORT_TIME_METHOD.md",
@@ -107,13 +67,8 @@
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2799,
-      "sha256": "520ad84be8b38365a9bd56ac387c4076f569f025c42dc94f7e2839a76510defd"
-    },
-    {
-      "path": "estimate_assumptions.json",
-      "bytes": 2757,
-      "sha256": "26abcdd71fcb9ca8c7bfabe69c93cea25586f22753008ef8d8ca42cb7622cfc7"
+      "bytes": 2839,
+      "sha256": "ca9aae73c375bba691dd5efc23be8e62bf142f6eedeccc9f5b51d7a9d1bce8b7"
     },
     {
       "path": "experiment/README.md",
@@ -264,16 +219,6 @@
       "path": "supporting_demo/evidence/word_summary.png",
       "bytes": 36449,
       "sha256": "bc13cb3ddaf51e51f1587d33e3d7ea6a61d90938b52456e18e7f56aab43ffd08"
-    },
-    {
-      "path": "technical_validation.json",
-      "bytes": 355,
-      "sha256": "79ed7618ad443b1e8b582d71f005276b9a74ccc278ae4518d328a44eb6fbd33d"
-    },
-    {
-      "path": "technical_validation.xml",
-      "bytes": 42419,
-      "sha256": "c4aa5f86fa479c871295b51cac309c023d7a8d2dd767f1401b65b385db1aa65c"
     }
   ],
   "primary_display": "reported_approximate_task_times_and_absolute_difference",
@@ -284,6 +229,7 @@
   "project_description_markdown": "AI_Auditor_설명자료.md",
   "app_code_baseline_commit": "03a4be2d81b1e75045b88f00db2beb180b2eb758",
   "intentional_original_file_changes": [
+    ".gitignore",
     "requirements.txt",
     "ui/project_detail_export_patch.py"
   ],
@@ -291,5 +237,69 @@
   "security_hardening_scope": [
     "PDF dependency version",
     "Excel report string cells"
+  ],
+  "archived_reference_directory": "docs/archive/submission-reference/",
+  "personal_demo_files_preserved_and_git_ignored": true,
+  "archived_artifacts": [
+    {
+      "repository_path": "docs/archive/submission-reference/AI_Auditor_Effect_Estimate.xlsx",
+      "bytes": 11329,
+      "sha256": "e90fb0683015ca2aec8845681a2adf12a79293a6c109189c0516816bea47c84a"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/AI_Auditor_Effect_Estimate_1page.docx",
+      "bytes": 38315,
+      "sha256": "844571f7cff21ee8da2d360b8d8510e60ea93c9f5d18972461b8becc569f1231"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/AI_Auditor_Effect_Estimate_1page.pdf",
+      "bytes": 54822,
+      "sha256": "9744b30c20f53f3b0629e2aa5c7600a65daab14ead0dea521f5ea3d930e172e9"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/AI_Auditor_Effect_Measurement_1page.docx",
+      "bytes": 38520,
+      "sha256": "8dfa3d5412c582ec7e290eb94abcea78d598484810fd47e282b53b097d0ce234"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/AI_Auditor_Effect_Measurement_1page.pdf",
+      "bytes": 56267,
+      "sha256": "f12ea1d475daa63d537f1de9a7c9355be8252187f99de4233a4ee68243d806fd"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/AI_Auditor_Measurement_Data.xlsx",
+      "bytes": 11834,
+      "sha256": "0997d3cdc2516478d8ddeadc328292ca9992a2bb8c6905028c2726f2d3801924"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/EFFECT_ESTIMATE_METHOD.md",
+      "bytes": 2972,
+      "sha256": "3ab23782e286ca9d9b78222fb9bcc47daa1fcdbac7850e759aaf8b7be07e05d7"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/MEASUREMENT_METHOD.md",
+      "bytes": 4669,
+      "sha256": "eae39928cd0fed2c358dce13e342ff2d02808c3257b62485f2f22efcb9361196"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/README.md",
+      "bytes": 1548,
+      "sha256": "9436639dbc01e1e0e3c4374cbc4eb7abc1bd59621137d1e17ffd5d389a854307"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/estimate_assumptions.json",
+      "bytes": 2757,
+      "sha256": "26abcdd71fcb9ca8c7bfabe69c93cea25586f22753008ef8d8ca42cb7622cfc7"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/technical_validation.json",
+      "bytes": 355,
+      "sha256": "79ed7618ad443b1e8b582d71f005276b9a74ccc278ae4518d328a44eb6fbd33d"
+    },
+    {
+      "repository_path": "docs/archive/submission-reference/technical_validation.xml",
+      "bytes": 42419,
+      "sha256": "c4aa5f86fa479c871295b51cac309c023d7a8d2dd767f1401b65b385db1aa65c"
+    }
   ]
 }

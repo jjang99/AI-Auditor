@@ -23,6 +23,6 @@ AI Auditor 제출 파일 안내
 - report_time_observations.json / REPORT_TIME_METHOD.md: 출처·범위·정정
 
 기존 자료 보관
-- AI_Auditor_Effect_Estimate_1page.pdf: 이전 가정 시나리오 참고자료
-- AI_Auditor_Effect_Measurement_1page.pdf: 이전 결함 검출 기능검증 참고자료
-- experiment/ / supporting_demo/: 기존 검증·시연 근거
+- docs/archive/submission-reference/: 이전 추정·기능검증·기술 테스트 기록 11개 원본
+- submission/experiment/ / supporting_demo/: 기존 검증·시연 근거
+- 과거 추정 PDF를 현재 효과측정지표로 제출하지 않습니다.

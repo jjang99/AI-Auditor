@@ -21,7 +21,7 @@ AI_Auditor_설명자료.md는 프로젝트를 설명하는 독립 문서입니�
 
 ## 기존 자료 보관
 
-AI_Auditor_Effect_Estimate_1page.pdf는 이전 가정 시나리오, AI_Auditor_Effect_Measurement_1page.pdf는 합성 문서의 결함 검출 기능검증 참고자료입니다. 파일·원자료를 모두 보존했습니다. 새 요약표 작성시간 비교와 지표를 섞지 마세요.
+이전 추정·합성 문서 기능검증·기술 테스트 기록 11개는 저장소의 `docs/archive/submission-reference/`로 옮겼습니다. 원문은 그대로 보존했고 소스 ZIP과 자료 묶음 ZIP에도 포함했습니다. 현재 제출할 효과측정지표는 위 표의 보고서 작성시간 비교 PDF입니다.
 
 ## GitHub 접근권한
 

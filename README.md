@@ -13,8 +13,8 @@
 | 요약표 작성시간 비교 · 1장 | [PDF](submission/AI_Auditor_Report_Time_Comparison_1page.pdf) / [편집용 Word](submission/AI_Auditor_Report_Time_Comparison_1page.docx) |
 | 제공시간·계산식·범위 | [Excel](submission/AI_Auditor_Report_Time_Data.xlsx) / [출처와 방법](submission/REPORT_TIME_METHOD.md) |
 | 보안 보완·회귀검증 | [수정 범위와 검증](submission/SECURITY_CHECK.md) |
-| 기존 가정 시나리오 참고 | [이전 추정 PDF](submission/AI_Auditor_Effect_Estimate_1page.pdf) / [가정과 계산](submission/EFFECT_ESTIMATE_METHOD.md) |
-| 기존 기능검증 참고자료 | [결함 검출 PDF](submission/AI_Auditor_Effect_Measurement_1page.pdf) / [검증 Excel](submission/AI_Auditor_Measurement_Data.xlsx) / [실험 원본](submission/experiment/) |
+| 과거 가정 시나리오 · 보관자료 | [이전 추정 PDF](docs/archive/submission-reference/AI_Auditor_Effect_Estimate_1page.pdf) / [가정과 계산](docs/archive/submission-reference/EFFECT_ESTIMATE_METHOD.md) |
+| 과거 기능검증 · 보관자료 | [결함 검출 PDF](docs/archive/submission-reference/AI_Auditor_Effect_Measurement_1page.pdf) / [검증 Excel](docs/archive/submission-reference/AI_Auditor_Measurement_Data.xlsx) / [실험 원본](submission/experiment/) |
 | 소스 ZIP | [소스와 재현자료](submission/AI_Auditor_Source_Submission.zip) |
 | 남은 제출자료 묶음 | [다운로드 ZIP](submission/AI_Auditor_Remaining_Submission.zip) |
 | 발표 PPT | 사용자 최종본을 별도 제출 · **10장 이내** |
@@ -78,3 +78,5 @@ runtime/llama.cpp/llama-server.exe
 ## 제출 시 접근권한
 
 비공개 저장소 링크는 심사위원이 열람할 수 있어야 합니다. 제출처가 허용하면 소스 ZIP을 첨부하거나 심사위원 계정을 초대하세요. 제출 절차는 [제출 안내](submission/SUBMISSION_GUIDE.md)를 참고하세요.
+
+이전 추정·기능검증·기술 테스트 기록 11개는 [참고자료 보관 폴더](docs/archive/submission-reference/README.md)에 있습니다. PC의 개인 영상·자료 3개는 파일을 보존하면서 Git 관리 대상에서 제외합니다.

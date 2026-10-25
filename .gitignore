@@ -55,3 +55,8 @@ desktop.ini
 # Local AI model/runtime binaries
 models/
 runtime/
+
+# Local demonstration deliverables kept on the user's PC
+/AI_Auditor_Demo_Complete.mp4
+/AI_Auditor_Demo_Materials.zip
+/AI_Auditor_Demo_UserFootage.mp4
