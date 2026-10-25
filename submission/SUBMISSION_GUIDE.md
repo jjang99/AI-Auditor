@@ -2,7 +2,7 @@
 
 | 항목 | 이번 제출용 파일 |
 |---|---|
-| 요약표 작성시간 비교 1장 | **AI_Auditor_Report_Time_Comparison_1page.pdf** |
+| 보고서 작성 자동화 효과 1장 | **AI_Auditor_Report_Time_Comparison_1page.pdf** |
 | 소스 ZIP · 첨부 허용 시 | **AI_Auditor_Source_Submission.zip** |
 | 소스 주소 · URL 제출 시 | https://github.com/jjang99/AI-Auditor/tree/codex/hackathon-submission |
 
@@ -23,3 +23,5 @@ AI_Auditor_Effect_Estimate_1page.pdf는 이전 가정 시나리오, AI_Auditor_E
 비공개 링크 제출 시 심사위원의 열람권한이 필요합니다. 소스 ZIP 첨부 허용 여부 또는 심사위원 계정 초대 방법을 제출처 지침에 맞추세요. 저장소 공개·기본 브랜치 설정은 변경하지 않았습니다. 영상 보관용 codex/demo-video에는 프로그램 소스가 없습니다.
 
 편집용 Word, 출처 JSON, 계산 Excel과 기존 근거는 전체 자료 ZIP에도 포함했습니다. 실행 준비는 REPRODUCE_WINDOWS.md를 참고하세요.
+
+제출용 1장은 심사위원을 대상으로 비교 결과·방법·한계를 정리했습니다. 대화 중 시간 정정 경위는 원자료와 방법 문서에 보존했습니다.

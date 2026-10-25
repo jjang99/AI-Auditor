@@ -22,8 +22,8 @@
   "artifacts": [
     {
       "path": "00_제출파일_안내.txt",
-      "bytes": 1205,
-      "sha256": "6e5b4c5a6f1de4e33795358349828d5d0f6fcb4e016ca0b8f1e4b24f1a8a9fcc"
+      "bytes": 1228,
+      "sha256": "607f77a652c60ed73d3a3b1449d2384803d1b89206e1f84d47e0533ab583af19"
     },
     {
       "path": "AI_Auditor_Effect_Estimate.xlsx",
@@ -57,13 +57,13 @@
     },
     {
       "path": "AI_Auditor_Report_Time_Comparison_1page.docx",
-      "bytes": 38364,
-      "sha256": "bc297b8b37756091aaf2cc5e5ca30a6ba1ca79a781364be8914d9f48e584a8b5"
+      "bytes": 38330,
+      "sha256": "564cacd5da73bbe02b1bc7c8ab7fe1baaaaafcccbdcc42fbbd8b3b9b92e01868"
     },
     {
       "path": "AI_Auditor_Report_Time_Comparison_1page.pdf",
-      "bytes": 56483,
-      "sha256": "33ae83f84d08ced5c3d7be7e56b8e1b203c0b584df10f32c69c9a10cf8f7caa8"
+      "bytes": 54098,
+      "sha256": "650e7952deff004b0c21d68a165afd93d6bec972c21fe95ef9b6ad08644207ef"
     },
     {
       "path": "AI_Auditor_Report_Time_Data.xlsx",
@@ -72,8 +72,8 @@
     },
     {
       "path": "AI_Auditor_Source_Submission.zip",
-      "bytes": 1091856,
-      "sha256": "7dd5e7feb32879bf2f885cc07440cc3b5f09ece76c29f7213efe9cae571542dd"
+      "bytes": 1089807,
+      "sha256": "eeb0ff74b7cb79fcdecb791193958273b226b9718a5157736351175228fb1bd5"
     },
     {
       "path": "EFFECT_ESTIMATE_METHOD.md",
@@ -97,8 +97,8 @@
     },
     {
       "path": "SUBMISSION_GUIDE.md",
-      "bytes": 2120,
-      "sha256": "3e354c559910e6d01decf300671395176be0655888bc94c026b35908f22d779e"
+      "bytes": 2310,
+      "sha256": "056f9d17d27a1842c87489658510ac4d612d896f216fa9b46af204012bdfbac1"
     },
     {
       "path": "estimate_assumptions.json",
@@ -248,5 +248,7 @@
   ],
   "primary_display": "reported_approximate_task_times_and_absolute_difference",
   "percentage_is_reference_calculation": true,
-  "reported_time_values_unchanged": true
+  "reported_time_values_unchanged": true,
+  "primary_document_audience": "submission_reviewers",
+  "editorial_revision": "reviewer_facing_summary_without_conversation_history"
 }
